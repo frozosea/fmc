@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16.13.2]
     defaults:
       run:
         working-directory: ./container-tracking
