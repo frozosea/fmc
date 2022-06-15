@@ -1,0 +1,9 @@
+# Project exclude paths
+/container-tracking/node_modules/
+/container-tracking/src/db/entity/containerScac.js
+/container-tracking/src/db/entity/Unlocode.js
+/container-tracking/src/db/data-source.js
+/container-tracking/tests/cosu/cosuTest.js
+/container-tracking/tests/cosu/cosuTest.js.map
+/container-tracking/tests/feso/fesoTrackingByContainerNumberTest.js
+/container-tracking/tests/feso/fesoTrackingByContainerNumberTest.js.map

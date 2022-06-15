@@ -1,0 +1,35 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+package freight;
+
+service FreightParser{
+  rpc get_best_freight(freight_request) returns (freight_response);
+  rpc get_all_freights_by_cities(freight_request) returns (freight_response);
+  rpc get_all_freights(google.protobuf.Empty) returns (freight_response_list);
+}
+
+enum City{
+  SHANGHAI = 0;
+}
+enum containerSize{
+  TWENTY = 0;
+}
+enum ShippingLine{
+  SKLU = 0;
+}
+message freight_request{
+  City from_city = 1;
+  City to_city = 2;
+  containerSize container_size = 3;
+}
+message freight_response{
+  City from_city = 1;
+  City to_city = 2;
+  containerSize container_size = 3;
+  int64 usd_price = 4;
+  int64 rub_price = 5;
+  ShippingLine line = 6;
+}
+message freight_response_list{
+  repeated freight_response;
+}

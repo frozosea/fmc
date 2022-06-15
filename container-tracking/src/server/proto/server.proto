@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package tracking;
+
+service TrackingByContainerNumber{
+  rpc Track(Request) returns (Response) {};
+}
+
+enum Scac{
+  FESO = 0;
+  SKLU = 1;
+  MAEU = 2;
+  COSU = 3;
+  KMTU = 4;
+  ONEY = 5;
+  SITC = 6;
+  MSCU = 7;
+  AUTO = 8;
+
+}
+enum Country{
+  RU = 0;
+  OTHER = 1;
+}
+message Request{
+  string container = 1;
+  Scac scac = 2;
+  Country country = 3;
+}
+message InfoAboutMoving{
+  int64 time = 1;
+  string operation_name = 2;
+  string location = 3;
+  string vessel = 4;
+}
+
+message Response{
+  string container = 1 ;
+  string container_size = 2;
+  Scac scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+}
