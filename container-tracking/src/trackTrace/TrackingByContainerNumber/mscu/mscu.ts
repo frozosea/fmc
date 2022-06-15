@@ -1,5 +1,10 @@
-import {OneTrackingEvent, BaseContainerConstructor, BaseTrackerByContainerNumber} from "../../base";
-import {ITrackingArgs, TrackingContainerResponse} from "../../base";
+import {
+    BaseContainerConstructor,
+    BaseTrackerByContainerNumber,
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
+} from "../../base";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {MscuApiResponseSchema} from "./mscuApiResponseSchema";
 import {GetEtaException, NotThisShippingLineException} from "../../../exceptions";
@@ -60,8 +65,8 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
             let event: OneTrackingEvent = {
                 time: this.datetime.strptime(item.Date, "DD/MM/YYYY").getTime(),
                 operationName: item.Description,
-                vessel: "",
-                location: item.Location
+                location: item.Location,
+                vessel: ""
             }
             infoAboutMovingArray.push(event)
         }

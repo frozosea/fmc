@@ -7,13 +7,23 @@ import {
 import {expectedMaeuReadyObject, maeuExamleApiResponse, MaeuinfoAboutMoving} from "./maeuExamleApiResponse";
 import {OneTrackingEvent} from "../../src/types";
 import {config} from "../classesConfigurator";
+import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert")
+
+const requestMoch: IRequest<fetchArgs> = {
+    async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
+        return maeuExamleApiResponse
+    },
+    async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {
+        return ""
+    }
+}
+
 
 describe("MAEU Tracking by container number test", () => {
     it("MAEU pod test", () => {
         let maeuPodParser = new MaeuPortOfDischargingParser()
-        // const expectedPod = "40DRY"
         let actualPod = maeuPodParser.getPortOfDischarging(maeuExamleApiResponse)
         assert.strictEqual(actualPod, maeuExamleApiResponse.destination.city)
     })
@@ -33,20 +43,15 @@ describe("MAEU Tracking by container number test", () => {
         let actualInfoAboutMoving = infoAboutMovingParser.parseInfoAboutMoving(maeuExamleApiResponse)
         assert.deepEqual(actualInfoAboutMoving, MaeuinfoAboutMoving)
     })
-    it("MAEU integration test", () => {
+    it("MAEU main class with moch test", () => {
         let maeu = new MaeuContainer({
             datetime: config.DATETIME,
-            requestSender: config.REQUEST_SENDER,
+            requestSender: requestMoch,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         });
         return (async () => {
             let actualResponse = await maeu.trackContainer({container: "MSKU6874333"})
-            // assert.strictEqual(actualResponse.infoAboutMoving.length,expectedMaeuReadyObject.infoAboutMoving.length)
-            try{
-                assert.deepEqual(actualResponse,expectedMaeuReadyObject)
-            }catch (e) {
-
-            }
+            assert.deepEqual(actualResponse, expectedMaeuReadyObject)
         })()
     })
 })

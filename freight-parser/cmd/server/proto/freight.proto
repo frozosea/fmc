@@ -12,7 +12,12 @@ enum City{
   SHANGHAI = 0;
 }
 enum containerSize{
-  TWENTY = 0;
+  TWENTY_STANDARD = 0;
+  FORTY_STANDARD = 1;
+  FORTY_HIGH_CUBE = 2;
+  TWENTY_REF = 3;
+  FORTY_REF = 4;
+  FORTY_FIVE_HIGH_CUBE = 5;
 }
 enum ShippingLine{
   SKLU = 0;
@@ -30,6 +35,7 @@ message freight_response{
   int64 rub_price = 5;
   ShippingLine line = 6;
 }
+
 message freight_response_list{
-  repeated freight_response;
+  repeated freight_response multi_response = 1;
 }

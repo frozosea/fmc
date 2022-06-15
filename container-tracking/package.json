@@ -65,7 +65,8 @@
     "migration:generate": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:generate src/db/migration/ -d src/db/data-source.ts",
     "migration:up": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/db/data-source.ts",
     "migration:down": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:revert -d src/db/data-source.ts",
-    "test": "mocha --timeout 100000 --parallel -r ts-node/register tests/**/*Test.ts --recursive",
+    "test:integration": "mocha --timeout 100000 --parallel -r ts-node/register tests/**/integrate_*_Test.ts --recursive",
+    "test:unit": "mocha --timeout 100000 --parallel -r ts-node/register tests/**/unit_*_test.ts ",
     "build:Proto": "cd src/server/proto && sh build.sh"
   }
 }
