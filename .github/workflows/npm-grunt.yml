@@ -13,7 +13,10 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
-    
+    defaults:
+      run:
+        working-directory: ./container-tracking
+      
     steps:
     - uses: actions/checkout@v3
 
