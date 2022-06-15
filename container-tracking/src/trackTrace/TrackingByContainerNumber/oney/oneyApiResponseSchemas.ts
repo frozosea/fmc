@@ -38,7 +38,7 @@ interface _BaseInfoAboutMovingUnitStruct {
     nodCd: string,
     vvd: string,
     lloydNo: string,
-    hashColumns: any[]
+    hashColumns: any
     hashFields: any[]
 }
 
@@ -69,8 +69,8 @@ interface _ContainerSizeUnitSchema {
     dspbkgNo: string
     socFlg: string
     mvmtStsCd: string
-    hashFiels: any[]
-    hashFields: object
+    hashFields:  any
+    hashColumns?
 }
 
 export interface OneyGetContainerSizeSchema extends _BaseResp {
