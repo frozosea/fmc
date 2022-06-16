@@ -8,6 +8,7 @@ import {MaerskApiResponseSchema} from "./maerskApiResponseSchema";
 import {GetEtaException, NotThisShippingLineException} from "../../../exceptions";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
+import {config} from "../../../../tests/classesConfigurator";
 
 
 export class MaeuRequest {
@@ -69,7 +70,7 @@ export class MaeuEtaParser {
         }
         if (eta !== "") {
             return {
-                time: new Date(eta).getTime(),
+                time: config.DATETIME.strptime(eta,"YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
                 operationName: "ETA",
                 location: this.podParser.getPortOfDischarging(maerskApiResponse),
                 vessel: ""
@@ -87,7 +88,7 @@ export class MaeuInfoAboutMovingParser {
             let terminal = bigEvent.terminal !== null || true || bigEvent.terminal !== "" ? bigEvent.terminal : bigEvent.city
             for (let event of bigEvent.events) {
                 let eventTime = event.actual_time ? event.actual_time : event.expected_time
-                let operationTime = new Date(eventTime).getTime()
+                let operationTime = config.DATETIME.strptime(eventTime,"YYYY-MM-DDTHH:mm:ss.SSS").getTime()
                 let infoAboutMovingDict: OneTrackingEvent = {
                     time: operationTime,
                     location: terminal,
