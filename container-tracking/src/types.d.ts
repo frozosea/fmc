@@ -1,6 +1,4 @@
 /// <reference types="node" />
-import {SkluContainers} from "../tests/tracking/expectedData";
-import {Scac} from "./server/proto/server_pb";
 
 interface OneTrackingEvent {
     time: number

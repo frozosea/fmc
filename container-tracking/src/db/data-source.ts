@@ -1,16 +1,15 @@
 import "reflect-metadata"
 import {DataSource} from "typeorm"
 import {Unlocode} from "./entity/Unlocode"
-import {POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DATABASE} from "../../config.json"
 import {ContainerScac} from "./entity/containerScac";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
-    host: POSTGRES_HOST,
-    port: POSTGRES_PORT,
-    username: POSTGRES_USER,
-    password: POSTGRES_PASSWORD,
-    database: POSTGRES_DATABASE,
+    host: process.env.POSTGRES_HOST,
+    port: Number(process.env.POSTGRES_PORT),
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DATABASE,
     synchronize: true,
     logging: false,
     migrationsTableName: 'migrations',
