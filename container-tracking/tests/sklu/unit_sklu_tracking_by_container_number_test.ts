@@ -10,11 +10,21 @@ import {
     skluApiResponseExample,
     UnlocodesRepoMoch
 } from "./skluApiResponseExample";
+import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path")
 
+
+const requestMoch: IRequest<fetchArgs> = {
+    async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
+        return skluApiResponseExample
+    },
+    async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
+        return fs.readFileSync(path.resolve(__dirname, './skluInfoAboutMovingExampleHtml.html')).toString("utf-8")
+    }
+}
 
 describe("SKLU container tracking test", () => {
     let skluParser = new SkluApiParser()
@@ -30,19 +40,19 @@ describe("SKLU container tracking test", () => {
     it("SKLU eta parser test", async () => {
         let etaParser = new SkluEtaParser(unlocodesRepoMoch);
         let etaObj = await etaParser.getEtaObject(skluParser.parseSinokorApiJson(skluApiResponseExample))
-        assert.strictEqual(etaObj.time, new Date(skluApiResponseExample[0].ETA).getTime())
+        assert.strictEqual(etaObj.time, new Date(new Date(skluApiResponseExample[0].ETA).toUTCString()).getTime())
         // assert.strictEqual(etaObj.location, await unlocodesRepoMoch.getUnlocode(""))
         assert.strictEqual(etaObj.operationName, "ETA")
     })
     it("SKLU api parser test", () => {
         let parsedApiResp = skluParser.parseSinokorApiJson(skluApiResponseExample)
-        assert.strictEqual(parsedApiResp.eta, new Date(skluApiResponseExample[0].ETA).getTime())
+        assert.strictEqual(parsedApiResp.eta, new Date(new Date(skluApiResponseExample[0].ETA).toUTCString()).getTime())
         assert.strictEqual(parsedApiResp.billNo, skluApiResponseExample[0].BKNO)
         assert.strictEqual(parsedApiResp.containerSize, skluApiResponseExample[0].CNTR)
     })
-    it("SKLU integration test", async () => {
+    it("SKLU main class with moch test", async () => {
         let sklu = new SkluContainer({
-            requestSender: config.REQUEST_SENDER,
+            requestSender: requestMoch,
             datetime: config.DATETIME,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         }, unlocodesRepoMoch)

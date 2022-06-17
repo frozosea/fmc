@@ -182,83 +182,56 @@ export const maeuExamleApiResponse: MaerskApiResponseSchema = {
         }
     ]
 }
-export const MaeuinfoAboutMoving = [{
-    'location': 'Win Win Container Depot',
-    'time': 1648536120000,
-    'operationName': 'GATE-OUT-EMPTY',
-    'vessel': 'MSC SVEVA'
-}, {
-    'time': 1648598520000,
-    'location': 'Laem Chabang Terminal PORT D1',
-    'operationName': 'GATE-IN',
-    'vessel': 'MSC SVEVA'
-}, {
-    'time': 1649859300000,
-    'location': 'Laem Chabang Terminal PORT D1',
-    'operationName': 'LOAD',
-    'vessel': 'MSC SVEVA'
-}, {
-    'time': 1650854940000,
-    'location': 'YANGSHAN SGH GUANDONG TERMINAL',
-    'operationName': 'DISCHARG',
-    'vessel': 'MSC SVEVA'
-}, {
-    'time': 1651417860000,
-    'location': 'YANGSHAN SGH GUANDONG TERMINAL',
-    'operationName': 'LOAD',
-    'vessel': 'ZIM WILMINGTON'
-}, {
-    'time': 1654919640000,
-    'location': 'Charleston Wando Welch terminal N59',
-    'operationName': 'DISCHARG',
-    'vessel': 'ZIM WILMINGTON'
-}, {
-    'time': 1655164800000,
-    'location': 'Charleston Wando Welch terminal N59',
-    'operationName': 'GATE-OUT',
-    'vessel': ''
-}]
+export const MaeuinfoAboutMoving = [
+    {
+        "location": "Win Win Container Depot",
+        "operationName": "GATE-OUT-EMPTY",
+        "time": 1648572120000,
+        "vessel": "MSC SVEVA"
+    },
+    {
+        "location": "Laem Chabang Terminal PORT D1",
+        "operationName": "GATE-IN",
+        "time": 1648634520000,
+        "vessel": "MSC SVEVA"
+    },
+    {
+        "location": "Laem Chabang Terminal PORT D1",
+        "operationName": "LOAD",
+        "time": 1649895300000,
+        "vessel": "MSC SVEVA"
+    },
+    {
+        "location": "YANGSHAN SGH GUANDONG TERMINAL",
+        "operationName": "DISCHARG",
+        "time": 1650890940000,
+        "vessel": "MSC SVEVA"
+    },
+    {
+        "location": "YANGSHAN SGH GUANDONG TERMINAL",
+        "operationName": "LOAD",
+        "time": 1651453860000,
+        "vessel": "ZIM WILMINGTON"
+    },
+    {
+        "location": "Charleston Wando Welch terminal N59",
+        "operationName": "DISCHARG",
+        "time": 1654955640000,
+        "vessel": "ZIM WILMINGTON"
+    },
+    {
+        "location": "Charleston Wando Welch terminal N59",
+        "operationName": "GATE-OUT",
+        "time": 1655200800000,
+        "vessel": ""
+    }
+]
 export const expectedMaeuReadyObject = {
     'container': 'MSKU6874333',
     'containerSize': '40DRY',
     'scac': 'MAEU',
-    'infoAboutMoving': [{
-        'location': 'Win Win Container Depot',
-        'time': 1648536120000,
-        'operationName': 'GATE-OUT-EMPTY',
-        'vessel': 'MSC SVEVA'
-    }, {
-        'time': 1648598520000,
-        'location': 'Laem Chabang Terminal PORT D1',
-        'operationName': 'GATE-IN',
-        'vessel': 'MSC SVEVA'
-    }, {
-        'time': 1649859300000,
-        'location': 'Laem Chabang Terminal PORT D1',
-        'operationName': 'LOAD',
-        'vessel': 'MSC SVEVA'
-    }, {
-        'time': 1650854940000,
-        'location': 'YANGSHAN SGH GUANDONG TERMINAL',
-        'operationName': 'DISCHARG',
-        'vessel': 'MSC SVEVA'
-    }, {
-        'time': 1651417860000,
-        'location': 'YANGSHAN SGH GUANDONG TERMINAL',
-        'operationName': 'LOAD',
-        'vessel': 'ZIM WILMINGTON'
-    }, {
-        'time': 1654919640000,
-        'location': 'Charleston Wando Welch terminal N59',
-        'operationName': 'DISCHARG',
-        'vessel': 'ZIM WILMINGTON'
-    }, {
-        'time': 1655164800000,
-        'location': 'Charleston Wando Welch terminal N59',
-        'operationName': 'GATE-OUT',
-        'vessel': ''
-    }, {
-        'time': 1654919640000,
+    'infoAboutMoving': [...MaeuinfoAboutMoving, {
+        'time': 1654955640000,
         'operationName': 'ETA',
         'location': 'Spartanburg',
         'vessel': ''

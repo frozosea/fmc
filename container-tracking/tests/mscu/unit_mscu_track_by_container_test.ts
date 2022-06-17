@@ -10,20 +10,19 @@ import {OneTrackingEvent} from "../../src/types";
 import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert")
-
 function testInfoAboutMoving(actualInfoAboutMoving: OneTrackingEvent[]): void {
     for (let event in actualInfoAboutMoving) {
-        assert.strictEqual(actualInfoAboutMoving[event].time, new Date(actualInfoAboutMoving[event].time).getTime())
+        assert.strictEqual(actualInfoAboutMoving[event].time, new Date(new Date(actualInfoAboutMoving[event].time).toUTCString()).getTime())
         assert.strictEqual(actualInfoAboutMoving[event].location, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Location)
         assert.strictEqual(actualInfoAboutMoving[event].operationName, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Description)
     }
 }
 
 const requestMoch: IRequest<fetchArgs> = {
-    async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
+    async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
         return mscuResponseExample
     },
-    async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {
+    async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return ""
     }
 }
@@ -44,8 +43,8 @@ describe("MSCU tracking by container number test", () => {
     })
     it("MSCU eta parser test", () => {
         let etaParser = new MscuEtaParser(config.DATETIME)
-        const eta = 1654956000000
-        assert.strictEqual(etaParser.getEta(mscuResponseExample).time, eta)
+        const eta = 1654992000000
+        assert.strictEqual(etaParser.getEta(mscuResponseExample).time, new Date(new Date(eta).toUTCString()).getTime())
     })
     it("MSCU container size parser test", () => {
         let mscuContainerSizeParser = new MscuContainerSizeParser()
