@@ -4,7 +4,6 @@ import {TrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking
 import {TrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/trackingForOtherCountries";
 import {IScacContainers} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
 import {IServiceLogger} from "./logging";
-import {CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS} from "../config.json"
 
 export class CacheHandler {
     protected cache: ICache;
@@ -42,13 +41,6 @@ export default class TrackingController {
     }
 
     protected async track(args: TrackingArgsWithScac, ttl?: number): Promise<TrackingContainerResponse> {
-        const track = async (tracking: TrackingForRussia | TrackingForOtherCountries): Promise<TrackingContainerResponse> =>{
-            let result = await tracking.trackContainer(args)
-            await this.cacheHandler.addTrackingResultToCache(args.container, result, ttl)
-            await this.scacContainersRepository.addContainer(result.container, result.scac)
-            this.logger.containerSuccessLog(result)
-            return result
-        }
         switch (args.country) {
             case "RU":
                 let result = await this.trackingForRussia.trackContainer(args)
@@ -78,25 +70,25 @@ export default class TrackingController {
                         container: args.container,
                         country: args.country,
                         scac: scacFromDb
-                    }, CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS)
+                    }, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
                 } catch (e) {
                     this.logger.containerNotFoundLog(args.container)
                     return await this.track({
                         container: args.container,
                         country: args.country,
                         scac: "AUTO"
-                    }, CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS)
+                    }, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
                 }
             } else {
                 try {
-                    return await this.track(args, CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS)
+                    return await this.track(args, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
                 } catch (e) {
                     this.logger.containerNotFoundLog(args.container)
                 }
             }
         } else {
             try {
-                return await this.track(args, CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS)
+                return await this.track(args, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
             } catch (e) {
                 this.logger.containerNotFoundLog(args.container)
             }
