@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	freightPackage "fmc-newest/pkg/freight"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -10,7 +11,7 @@ import (
 type repositoryMoch struct {
 }
 
-func (s repositoryMoch) GetFrieght(freight freightPackage.GetFreight) ([]freightPackage.BaseFreight, error) {
+func (s repositoryMoch) GetFrieght(_ context.Context, freight freightPackage.GetFreight) ([]freightPackage.BaseFreight, error) {
 	var array []freightPackage.BaseFreight
 	for i := 0; i < freight.Limit; i++ {
 		array = append(array, freightPackage.BaseFreight{FromCity: "fromCity", ToCity: "toCity", ContainerType: "40DC", UsdPrice: i * 1000, Line: "FESO", LineImage: "lineImage", Contacts: freightPackage.Contact{Url: "http://localhost", AgentName: "his name", PhoneNumber: "1654783200000"}})
@@ -37,12 +38,13 @@ func (s loggerMoch) FatalLog(logString string) {
 
 }
 
-var service = freightPackage.NewService(repositoryMoch{}, loggerMoch{})
+var service = freightPackage.NewService(&repositoryMoch{}, loggerMoch{})
 
 func TestGetBestFreights(t *testing.T) {
+	ctx := context.Background()
 	const limit = 20
 	var getFreightRequestStruct = freightPackage.NewGetFreight("fromCity", "toCity", 2, limit)
-	result, err := service.GetBestFreights(getFreightRequestStruct)
+	result, err := service.GetBestFreights(ctx, getFreightRequestStruct)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -52,9 +54,10 @@ func TestGetBestFreights(t *testing.T) {
 	}
 }
 func TestGetAllFreights(t *testing.T) {
+	ctx := context.Background()
 	const limit = 20
 	var getFreightRequestStruct = freightPackage.NewGetFreight("fromCityGetAllFreights", "toCityGetAllFreights", 3, limit)
-	result, err := service.GetBestFreights(getFreightRequestStruct)
+	result, err := service.GetBestFreights(ctx, getFreightRequestStruct)
 	if err != nil {
 		fmt.Println(err)
 	}

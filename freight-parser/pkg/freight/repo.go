@@ -1,5 +1,10 @@
 package freight
 
+import (
+	"context"
+	"database/sql"
+)
+
 type containerType int
 
 const (
@@ -29,6 +34,7 @@ type Contact struct {
 	Url         string
 	PhoneNumber string
 	AgentName   string
+	email       string
 }
 
 type BaseFreight struct {
@@ -53,5 +59,16 @@ func NewGetFreight(fromCity string, toCity string, containerType containerType, 
 }
 
 type IRepository interface {
-	GetFrieght(freight GetFreight) ([]BaseFreight, error)
+	GetFrieght(ctx context.Context, freight GetFreight) ([]BaseFreight, error)
+}
+
+type Repository struct {
+	db *sql.DB
+}
+
+func (repo Repository) GetFrieght(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
+	var freightSlice []BaseFreight
+	freightSlice = append(freightSlice, BaseFreight{"", "", "", 1, "", "", Contact{Url: ""}})
+	return freightSlice, nil
+
 }

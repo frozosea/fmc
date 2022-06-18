@@ -1,9 +1,10 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
+
 package freight;
+option go_package = "../../";
 
 service FreightParser{
-  rpc get_best_freight(freight_request) returns (freight_response_list);
+  rpc get_freight(freight_request) returns (freight_response_list);
 }
 
 enum City{
@@ -28,6 +29,7 @@ message Contact{
   string url = 1;
   string phone_number = 2;
   string agent_name = 3;
+  string email = 4;
 }
 message freight_response{
   City from_city = 1;
@@ -35,7 +37,7 @@ message freight_response{
   containerSize container_size = 3;
   int64 usd_price = 4;
   ShippingLine line = 6;
-  Contact contacts = 7;
+  Contact contact = 7;
 }
 
 message freight_response_list{
