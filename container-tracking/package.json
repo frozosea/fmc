@@ -62,7 +62,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node ./index.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:generate src/db/migration/ -d src/db/data-source.ts",
     "migration:up": "./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/db/data-source.ts",

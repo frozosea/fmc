@@ -1,4 +1,4 @@
-package freight
+package logging
 
 type ILogger interface {
 	InfoLog(logString string)
