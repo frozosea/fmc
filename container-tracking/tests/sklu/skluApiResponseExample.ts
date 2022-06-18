@@ -38,38 +38,45 @@ export const skluApiResponseExample = [
         "ETA": "2022-04-07"
     }
 ]
-export const expectedInfoAboutMoving = [{
-    'time': 1653870120000,
-    'operationName': 'Pickup (1/1)',
-    'location': 'SINOKOR TAM CANG CAT LAI Depot',
-    'vessel': ''
-}, {
-    'time': 1653925680000,
-    'operationName': 'Return (1/1)',
-    'location': 'CAT LAI',
-    'vessel': ''
-},
+export const expectedInfoAboutMoving = [
     {
-        'time': 1654531200000,
-        'operationName': 'Departure',
-        'location': 'CAT LAI',
-        'vessel': 'HEUNG-A HOCHIMINH / 2205N'
-    }, {
-        'time': 1655049600000,
-        'operationName': 'Arrival(T/S) (Scheduled)',
-        'location': 'BPTS',
-        'vessel': 'HEUNG-A HOCHIMINH / 2205N'
-    }, {
-        'time': 1655247600000,
-        'operationName': 'Departure(T/S) (Scheduled)',
-        'location': 'BPTS',
-        'vessel': 'HEUNG-A ULSAN / 2256E'
-    }, {
-        'time': 1655416800000,
-        'operationName': 'Arrival (Scheduled)',
-        'location': 'HOSOSHIMA TERMINAL(SHIRAHMA #14)',
-        'vessel': 'HEUNG-A ULSAN / 2256E'
-    }]
+        "location": "SINOKOR TAM CANG CAT LAI Depot",
+        "operationName": "Pickup (1/1)",
+        "time": 1653906120000,
+        "vessel": ""
+    },
+    {
+        "location": "CAT LAI",
+        "operationName": "Return (1/1)",
+        "time": 1653961680000,
+        "vessel": ""
+    },
+    {
+        "location": "CAT LAI",
+        "operationName": "Departure",
+        "time": 1654567200000,
+        "vessel": "HEUNG-A HOCHIMINH / 2205N"
+    },
+    {
+        "location": "BPTS",
+        "operationName": "Arrival(T/S) (Scheduled)",
+        "time": 1655085600000,
+        "vessel": "HEUNG-A HOCHIMINH / 2205N"
+    },
+    {
+        "location": "BPTS",
+        "operationName": "Departure(T/S) (Scheduled)",
+        "time": 1655283600000,
+        "vessel": "HEUNG-A ULSAN / 2256E"
+    },
+    {
+        "location": "HOSOSHIMA TERMINAL(SHIRAHMA #14)",
+        "operationName": "Arrival (Scheduled)",
+        "time": 1655452800000,
+        "vessel": "HEUNG-A ULSAN / 2256E"
+    }
+]
+
 export const expectedResult = {
     'container': 'TEMU2094051',
     'containerSize': "20'x15",

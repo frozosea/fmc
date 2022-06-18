@@ -10,7 +10,6 @@ import {SinokorApiResponseSchema} from "./sinokorApiResponseSchema";
 import {NotThisShippingLineException} from "../../../exceptions";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
 import {IDatetime} from "../../helpers/datetime";
-import {config} from "../../../../tests/classesConfigurator";
 import {SliceArray} from "slice";
 
 const jsdom = require("jsdom");
@@ -90,7 +89,7 @@ export class SkluRequestSender {
 export class SkluApiParser {
     public parseSinokorApiJson(sinokorApiJson: SinokorApiResponseSchema[]): _NextRequestDataResp {
         let lastBillNumber: string = sinokorApiJson[0].BKNO
-        let eta: number = new Date(sinokorApiJson[0].ETA).getTime()
+        let eta: number = new Date(new Date(sinokorApiJson[0].ETA).toUTCString()).getTime()
         let containerSize: string = sinokorApiJson[0].CNTR
         return {billNo: lastBillNumber, eta: eta, containerSize: containerSize, unlocode: sinokorApiJson[0].POD}
     }
@@ -109,7 +108,7 @@ export class SkluInfoAboutMovingParser {
         return this.datetime.strptime(`${splitTime[0]} ${dayOfWeek} ${splitTime[2]}`, "YYYY-MM-DD ddd HH:mm").getTime()
     }
 
-    protected* zip(...iterables) {
+    protected * zip(...iterables) {
         let iterators = iterables.map(i => i[Symbol.iterator]())
         while (true) {
             let results = iterators.map(iter => iter.next())

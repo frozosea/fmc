@@ -12,10 +12,10 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 const assert = require("assert")
 
 const requestMoch: IRequest<fetchArgs> = {
-    async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
+    async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
         return maeuExamleApiResponse
     },
-    async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {
+    async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return ""
     }
 }
@@ -30,7 +30,7 @@ describe("MAEU Tracking by container number test", () => {
     it("MAEU get eta test", () => {
         let maeuEtaParser = new MaeuEtaParser()
         const expectedEtaObject: OneTrackingEvent = {
-            time: new Date("2022-06-11T13:54:00.000").getTime(),
+            time: config.DATETIME.strptime("2022-06-11T13:54:00.000","YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
             operationName: "ETA",
             location: "Spartanburg",
             vessel: ""

@@ -1,12 +1,8 @@
-
-
-
 import {
     CosuContainerSizeParser,
     CosuEtaParser,
     CosuInfoAboutMovingParser,
-    CosuPodParser,
-    CosuRequest
+    CosuPodParser
 } from "../../src/trackTrace/TrackingByContainerNumber/cosu/cosu";
 import {
     CosuApiResponseSchema,
@@ -22,6 +18,8 @@ const assert = require('assert');
 
 let etaApiResp = {"code": "200", "message": "", "data": {"content": "2022-05-22 23:00"}}
 
+
+
 function containerSizeParserTest(containerSizeParser: CosuContainerSizeParser, rawInfoAboutMoving: CosuApiResponseSchema) {
     let actualContainerSize = containerSizeParser.getContainerSize(rawInfoAboutMoving)
     let expectedContainerSize = cosuResponse.data.content.containers[0].container.containerType
@@ -32,7 +30,7 @@ function etaParserTest(etaParser: CosuEtaParser, rawEtaResp: EtaResponseSchema, 
     let etaObj: OneTrackingEvent = etaParser.getEtaObject(rawEtaResp, pod)
     assert.strictEqual(etaObj.operationName, "ETA")
     assert.strictEqual(etaObj.location, pod)
-    let expectedEta = new Date(etaApiResp.data.content).getTime()
+    let expectedEta = config.DATETIME.strptime(etaApiResp.data.content,"YYYY-MM-DD HH:mm").getTime()
     assert.strictEqual(etaObj.time, expectedEta)
 }
 
@@ -50,11 +48,10 @@ function infoAboutMovingTest(infoAboutMovingParser: CosuInfoAboutMovingParser, r
         let actualEvent = infoAboutMoving[event]
         assert.strictEqual(actualEvent.location, containerExpectedHistory[event].location)
         assert.strictEqual(actualEvent.operationName, containerExpectedHistory[event].containerNumberStatus)
-        assert.strictEqual(actualEvent.time, new Date(containerExpectedHistory[event].timeOfIssue).getTime())
+        assert.strictEqual(actualEvent.time,config.DATETIME.strptime(containerExpectedHistory[event].timeOfIssue,"YYYY-MM-DD HH:mm").getTime())
         assert.strictEqual(actualEvent.vessel, containerExpectedHistory[event].transportation)
     }
 }
-
 
 
 describe('COSU container tracking test', function () {

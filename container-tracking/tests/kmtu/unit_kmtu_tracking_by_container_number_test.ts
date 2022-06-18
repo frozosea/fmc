@@ -19,19 +19,19 @@ describe("KMTU container tracking Test", () => {
         assert.strictEqual(actualInfoAboutMoving.length,3)
         const expectedInfoAboutMoving = [
             {
-                time: 1653400800000,
+                time: 1653436800000,
                 operationName: 'container was picked',
                 location: 'BUSAN,Hutchison Busan Container Terminal',
                 vessel: ''
             },
             {
-                time: 1653400800000,
+                time: 1653436800000,
                 operationName: 'container was arrived',
                 location: 'BUSAN,Busan Port Terminal',
                 vessel: ''
             },
             {
-                time: 1653400800000,
+                time: 1653436800000,
                 operationName: 'container is onboard and is scheduled to arrive at transshipment',
                 location: 'BUSAN,Busan Port Terminal',
                 vessel: ''
@@ -58,7 +58,7 @@ describe("KMTU container tracking Test", () => {
         let data = fs.readFileSync(path.resolve(__dirname, './kmtuEtaHtmlExample.html'))
         let eta = etaParser.parseEta(data.toString("utf-8"))
         assert.strictEqual(eta.operationName, "ETA")
-        assert.strictEqual(eta.time, 1655652600000)
+        assert.strictEqual(eta.time, 1655688600000)
         assert.strictEqual(eta.location, "HONG KONG")
         assert.strictEqual(eta.vessel, "KMTC SEOUL/2204N")
     })
