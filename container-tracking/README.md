@@ -13,5 +13,5 @@ Steps to run this project:
 - REDIS_URL
 - CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS
 - GRPC_PORT
-3. Setup database settings inside `data-source.ts` file
-4. Run `npm start` command
+2. Run `npm install`
+3. Run `npm run start` command
