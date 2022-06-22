@@ -11,13 +11,13 @@ type Contact struct {
 }
 
 type Container struct {
-	ContainerTypeId int
-	ContainerType   string
+	Id   int
+	Type string
 }
 type City struct {
-	CityId       int
-	CityName     string
-	CityUnlocode string
+	Id       int
+	Name     string
+	Unlocode string
 }
 type Line struct {
 	LineId    int

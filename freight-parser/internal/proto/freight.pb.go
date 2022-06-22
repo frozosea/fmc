@@ -206,9 +206,9 @@ type City struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	CityId       int64    `protobuf:"varint,1,opt,name=CityId,proto3" json:"CityId,omitempty"`
-	CityName     CityEnum `protobuf:"varint,2,opt,name=CityName,proto3,enum=proto_freight.CityEnum" json:"CityName,omitempty"`
-	CityUnlocode Unlocode `protobuf:"varint,3,opt,name=CityUnlocode,proto3,enum=proto_freight.Unlocode" json:"CityUnlocode,omitempty"`
+	CityId       int64    `protobuf:"varint,1,opt,name=Id,proto3" json:"Id,omitempty"`
+	CityName     CityEnum `protobuf:"varint,2,opt,name=Name,proto3,enum=proto_freight.CityEnum" json:"Name,omitempty"`
+	CityUnlocode Unlocode `protobuf:"varint,3,opt,name=Unlocode,proto3,enum=proto_freight.Unlocode" json:"Unlocode,omitempty"`
 }
 
 func (x *City) Reset() {
@@ -269,7 +269,7 @@ type Container struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ContainerType   ContainerType `protobuf:"varint,1,opt,name=container_type,json=containerType,proto3,enum=proto_freight.ContainerType" json:"container_type,omitempty"`
+	ContainerType   ContainerType `protobuf:"varint,1,opt,name=container_type,json=containerType,proto3,enum=proto_freight.Type" json:"container_type,omitempty"`
 	ContainerTypeId int64         `protobuf:"varint,2,opt,name=containerTypeId,proto3" json:"containerTypeId,omitempty"`
 }
 
@@ -849,8 +849,8 @@ var file_freight_proto_goTypes = []interface{}{
 	(*FreightResponseList)(nil), // 10: proto_freight.freight_response_list
 }
 var file_freight_proto_depIdxs = []int32{
-	0,  // 0: proto_freight.City.CityName:type_name -> proto_freight.CityEnum
-	1,  // 1: proto_freight.City.CityUnlocode:type_name -> proto_freight.Unlocode
+	0,  // 0: proto_freight.City.Name:type_name -> proto_freight.CityEnum
+	1,  // 1: proto_freight.City.Unlocode:type_name -> proto_freight.Unlocode
 	2,  // 2: proto_freight.Container.container_type:type_name -> proto_freight.containerType
 	3,  // 3: proto_freight.LineName.scac:type_name -> proto_freight.ShippingLine
 	4,  // 4: proto_freight.freight_request.from_city:type_name -> proto_freight.City

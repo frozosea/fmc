@@ -22,7 +22,7 @@ type Controller struct {
 }
 
 func (s *Controller) getFreightsFromRepo(ctx context.Context, freight domain.GetFreight) ([]domain.BaseFreight, error) {
-	result, err := s.freightRepository.GetFreight(ctx, freight)
+	result, err := s.freightRepository.Get(ctx, freight)
 	if err != nil {
 		fmt.Println(err.Error())
 		s.logger.FatalLog(fmt.Sprintf(`get information from database error: %s`, err.Error()))

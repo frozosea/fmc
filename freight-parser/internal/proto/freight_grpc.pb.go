@@ -55,7 +55,7 @@ type UnimplementedFreightParserServer struct {
 }
 
 func (UnimplementedFreightParserServer) GetFreight(context.Context, *FreightRequest) (*FreightResponseList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFreight not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedFreightParserServer) mustEmbedUnimplementedFreightParserServer() {}
 

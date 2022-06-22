@@ -23,18 +23,18 @@ func (c *converter) convertResponseToGrpcResponse(freights []domain.BaseFreight)
 	for _, value := range freights {
 		oneGrpcResponse := pb.FreightResponse{
 			FromCity: &pb.City{
-				CityId:       int64(value.FromCity.CityId),
-				CityName:     pb.CityEnum(pb.CityEnum_value[value.FromCity.CityName]),
-				CityUnlocode: pb.Unlocode(pb.Unlocode_value[value.FromCity.CityUnlocode]),
+				CityId:       int64(value.FromCity.Id),
+				CityName:     pb.CityEnum(pb.CityEnum_value[value.FromCity.Name]),
+				CityUnlocode: pb.Unlocode(pb.Unlocode_value[value.FromCity.Unlocode]),
 			},
 			ToCity: &pb.City{
-				CityId:       int64(value.ToCity.CityId),
-				CityName:     pb.CityEnum(pb.CityEnum_value[value.ToCity.CityName]),
-				CityUnlocode: pb.Unlocode(pb.Unlocode_value[value.ToCity.CityUnlocode]),
+				CityId:       int64(value.ToCity.Id),
+				CityName:     pb.CityEnum(pb.CityEnum_value[value.ToCity.Name]),
+				CityUnlocode: pb.Unlocode(pb.Unlocode_value[value.ToCity.Unlocode]),
 			},
 			ContainerType: &pb.Container{
-				ContainerType:   pb.ContainerType(pb.ContainerType_value[value.ContainerType]),
-				ContainerTypeId: int64(value.ContainerTypeId),
+				ContainerType:   pb.ContainerType(pb.ContainerType_value[value.Type]),
+				ContainerTypeId: int64(value.Id),
 			},
 			UsdPrice: int64(value.UsdPrice),
 			Line: &pb.Line{
