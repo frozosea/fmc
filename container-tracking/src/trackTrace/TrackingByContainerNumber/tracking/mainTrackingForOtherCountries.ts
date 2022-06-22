@@ -1,5 +1,5 @@
 import {BaseTrackerByContainerNumber} from "../../base";
-import {ContainersInTrackingForRussia, ScacStructForRussia, TrackingForRussia} from "./trackingForRussia";
+import {ContainersInTrackingForRussia, ScacStructForRussia, MainTrackingForRussia} from "./mainTrackingForRussia";
 import {fetchArgs} from "../../helpers/requestSender";
 
 export interface ContainersInTracking extends ContainersInTrackingForRussia {
@@ -18,7 +18,7 @@ interface ScacStruct extends ScacStructForRussia {
     KMTU: BaseTrackerByContainerNumber<fetchArgs>;
 }
 
-export class TrackingForOtherCountries extends TrackingForRussia {
+export class MainTrackingForOtherCountries extends MainTrackingForRussia {
     public readonly cosuContainer: BaseTrackerByContainerNumber<fetchArgs>;
     public readonly maeuContainer: BaseTrackerByContainerNumber<fetchArgs>;
     public readonly oneyContainer: BaseTrackerByContainerNumber<fetchArgs>;

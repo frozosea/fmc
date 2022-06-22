@@ -29,7 +29,7 @@ export class TimeInspector {
     }
 }
 
-export class TrackingForRussia {
+export class MainTrackingForRussia {
     public readonly fescoContainer: BaseTrackerByContainerNumber<fetchArgs>;
     public readonly sitcContainer: BaseTrackerByContainerNumber<fetchArgs>;
     public readonly skluContainer: BaseTrackerByContainerNumber<fetchArgs>;

@@ -4,8 +4,8 @@ import {ITrackingArgs, TrackingContainerResponse} from "../../src/types";
 import {NotThisShippingLineException} from "../../src/exceptions";
 import {FesoContainers, SkluContainers} from "./expectedData";
 import {
-    TrackingForOtherCountries
-} from "../../src/trackTrace/TrackingByContainerNumber/tracking/trackingForOtherCountries";
+    MainTrackingForOtherCountries
+} from "../../src/trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 
 
 export class OneyMoch extends FesoMoch {
@@ -281,7 +281,7 @@ export class KmtuMoch extends CosuMoch {
     }
 }
 
-export const trackingForOtherWorldForSklu = new TrackingForOtherCountries({
+export const trackingForOtherWorldForSklu = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, false),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -292,7 +292,7 @@ export const trackingForOtherWorldForSklu = new TrackingForOtherCountries({
     cosuContainer: new CosuMoch(baseArgs, true)
 })
 
-export const trackingForOtherWorldForFeso = new TrackingForOtherCountries({
+export const trackingForOtherWorldForFeso = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, false),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -302,7 +302,7 @@ export const trackingForOtherWorldForFeso = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, true),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForSitc = new TrackingForOtherCountries({
+export const trackingForOtherWorldForSitc = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, false),
@@ -312,7 +312,7 @@ export const trackingForOtherWorldForSitc = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, true),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForMscu = new TrackingForOtherCountries({
+export const trackingForOtherWorldForMscu = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -322,7 +322,7 @@ export const trackingForOtherWorldForMscu = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, true),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForMaeu = new TrackingForOtherCountries({
+export const trackingForOtherWorldForMaeu = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -332,7 +332,7 @@ export const trackingForOtherWorldForMaeu = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, true),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForKmtu = new TrackingForOtherCountries({
+export const trackingForOtherWorldForKmtu = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -342,7 +342,7 @@ export const trackingForOtherWorldForKmtu = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, true),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForOney = new TrackingForOtherCountries({
+export const trackingForOtherWorldForOney = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),
@@ -352,7 +352,7 @@ export const trackingForOtherWorldForOney = new TrackingForOtherCountries({
     oneyContainer: new OneyMoch(baseArgs, false),
     cosuContainer: new CosuMoch(baseArgs, true)
 })
-export const trackingForOtherWorldForCosu = new TrackingForOtherCountries({
+export const trackingForOtherWorldForCosu = new MainTrackingForOtherCountries({
     fescoContainer: new FesoMoch(baseArgs, true),
     skluContainer: new SkluMoch(baseArgs, true),
     sitcContainer: new SitcMoch(baseArgs, true),

@@ -1,5 +1,5 @@
 import {TrackingContainerResponse} from "../../src/types";
-import {TimeInspector} from "../../src/trackTrace/TrackingByContainerNumber/tracking/trackingForRussia";
+import {TimeInspector} from "../../src/trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
 
 const assert = require("assert");
 

@@ -1,7 +1,7 @@
 import {ICache} from "./cache";
 import {TrackingArgsWithScac, TrackingContainerResponse} from "./types";
-import {TrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/trackingForRussia";
-import {TrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/trackingForOtherCountries";
+import {MainTrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
+import {MainTrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 import {IScacContainers} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
 import {IServiceLogger} from "./logging";
 
@@ -23,14 +23,14 @@ export class CacheHandler {
 }
 
 export default class TrackingController {
-    protected trackingForRussia: TrackingForRussia;
-    protected trackingForOtherCountries: TrackingForOtherCountries;
+    protected trackingForRussia: MainTrackingForRussia;
+    protected trackingForOtherCountries: MainTrackingForOtherCountries;
     protected scacContainersRepository: IScacContainers;
     protected cacheHandler: CacheHandler;
     protected logger: IServiceLogger;
 
-    public constructor(trackingForRussia: TrackingForRussia,
-                       trackingForOtherCountries: TrackingForOtherCountries,
+    public constructor(trackingForRussia: MainTrackingForRussia,
+                       trackingForOtherCountries: MainTrackingForOtherCountries,
                        scacContainersRepository: IScacContainers,
                        cache: ICache, logger: IServiceLogger) {
         this.trackingForRussia = trackingForRussia;

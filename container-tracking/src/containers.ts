@@ -6,8 +6,8 @@ import {MaeuContainer} from "./trackTrace/TrackingByContainerNumber/maeu/maeu";
 import {MscuContainer} from "./trackTrace/TrackingByContainerNumber/mscu/mscu";
 import {CosuContainer} from "./trackTrace/TrackingByContainerNumber/cosu/cosu";
 import {KmtuContainer} from "./trackTrace/TrackingByContainerNumber/kmtu/kmtu";
-import {TrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/trackingForRussia";
-import {TrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/trackingForOtherCountries";
+import {MainTrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
+import {MainTrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 import {UnlocodesRepo} from "./trackTrace/TrackingByContainerNumber/sklu/unlocodesRepo";
 import TrackingController from "./trackingController";
 import {ScacRepository} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
@@ -34,12 +34,12 @@ const mscu = new MscuContainer(baseArgs)
 const cosu = new CosuContainer(baseArgs)
 const kmtu = new KmtuContainer(baseArgs)
 
-export const trackingForRussia = new TrackingForRussia({
+export const trackingForRussia = new MainTrackingForRussia({
     fescoContainer: feso,
     sitcContainer: sitc,
     skluContainer: sklu
 })
-export const trackingForOtherWorld = new TrackingForOtherCountries({
+export const trackingForOtherWorld = new MainTrackingForOtherCountries({
     fescoContainer: feso,
     sitcContainer: sitc,
     skluContainer: sklu,

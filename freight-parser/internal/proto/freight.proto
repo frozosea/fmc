@@ -1,43 +1,72 @@
 syntax = "proto3";
 
-package freight;
+package proto_freight;
+
 option go_package = "../../";
 
 service FreightParser{
   rpc get_freight(freight_request) returns (freight_response_list);
 }
 
-enum City{
+enum CityEnum{
   SHANGHAI = 0;
 }
-enum containerSize{
+enum Unlocode{
+  RUVVO = 0;
+}
+message City{
+  int64 CityId = 1;
+  CityEnum CityName = 2;
+  Unlocode CityUnlocode = 3;
+}
+enum containerType{
   TWENTY_STANDARD = 0;
   FORTY_STANDARD = 1;
   FORTY_HIGH_CUBE = 2;
   FORTY_FIVE_HIGH_CUBE = 3;
 
 }
+message Container {
+  containerType container_type = 1;
+  int64 containerTypeId = 2;
+}
+
 enum ShippingLine{
   SKLU = 0;
 }
+
+message Line{
+  int64 line_id = 1;
+  ShippingLine scac = 2;
+  string line_name = 3;
+  string line_image = 4;
+}
 message freight_request{
   City from_city = 1;
-  City to_city = 2;
-  containerSize container_size = 3;
+  Unlocode from_city_unlocode = 2;
+  City to_city = 3;
+  Unlocode to_city_unlocode = 4;
+  Container container_size = 5;
+  int64 limit = 6;
 }
+
 message Contact{
-  string url = 1;
-  string phone_number = 2;
-  string agent_name = 3;
-  string email = 4;
+  int64 id = 1;
+  string url = 2;
+  string phone_number = 3;
+  string agent_name = 4;
+  string email = 5;
 }
+
 message freight_response{
   City from_city = 1;
-  City to_city = 2;
-  containerSize container_size = 3;
-  int64 usd_price = 4;
-  ShippingLine line = 6;
-  Contact contact = 7;
+  Unlocode from_city_unlocode = 2;
+  City to_city = 3;
+  Unlocode to_city_unlocode = 4;
+  Container container_type = 5;
+  int64 usd_price = 6;
+  Line line = 7;
+  Contact contact = 8;
 }
 
 message freight_response_list{

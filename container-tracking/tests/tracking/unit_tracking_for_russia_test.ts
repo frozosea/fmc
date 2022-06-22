@@ -3,7 +3,7 @@ import {BaseContainerConstructor, BaseTrackerByContainerNumber} from "../../src/
 import {fetchArgs} from "../../src/trackTrace/helpers/requestSender";
 import {ITrackingArgs, TrackingContainerResponse} from "../../src/types";
 import {NotThisShippingLineException} from "../../src/exceptions";
-import {TrackingForRussia} from "../../src/trackTrace/TrackingByContainerNumber/tracking/trackingForRussia";
+import {MainTrackingForRussia} from "../../src/trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
 import {config} from "../classesConfigurator";
 import {FesoContainers, SkluContainers} from "./expectedData";
 
@@ -155,7 +155,7 @@ export const baseArgs = {
 }
 describe("tracking unit test with mochs", () => {
     it("FESO test", async () => {
-        const trackingForRussiaForFeso = new TrackingForRussia({
+        const trackingForRussiaForFeso = new MainTrackingForRussia({
             fescoContainer: new FesoMoch(baseArgs,false),
             skluContainer: new SkluMoch(baseArgs,true),
             sitcContainer: new SitcMoch(baseArgs,true)
@@ -163,7 +163,7 @@ describe("tracking unit test with mochs", () => {
         return await testInfoAboutMovingAndScac(trackingForRussiaForFeso, FesoContainers)
     }).timeout(10000)
     it("SKLU test", async () => {
-        const trackingForRussiaForSklu = new TrackingForRussia({
+        const trackingForRussiaForSklu = new MainTrackingForRussia({
             fescoContainer: new FesoMoch(baseArgs,true),
             skluContainer: new SkluMoch(baseArgs,false),
             sitcContainer: new SitcMoch(baseArgs,true)
@@ -171,7 +171,7 @@ describe("tracking unit test with mochs", () => {
         return await testInfoAboutMovingAndScac(trackingForRussiaForSklu, SkluContainers)
     }).timeout(10000)
     it("SITC test", async () => {
-        const trackingForRussiaForSitc= new TrackingForRussia({
+        const trackingForRussiaForSitc= new MainTrackingForRussia({
             fescoContainer: new FesoMoch(baseArgs,true),
             skluContainer: new SkluMoch(baseArgs,true),
             sitcContainer: new SitcMoch(baseArgs,false)

@@ -17,7 +17,7 @@ const testTracking = (result: Response.AsObject, scac: SCAC_TYPE) => {
         throw new assert.AssertionError({message: "not info about moving len"})
     }
 }
-describe("grpc server test", () => {
+describe("grpc services test", () => {
     try {
         startServer()
     } catch (e) {
