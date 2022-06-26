@@ -3,38 +3,20 @@ package freight
 import (
 	"context"
 	"database/sql"
-	"fmc-newest/pkg/domain"
 )
 
-func NewGetFreight(fromCity string, toCity string, containerType string, limit int64) domain.GetFreight {
-	return domain.GetFreight{FromCity: fromCity, ToCity: toCity, ContainerType: containerType, Limit: limit}
+type IRepository interface {
+	Get(ctx context.Context, freight GetFreight) ([]BaseFreight, error)
+	Add(ctx context.Context, freight AddFreight) error
 }
 
-type IFreightRepository interface {
-	Get(ctx context.Context, freight domain.GetFreight) ([]domain.BaseFreight, error)
-	Add(ctx context.Context, freight domain.AddFreight) error
-}
-
-type ICityRepository interface {
-	Add(ctx context.Context, city domain.AddCity) error
-	GetAll(ctx context.Context) ([]*domain.City, error)
-}
-type IContactRepository interface {
-	Add(ctx context.Context, contact domain.Contact) error
-	GetAll(ctx context.Context) ([]*domain.Contact, error)
-}
-type IContainerRepository interface {
-	Add(ctx context.Context, containerType string) error
-	GetAll(ctx context.Context) ([]*domain.Container, error)
-}
-
-type FreightRepository struct {
+type repository struct {
 	db *sql.DB
 }
 
-func (repo *FreightRepository) Get(ctx context.Context, freight domain.GetFreight) ([]domain.BaseFreight, error) {
-	var freights []domain.BaseFreight
-	rows, err := repo.db.QueryContext(ctx, `select 
+func (repo *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
+	var freights []BaseFreight
+	rows, err := repo.db.QueryContext(ctx, `SELECT 
        freight.id as price_id,
        from_city.full_name as from_city_full_name,
        from_city.id as from_city_id,
@@ -55,23 +37,23 @@ func (repo *FreightRepository) Get(ctx context.Context, freight domain.GetFreigh
        contact.email,
        contact.agent_name,
        contact.phone_number
-	from "price" as freight join "lines" as lines on lines.id = freight.line_id 
-	    join "cities" as from_city on from_city.id = freight.from_city_id 
-	    join "cities" as to_city on to_city.id = freight.to_city_id  
-	    join "container" as container on container.id = freight.container_id 
-	    join "contact" as contact on contact.id = freight.contact_id
-		where from_city.full_name = $1 and to_city.full_name = $2 and freight.expires_date <= NOW()::date
-		and container.full_name = $3
-		order by freight.usd_price
-		limit $4
-`, freight.FromCity, freight.ToCity, freight.ContainerType, freight.Limit)
+	FROM "price" AS freight JOIN "lines" AS lines ON lines.id = freight.line_id 
+	    JOIN "cities" AS from_city ON from_city.id = freight.from_city_id 
+	    JOIN "cities" AS to_city ON to_city.id = freight.to_city_id  
+	    JOIN "container" AS container ON container.id = freight.container_id 
+	    JOIN "contact" AS contact ON contact.id = freight.contact_id
+		WHERE from_city.id = $1 AND to_city.id = $2 AND freight.expires_date <= NOW()::DATE
+		AND container.type = $3
+		ORDER BY freight.usd_price
+		LIMIT $4
+`, freight.FromCityId, freight.ToCityId, freight.ContainerType, freight.Limit)
 	defer rows.Close()
 	if err != nil {
 		return freights, err
 	}
 	for rows.Next() {
-		baseFreight := new(domain.BaseFreight)
-		if scanErr := rows.Scan(&baseFreight.Id, &baseFreight.FromCity.Name, &baseFreight.FromCity.Id, &baseFreight.FromCity.Unlocode, &baseFreight.ToCity.Name, &baseFreight.ToCity.Id, &baseFreight.ToCity.Unlocode, &baseFreight.Type, &baseFreight.Id, &baseFreight.UsdPrice, &baseFreight.Line, &baseFreight.LineId, &baseFreight.LineImage, &baseFreight.Scac, &baseFreight.FromDate, &baseFreight.ExpiresDate, &baseFreight.Contact.Url, &baseFreight.Contact.Email, &baseFreight.Contact.AgentName, &baseFreight.Contact.PhoneNumber); scanErr != nil {
+		baseFreight := new(BaseFreight)
+		if scanErr := rows.Scan(&baseFreight.Id, &baseFreight.FromCity.FullName, &baseFreight.FromCity.Id, &baseFreight.FromCity.Unlocode, &baseFreight.ToCity.FullName, &baseFreight.ToCity.Id, &baseFreight.ToCity.Unlocode, &baseFreight.Type, &baseFreight.Id, &baseFreight.UsdPrice, &baseFreight.Line, &baseFreight.Id, &baseFreight.ImageUrl, &baseFreight.Scac, &baseFreight.FromDate, &baseFreight.ExpiresDate, &baseFreight.Contact.Url, &baseFreight.Contact.Email, &baseFreight.Contact.AgentName, &baseFreight.Contact.PhoneNumber); scanErr != nil {
 			return freights, scanErr
 		}
 		freights = append(freights, *baseFreight)
@@ -80,14 +62,14 @@ func (repo *FreightRepository) Get(ctx context.Context, freight domain.GetFreigh
 
 }
 
-func (repo *FreightRepository) Add(ctx context.Context, freight domain.AddFreight) error {
+func (repo *repository) Add(ctx context.Context, freight AddFreight) error {
 	tx, getTxErr := repo.db.BeginTx(ctx, nil)
 	if getTxErr != nil {
 		return getTxErr
 	}
 	defer tx.Rollback()
 	_, execErr := tx.ExecContext(ctx, `
-		insert into "price" (
+		INSERT INTO "price" (
 			line_id,
 			from_city_id,
 			usd_price,
@@ -96,87 +78,13 @@ func (repo *FreightRepository) Add(ctx context.Context, freight domain.AddFreigh
 			to_city_id,
 			from_date,
 			expires_date)
-		values ($1,$2,$3,$4,$5,$6,$7,$8)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
 		`, freight.LineId, freight.FromCityId, freight.UsdPrice, freight.ContainerTypeId, freight.ContactId, freight.ToCityId, freight.FromDate, freight.ExpiresDate)
 	if execErr != nil {
 		return execErr
 	}
 	return tx.Commit()
 }
-
-type CityRepository struct {
-	db *sql.DB
-}
-
-func (repo *CityRepository) Add(ctx context.Context, city domain.AddCity) error {
-	_, err := repo.db.ExecContext(ctx, `insert into "cities" (unlocode, full_name) values ($1,$2)`, city.Unlocode, city.CityFullName)
-	return err
-}
-
-func (repo *CityRepository) GetAll(ctx context.Context) ([]*domain.City, error) {
-	var cities []*domain.City
-	rows, err := repo.db.QueryContext(ctx, `select * from "cities"`)
-	if err != nil {
-		return cities, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		oneCity := new(domain.City)
-		if scanErr := rows.Scan(&oneCity.Id, &oneCity.Name, &oneCity.Unlocode); scanErr != nil {
-			return cities, scanErr
-		}
-		cities = append(cities, oneCity)
-	}
-	return cities, nil
-}
-
-type ContactRepository struct {
-	db *sql.DB
-}
-
-func (repo *ContactRepository) Add(ctx context.Context, contact domain.Contact) error {
-	_, err := repo.db.ExecContext(ctx, `insert into "contact" (url,email,agent_name,phone_number) values ($1,$2,$3,$4)`, contact.Url, contact.Email, contact.AgentName, contact.PhoneNumber)
-	return err
-}
-func (repo *ContactRepository) GetAll(ctx context.Context) ([]*domain.Contact, error) {
-	var contacts []*domain.Contact
-	rows, err := repo.db.QueryContext(ctx, `select * from "contact"`)
-	if err != nil {
-		return contacts, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		oneContact := new(domain.Contact)
-		if scanErr := rows.Scan(&oneContact.Id, &oneContact.Url, &oneContact.Email, &oneContact.AgentName, &oneContact.PhoneNumber); scanErr != nil {
-			return contacts, scanErr
-		}
-		contacts = append(contacts, oneContact)
-
-	}
-	return contacts, nil
-}
-
-type ContainerRepository struct {
-	db *sql.DB
-}
-
-func (repo *ContainerRepository) Add(ctx context.Context, containerType string) error {
-	_, err := repo.db.ExecContext(ctx, `insert into "container" (full_name) values ($1)`, containerType)
-	return err
-}
-func (repo *ContainerRepository) GetAll(ctx context.Context) ([]*domain.Container, error) {
-	var containers []*domain.Container
-	rows, err := repo.db.QueryContext(ctx, `select * from "container"`)
-	if err != nil {
-		return containers, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		oneContainer := new(domain.Container)
-		if scanErr := rows.Scan(&oneContainer.Id, &oneContainer.Type); scanErr != nil {
-			return containers, scanErr
-		}
-		containers = append(containers, oneContainer)
-	}
-	return containers, nil
+func NewRepository(db *sql.DB) *repository {
+	return &repository{db: db}
 }

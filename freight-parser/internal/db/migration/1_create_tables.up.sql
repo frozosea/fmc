@@ -43,7 +43,7 @@ CREATE TABLE "price"
 CREATE TABLE "container"
 (
     "id"        serial NOT NULL,
-    "full_name" TEXT   NOT NULL,
+    "type" TEXT   NOT NULL,
     CONSTRAINT "container_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS= FALSE

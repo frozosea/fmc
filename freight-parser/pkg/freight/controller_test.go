@@ -2,7 +2,9 @@ package freight
 
 import (
 	"context"
-	"fmc-newest/pkg/domain"
+	"fmc-newest/pkg/city"
+	"fmc-newest/pkg/contact"
+	"fmc-newest/pkg/line"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -11,14 +13,14 @@ import (
 type freightRepoMoch struct {
 }
 
-func (s *freightRepoMoch) Get(_ context.Context, freight domain.GetFreight) ([]domain.BaseFreight, error) {
-	var array []domain.BaseFreight
+func (s *freightRepoMoch) Get(_ context.Context, freight GetFreight) ([]BaseFreight, error) {
+	var array []BaseFreight
 	for i := 0; i < int(freight.Limit); i++ {
-		array = append(array, domain.BaseFreight{FromCity: domain.City{Id: 1, Name: "fromCity", Unlocode: "RUVVO"}, ToCity: domain.City{Id: 1, Name: "toCity", Unlocode: "RUVFP"}, Container: domain.Container{Id: 1, Type: "40DC"}, UsdPrice: i * 1000, Line: domain.Line{LineId: 1, Scac: "FESO", LineName: "Feso shipping line", LineImage: "http://localhost/img/1"}, Contact: domain.Contact{Url: "http://localhost", AgentName: "his name", PhoneNumber: "1654783200000"}})
+		array = append(array, BaseFreight{FromCity: city.City{Id: 1, BaseCity: city.BaseCity{FullName: "fromCity", Unlocode: "RUVVO"}}, ToCity: city.City{Id: 1, BaseCity: city.BaseCity{FullName: "fromCity", Unlocode: "RUVVO"}}, Container: Container{Id: 1, Type: "40DC"}, UsdPrice: i * 1000, Line: line.Line{Id: 1, BaseLine: line.BaseLine{Scac: "FESO", FullName: "Feso shipping line"}, ImageUrl: "http://localhost/img/1"}, Contact: contact.BaseContact{Url: "http://localhost", AgentName: "his name", PhoneNumber: "1654783200000"}})
 	}
 	return array, nil
 }
-func (s *freightRepoMoch) Add(ctx context.Context, freight domain.AddFreight) error {
+func (s *freightRepoMoch) Add(ctx context.Context, freight AddFreight) error {
 	return nil
 }
 
@@ -26,23 +28,23 @@ func (s *freightRepoMoch) Add(ctx context.Context, freight domain.AddFreight) er
 type cityRepoMoch struct {
 }
 
-func (r *cityRepoMoch) Add(_ context.Context, city domain.AddCity) error {
+func (r *cityRepoMoch) Add(_ context.Context, city city.BaseCity) error {
 	return nil
 }
-func (r *cityRepoMoch) GetAll(ctx context.Context) ([]*domain.City, error) {
-	var cities []*domain.City
+func (r *cityRepoMoch) GetAll(ctx context.Context) ([]*city.City, error) {
+	var cities []*city.City
 	return cities, nil
 }
 
 type contactRepoMoch struct {
 }
 
-func (r *contactRepoMoch) Add(ctx context.Context, contact domain.Contact) error {
+func (r *contactRepoMoch) Add(ctx context.Context, contact contact.BaseContact) error {
 	return nil
 }
 
-func (r *contactRepoMoch) GetAll(ctx context.Context) ([]*domain.Contact, error) {
-	var contacts []*domain.Contact
+func (r *contactRepoMoch) GetAll(ctx context.Context) ([]*contact.BaseContact, error) {
+	var contacts []*contact.BaseContact
 	return contacts, nil
 }
 
@@ -52,8 +54,8 @@ type containerRepoMoch struct {
 func (r *containerRepoMoch) Add(ctx context.Context, containerType string) error {
 	return nil
 }
-func (r *containerRepoMoch) GetAll(ctx context.Context) ([]*domain.Container, error) {
-	var containers []*domain.Container
+func (r *containerRepoMoch) Get(ctx context.Context) ([]*Container, error) {
+	var containers []*Container
 	return containers, nil
 }
 
@@ -76,12 +78,17 @@ func (s loggerMoch) FatalLog(logString string) {
 
 }
 
-var service = NewController(&freightRepoMoch{}, &cityRepoMoch{}, &contactRepoMoch{}, &containerRepoMoch{}, loggerMoch{})
+var service = NewController(&freightRepoMoch{}, &loggerMoch{})
 
 func TestGetBestFreights(t *testing.T) {
-	ctx := context.Background()
+	ctx := context.TODO()
 	const limit = 20
-	var getFreightRequestStruct = NewGetFreight("fromCity", "toCity", "40DC", limit)
+	var getFreightRequestStruct = GetFreight{
+		FromCityId:    0,
+		ToCityId:      0,
+		ContainerType: "40DC",
+		Limit:         limit,
+	}
 	result, err := service.freightRepository.Get(ctx, getFreightRequestStruct)
 	if err != nil {
 		fmt.Println(err.Error())
