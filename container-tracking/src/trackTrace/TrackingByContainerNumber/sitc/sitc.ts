@@ -18,7 +18,7 @@ export class SitcRequest {
 
     public async getApiResponseJson(args: ITrackingArgs): Promise<SitcContainerTrackingApiResponseSchema> {
         return await this.request.sendRequestAndGetJson({
-            url: `http://api.sitcline.com/ecm/cmcontainerhistory/movementSearchApp?containerNo=${args.container}`,
+            url: `http://api.sitcline.com/ecm/cmcontainerhistory/movementSearchApp?containerNo=${args.number}`,
             method: "POST"
         })
 
@@ -66,6 +66,6 @@ export class SitcContainer extends BaseTrackerByContainerNumber<fetchArgs> {
             throw new NotThisShippingLineException()
         }
         //has no container size in tracking by container number ¯\_(ツ)_/¯
-        return {container: args.container, containerSize: "", scac: "SITC", infoAboutMoving: infoAboutMoving}
+        return {container: args.number, containerSize: "", scac: "SITC", infoAboutMoving: infoAboutMoving}
     }
 }

@@ -1,5 +1,6 @@
 import {
-    SkluApiParser, SkluContainer,
+    SkluApiParser,
+    SkluContainer,
     SkluEtaParser,
     SkluInfoAboutMovingParser
 } from "../../src/trackTrace/TrackingByContainerNumber/sklu/sklu";
@@ -26,29 +27,37 @@ const requestMoch: IRequest<fetchArgs> = {
     }
 }
 
+export const SkluinfoAboutMovingTest = (pathToHtml: string, container: string) => {
+    let infoAboutMovingParser = new SkluInfoAboutMovingParser(config.DATETIME);
+    let data = fs.readFileSync(path.resolve(__dirname, pathToHtml))
+    let infoAboutMoving = infoAboutMovingParser.parseInfoAboutMovingPage(data.toString(), container)
+    assert.deepEqual(infoAboutMoving, expectedInfoAboutMoving)
+}
+export const SkluEtaParserTest = async (example, unlocodesRepoMoch, skluParser) => {
+    let etaParser = new SkluEtaParser(unlocodesRepoMoch);
+    let etaObj = await etaParser.getEtaObject(skluParser.parseSinokorApiJson(example))
+    assert.strictEqual(etaObj.time, new Date(new Date(example[0].ETA).toUTCString()).getTime())
+    assert.strictEqual(etaObj.operationName, "ETA")
+}
+export const SkluApiParserTest = (skluParser, example) => {
+    let parsedApiResp = skluParser.parseSinokorApiJson(example)
+    assert.strictEqual(parsedApiResp.eta, new Date(new Date(example[0].ETA).toUTCString()).getTime())
+    assert.strictEqual(parsedApiResp.billNo, example[0].BKNO)
+    assert.strictEqual(parsedApiResp.containerSize, example[0].CNTR)
+}
 describe("SKLU container tracking test", () => {
-    let skluParser = new SkluApiParser()
+    let skluParser = new SkluApiParser(config.DATETIME)
     let unlocodesRepoMoch = new UnlocodesRepoMoch()
     const container = "TEMU2094051"
     it("SKLU info about moving parser test", () => {
-        let infoAboutMovingParser = new SkluInfoAboutMovingParser(config.DATETIME);
-        let data = fs.readFileSync(path.resolve(__dirname, './skluInfoAboutMovingExampleHtml.html'))
-        let infoAboutMoving = infoAboutMovingParser.parseInfoAboutMovingPage(data.toString(), container)
-        assert.deepEqual(infoAboutMoving, expectedInfoAboutMoving)
+        SkluinfoAboutMovingTest('./skluInfoAboutMovingExampleHtml.html', container)
 
     })
     it("SKLU eta parser test", async () => {
-        let etaParser = new SkluEtaParser(unlocodesRepoMoch);
-        let etaObj = await etaParser.getEtaObject(skluParser.parseSinokorApiJson(skluApiResponseExample))
-        assert.strictEqual(etaObj.time, new Date(new Date(skluApiResponseExample[0].ETA).toUTCString()).getTime())
-        // assert.strictEqual(etaObj.location, await unlocodesRepoMoch.getUnlocode(""))
-        assert.strictEqual(etaObj.operationName, "ETA")
+        await SkluEtaParserTest(skluApiResponseExample, unlocodesRepoMoch, skluParser)
     })
     it("SKLU api parser test", () => {
-        let parsedApiResp = skluParser.parseSinokorApiJson(skluApiResponseExample)
-        assert.strictEqual(parsedApiResp.eta, new Date(new Date(skluApiResponseExample[0].ETA).toUTCString()).getTime())
-        assert.strictEqual(parsedApiResp.billNo, skluApiResponseExample[0].BKNO)
-        assert.strictEqual(parsedApiResp.containerSize, skluApiResponseExample[0].CNTR)
+        SkluApiParserTest(skluParser,skluApiResponseExample)
     })
     it("SKLU main class with moch test", async () => {
         let sklu = new SkluContainer({
@@ -56,7 +65,7 @@ describe("SKLU container tracking test", () => {
             datetime: config.DATETIME,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         }, unlocodesRepoMoch)
-        let actualResult = await sklu.trackContainer({container: container})
+        let actualResult = await sklu.trackContainer({number: container})
         if (!actualResult.infoAboutMoving.length) {
             throw new assert.AssertionError()
         }

@@ -7,9 +7,11 @@ import {MscuContainer} from "./trackTrace/TrackingByContainerNumber/mscu/mscu";
 import {CosuContainer} from "./trackTrace/TrackingByContainerNumber/cosu/cosu";
 import {KmtuContainer} from "./trackTrace/TrackingByContainerNumber/kmtu/kmtu";
 import {MainTrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
-import {MainTrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
+import {
+    MainTrackingForOtherCountries
+} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 import {UnlocodesRepo} from "./trackTrace/TrackingByContainerNumber/sklu/unlocodesRepo";
-import TrackingController from "./trackingController";
+import ContainerTrackingController from "./containerTrackingController";
 import {ScacRepository} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
 import {Cache} from "./cache";
 import {Logger, ServiceLogger} from "./logging";
@@ -17,7 +19,15 @@ import {UserAgentGenerator} from "./trackTrace/helpers/userAgentGenerator";
 import {RequestSender} from "./trackTrace/helpers/requestSender";
 import {Datetime} from "./trackTrace/helpers/datetime";
 import {AppDataSource} from "./db/data-source";
-import {TrackingService} from "./server/services/trackingService";
+import {TrackingByContainerNumberService} from "./server/services/trackingByContainerNumberService";
+import {HaluContainer} from "./trackTrace/TrackingByContainerNumber/halu/halu";
+import {TrackingBybillNumberService} from "./server/services/trackingByBillNumberService";
+import BillNumberTrackingController from "./trackingByBillNumberController";
+import {FesoBillNumber} from "./trackTrace/trackingBybillNumber/feso/feso";
+import {SkluBillNumber} from "./trackTrace/trackingBybillNumber/sklu/sklu";
+import {HaluBillNumber} from "./trackTrace/trackingBybillNumber/halu/halu";
+import MainTrackingByBillNumberForRussia
+    from "./trackTrace/trackingBybillNumber/tracking/mainTrackingByBillNumberForRussia";
 
 // container.register<>("",{})
 const baseArgs = {
@@ -25,39 +35,53 @@ const baseArgs = {
     requestSender: new RequestSender(),
     UserAgentGenerator: new UserAgentGenerator()
 }
-const feso = new FesoContainer(baseArgs);
-const sitc = new SitcContainer(baseArgs)
-const sklu = new SkluContainer(baseArgs, new UnlocodesRepo())
-const oney = new OneyContainer(baseArgs)
-const maeu = new MaeuContainer(baseArgs)
-const mscu = new MscuContainer(baseArgs)
-const cosu = new CosuContainer(baseArgs)
-const kmtu = new KmtuContainer(baseArgs)
+export const unlocodesRepo = new UnlocodesRepo()
+export const feso = new FesoContainer(baseArgs);
+export const sitc = new SitcContainer(baseArgs)
+export const sklu = new SkluContainer(baseArgs, unlocodesRepo)
+export const oney = new OneyContainer(baseArgs)
+export const maeu = new MaeuContainer(baseArgs)
+export const mscu = new MscuContainer(baseArgs)
+export const cosu = new CosuContainer(baseArgs)
+export const kmtu = new KmtuContainer(baseArgs)
+export const halu = new HaluContainer(baseArgs, unlocodesRepo)
 
-export const trackingForRussia = new MainTrackingForRussia({
-    fescoContainer: feso,
-    sitcContainer: sitc,
-    skluContainer: sklu
+export const fesoBill = new FesoBillNumber(baseArgs)
+export const skluBill = new SkluBillNumber(baseArgs, unlocodesRepo)
+export const haluBill = new HaluBillNumber(baseArgs, unlocodesRepo)
+
+export const trackingByContainerNumberForRussia = new MainTrackingForRussia({
+    feso: feso,
+    sitc: sitc,
+    sklu: sklu,
+    halu: halu
 })
-export const trackingForOtherWorld = new MainTrackingForOtherCountries({
-    fescoContainer: feso,
-    sitcContainer: sitc,
-    skluContainer: sklu,
-    oneyContainer: oney,
-    maeuContainer: maeu,
-    cosuContainer: cosu,
-    mscuContainer: mscu,
-    kmtuContainer: kmtu
+export const trackingByContainerNumberForOtherWorld = new MainTrackingForOtherCountries({
+    feso: feso,
+    sitc: sitc,
+    sklu: sklu,
+    halu: halu,
+    oney: oney,
+    maeu: maeu,
+    cosu: cosu,
+    mscu: mscu,
+    kmtu: kmtu
+})
+export const mainTrackingByBillNumberForRussia = new MainTrackingByBillNumberForRussia({
+    feso: fesoBill,
+    sklu: skluBill,
+    halu: haluBill
 })
 const scacRepo = new ScacRepository()
 const cache = new Cache()
 const serviceLogger = new ServiceLogger()
 export const baseLogger = new Logger()
-export const service = new TrackingController(trackingForRussia, trackingForOtherWorld, scacRepo, cache, serviceLogger)
-export const grpcService = new TrackingService(service, baseLogger);
-
+export const trackingByContainerNumberGrpcService = new ContainerTrackingController(trackingByContainerNumberForRussia, trackingByContainerNumberForOtherWorld, scacRepo, cache, serviceLogger)
+export const trackingByContainerNumberService = new TrackingByContainerNumberService(trackingByContainerNumberGrpcService, baseLogger);
+export const billNumberTrackingController = new BillNumberTrackingController(mainTrackingByBillNumberForRussia, scacRepo, cache, serviceLogger)
+export const trackingByBillNumberService = new TrackingBybillNumberService(billNumberTrackingController, baseLogger)
 AppDataSource.initialize()
-    .then(async (source) => {
+    .then(async (_) => {
 
     })
     .catch((error) => console.log("Error: ", error))

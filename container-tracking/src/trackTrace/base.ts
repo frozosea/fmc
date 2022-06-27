@@ -20,7 +20,7 @@ export interface TrackingContainerResponse {
 }
 
 export interface ITrackingArgs {
-    container: string
+    number: string
 }
 
 export interface TrackingArgsWithScac extends ITrackingArgs {

@@ -1,8 +1,9 @@
 import {
-    OneTrackingEvent, BaseContainerConstructor,
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
-    TrackingContainerResponse,
-    ITrackingArgs
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {IUnlocodesRepo, UnlocodeObject} from "./unlocodesRepo";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
@@ -32,7 +33,7 @@ export class SkluRequestSender {
         this.userAgentGenerator = userAgentGenerator
     }
 
-    public async sendRequestToSinokorApi(args: ITrackingArgs): Promise<SinokorApiResponseSchema[]> {
+    public async sendRequestToApi(args: ITrackingArgs): Promise<SinokorApiResponseSchema[]> {
         let todayYear = new Date().getFullYear()
         let headers = {
             "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -45,7 +46,7 @@ export class SkluRequestSender {
             "X-Requested-With": "XMLHttpRequest"
         }
         let res: SinokorApiResponseSchema[] = await this.requestSender.sendRequestAndGetJson({
-            url: `http://ebiz.sinokor.co.kr/Tracking/GetBLList?cntrno=${args.container}&year=${todayYear}`,
+            url: `http://ebiz.sinokor.co.kr/Tracking/GetBLList?cntrno=${args.number}&year=${todayYear}`,
             method: "GET",
             headers: headers
         })
@@ -53,7 +54,7 @@ export class SkluRequestSender {
             return res
         } else {
             res = await this.requestSender.sendRequestAndGetJson({
-                url: `http://ebiz.sinokor.co.kr/Tracking/GetBLList?cntrno=${args.container}&year=${todayYear - 1}`,
+                url: `http://ebiz.sinokor.co.kr/Tracking/GetBLList?cntrno=${args.number}&year=${todayYear - 1}`,
                 method: "GET",
                 headers: headers
             })
@@ -65,9 +66,15 @@ export class SkluRequestSender {
         return null
     }
 
-    async sendRequestAndGetInfoAboutMovingStringHtml(billNo: string, container: string): Promise<string> {
+    async sendRequestAndGetInfoAboutMovingStringHtml(billNo: string, container?: string): Promise<string> {
+        let url: string
+        if (container) {
+            url = `http://ebiz.sinokor.co.kr/Tracking?blno=${billNo}&cntrno=${container}`
+        } else {
+            url = `http://ebiz.sinokor.co.kr/Tracking?blno=${billNo}&cntrno=`
+        }
         return await this.requestSender.sendRequestAndGetHtml({
-                url: `http://ebiz.sinokor.co.kr/Tracking?blno=${billNo}&cntrno=${container}`,
+                url: url,
                 method: "GET",
                 headers: {
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -87,9 +94,15 @@ export class SkluRequestSender {
 
 
 export class SkluApiParser {
+    protected datetime: IDatetime;
+
+    public constructor(datetime: IDatetime) {
+        this.datetime = datetime
+    }
+
     public parseSinokorApiJson(sinokorApiJson: SinokorApiResponseSchema[]): _NextRequestDataResp {
         let lastBillNumber: string = sinokorApiJson[0].BKNO
-        let eta: number = new Date(new Date(sinokorApiJson[0].ETA).toUTCString()).getTime()
+        let eta: number = this.datetime.strptime(sinokorApiJson[0].ETA, "YYYY-MM-DD").getTime()
         let containerSize: string = sinokorApiJson[0].CNTR
         return {billNo: lastBillNumber, eta: eta, containerSize: containerSize, unlocode: sinokorApiJson[0].POD}
     }
@@ -108,7 +121,7 @@ export class SkluInfoAboutMovingParser {
         return this.datetime.strptime(`${splitTime[0]} ${dayOfWeek} ${splitTime[2]}`, "YYYY-MM-DD ddd HH:mm").getTime()
     }
 
-    protected * zip(...iterables) {
+    protected* zip(...iterables) {
         let iterators = iterables.map(i => i[Symbol.iterator]())
         while (true) {
             let results = iterators.map(iter => iter.next())
@@ -186,21 +199,21 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
         super(args);
         this.skluRequest = new SkluRequestSender(args.requestSender, args.UserAgentGenerator);
         this.infoAboutMovingParser = new SkluInfoAboutMovingParser(args.datetime);
-        this.apiParser = new SkluApiParser();
+        this.apiParser = new SkluApiParser(args.datetime);
         this.etaParser = new SkluEtaParser(repo);
     }
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
-        try{
-            let apiResponse: SinokorApiResponseSchema[] = await this.skluRequest.sendRequestToSinokorApi(args);
+        try {
+            let apiResponse: SinokorApiResponseSchema[] = await this.skluRequest.sendRequestToApi(args);
             if (apiResponse !== null) {
                 let nextRequestDataObject = await this.apiParser.parseSinokorApiJson(apiResponse)
                 let eta: OneTrackingEvent = await this.etaParser.getEtaObject(nextRequestDataObject);
-                let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.container);
-                let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.container);
+                let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.number);
+                let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.number);
                 infoAboutMoving.push(eta)
                 return {
-                    container: args.container,
+                    container: args.number,
                     containerSize: nextRequestDataObject.containerSize,
                     scac: "SKLU",
                     infoAboutMoving: infoAboutMoving
@@ -208,7 +221,7 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
             } else {
                 throw new NotThisShippingLineException()
             }
-        }catch (e) {
+        } catch (e) {
             throw new NotThisShippingLineException()
         }
 

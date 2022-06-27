@@ -9,10 +9,10 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert");
 const requestMoch: IRequest<fetchArgs> = {
-    async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
+    async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
         return oneyInfoAboutMovingExample
     },
-    async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {
+    async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return ""
     }
 }
@@ -33,7 +33,7 @@ describe("ONEY tracking by container number test", () => {
             requestSender: requestMoch,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         })
-        let actualResponse = await oney.trackContainer({container: container})
+        let actualResponse = await oney.trackContainer({number: container})
         assert.strictEqual(actualResponse.container, container)
         assert.strictEqual(actualResponse.scac, "ONEY")
         assert.deepEqual(actualResponse.infoAboutMoving, oneyExpectedData.infoAboutMoving)

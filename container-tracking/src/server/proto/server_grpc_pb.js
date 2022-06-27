@@ -15,30 +15,56 @@ function deserialize_tracking_Request(buffer_arg) {
   return server_pb.Request.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_tracking_Response(arg) {
-  if (!(arg instanceof server_pb.Response)) {
-    throw new Error('Expected argument of type tracking.Response');
+function serialize_tracking_TrackingByBillNumberResponse(arg) {
+  if (!(arg instanceof server_pb.TrackingByBillNumberResponse)) {
+    throw new Error('Expected argument of type tracking.TrackingByBillNumberResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_tracking_Response(buffer_arg) {
-  return server_pb.Response.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_tracking_TrackingByBillNumberResponse(buffer_arg) {
+  return server_pb.TrackingByBillNumberResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_tracking_TrackingByContainerNumberResponse(arg) {
+  if (!(arg instanceof server_pb.TrackingByContainerNumberResponse)) {
+    throw new Error('Expected argument of type tracking.TrackingByContainerNumberResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_tracking_TrackingByContainerNumberResponse(buffer_arg) {
+  return server_pb.TrackingByContainerNumberResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 
 var TrackingByContainerNumberService = exports.TrackingByContainerNumberService = {
-  track: {
-    path: '/tracking.TrackingByContainerNumber/Track',
+  trackByContainerNumber: {
+    path: '/tracking.TrackingByContainerNumber/TrackByContainerNumber',
     requestStream: false,
     responseStream: false,
     requestType: server_pb.Request,
-    responseType: server_pb.Response,
+    responseType: server_pb.TrackingByContainerNumberResponse,
     requestSerialize: serialize_tracking_Request,
     requestDeserialize: deserialize_tracking_Request,
-    responseSerialize: serialize_tracking_Response,
-    responseDeserialize: deserialize_tracking_Response,
+    responseSerialize: serialize_tracking_TrackingByContainerNumberResponse,
+    responseDeserialize: deserialize_tracking_TrackingByContainerNumberResponse,
   },
 };
 
 exports.TrackingByContainerNumberClient = grpc.makeGenericClientConstructor(TrackingByContainerNumberService);
+var TrackingByBillNumberService = exports.TrackingByBillNumberService = {
+  trackByBillNumber: {
+    path: '/tracking.TrackingByBillNumber/TrackByBillNumber',
+    requestStream: false,
+    responseStream: false,
+    requestType: server_pb.Request,
+    responseType: server_pb.TrackingByBillNumberResponse,
+    requestSerialize: serialize_tracking_Request,
+    requestDeserialize: deserialize_tracking_Request,
+    responseSerialize: serialize_tracking_TrackingByBillNumberResponse,
+    responseDeserialize: deserialize_tracking_TrackingByBillNumberResponse,
+  },
+};
+
+exports.TrackingByBillNumberClient = grpc.makeGenericClientConstructor(TrackingByBillNumberService);

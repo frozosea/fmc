@@ -1,5 +1,5 @@
 import {ICache} from "./cache";
-import {TrackingArgsWithScac, TrackingContainerResponse} from "./types";
+import {ITrackingByBillNumberResponse, TrackingArgsWithScac, TrackingContainerResponse} from "./types";
 import {MainTrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
 import {MainTrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 import {IScacContainers} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
@@ -13,16 +13,16 @@ export class CacheHandler {
 
     }
 
-    public async addTrackingResultToCache(container: string, trackingResult: TrackingContainerResponse, ttl?: number): Promise<void> {
+    public async addTrackingResultToCache(container: string, trackingResult: TrackingContainerResponse | ITrackingByBillNumberResponse, ttl?: number): Promise<void> {
         await this.cache.set(container, JSON.stringify(trackingResult), ttl)
     }
 
-    public async getTrackingInfoFromCache(container: string): Promise<TrackingContainerResponse | null> {
+    public async getTrackingInfoFromCache<T>(container: string): Promise<T | null> {
         return JSON.parse(await this.cache.get(container))
     }
 }
 
-export default class TrackingController {
+export default class ContainerTrackingController {
     protected trackingForRussia: MainTrackingForRussia;
     protected trackingForOtherCountries: MainTrackingForOtherCountries;
     protected scacContainersRepository: IScacContainers;
@@ -44,13 +44,13 @@ export default class TrackingController {
         switch (args.country) {
             case "RU":
                 let result = await this.trackingForRussia.trackContainer(args)
-                await this.cacheHandler.addTrackingResultToCache(args.container, result, ttl)
+                await this.cacheHandler.addTrackingResultToCache(args.number, result, ttl)
                 await this.scacContainersRepository.addContainer(result.container, result.scac)
                 this.logger.containerSuccessLog(result)
                 return result
             case "OTHER":
                 let res = await this.trackingForOtherCountries.trackContainer(args)
-                await this.cacheHandler.addTrackingResultToCache(args.container, res, ttl)
+                await this.cacheHandler.addTrackingResultToCache(args.number, res, ttl)
                 await this.scacContainersRepository.addContainer(res.container, res.scac)
                 this.logger.containerSuccessLog(res)
                 return res
@@ -60,21 +60,21 @@ export default class TrackingController {
     }
 
     public async trackContainer(args: TrackingArgsWithScac): Promise<TrackingContainerResponse> {
-        let result = await this.cacheHandler.getTrackingInfoFromCache(args.container)
+        let result = await this.cacheHandler.getTrackingInfoFromCache<TrackingContainerResponse>(args.number)
         if (result !== null) return result
         if (args.scac === "AUTO") {
-            let scacFromDb = await this.scacContainersRepository.getScac(args.container)
+            let scacFromDb = await this.scacContainersRepository.getScac(args.number)
             if (scacFromDb !== null) {
                 try {
                     return await this.track({
-                        container: args.container,
+                        number: args.number,
                         country: args.country,
                         scac: scacFromDb
                     }, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
                 } catch (e) {
-                    this.logger.containerNotFoundLog(args.container)
+                    this.logger.containerNotFoundLog(args.number)
                     return await this.track({
-                        container: args.container,
+                        number: args.number,
                         country: args.country,
                         scac: "AUTO"
                     }, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
@@ -83,14 +83,14 @@ export default class TrackingController {
                 try {
                     return await this.track(args, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
                 } catch (e) {
-                    this.logger.containerNotFoundLog(args.container)
+                    this.logger.containerNotFoundLog(args.number)
                 }
             }
         } else {
             try {
                 return await this.track(args, Number(process.env.CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS))
             } catch (e) {
-                this.logger.containerNotFoundLog(args.container)
+                this.logger.containerNotFoundLog(args.number)
             }
         }
 

@@ -1,10 +1,8 @@
-import {
-    sendUnaryData, ServerUnaryCall
-} from '@grpc/grpc-js';
-import TrackingController from "../../trackingController";
+import {sendUnaryData, ServerUnaryCall} from '@grpc/grpc-js';
+import ContainerTrackingController from "../../containerTrackingController";
 import {ITrackingByContainerNumberServer} from "../proto/server_grpc_pb";
-import {Country, Scac, Request, Response, InfoAboutMoving} from "../proto/server_pb";
-import {TrackingContainerResponse, SCAC_TYPE, COUNTRY_TYPE} from "../../types";
+import {Country, InfoAboutMoving, Request, Scac, TrackingByContainerNumberResponse} from "../proto/server_pb";
+import {COUNTRY_TYPE, OneTrackingEvent, SCAC_TYPE, TrackingContainerResponse} from "../../types";
 import {ILogger} from "../../logging";
 
 
@@ -44,9 +42,9 @@ export class TrackingServiceConverter {
 
 
 export class ServiceSerializer {
-    private serializeInfoAboutMoving(response: TrackingContainerResponse) {
+    protected serializeInfoAboutMoving(response: OneTrackingEvent[]) {
         let grpcInfoAboutMovingArray: InfoAboutMoving[] = []
-        for (let item of response.infoAboutMoving) {
+        for (let item of response) {
             let grpcInfoAboutMoving = new InfoAboutMoving()
             grpcInfoAboutMoving.setTime(item.time)
             grpcInfoAboutMoving.setOperationName(item.operationName)
@@ -57,9 +55,9 @@ export class ServiceSerializer {
         return grpcInfoAboutMovingArray
     }
 
-    public serializeResponseIntoGrpc(response: TrackingContainerResponse): Response {
-        let grpcEmptyResp = new Response()
-        grpcEmptyResp.setInfoAboutMovingList(this.serializeInfoAboutMoving(response))
+    public serializeResponseIntoGrpc(response: TrackingContainerResponse): TrackingByContainerNumberResponse {
+        let grpcEmptyResp = new TrackingByContainerNumberResponse()
+        grpcEmptyResp.setInfoAboutMovingList(this.serializeInfoAboutMoving(response.infoAboutMoving))
         grpcEmptyResp.setContainerSize(response.containerSize)
         grpcEmptyResp.setContainer(response.container)
         grpcEmptyResp.setScac(TrackingServiceConverter.convertScacIntoEnum(response.scac))
@@ -67,25 +65,24 @@ export class ServiceSerializer {
     }
 }
 
-export class TrackingService implements ITrackingByContainerNumberServer {
-    protected trackingController: TrackingController;
+export class TrackingByContainerNumberService implements ITrackingByContainerNumberServer {
+    protected trackingController: ContainerTrackingController;
     protected logger: ILogger;
     protected serializer: ServiceSerializer;
 
-    public constructor(trackingController: TrackingController, logger: ILogger) {
+    public constructor(trackingController: ContainerTrackingController, logger: ILogger) {
         this.logger = logger;
         this.trackingController = trackingController;
         this.serializer = new ServiceSerializer()
     }
 
-    // @ts-ignore
-    public track(call: ServerUnaryCall<Request, Response>, callback: sendUnaryData<Response>) {
-        let container: string = call.request.getContainer()
+    public trackByContainerNumber(call: ServerUnaryCall<Request, TrackingByContainerNumberResponse>, callback: sendUnaryData<TrackingByContainerNumberResponse>): void {
+        let container: string = call.request.getNumber()
         let scac: SCAC_TYPE = TrackingServiceConverter.convertEnumIntoScacType(call.request.getScac())
         let country = TrackingServiceConverter.convertEnumCountryIntoCountryType(call.request.getCountry())
         this.logger.InfoLog(`${container}: ${scac}`)
         this.trackingController.trackContainer({
-            container: container,
+            number: container,
             scac: scac,
             country: country
         }).then((result: TrackingContainerResponse) => {

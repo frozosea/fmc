@@ -1,5 +1,5 @@
 // package: tracking
-// file: services.proto
+// file: server.proto
 
 /* tslint:disable */
 /* eslint-disable */
@@ -7,8 +7,8 @@
 import * as jspb from "google-protobuf";
 
 export class Request extends jspb.Message { 
-    getContainer(): string;
-    setContainer(value: string): Request;
+    getNumber(): string;
+    setNumber(value: string): Request;
     getScac(): Scac;
     setScac(value: Scac): Request;
     getCountry(): Country;
@@ -26,7 +26,7 @@ export class Request extends jspb.Message {
 
 export namespace Request {
     export type AsObject = {
-        container: string,
+        number: string,
         scac: Scac,
         country: Country,
     }
@@ -61,34 +61,65 @@ export namespace InfoAboutMoving {
     }
 }
 
-export class Response extends jspb.Message { 
+export class TrackingByContainerNumberResponse extends jspb.Message { 
     getContainer(): string;
-    setContainer(value: string): Response;
+    setContainer(value: string): TrackingByContainerNumberResponse;
     getContainerSize(): string;
-    setContainerSize(value: string): Response;
+    setContainerSize(value: string): TrackingByContainerNumberResponse;
     getScac(): Scac;
-    setScac(value: Scac): Response;
+    setScac(value: Scac): TrackingByContainerNumberResponse;
     clearInfoAboutMovingList(): void;
     getInfoAboutMovingList(): Array<InfoAboutMoving>;
-    setInfoAboutMovingList(value: Array<InfoAboutMoving>): Response;
+    setInfoAboutMovingList(value: Array<InfoAboutMoving>): TrackingByContainerNumberResponse;
     addInfoAboutMoving(value?: InfoAboutMoving, index?: number): InfoAboutMoving;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): Response.AsObject;
-    static toObject(includeInstance: boolean, msg: Response): Response.AsObject;
+    toObject(includeInstance?: boolean): TrackingByContainerNumberResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: TrackingByContainerNumberResponse): TrackingByContainerNumberResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: Response, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): Response;
-    static deserializeBinaryFromReader(message: Response, reader: jspb.BinaryReader): Response;
+    static serializeBinaryToWriter(message: TrackingByContainerNumberResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): TrackingByContainerNumberResponse;
+    static deserializeBinaryFromReader(message: TrackingByContainerNumberResponse, reader: jspb.BinaryReader): TrackingByContainerNumberResponse;
 }
 
-export namespace Response {
+export namespace TrackingByContainerNumberResponse {
     export type AsObject = {
         container: string,
         containerSize: string,
         scac: Scac,
         infoAboutMovingList: Array<InfoAboutMoving.AsObject>,
+    }
+}
+
+export class TrackingByBillNumberResponse extends jspb.Message { 
+    getBillno(): string;
+    setBillno(value: string): TrackingByBillNumberResponse;
+    getScac(): Scac;
+    setScac(value: Scac): TrackingByBillNumberResponse;
+    clearInfoAboutMovingList(): void;
+    getInfoAboutMovingList(): Array<InfoAboutMoving>;
+    setInfoAboutMovingList(value: Array<InfoAboutMoving>): TrackingByBillNumberResponse;
+    addInfoAboutMoving(value?: InfoAboutMoving, index?: number): InfoAboutMoving;
+    getEtaFinalDelivery(): number;
+    setEtaFinalDelivery(value: number): TrackingByBillNumberResponse;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): TrackingByBillNumberResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: TrackingByBillNumberResponse): TrackingByBillNumberResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: TrackingByBillNumberResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): TrackingByBillNumberResponse;
+    static deserializeBinaryFromReader(message: TrackingByBillNumberResponse, reader: jspb.BinaryReader): TrackingByBillNumberResponse;
+}
+
+export namespace TrackingByBillNumberResponse {
+    export type AsObject = {
+        billno: string,
+        scac: Scac,
+        infoAboutMovingList: Array<InfoAboutMoving.AsObject>,
+        etaFinalDelivery: number,
     }
 }
 
@@ -101,7 +132,8 @@ export enum Scac {
     ONEY = 5,
     SITC = 6,
     MSCU = 7,
-    AUTO = 8,
+    HALU = 8,
+    AUTO = 9,
 }
 
 export enum Country {

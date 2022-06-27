@@ -34,7 +34,7 @@ describe("MSCU tracking by container number test", () => {
             requestSender: requestMoch,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         })
-        let actualInfoAboutMoving = await mscu.trackContainer({container: "MEDU3170580"})
+        let actualInfoAboutMoving = await mscu.trackContainer({number: "MEDU3170580"})
         assert.strictEqual(actualInfoAboutMoving.containerSize, expectedContainerSize)
         assert.strictEqual(actualInfoAboutMoving.scac, "MSCU")
         testInfoAboutMoving([actualInfoAboutMoving.infoAboutMoving[0], actualInfoAboutMoving.infoAboutMoving[1]])

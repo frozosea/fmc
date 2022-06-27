@@ -35,7 +35,7 @@ describe("SITC Test", () => {
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         })
         for (let container of containers) {
-            const result = await sitc.trackContainer({container: container})
+            const result = await sitc.trackContainer({number: container})
             for (let item = 0; item < result.infoAboutMoving.length; item++) {
                 assert.strictEqual(result.infoAboutMoving[item].operationName, sitcExpectedResult[container].data.list[item].movementNameEn);
                 assert.strictEqual(result.infoAboutMoving[item].time, config.DATETIME.strptime(sitcExpectedResult[container].data.list[item].eventDate, "YYYY-MM-DD HH:mm:ss").getTime());

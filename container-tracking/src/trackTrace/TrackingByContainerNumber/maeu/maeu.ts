@@ -22,12 +22,12 @@ export class MaeuRequest {
 
     public async sendRequestToMaerskApiAndGetJson(args: ITrackingArgs): Promise<MaerskApiResponseSchema> {
         return await this.request.sendRequestAndGetJson({
-            url: `https://api.maersk.com/track/${args.container}?operator=MAEU`,
+            url: `https://api.maersk.com/track/${args.number}?operator=MAEU`,
             method: "GET",
             headers: {
                 'authority': 'backend.maersk.com',
                 'method': 'GET',
-                'path': `/track/${args.container}?operator=MCPU`,
+                'path': `/track/${args.number}?operator=MCPU`,
                 'scheme': 'https',
                 'accept': 'application/json',
                 'accept-encoding': 'gzip, deflate, br',
@@ -152,7 +152,7 @@ export class MaeuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         try {
-            return this.parser.parseMaeuApiAndGetReadyObject(await this.request.sendRequestToMaerskApiAndGetJson(args), args.container)
+            return this.parser.parseMaeuApiAndGetReadyObject(await this.request.sendRequestToMaerskApiAndGetJson(args), args.number)
         } catch (e) {
             throw new NotThisShippingLineException()
         }

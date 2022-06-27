@@ -1,18 +1,20 @@
-import {BaseTrackerByContainerNumber, TrackingContainerResponse, TrackingArgsWithScac} from "../../base";
+import {BaseTrackerByContainerNumber, TrackingArgsWithScac, TrackingContainerResponse} from "../../base";
 import {ContainerNotFoundException} from "../../../exceptions";
 import {fetchArgs} from "../../helpers/requestSender";
-import {SCAC_TYPE} from "../../../types";
+import {ITrackingByBillNumberResponse, SCAC_TYPE} from "../../../types";
 
 export interface ContainersInTrackingForRussia {
-    fescoContainer: BaseTrackerByContainerNumber<fetchArgs>;
-    sitcContainer: BaseTrackerByContainerNumber<fetchArgs>;
-    skluContainer: BaseTrackerByContainerNumber<fetchArgs>;
+    feso: BaseTrackerByContainerNumber<fetchArgs>;
+    sitc: BaseTrackerByContainerNumber<fetchArgs>;
+    sklu: BaseTrackerByContainerNumber<fetchArgs>;
+    halu: BaseTrackerByContainerNumber<fetchArgs>;
 }
 
 export interface ScacStructForRussia {
     FESO: BaseTrackerByContainerNumber<fetchArgs>;
     SITC: BaseTrackerByContainerNumber<fetchArgs>;
     SKLU: BaseTrackerByContainerNumber<fetchArgs>;
+    HALU: BaseTrackerByContainerNumber<fetchArgs>;
 }
 
 export class TimeInspector {
@@ -21,7 +23,7 @@ export class TimeInspector {
         return Math.round(timeDiff / (2e3 * 3600 * 365.25));
     }
 
-    public inspectTime(response: TrackingContainerResponse): boolean {
+    public inspectTime(response: TrackingContainerResponse | ITrackingByBillNumberResponse): boolean {
         const lastDateInInfoAboutMoving = new Date(response.infoAboutMoving[response.infoAboutMoving.length - 1].time);
         const today = new Date();
         let diffBetweenDates = this.getDifferenceBetweenDatesInMonths(today, lastDateInInfoAboutMoving);
@@ -30,20 +32,23 @@ export class TimeInspector {
 }
 
 export class MainTrackingForRussia {
-    public readonly fescoContainer: BaseTrackerByContainerNumber<fetchArgs>;
-    public readonly sitcContainer: BaseTrackerByContainerNumber<fetchArgs>;
-    public readonly skluContainer: BaseTrackerByContainerNumber<fetchArgs>;
+    public readonly feso: BaseTrackerByContainerNumber<fetchArgs>;
+    public readonly sitc: BaseTrackerByContainerNumber<fetchArgs>;
+    public readonly sklu: BaseTrackerByContainerNumber<fetchArgs>;
+    public readonly halu: BaseTrackerByContainerNumber<fetchArgs>;
     public readonly scacStruct: ScacStructForRussia;
     protected timeInspector: TimeInspector;
 
     public constructor(containers: ContainersInTrackingForRussia) {
-        this.fescoContainer = containers.fescoContainer;
-        this.skluContainer = containers.skluContainer;
-        this.sitcContainer = containers.sitcContainer;
+        this.feso = containers.feso;
+        this.sklu = containers.sklu;
+        this.sitc = containers.sitc;
+        this.halu = containers.halu;
         this.scacStruct = {
-            FESO: this.fescoContainer,
-            SITC: this.sitcContainer,
-            SKLU: this.skluContainer
+            FESO: this.feso,
+            SITC: this.sitc,
+            SKLU: this.sklu,
+            HALU: this.halu,
         };
         this.timeInspector = new TimeInspector();
     }
