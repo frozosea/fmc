@@ -47,12 +47,26 @@ src-|
 | Korea Marine Transport Co                   | KMTU | :white_check_mark: (should be refactor) | :x:                             | [Link](https://www.ekmtc.com/index.html#/cargo-tracking)                        |                   |                     |
 
 ### How it working?
-For all lines has one class which extends base abstract class(path: `container-tracking/src/trackTrace/base.ts`).Has two main trackers (paht: `container-tracking/src/trackTrace/TrackingByContainerNumber/tracking`),one for Russia, the second for other world. Main trackers can track container by scac code, scac code is code of line, also have auto scac, which in for loop check all lines and try to get result. Trackers by bill numbers work like container number trackers, but structure of response is diffirent and it's aint't extends by base tracker, it's use other interface(path: `container-tracking/src/trackTrace/trackingBybillNumber/base.ts`)
+For all lines has one class which extends base abstract class(path: `container-tracking/src/trackTrace/base.ts`).Has two main trackers (path: `container-tracking/src/trackTrace/TrackingByContainerNumber/tracking`),one for Russia, the second for other world. Main trackers can track container by scac code, scac code is code of line, also have auto scac, which in for loop check all lines and try to get result. Trackers by bill numbers work like container number trackers, but structure of response is diffirent and it's aint't extends by base tracker, it's use other interface(path: `container-tracking/src/trackTrace/trackingBybillNumber/base.ts`)
 
 ### Routes:
 grpc server has 2 routes, track by bill number and track by container number, all of them use one message for request:
+### Code design
+###### How to write test
+If you wanna write unit test you should name your file like this `unit_*_test`.
+Integrate test `integrate_*_test`
+All of tests should be in directory which should be named like line scac code
+###### Write new tracker
+go to the directory(by bill number or by container number) and create directory like line scac code
+
 ### How to add new tracker by container number:
-- Create class which extends by base class (path: `container-tracking/src/trackTrace/base.ts`)
+- create class which extends by base class (path: `container-tracking/src/trackTrace/base.ts`)
+- write unit test on your class
+- go to `container-tracking/src/types.d.ts` and create new scac type and add it to `SCAC_TYPE`
+- go to the main tracker for your country and update main tracker(add your class)
+- go to the `container-tracking/src/server/proto/server.proto` and add this scac into enum
+### How to add tracker by bill number 
+- create class which implements by base tracker interface (path: `container-tracking/src/trackTrace/trackingBybillNumber/base.ts`)
 - go to `container-tracking/src/types.d.ts` and create new scac type and add it to `SCAC_TYPE`
 - go to the main tracker for your country and update main tracker(add your class)
 - go to the `container-tracking/src/server/proto/server.proto` and add this scac into enum
