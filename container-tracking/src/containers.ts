@@ -18,7 +18,6 @@ import {Logger, ServiceLogger} from "./logging";
 import {UserAgentGenerator} from "./trackTrace/helpers/userAgentGenerator";
 import {RequestSender} from "./trackTrace/helpers/requestSender";
 import {Datetime} from "./trackTrace/helpers/datetime";
-import {AppDataSource} from "./db/data-source";
 import {TrackingByContainerNumberService} from "./server/services/trackingByContainerNumberService";
 import {HaluContainer} from "./trackTrace/TrackingByContainerNumber/halu/halu";
 import {TrackingBybillNumberService} from "./server/services/trackingByBillNumberService";
@@ -80,8 +79,3 @@ export const trackingByContainerNumberGrpcService = new ContainerTrackingControl
 export const trackingByContainerNumberService = new TrackingByContainerNumberService(trackingByContainerNumberGrpcService, baseLogger);
 export const billNumberTrackingController = new BillNumberTrackingController(mainTrackingByBillNumberForRussia, scacRepo, cache, serviceLogger)
 export const trackingByBillNumberService = new TrackingBybillNumberService(billNumberTrackingController, baseLogger)
-AppDataSource.initialize()
-    .then(async (_) => {
-
-    })
-    .catch((error) => console.log("Error: ", error))

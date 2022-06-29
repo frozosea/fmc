@@ -15,7 +15,7 @@ jobs:
         node-version: [16.13.2]
     defaults:
       run:
-        working-directory: ./container-tracking
+        working-directory: ./tracking
       
     steps:
     - uses: actions/checkout@v3

@@ -1,0 +1,97 @@
+syntax = "proto3";
+package user;
+
+import "google/protobuf/empty.proto";
+
+service Auth{
+  //Yes
+  rpc RegisterUser(RegisterUserRequest) returns (google.protobuf.Empty) {};
+  //Yes
+  rpc LoginUser(LoginUserRequest) returns (LoginResponse) {};
+  //Yes
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {};
+  //Yes
+  rpc Auth(AuthRequest) returns (AuthResponse) {};
+}
+
+service User{
+  //yes
+  rpc AddContainerToAccount(Container) returns (google.protobuf.Empty) {};
+  //yes
+  rpc DeleteContainersFromAccount(DeleteContainersFromAccountRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc GetAllContainers(google.protobuf.Empty) returns (GetAllContainersResponse) {};
+}
+
+service ScheduleTracking{
+  //ALL NO
+  rpc AddContainerOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
+  rpc AddBillNoOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
+  rpc UpdateTrackingTime(UpdateTrackingTimeRequest) returns (BaseAddOnTrackResponse) {};
+  rpc AddEmail(google.protobuf.Empty) returns (google.protobuf.Empty) {};
+  rpc DeleteEmailFromTrack(google.protobuf.Empty) returns (google.protobuf.Empty) {};
+  rpc DeleteFromTrack(google.protobuf.Empty) returns (google.protobuf.Empty) {};
+}
+
+message RegisterUserRequest{
+  string username = 1;
+  string password = 2;
+}
+
+message LoginUserRequest{
+  string username = 1;
+  string password = 2;
+}
+message LoginResponse{
+  string tokens = 1;
+  string refresh_token = 2;
+  int64 token_expires = 3;
+  int64 refresh_token_expires = 4;
+}
+message RefreshTokenRequest{
+  string refresh_token = 1;
+}
+message AuthRequest{
+  string tokens = 1;
+}
+message AuthResponse{
+  bool success = 1;
+}
+message Container{
+  string number = 1;
+}
+message DeleteContainersFromAccountRequest{
+  int64 user_id = 1;
+  repeated int64 container_ids = 2;
+}
+message GetAllContainersResponse{
+  repeated Container container = 1;
+}
+message GetInfoAboutUserResponse{
+  string username = 1;
+  GetAllContainersResponse all_containers = 2;
+}
+
+message AddOneOnTrackRequest{
+  string number = 1;
+  repeated string emails = 2;
+  string time = 3;
+}
+message AddOnTrackRequest{
+  repeated AddOneOnTrackRequest containers = 1;
+}
+message BaseAddOnTrackResponse{
+  bool success = 1;
+  string next_run_time = 2;
+}
+message AddOnTrackResponse{
+  BaseAddOnTrackResponse base_response = 1;
+  repeated string already_on_track = 3;
+}
+message UpdateTrackingTimeRequest{
+  repeated string numbers = 1;
+  string time = 2;
+}
+message UpdateEmailRequest{
+
+}

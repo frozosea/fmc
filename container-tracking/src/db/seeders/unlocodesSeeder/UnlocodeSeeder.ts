@@ -1,15 +1,14 @@
 import {Unlocode} from "../../entity/Unlocode";
 import {DataSource} from "typeorm";
-import {AppDataSource} from "../../data-source";
 
 const fs = require("fs")
 const path = require("path")
 
 export interface IUnlocodeSeeder {
-    initUnlocodes(): Promise<void>
+    initUnlocodes(source: DataSource): Promise<void>
 }
 
-function CSVToArray(strData:string, strDelimiter: string): any[] {
+function CSVToArray(strData: string, strDelimiter: string): any[] {
     // Check to see if the delimiter is defined. If not,
     // then default to comma.
     strDelimiter = (strDelimiter || ",");
@@ -110,15 +109,17 @@ async function prepareDb(source: DataSource) {
             unloObj.fullname = array[1]
             await repo.save(unloObj)
         } catch (e) {
+            console.log(e)
         }
     }
 }
 
 export class UnlocodesSeeder implements IUnlocodeSeeder {
-    public getUnlocodes(): any[]{
+    public getUnlocodes(): any[] {
         return readUnlocodesFromScv()
     }
-    public async initUnlocodes(): Promise<void> {
-        await prepareDb(AppDataSource)
+
+    public async initUnlocodes(source: DataSource): Promise<void> {
+        await prepareDb(source)
     }
 }

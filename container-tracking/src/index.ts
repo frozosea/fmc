@@ -1,5 +1,10 @@
 import startServer from "./server/server";
 import {config} from "dotenv"
 
-config();
-startServer();
+function main() {
+    config();
+    startServer();
+}
+
+main();
+

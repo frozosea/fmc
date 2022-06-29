@@ -12,6 +12,7 @@ export class BillNumberServiceSerializer extends ServiceSerializer {
         let grpcEmptyResp = new TrackingByBillNumberResponse()
         grpcEmptyResp.setInfoAboutMovingList(this.serializeInfoAboutMoving(response.infoAboutMoving))
         grpcEmptyResp.setEtaFinalDelivery(response.etaFinalDelivery)
+        grpcEmptyResp.setBillno(response.billNo)
         grpcEmptyResp.setScac(TrackingServiceConverter.convertScacIntoEnum(response.scac))
         return grpcEmptyResp
     }
@@ -38,7 +39,6 @@ export class TrackingBybillNumberService implements ITrackingByBillNumberServer 
             scac: scac,
             country: country
         }).then((result: ITrackingByBillNumberResponse) => {
-                console.log(result)
                 callback(null, this.serializer.serializeBillNumberResponseIntoGrpc(result))
                 return
             }
