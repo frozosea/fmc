@@ -9,7 +9,7 @@ import (
 )
 
 type IController interface {
-	AddLine(ctx context.Context, lineObj LineWithByteImage) error
+	AddLine(ctx context.Context, lineObj WithByteImage) error
 	GetAllLines(ctx context.Context) ([]*Line, error)
 }
 type controller struct {
@@ -19,7 +19,7 @@ type controller struct {
 	fileStorage IFileStorage
 }
 
-func (s *controller) AddLine(ctx context.Context, lineObj LineWithByteImage) error {
+func (s *controller) AddLine(ctx context.Context, lineObj WithByteImage) error {
 	go func() {
 		jsonRepr, err := json.Marshal(lineObj)
 		if err != nil {

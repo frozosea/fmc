@@ -24,7 +24,6 @@ export class ScacRepository implements IScacContainers {
         try{
             await this.repo.save(object)
         }catch (e) {
-            console.log(e)
             return
         }
     }

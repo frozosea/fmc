@@ -36,6 +36,6 @@ func (c *cache) Set(ctx context.Context, key string, value interface{}) error {
 	return c.client.Set(ctx, key, jsonRepr, c.ttl).Err()
 }
 
-func NewCache(redisCli *redis.Client) *cache {
-	return &cache{client: redisCli}
+func NewCache(redisCli *redis.Client, ttl time.Duration) *cache {
+	return &cache{client: redisCli, ttl: ttl}
 }

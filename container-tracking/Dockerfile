@@ -12,6 +12,7 @@ COPY entrypoint.sh /usr/src/app
 
 # Enter the command which should be used when the image starts up. E.g. CMD ["node", "app.js"]
 EXPOSE ${GRPC_PORT}
+CMD ["echo","${GRPC_PORT}"]
 ENTRYPOINT [ "npm","run","start"]
 #CMD [ "npm","run","start"]
 

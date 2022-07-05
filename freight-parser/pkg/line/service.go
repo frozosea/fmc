@@ -3,7 +3,7 @@ package line
 import (
 	"bytes"
 	"context"
-	pb "fmc-newest/internal/proto"
+	"fmc-newest/pkg/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -12,10 +12,10 @@ import (
 
 type converter struct{}
 
-func (c *converter) convertControllerResponseToGrpcMessage(result []*Line) *pb.GetAllLinesResponse {
-	var allGrpcLines []*pb.Line
+func (c *converter) convertControllerResponseToGrpcMessage(result []*Line) *___.GetAllLinesResponse {
+	var allGrpcLines []*___.Line
 	for _, v := range result {
-		oneLine := pb.Line{
+		oneLine := ___.Line{
 			LineId:    int64(v.Id),
 			Scac:      v.Scac,
 			LineName:  v.FullName,
@@ -23,16 +23,16 @@ func (c *converter) convertControllerResponseToGrpcMessage(result []*Line) *pb.G
 		}
 		allGrpcLines = append(allGrpcLines, &oneLine)
 	}
-	return &pb.GetAllLinesResponse{Lines: allGrpcLines}
+	return &___.GetAllLinesResponse{Lines: allGrpcLines}
 }
 
 type service struct {
 	controller IController
 	converter  converter
-	pb.UnimplementedLineServiceServer
+	___.UnimplementedLineServiceServer
 }
 
-func (s *service) AddLine(stream pb.LineService_AddLineServer) error {
+func (s *service) AddLine(stream ___.LineService_AddLineServer) error {
 	req, readStreamErr := stream.Recv()
 	if readStreamErr != nil {
 		return readStreamErr
@@ -55,7 +55,7 @@ func (s *service) AddLine(stream pb.LineService_AddLineServer) error {
 			return writeByteErr
 		}
 	}
-	line := LineWithByteImage{
+	line := WithByteImage{
 		BaseLine: BaseLine{
 			Scac:     req.GetScac(),
 			FullName: req.GetFullName(),
@@ -64,10 +64,10 @@ func (s *service) AddLine(stream pb.LineService_AddLineServer) error {
 	}
 	return s.controller.AddLine(stream.Context(), line)
 }
-func (s *service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllLinesResponse, error) {
+func (s *service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*___.GetAllLinesResponse, error) {
 	result, err := s.controller.GetAllLines(ctx)
 	if err != nil {
-		var allGrpcLines *pb.GetAllLinesResponse
+		var allGrpcLines *___.GetAllLinesResponse
 		return allGrpcLines, err
 	}
 	return s.converter.convertControllerResponseToGrpcMessage(result), nil

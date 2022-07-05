@@ -1,0 +1,717 @@
+basePath: /
+definitions:
+  auth.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    required:
+    - error
+    - success
+    type: object
+  auth.LoginUserResponse:
+    properties:
+      refreshToken:
+        type: string
+      refreshTokenExpires:
+        type: integer
+      token:
+        type: string
+      token_type:
+        type: string
+      tokenExpires:
+        type: integer
+    required:
+    - refreshToken
+    - refreshTokenExpires
+    - token
+    - tokenExpires
+    - token_type
+    type: object
+  auth.RefreshTokenRequest:
+    properties:
+      refreshToken:
+        type: string
+    required:
+    - refreshToken
+    type: object
+  auth.User:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  schedule_tracking.AddOnTrackRequest:
+    properties:
+      emails:
+        items:
+          type: string
+        type: array
+      numbers:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+    type: object
+  schedule_tracking.AddOnTrackResponse:
+    properties:
+      alreadyOnTrack:
+        items:
+          type: string
+        type: array
+      result:
+        items:
+          $ref: '#/definitions/schedule_tracking.BaseAddOnTrackResponse'
+        type: array
+    type: object
+  schedule_tracking.BaseAddOnTrackResponse:
+    properties:
+      nextRunTime:
+        type: integer
+      number:
+        type: string
+      success:
+        type: boolean
+    type: object
+  schedule_tracking.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  schedule_tracking.DeleteEmailFromTrackRequest:
+    properties:
+      email:
+        type: string
+      number:
+        type: string
+    type: object
+  schedule_tracking.DeleteFromTrackRequest:
+    properties:
+      numbers:
+        items:
+          type: string
+        type: array
+    type: object
+  schedule_tracking.GetInfoAboutTrackRequest:
+    properties:
+      number:
+        type: string
+    type: object
+  schedule_tracking.GetInfoAboutTrackResponse:
+    properties:
+      emails:
+        items:
+          type: string
+        type: array
+      nextRunTime:
+        type: integer
+      number:
+        type: string
+    type: object
+  schedule_tracking.UpdateTrackingTimeRequest:
+    properties:
+      newTime:
+        type: string
+      numbers:
+        items:
+          type: string
+        type: array
+    type: object
+  tracking.BaseInfoAboutMoving:
+    properties:
+      location:
+        type: string
+      operation_name:
+        type: string
+      time:
+        type: integer
+      vessel:
+        type: string
+    type: object
+  tracking.BillNumberResponse:
+    properties:
+      Scac:
+        type: string
+      billNo:
+        type: string
+      eta_final_delivery:
+        type: integer
+      info_about_moving:
+        items:
+          $ref: '#/definitions/tracking.BaseInfoAboutMoving'
+        type: array
+    type: object
+  tracking.ContainerNumberResponse:
+    properties:
+      Scac:
+        type: string
+      container:
+        type: string
+      container_size:
+        type: string
+      info_about_moving:
+        items:
+          $ref: '#/definitions/tracking.BaseInfoAboutMoving'
+        type: array
+    type: object
+  tracking.Track:
+    properties:
+      number:
+        type: string
+      scac:
+        type: string
+    type: object
+  user.AddContainers:
+    properties:
+      numbers:
+        items:
+          type: string
+        type: array
+    type: object
+  user.AllContainersAndBillNumbers:
+    properties:
+      bill_numbers:
+        items:
+          $ref: '#/definitions/user.Container'
+        type: array
+      containers:
+        items:
+          $ref: '#/definitions/user.Container'
+        type: array
+    type: object
+  user.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  user.Container:
+    properties:
+      id:
+        type: integer
+      is_on_track:
+        type: boolean
+      number:
+        type: string
+    required:
+    - id
+    - is_on_track
+    - number
+    type: object
+  user.DeleteNumbers:
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API server for application
+  title: FindMyCargo API
+  version: 1.0.0
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: login user by username and password, tokens expires is unix timestamp
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginUserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+      summary: Login user by username and password
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: refresh token by refresh token
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RefreshTokenRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginUserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh token
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: register user by username and password
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+      summary: Register user by username and password
+      tags:
+      - Auth
+  /schedule/addBillNo:
+    post:
+      consumes:
+      - application/json
+      description: add bill numbers on track. Every day in your selected time track
+        bill numbers and send email with result about it.
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add bill numbers on track
+      tags:
+      - Schedule Tracking
+  /schedule/addContainer:
+    post:
+      consumes:
+      - application/json
+      description: add containers on track. Every day in your selected time track
+        container and send email with result about it.
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add containers on track
+      tags:
+      - Schedule Tracking
+  /schedule/addEmail:
+    put:
+      consumes:
+      - application/json
+      description: add new email to tracking, bill or container doesn't matter
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.UpdateTrackingTimeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add new email to tracking
+      tags:
+      - Schedule Tracking
+  /schedule/deleteBillNumbers:
+    delete:
+      consumes:
+      - application/json
+      description: delete numbers from tracking
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.DeleteFromTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete bill numbers from tracking
+      tags:
+      - Schedule Tracking
+  /schedule/deleteContainers:
+    delete:
+      consumes:
+      - application/json
+      description: delete containers from tracking
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.DeleteFromTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete containers from tracking
+      tags:
+      - Schedule Tracking
+  /schedule/deleteEmail:
+    delete:
+      consumes:
+      - application/json
+      description: delete email from tracking, bill or container doesn't matter
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.DeleteEmailFromTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete email from tracking
+      tags:
+      - Schedule Tracking
+  /schedule/getInfo:
+    get:
+      consumes:
+      - application/json
+      description: get info about number on tracking
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.GetInfoAboutTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.GetInfoAboutTrackResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get info about number on tracking
+      tags:
+      - Schedule Tracking
+  /schedule/updateTime:
+    put:
+      consumes:
+      - application/json
+      description: update time of tracking, bill or container doesn't matter
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.UpdateTrackingTimeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/schedule_tracking.BaseAddOnTrackResponse'
+            type: array
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update time of tracking
+      tags:
+      - Schedule Tracking
+  /tracking/trackByBillNumber:
+    post:
+      description: tracking by bill number, if eta not found will be 0
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/tracking.Track'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tracking.BillNumberResponse'
+        "204":
+          description: ""
+        "400":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Track by bill number
+      tags:
+      - Tracking
+  /tracking/trackByContainerNumber:
+    post:
+      consumes:
+      - application/json
+      description: tracking by container number
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/tracking.Track'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/tracking.ContainerNumberResponse'
+        "204":
+          description: ""
+        "400":
+          description: ""
+      security:
+      - ApiKeyAuth: []
+      summary: Track by bill number
+      tags:
+      - Tracking
+  /user/addBillNumbers:
+    post:
+      consumes:
+      - application/json
+      description: Add bill numbers to account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.AddContainers'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add bill numbers to account
+      tags:
+      - User
+  /user/addContainers:
+    post:
+      consumes:
+      - application/json
+      description: Add containers to account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.AddContainers'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add containers to account
+      tags:
+      - User
+  /user/deleteBillNumbers:
+    delete:
+      consumes:
+      - application/json
+      description: delete bill numbers from account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.DeleteNumbers'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - OAuth2Application: []
+      summary: Delete bill numbers from account
+      tags:
+      - User
+  /user/deleteContainers:
+    delete:
+      consumes:
+      - application/json
+      description: delete containers from account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.DeleteNumbers'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - OAuth2Application: []
+      summary: Delete containers from account
+      tags:
+      - User
+  /user/getAllBillsContainers:
+    get:
+      consumes:
+      - application/json
+      description: Get all bill numbers and containers from account
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.AllContainersAndBillNumbers'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - OAuth2Application: []
+      summary: Get all bill numbers and containers from account
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

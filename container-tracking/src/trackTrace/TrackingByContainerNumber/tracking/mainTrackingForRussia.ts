@@ -63,7 +63,7 @@ export class MainTrackingForRussia {
             for (let task of tasks) {
                 try {
                     let res = await task.trackContainer(args);
-                    if (res !== undefined) {
+                    if (res) {
                         if (this.timeInspector.inspectTime(res)) {
                             return res
                         }
@@ -76,8 +76,8 @@ export class MainTrackingForRussia {
             throw new ContainerNotFoundException()
         } else {
             try {
+                console.log(args)
                 return await this.getContainerByScac(args.scac).trackContainer(args);
-
             } catch (e) {
                 throw new ContainerNotFoundException()
             }

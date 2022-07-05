@@ -4,13 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"user-api/pkg/user"
+	"fmt"
+	"user-api/pkg/domain"
 )
 
 type IRepository interface {
-	Register(ctx context.Context, user user.User) error
-	Login(ctx context.Context, user user.User) (int, error)
+	Register(ctx context.Context, user domain.User) error
+	Login(ctx context.Context, user domain.User) (int, error)
 	CheckAccess(ctx context.Context, userId int) (bool, error)
+}
+type AlreadyRegisterError struct{}
+
+func NewAlreadyRegisterError() *AlreadyRegisterError {
+	return &AlreadyRegisterError{}
+}
+
+func (a *AlreadyRegisterError) Error() string {
+	return "Cannot register with these parameters"
 }
 
 type Repository struct {
@@ -18,20 +28,27 @@ type Repository struct {
 	hash IHash
 }
 
-func (r *Repository) Register(ctx context.Context, user user.User) error {
+func NewRepository(db *sql.DB, hash IHash) *Repository {
+	return &Repository{db: db, hash: hash}
+}
+
+func (r *Repository) Register(ctx context.Context, user domain.User) error {
 	hashPassword, hashErr := r.hash.Hash(user.Password)
 	if hashErr != nil {
 		return hashErr
 	}
 	_, err := r.db.ExecContext(ctx, `INSERT INTO "user"(username, password) VALUES ($1,$2)`, user.Username, hashPassword)
-	return err
+	if err != nil {
+		return NewAlreadyRegisterError()
+	}
+	return nil
 }
-func (r *Repository) Login(ctx context.Context, user user.User) (int, error) {
+func (r *Repository) Login(ctx context.Context, user domain.User) (int, error) {
 	var id int
 	var userPassword string
-	row, queryErr := r.db.QueryContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.username = $1`, user.Username)
-	if queryErr != nil {
-		return id, queryErr
+	row := r.db.QueryRowContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.username = $1`, user.Username)
+	if row.Err() != nil {
+		return id, row.Err()
 	}
 	switch err := row.Scan(&id, &userPassword); err {
 	case sql.ErrNoRows:
@@ -42,7 +59,7 @@ func (r *Repository) Login(ctx context.Context, user user.User) (int, error) {
 		}
 		return id, errors.New(`password is invalid`)
 	default:
-		return 1, errors.New(`something went wrong`)
+		return 1, errors.New(fmt.Sprintf(`something went wrong: %s`, err.Error()))
 	}
 }
 func (r *Repository) CheckAccess(ctx context.Context, userId int) (bool, error) {

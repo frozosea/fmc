@@ -70,7 +70,7 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
             }
             infoAboutMovingArray.push(event)
         }
-        return infoAboutMovingArray
+        return infoAboutMovingArray.reverse()
     }
 }
 

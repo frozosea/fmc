@@ -7,50 +7,6 @@ import (
 	"google.golang.org/grpc"
 )
 
-type Client struct {
-	conn              *grpc.ClientConn
-	billNoClient      trackingByBillNumberClient
-	containerNoClient trackingByContainerNumberClient
-	logger            logging.ILogger
-	converter
-}
-
-func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumberResponse, error) {
-	request := Request{
-		Number:  track.Number,
-		Scac:    Scac(Scac_value[track.Scac]),
-		Country: Country(Country_value[track.Country]),
-	}
-	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
-	if err != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
-		return c.convertGrpcBlNoResponse(response), err
-	}
-	return c.convertGrpcBlNoResponse(response), nil
-}
-
-func (c *Client) TrackByContainerNumber(ctx context.Context, track Track) (ContainerNumberResponse, error) {
-	request := Request{
-		Number:  track.Number,
-		Scac:    Scac(Scac_value[track.Scac]),
-		Country: Country(Country_value[track.Country]),
-	}
-	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
-	if err != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
-		return c.convertGrpcContainerNoResponse(response), err
-	}
-	return c.convertGrpcContainerNoResponse(response), nil
-}
-func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
-	return &Client{
-		conn:              conn,
-		billNoClient:      trackingByBillNumberClient{cc: conn},
-		containerNoClient: trackingByContainerNumberClient{cc: conn},
-		logger:            logger,
-	}
-}
-
 type converter struct{}
 
 func (c *converter) convertGrpcInfoAboutMoving(resp []*InfoAboutMoving) []BaseInfoAboutMoving {
@@ -74,5 +30,72 @@ func (c *converter) convertGrpcContainerNoResponse(response *TrackingByContainer
 		ContainerSize:   response.GetContainerSize(),
 		Scac:            response.GetScac().String(),
 		InfoAboutMoving: c.convertGrpcInfoAboutMoving(response.GetInfoAboutMoving()),
+	}
+}
+
+type Client struct {
+	conn              *grpc.ClientConn
+	billNoClient      trackingByBillNumberClient
+	containerNoClient trackingByContainerNumberClient
+	logger            logging.ILogger
+	converter
+	util
+}
+
+func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, ip string) (BillNumberResponse, error) {
+	country := c.getCountry(ip)
+	var request Request
+	if country == "RU" {
+		request = Request{
+			Number:  track.Number,
+			Scac:    Scac(Scac_value[track.Scac]),
+			Country: Country(Country_value["RU"]),
+		}
+	} else {
+		request = Request{
+			Number:  track.Number,
+			Scac:    Scac(Scac_value[track.Scac]),
+			Country: Country(Country_value["OTHER"]),
+		}
+	}
+	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
+	if err != nil {
+		c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
+		return c.convertGrpcBlNoResponse(response), err
+	}
+	return c.convertGrpcBlNoResponse(response), nil
+}
+
+func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip string) (ContainerNumberResponse, error) {
+	//start := time.Now()
+	country := c.getCountry(ip)
+	var request Request
+	if country == "RU" {
+		request = Request{
+			Number:  track.Number,
+			Scac:    Scac(Scac_value[track.Scac]),
+			Country: Country(Country_value["RU"]),
+		}
+	} else {
+		request = Request{
+			Number:  track.Number,
+			Scac:    Scac(Scac_value[track.Scac]),
+			Country: Country(Country_value["OTHER"]),
+		}
+	}
+	//fmt.Println(time.Since(start))
+	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
+	if err != nil {
+		c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
+		return c.convertGrpcContainerNoResponse(response), err
+	}
+	return c.convertGrpcContainerNoResponse(response), nil
+}
+func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
+	return &Client{
+		conn:              conn,
+		billNoClient:      trackingByBillNumberClient{cc: conn},
+		containerNoClient: trackingByContainerNumberClient{cc: conn},
+		logger:            logger,
 	}
 }

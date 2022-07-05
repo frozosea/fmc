@@ -8,7 +8,7 @@ type BaseLine struct {
 	Scac     string
 	FullName string
 }
-type LineWithByteImage struct {
+type WithByteImage struct {
 	BaseLine
 	Image io.Reader
 }

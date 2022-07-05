@@ -1,8 +1,14 @@
 import startServer from "./server/server";
 import {config} from "dotenv"
+import {AppDataSource} from "./db/data-source";
 
 function main() {
     config();
+    AppDataSource.initialize()
+        .then(async (_) => {
+            console.log(process.env.POSTGRES_DATABASE)
+        })
+        .catch((error) => console.log("Error: ", error))
     startServer();
 }
 

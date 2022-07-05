@@ -2,17 +2,22 @@ package tracking
 
 import (
 	"fmc-with-git/internal/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type HttpHandler struct {
 	client *Client
-	utils.HttpUtils
+	*utils.HttpUtils
 }
 
+func NewHttpHandler(client *Client, httpUtils *utils.HttpUtils) *HttpHandler {
+	return &HttpHandler{client: client, HttpUtils: httpUtils}
+}
+
+// TrackByContainerNumber
 // @Summary      Track by bill number
+// @Security ApiKeyAuth
 // @Description  tracking by container number
 // @accept json
 // @Produce      json
@@ -23,13 +28,12 @@ type HttpHandler struct {
 // @Failure      400
 // @Router       /tracking/trackByContainerNumber [post]
 func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
-	var schema *Track
-	if validateErr := c.ShouldBindJSON(&schema); validateErr != nil {
+	var schema Track
+	if err := h.Validate(c, &schema); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	fmt.Println(schema)
-	response, err := h.client.TrackByBillNumber(c.Request.Context(), schema)
+	response, err := h.client.TrackByContainerNumber(c.Request.Context(), schema, c.Request.Header.Get("X-REAL-IP"))
 	if err != nil {
 		c.JSON(204, gin.H{"message": "container not found"})
 		return
@@ -38,7 +42,9 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 	return
 }
 
+// TrackByBillNumber
 // @Summary      Track by bill number
+// @Security ApiKeyAuth
 // @Description  tracking by bill number, if eta not found will be 0
 // @Tags         Tracking
 // @Param input body Track true "info"
@@ -48,20 +54,15 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 // @Router       /tracking/trackByBillNumber [post]
 func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 	var schema *Track
-	if validateErr := c.ShouldBindJSON(&schema); validateErr != nil {
+	if err := h.Validate(c, &schema); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	fmt.Println(schema)
-	response, err := h.client.TrackByBillNumber(c.Request.Context(), schema)
+	response, err := h.client.TrackByBillNumber(c.Request.Context(), schema, c.Request.Header.Get("X-REAL-IP"))
 	if err != nil {
 		c.JSON(204, gin.H{})
 		return
 	}
 	c.JSON(200, response)
 	return
-}
-
-func NewHttpHandler(client *Client) *HttpHandler {
-	return &HttpHandler{client: client}
 }

@@ -46,7 +46,6 @@ func NewFileStorage() *fileStorage {
 type credentials struct {
 }
 
-//TODO delete open keys and add .env values
 func (s *credentials) Retrieve(ctx context.Context) (aws.Credentials, error) {
 	return aws.Credentials{
 		AccessKeyID:     os.Getenv("S3_ACCESS_KEY_ID"),

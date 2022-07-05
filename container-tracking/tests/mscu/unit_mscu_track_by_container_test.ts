@@ -11,7 +11,8 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert")
 function testInfoAboutMoving(actualInfoAboutMoving: OneTrackingEvent[]): void {
-    for (let event in actualInfoAboutMoving) {
+    console.log(actualInfoAboutMoving)
+    for (let event in mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events.reverse()) {
         assert.strictEqual(actualInfoAboutMoving[event].time, new Date(new Date(actualInfoAboutMoving[event].time).toUTCString()).getTime())
         assert.strictEqual(actualInfoAboutMoving[event].location, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Location)
         assert.strictEqual(actualInfoAboutMoving[event].operationName, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Description)

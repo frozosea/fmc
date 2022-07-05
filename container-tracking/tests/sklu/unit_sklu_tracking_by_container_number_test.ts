@@ -72,7 +72,7 @@ describe("SKLU container tracking test", () => {
         assert.strictEqual(actualResult.scac, "SKLU")
         assert.strictEqual(actualResult.container, container)
         assert.strictEqual(actualResult.containerSize, expectedResult.containerSize)
-        // assert.deepEqual(actualResult, expectedResult)
+        assert.deepEqual(actualResult, expectedResult)
     }).timeout(100000000)
 
 })

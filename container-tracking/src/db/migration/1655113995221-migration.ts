@@ -5,9 +5,9 @@ import {config} from "dotenv";
 
 export class migration1655113995221 implements MigrationInterface {
     name = 'migration1655113995221'
+
     public async up(queryRunner: QueryRunner): Promise<void> {
         config()
-        console.log(`database : ${process.env.POSTGRES_DATABASE}`)
         await queryRunner.query(`CREATE TABLE IF NOT EXISTS "unlocode"
                                  (
                                      "id"       SERIAL            NOT NULL,
@@ -30,7 +30,7 @@ export class migration1655113995221 implements MigrationInterface {
                 let unloObj = new Unlocode()
                 unloObj.unlocode = array[0]
                 unloObj.fullname = array[1]
-                await queryRunner.manager.save(unloObj,{})
+                await queryRunner.manager.save(unloObj, {})
             } catch (e) {
             }
         }

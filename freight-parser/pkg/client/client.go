@@ -1,18 +1,14 @@
 package client
 
-import (
-	pb "fmc-newest/internal/proto"
-)
-
 //TODO create all clients
-type Freight struct {
-	pb.FreightServiceClient
-}
+//type Freight struct {
+//	proto.FreightServiceClient
+//}
 
-//func (f *Freight) GetFreights(ctx context.Context, in *pb.GetFreightRequest, opts ...grpc.CallOption) (*pb.GetFreightsResponseList, error) {
+//func (f *Freight) GetFreights(ctx context.Context, in *proto.GetFreightRequest, opts ...grpc.CallOption) (*proto.GetFreightsResponseList, error) {
 //
 //}
 //
-//func (f *Freight) AddFreight(ctx context.Context, in *pb.AddFreightRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+//func (f *Freight) AddFreight(ctx context.Context, in *proto.AddFreightRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 //
 //}

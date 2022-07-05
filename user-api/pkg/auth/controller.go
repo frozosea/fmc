@@ -4,26 +4,28 @@ import (
 	"context"
 	"fmt"
 	"user-api/internal/logging"
-	"user-api/pkg/user"
+	"user-api/pkg/domain"
 )
 
 type Controller struct {
-	repository      IRepository
-	hash            IHash
-	tokenManager    ITokenManager
-	tokenExpiration int
-	logger          logging.ILogger
+	repository   IRepository
+	tokenManager ITokenManager
+	logger       logging.ILogger
 }
 
-func (c *Controller) RegisterUser(ctx context.Context, user user.User) error {
+func NewController(repository IRepository, tokenManager ITokenManager, logger logging.ILogger) *Controller {
+	return &Controller{repository: repository, tokenManager: tokenManager, logger: logger}
+}
+
+func (c *Controller) RegisterUser(ctx context.Context, user domain.User) error {
 	if regUserErr := c.repository.Register(ctx, user); regUserErr != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`user with username %s`, user.Username))
+		//go c.logger.ExceptionLog(fmt.Sprintf(`user-pb with username %s`, user.Username))
 		return regUserErr
 	}
-	go c.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Username))
+	//go c.logger.InfoLog(fmt.Sprintf(`user-pb with username %s was registered`, user.Username))
 	return nil
 }
-func (c *Controller) Login(ctx context.Context, user user.User) (*Token, error) {
+func (c *Controller) Login(ctx context.Context, user domain.User) (*Token, error) {
 	var token *Token
 	userId, err := c.repository.Login(ctx, user)
 	if err != nil {
@@ -31,7 +33,7 @@ func (c *Controller) Login(ctx context.Context, user user.User) (*Token, error) 
 	}
 	token, genTokenErr := c.tokenManager.GenerateAccessRefreshTokens(userId)
 	if genTokenErr != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user: %d error: %s`, userId, genTokenErr.Error()))
+		c.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))
 	}
 	return token, genTokenErr
 }

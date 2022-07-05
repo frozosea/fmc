@@ -19,6 +19,7 @@ export const AppDataSource = new DataSource({
     migrations: [__dirname + "/migration/*{.js,.ts}"],
     subscribers: [],
 })
+
 AppDataSource.initialize()
     .then(async (_) => {
         console.log(process.env.POSTGRES_DATABASE)

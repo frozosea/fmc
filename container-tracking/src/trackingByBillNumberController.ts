@@ -31,7 +31,7 @@ export default class BillNumberTrackingController {
                 this.logger.containerSuccessLog(result)
                 return result
             default:
-                throw new Error("user only RU")
+                throw new Error("user-pb only RU")
         }
     }
 

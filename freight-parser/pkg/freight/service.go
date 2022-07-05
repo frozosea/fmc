@@ -3,44 +3,44 @@ package freight
 import (
 	"context"
 	"fmc-newest/internal/logging"
-	pb "fmc-newest/internal/proto"
+	"fmc-newest/pkg/proto"
 	"fmt"
 )
 
 type freightConverter struct {
 }
 
-func (c *freightConverter) convertRequestToGetFreightStruct(request *pb.GetFreightRequest) GetFreight {
+func (c *freightConverter) convertRequestToGetFreightStruct(request *___.GetFreightRequest) GetFreight {
 	return GetFreight{FromCityId: request.FromCityId, ToCityId: request.ToCityId, ContainerType: request.ContainerType.String(), Limit: request.Limit}
 
 }
 
-func (c *freightConverter) convertResponseToGrpcResponse(freights []BaseFreight) *pb.GetFreightsResponseList {
-	var outputSlice []*pb.GetFreightResponse
+func (c *freightConverter) convertResponseToGrpcResponse(freights []BaseFreight) *___.GetFreightsResponseList {
+	var outputSlice []*___.GetFreightResponse
 	for _, value := range freights {
-		oneGrpcResponse := pb.GetFreightResponse{
-			FromCity: &pb.City{
+		oneGrpcResponse := ___.GetFreightResponse{
+			FromCity: &___.City{
 				CityId:       int64(value.FromCity.Id),
 				CityName:     value.FromCity.FullName,
 				CityUnlocode: value.FromCity.Unlocode,
 			},
-			ToCity: &pb.City{
+			ToCity: &___.City{
 				CityId:       int64(value.ToCity.Id),
 				CityName:     value.ToCity.FullName,
 				CityUnlocode: value.ToCity.Unlocode,
 			},
-			ContainerType: &pb.Container{
-				ContainerType:   pb.ContainerType(pb.ContainerType_value[value.Type]),
+			ContainerType: &___.Container{
+				ContainerType:   ___.ContainerType(___.ContainerType_value[value.Type]),
 				ContainerTypeId: int64(value.Id),
 			},
 			UsdPrice: int64(value.UsdPrice),
-			Line: &pb.Line{
+			Line: &___.Line{
 				LineId:    int64(value.Id),
 				Scac:      value.Line.Scac,
 				LineName:  value.FullName,
 				LineImage: value.ImageUrl,
 			},
-			Contact: &pb.Contact{
+			Contact: &___.Contact{
 				Url:         value.Contact.Url,
 				PhoneNumber: value.Contact.PhoneNumber,
 				AgentName:   value.Contact.AgentName,
@@ -49,17 +49,17 @@ func (c *freightConverter) convertResponseToGrpcResponse(freights []BaseFreight)
 		}
 		outputSlice = append(outputSlice, &oneGrpcResponse)
 	}
-	return &pb.GetFreightsResponseList{MultiResponse: outputSlice}
+	return &___.GetFreightsResponseList{MultiResponse: outputSlice}
 }
 
 type GetFreightService struct {
 	controller IController
 	logger     logging.ILogger
-	pb.UnimplementedFreightServiceServer
+	___.UnimplementedFreightServiceServer
 	converter freightConverter
 }
 
-func (s *GetFreightService) GetFreight(ctx context.Context, r *pb.GetFreightRequest) (*pb.GetFreightsResponseList, error) {
+func (s *GetFreightService) GetFreight(ctx context.Context, r *___.GetFreightRequest) (*___.GetFreightsResponseList, error) {
 	convertedRequest := s.converter.convertRequestToGetFreightStruct(r)
 	response, err := s.controller.GetFreights(ctx, convertedRequest)
 	if err != nil {
@@ -73,7 +73,7 @@ func NewGetFreightService(freightController IController, logger logging.ILogger)
 	return &GetFreightService{
 		controller:                        freightController,
 		logger:                            logger,
-		UnimplementedFreightServiceServer: pb.UnimplementedFreightServiceServer{},
+		UnimplementedFreightServiceServer: ___.UnimplementedFreightServiceServer{},
 	}
 }
 

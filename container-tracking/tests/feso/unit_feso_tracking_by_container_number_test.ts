@@ -59,6 +59,7 @@ export function FesoApiParserTest(apiParser: FesoApiParser, infoAboutMovingParse
         containerSize: containerSizeParser.getContainerSize(ExampleFesoInfoAboutMovingApiResponse),
         infoAboutMoving: infoAboutMovingParser.getInfoAboutMoving(ExampleFesoInfoAboutMovingApiResponse)
     }
+    console.log(JSON.stringify(expectedReadyObject.infoAboutMoving))
     let actualReadyObject = apiParser.getOutputObjectAndGetEta(ExampleFesoInfoAboutMovingApiResponse)
     assert.deepEqual(actualReadyObject, expectedReadyObject)
 }

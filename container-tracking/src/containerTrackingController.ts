@@ -1,7 +1,9 @@
 import {ICache} from "./cache";
 import {ITrackingByBillNumberResponse, TrackingArgsWithScac, TrackingContainerResponse} from "./types";
 import {MainTrackingForRussia} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
-import {MainTrackingForOtherCountries} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
+import {
+    MainTrackingForOtherCountries
+} from "./trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
 import {IScacContainers} from "./trackTrace/TrackingByContainerNumber/containerScacRepo";
 import {IServiceLogger} from "./logging";
 
@@ -55,7 +57,7 @@ export default class ContainerTrackingController {
                 this.logger.containerSuccessLog(res)
                 return res
             default:
-                throw new Error("user only RU or OTHER")
+                throw new Error("user-pb only RU or OTHER")
         }
     }
 

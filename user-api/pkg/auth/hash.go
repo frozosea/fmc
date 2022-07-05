@@ -9,6 +9,10 @@ type IHash interface {
 type Hash struct {
 }
 
+func NewHash() *Hash {
+	return &Hash{}
+}
+
 func (h *Hash) Hash(pwd string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(pwd), 14)
 	return string(bytes), err

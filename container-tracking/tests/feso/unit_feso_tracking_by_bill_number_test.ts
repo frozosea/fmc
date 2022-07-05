@@ -1,7 +1,8 @@
 import {FesoInfoAboutMovingParser} from "../../src/trackTrace/TrackingByContainerNumber/feso/feso";
 import {
     FesoApiFullResponseSchema,
-    FesoApiResponse, FesoLastEventsSchema
+    FesoApiResponse,
+    FesoLastEventsSchema
 } from "../../src/trackTrace/TrackingByContainerNumber/feso/fescoApiResponseSchemas";
 import {FesoInfoAboutMovingTest, parseFesoResp} from "./unit_feso_tracking_by_container_number_test";
 import {FesoBillNumber, FesoEtaParser} from "../../src/trackTrace/trackingBybillNumber/feso/feso";
@@ -66,6 +67,6 @@ describe("FESO tracking by bill number test", () => {
         const result = await fesoBillNumber.trackByBillNumber({number: ""})
         assert.strictEqual(result.etaFinalDelivery, 1656979200000)
         let expectedInfoAboutMoving: FesoLastEventsSchema[] = ExampleFesoInfoAboutMovingApiResponse.lastEvents
-        FesoInfoAboutMovingTest(fesoInfoAboutMovingParser,result.infoAboutMoving,deleteEta(expectedInfoAboutMoving))
+        FesoInfoAboutMovingTest(fesoInfoAboutMovingParser, result.infoAboutMoving, deleteEta(expectedInfoAboutMoving))
     })
 })

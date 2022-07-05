@@ -1,7 +1,7 @@
 package server
 
 import (
-	pb "fmc-newest/internal/proto"
+	pb "fmc-newest/pkg/proto"
 	"google.golang.org/grpc"
 )
 

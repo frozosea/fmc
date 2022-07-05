@@ -15,45 +15,66 @@ type Controller struct {
 	cache      cache.ICache
 }
 
-func (c *Controller) AddContainerToAccount(ctx context.Context, userId int, containers []domain.Container) {
-	jsonRepr, err := json.Marshal(containers)
-	if err != nil {
-		c.logger.InfoLog(fmt.Sprintf(`add container to user: %d, containers: %s`, userId, jsonRepr))
-	}
-	go func() {
-		if saveErr := c.repository.AddContainerToAccount(ctx, userId, containers); saveErr != nil {
-			c.logger.ExceptionLog(fmt.Sprintf(`add container to user: %d failed with err: %s`, userId, saveErr.Error()))
-			return
-		}
-	}()
-	return
-}
-func (c *Controller) DeleteContainersFromAccount(ctx context.Context, userId int, containers []domain.Container) {
-	jsonRepr, err := json.Marshal(containers)
-	if err != nil {
-		c.logger.InfoLog(fmt.Sprintf(`delete containers to user: %d, containers: %s`, userId, jsonRepr))
-	}
-	go func() {
-		if deleteErr := c.repository.DeleteContainersFromAccount(ctx, userId, containers); deleteErr != nil {
-			c.logger.ExceptionLog(fmt.Sprintf(`delete containers: %s from user: %d failed with err: %s`, jsonRepr, userId, deleteErr.Error()))
-		}
-	}()
-	return
+func NewController(repository IRepository, logger logging.ILogger, cache cache.ICache) *Controller {
+	return &Controller{repository: repository, logger: logger, cache: cache}
 }
 
-//	GetAllContainers(ctx context.Context, userId int) ([]domain.Container, error)
-func (c *Controller) GetAllContainers(ctx context.Context, userId int) ([]*domain.Container, error) {
-	cacheCh := make(chan []*domain.Container)
+func (c *Controller) AddContainerToAccount(ctx context.Context, userId int, containers []string) error {
 	go func() {
-		var containers []*domain.Container
+		jsonRepr, err := json.Marshal(containers)
+		if err != nil {
+			return
+		}
+		c.logger.InfoLog(fmt.Sprintf(`add container to user-pb: %d, containers: %s`, userId, jsonRepr))
+
+	}()
+	if saveErr := c.repository.AddContainerToAccount(ctx, userId, containers); saveErr != nil {
+		c.logger.ExceptionLog(fmt.Sprintf(`add container to user-pb: %d failed with err: %s`, userId, saveErr.Error()))
+		return saveErr
+	}
+	return nil
+}
+func (c *Controller) AddBillNumberToAccount(ctx context.Context, userId int, numbers []string) error {
+	go func() {
+		jsonRepr, err := json.Marshal(numbers)
+		if err != nil {
+			return
+		}
+		c.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %s`, userId, jsonRepr))
+
+	}()
+	if addBillErr := c.repository.AddBillNumberToAccount(ctx, userId, numbers); addBillErr != nil {
+		go c.logger.ExceptionLog(fmt.Sprintf(`add numbers: %v to user: %d err: %s`, numbers, userId, addBillErr.Error()))
+		return addBillErr
+	}
+	return nil
+}
+func (c *Controller) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+	if deleteErr := c.repository.DeleteContainersFromAccount(ctx, userId, numberIds); deleteErr != nil {
+		go c.logger.ExceptionLog(fmt.Sprintf(`delete containers: %v from user-pb: %d failed with err: %s`, numberIds, userId, deleteErr.Error()))
+		return deleteErr
+	}
+	return nil
+}
+func (c *Controller) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+	if delErr := c.repository.DeleteBillNumbersFromAccount(ctx, userId, numberIds); delErr != nil {
+		go c.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers: %v from user-pb: %d failed with err: %s`, numberIds, userId, delErr.Error()))
+		return delErr
+	}
+	return nil
+}
+func (c *Controller) GetAllContainers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
+	cacheCh := make(chan *domain.AllContainersAndBillNumbers)
+	go func() {
+		var containers *domain.AllContainersAndBillNumbers
 		if getFromCacheError := c.cache.Get(ctx, fmt.Sprintf(`%d`, userId), &containers); getFromCacheError != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`get from cache failed: %s`, getFromCacheError.Error()))
 		}
 		cacheCh <- containers
 	}()
-	repoCh := make(chan []*domain.Container)
+	repoCh := make(chan *domain.AllContainersAndBillNumbers)
 	go func() {
-		result, getFromRepositoryErr := c.repository.GetAllContainers(ctx, userId)
+		result, getFromRepositoryErr := c.repository.GetAllContainersAndBillNumbers(ctx, userId)
 		if getFromRepositoryErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`get from repo failed: %s`, getFromRepositoryErr.Error()))
 		}
@@ -65,7 +86,6 @@ func (c *Controller) GetAllContainers(ctx context.Context, userId int) ([]*domai
 	case cacheResult := <-cacheCh:
 		return cacheResult, nil
 	case repoRes := <-repoCh:
-		jsonRepr, _ := json.Marshal(repoRes)
-		return repoRes, c.cache.Set(ctx, fmt.Sprintf(`%d`, userId), jsonRepr)
+		return repoRes, c.cache.Set(ctx, fmt.Sprintf(`%d`, userId), repoRes)
 	}
 }
