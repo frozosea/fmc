@@ -1,4 +1,4 @@
-import {TrackingContainerResponse} from "./types";
+import {ITrackingByBillNumberResponse, TrackingContainerResponse} from "./types";
 
 const log4js = require("log4js");
 
@@ -71,7 +71,7 @@ export class Logger implements ILogger {
 }
 
 export interface IServiceLogger {
-    containerSuccessLog(result: TrackingContainerResponse): void
+    containerSuccessLog(result: TrackingContainerResponse | ITrackingByBillNumberResponse): void
 
     containerNotFoundLog(container: string): void
 }

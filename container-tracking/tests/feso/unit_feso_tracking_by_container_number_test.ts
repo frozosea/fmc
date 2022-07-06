@@ -15,7 +15,7 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require('assert');
 
-function parseFesoResp(fesoApiResp: FesoApiFullResponseSchema): FesoApiResponse {
+export function parseFesoResp(fesoApiResp: FesoApiFullResponseSchema): FesoApiResponse {
     return JSON.parse(fesoApiResp.data.tracking.data.containers[0])
 }
 
@@ -38,12 +38,9 @@ const RawFesoApiResp: FesoApiFullResponseSchema = {
 const ExampleFesoInfoAboutMovingApiResponse: FesoApiResponse = parseFesoResp(RawFesoApiResp)
 
 
-function FesoInfoAboutMovingTest(fesoInfoAboutMovingParser: FesoInfoAboutMovingParser) {
-    let expectedInfoAboutMoving: FesoLastEventsSchema[] = ExampleFesoInfoAboutMovingApiResponse.lastEvents
-    let actualInfoAboutMoving: OneTrackingEvent[] = fesoInfoAboutMovingParser.getInfoAboutMoving(ExampleFesoInfoAboutMovingApiResponse)
+export function FesoInfoAboutMovingTest(fesoInfoAboutMovingParser: FesoInfoAboutMovingParser, actualInfoAboutMoving, expectedInfoAboutMoving) {
     for (let event in actualInfoAboutMoving) {
         //locNameLatin
-        assert.strictEqual(actualInfoAboutMoving[event].time, new Date(expectedInfoAboutMoving[event].time).getTime())
         assert.strictEqual(actualInfoAboutMoving[event].operationName, expectedInfoAboutMoving[event].operationNameLatin)
         assert.strictEqual(actualInfoAboutMoving[event].location, expectedInfoAboutMoving[event].locNameLatin)
     }
@@ -55,23 +52,24 @@ function FesoContainerSizeTest(containerSizeParser: FesoContainerSizeParser) {
     assert.strictEqual(actualContainerSize, expectedContainerSize)
 }
 
-function FesoApiParserTest(apiParser: FesoApiParser, infoAboutMovingParser: FesoInfoAboutMovingParser, containerSizeParser: FesoContainerSizeParser, container: string) {
+export function FesoApiParserTest(apiParser: FesoApiParser, infoAboutMovingParser: FesoInfoAboutMovingParser, containerSizeParser: FesoContainerSizeParser, container: string) {
     let expectedReadyObject = {
         container: container,
         scac: "FESO",
         containerSize: containerSizeParser.getContainerSize(ExampleFesoInfoAboutMovingApiResponse),
         infoAboutMoving: infoAboutMovingParser.getInfoAboutMoving(ExampleFesoInfoAboutMovingApiResponse)
     }
+    console.log(JSON.stringify(expectedReadyObject.infoAboutMoving))
     let actualReadyObject = apiParser.getOutputObjectAndGetEta(ExampleFesoInfoAboutMovingApiResponse)
     assert.deepEqual(actualReadyObject, expectedReadyObject)
 }
 
 
-const requestMoch: IRequest<fetchArgs> ={
-    async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
+export const requestMoch: IRequest<fetchArgs> = {
+    async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
         return RawFesoApiResp
     },
-    async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {
+    async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return ""
     }
 }
@@ -80,15 +78,17 @@ describe("FESO container tracking Test", () => {
     const container = "FESU2219270"
 
     const fesoContainerSizeParser = new FesoContainerSizeParser()
-    const fesoInfoAboutMovingParser = new FesoInfoAboutMovingParser()
-    const fesoApiParser = new FesoApiParser()
+    const fesoInfoAboutMovingParser = new FesoInfoAboutMovingParser(config.DATETIME)
+    const fesoApiParser = new FesoApiParser(config.DATETIME)
 
     it("FESO container size parser test", () => {
         FesoContainerSizeTest(fesoContainerSizeParser)
     })
 
     it("FESO info about moving parser test", () => {
-        FesoInfoAboutMovingTest(fesoInfoAboutMovingParser)
+        let expectedInfoAboutMoving: FesoLastEventsSchema[] = ExampleFesoInfoAboutMovingApiResponse.lastEvents
+        let actualInfoAboutMoving: OneTrackingEvent[] = fesoInfoAboutMovingParser.getInfoAboutMoving(ExampleFesoInfoAboutMovingApiResponse)
+        FesoInfoAboutMovingTest(fesoInfoAboutMovingParser, actualInfoAboutMoving, expectedInfoAboutMoving)
     })
     it("FESO full api parser test", () => {
         FesoApiParserTest(fesoApiParser, fesoInfoAboutMovingParser, fesoContainerSizeParser, container)
@@ -99,11 +99,10 @@ describe("FESO container tracking Test", () => {
             requestSender: requestMoch,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         })
-        let actualResult = await feso.trackContainer({container: "FESU2219270"})
+        let actualResult = await feso.trackContainer({number: "FESU2219270"})
         let expectedInfoAboutMoving: FesoLastEventsSchema[] = ExampleFesoInfoAboutMovingApiResponse.lastEvents
         for (let event in actualResult.infoAboutMoving) {
             //locNameLatin
-            assert.strictEqual(actualResult.infoAboutMoving[event].time, new Date(expectedInfoAboutMoving[event].time).getTime())
             assert.strictEqual(actualResult.infoAboutMoving[event].operationName, expectedInfoAboutMoving[event].operationNameLatin)
             assert.strictEqual(actualResult.infoAboutMoving[event].location, expectedInfoAboutMoving[event].locNameLatin)
         }

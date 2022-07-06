@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  grpc_server:
+  tracking_api:
     build: .
     env_file:
       - .env
@@ -11,7 +11,9 @@ services:
     links:
       - postgres
     ports:
-      - "8080:${GRPC_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
+    entrypoint: ["npm","run","entrypoint"]
+
   redis:
     image: 'bitnami/redis:latest'
     environment:
@@ -20,14 +22,11 @@ services:
     image: postgres:13.3
     restart: unless-stopped
     ports:
-        - "5432:5432"
+      - "5432:5432"
     environment:
       LC_ALL: C.UTF-8
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DATABASE}
-      POSTGRES_HOST: ${POSTGRES_HOST}
     env_file:
       - .env
-    command:
-      - npm run migration:up

@@ -1,5 +1,5 @@
 import {ICache} from "../../src/cache";
-import TrackingController from "../../src/trackingController";
+import ContainerTrackingController from "../../src/containerTrackingController";
 import {IScacContainers} from "../../src/trackTrace/TrackingByContainerNumber/containerScacRepo";
 import {COUNTRY_TYPE, SCAC_TYPE, TrackingContainerResponse} from "../../src/types";
 import {IServiceLogger} from "../../src/logging";
@@ -47,8 +47,8 @@ const loggerMoch: IServiceLogger = {
     }
 }
 
-async function testNotAutoScac(service: TrackingController, container: string, scac: SCAC_TYPE, country: COUNTRY_TYPE): Promise<void> {
-    let result = await service.trackContainer({container: container, scac: scac, country: country})
+async function testNotAutoScac(service: ContainerTrackingController, container: string, scac: SCAC_TYPE, country: COUNTRY_TYPE): Promise<void> {
+    let result = await service.trackContainer({number: container, scac: scac, country: country})
     assert.strictEqual(result.scac, scac)
     assert.strictEqual(result.container, container)
 }
@@ -62,42 +62,42 @@ describe("service test with moch", () => {
             assert.strictEqual(result.containerSize, mochRes.containerSize)
             assert.deepEqual(result.infoAboutMoving, mochRes.infoAboutMoving)
         }
-        let service = new TrackingController(trackingForOtherWorldForFeso, trackingForOtherWorldForFeso, scacTableMoch, cacheMoch, loggerMoch)
+        let service = new ContainerTrackingController(trackingForOtherWorldForFeso, trackingForOtherWorldForFeso, scacTableMoch, cacheMoch, loggerMoch)
         const fesoContainer = "FESU2219270"
-        let ruResult = await service.trackContainer({container: fesoContainer, scac: "AUTO", country: "RU"})
+        let ruResult = await service.trackContainer({number: fesoContainer, scac: "AUTO", country: "RU"})
         testTrackContainer(ruResult)
-        let otherWorldResult = await service.trackContainer({container: fesoContainer, scac: "AUTO", country: "OTHER"})
+        let otherWorldResult = await service.trackContainer({number: fesoContainer, scac: "AUTO", country: "OTHER"})
         testTrackContainer(otherWorldResult)
     })
     it("test get scac (auto scac) from db", async () => {
         const skluContainer = "SKLU1623413"
-        const service = new TrackingController(trackingForOtherWorldForSklu, trackingForOtherWorldForSklu, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForSklu, trackingForOtherWorldForSklu, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, skluContainer, "SKLU", "RU")
     })
     it("test sitc not auto scac", async () => {
         const sitcContainer = "SITU9130070"
-        const service = new TrackingController(trackingForOtherWorldForSitc, trackingForOtherWorldForSitc, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForSitc, trackingForOtherWorldForSitc, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, sitcContainer, "SITC", "RU")
     })
     it("test feso not auto scac", async () => {
-        const service = new TrackingController(trackingForOtherWorldForFeso, trackingForOtherWorldForFeso, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForFeso, trackingForOtherWorldForFeso, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, "FESU2219270", "FESO", "RU")
     })
     it("test maeu not auto scac", async () => {
-        const service = new TrackingController(trackingForOtherWorldForMaeu, trackingForOtherWorldForMaeu, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForMaeu, trackingForOtherWorldForMaeu, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, "MSKU6874333", "MAEU", "OTHER")
     }).timeout(100000)
     it("test mscu not auto scac", async () => {
-        const service = new TrackingController(trackingForOtherWorldForMscu, trackingForOtherWorldForMscu, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForMscu, trackingForOtherWorldForMscu, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, "MEDU3170580", "MSCU", "OTHER")
     }).timeout(100000)
     it("test oney not auto scac", async () => {
-        const service = new TrackingController(trackingForOtherWorldForOney, trackingForOtherWorldForOney, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForOney, trackingForOtherWorldForOney, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, "GAOU6642924", "ONEY", "OTHER")
     }).timeout(100000)
 
     it("test kmtu not auto scac", async () => {
-        const service = new TrackingController(trackingForOtherWorldForKmtu, trackingForOtherWorldForKmtu, scacTableMoch, cacheMoch, loggerMoch)
+        const service = new ContainerTrackingController(trackingForOtherWorldForKmtu, trackingForOtherWorldForKmtu, scacTableMoch, cacheMoch, loggerMoch)
         await testNotAutoScac(service, "TRHU3368865", "KMTU", "OTHER")
     }).timeout(100000)
 })

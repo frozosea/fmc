@@ -138,16 +138,16 @@ export class CosuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
     }
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
-        let rawInfoAboutMoving: CosuApiResponseSchema = await this.request.getCosuInfoAboutMovingJson(args.container);
-        if (this.checkContainerFound(rawInfoAboutMoving, args.container)) {
-            let rawEtaResp: EtaResponseSchema = await this.request.getEtaJson(args.container);
+        let rawInfoAboutMoving: CosuApiResponseSchema = await this.request.getCosuInfoAboutMovingJson(args.number);
+        if (this.checkContainerFound(rawInfoAboutMoving, args.number)) {
+            let rawEtaResp: EtaResponseSchema = await this.request.getEtaJson(args.number);
             let pod = this.podParser.getPod(rawInfoAboutMoving);
             let etaObject: OneTrackingEvent = this.etaParser.getEtaObject(rawEtaResp, pod);
             let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.getInfoAboutMoving(rawInfoAboutMoving);
             infoAboutMoving.push(etaObject)
             let containerSize: string = this.containerSizeParser.getContainerSize(rawInfoAboutMoving);
             return {
-                container: args.container,
+                container: args.number,
                 scac: "COSU",
                 containerSize: containerSize,
                 infoAboutMoving: infoAboutMoving

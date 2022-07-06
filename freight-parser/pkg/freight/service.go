@@ -3,51 +3,80 @@ package freight
 import (
 	"context"
 	"fmc-newest/internal/logging"
+	"fmc-newest/pkg/proto"
 	"fmt"
-	"sort"
-	"sync"
 )
 
-type Service struct {
-	repo   IRepository
-	logger logging.ILogger
+type freightConverter struct {
 }
 
-func (s *Service) getFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
-	var wg sync.WaitGroup
-	freightResultCh := make(chan []BaseFreight)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		result, err := s.repo.GetFrieght(ctx, freight)
-		if err != nil {
-			fmt.Println(err.Error())
-			s.logger.FatalLog(fmt.Sprintf(`get information from database error: %s`, err.Error()))
+func (c *freightConverter) convertRequestToGetFreightStruct(request *___.GetFreightRequest) GetFreight {
+	return GetFreight{FromCityId: request.FromCityId, ToCityId: request.ToCityId, ContainerType: request.ContainerType.String(), Limit: request.Limit}
+
+}
+
+func (c *freightConverter) convertResponseToGrpcResponse(freights []BaseFreight) *___.GetFreightsResponseList {
+	var outputSlice []*___.GetFreightResponse
+	for _, value := range freights {
+		oneGrpcResponse := ___.GetFreightResponse{
+			FromCity: &___.City{
+				CityId:       int64(value.FromCity.Id),
+				CityName:     value.FromCity.FullName,
+				CityUnlocode: value.FromCity.Unlocode,
+			},
+			ToCity: &___.City{
+				CityId:       int64(value.ToCity.Id),
+				CityName:     value.ToCity.FullName,
+				CityUnlocode: value.ToCity.Unlocode,
+			},
+			ContainerType: &___.Container{
+				ContainerType:   ___.ContainerType(___.ContainerType_value[value.Type]),
+				ContainerTypeId: int64(value.Id),
+			},
+			UsdPrice: int64(value.UsdPrice),
+			Line: &___.Line{
+				LineId:    int64(value.Id),
+				Scac:      value.Line.Scac,
+				LineName:  value.FullName,
+				LineImage: value.ImageUrl,
+			},
+			Contact: &___.Contact{
+				Url:         value.Contact.Url,
+				PhoneNumber: value.Contact.PhoneNumber,
+				AgentName:   value.Contact.AgentName,
+				Email:       value.Contact.Email,
+			},
 		}
-		go s.logger.InfoLog(fmt.Sprintf(`get info from database has result: %v`, result))
-		freightResultCh <- result
-	}()
-	var freightResult = <-freightResultCh
-	wg.Wait()
-	return freightResult, nil
-}
-func (s *Service) GetBestFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
-	allFreights, err := s.getFreights(ctx, freight)
-	if err != nil {
-		s.logger.FatalLog(fmt.Sprintf(`get all freights by %v was exception: %s`, freight, err.Error()))
-		return allFreights, err
+		outputSlice = append(outputSlice, &oneGrpcResponse)
 	}
-	sort.Slice(allFreights, func(i, j int) bool {
-		return allFreights[i].UsdPrice < allFreights[j].UsdPrice
-	})
-	fmt.Println(allFreights)
-	return allFreights, nil
+	return &___.GetFreightsResponseList{MultiResponse: outputSlice}
 }
 
-func (s *Service) GetFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
-	return s.getFreights(ctx, freight)
+type GetFreightService struct {
+	controller IController
+	logger     logging.ILogger
+	___.UnimplementedFreightServiceServer
+	converter freightConverter
 }
 
-func NewService(repo IRepository, logger logging.ILogger) *Service {
-	return &Service{repo: repo, logger: logger}
+func (s *GetFreightService) GetFreight(ctx context.Context, r *___.GetFreightRequest) (*___.GetFreightsResponseList, error) {
+	convertedRequest := s.converter.convertRequestToGetFreightStruct(r)
+	response, err := s.controller.GetFreights(ctx, convertedRequest)
+	if err != nil {
+		s.logger.ExceptionLog(fmt.Sprintf(`GetFreights error: %s`, err.Error()))
+		return s.converter.convertResponseToGrpcResponse(response), err
+	}
+	return s.converter.convertResponseToGrpcResponse(response), nil
+}
+
+func NewGetFreightService(freightController IController, logger logging.ILogger) *GetFreightService {
+	return &GetFreightService{
+		controller:                        freightController,
+		logger:                            logger,
+		UnimplementedFreightServiceServer: ___.UnimplementedFreightServiceServer{},
+	}
+}
+
+func NewConverter() *freightConverter {
+	return &freightConverter{}
 }

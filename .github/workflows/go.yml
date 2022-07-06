@@ -1,4 +1,4 @@
-name: Go
+name: User-api
 
 on:
   push:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./freight-parser
+        working-directory: ./user-api
     steps:
     - uses: actions/checkout@v3
     - name: Set up Go
@@ -24,4 +24,4 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v --short ./...

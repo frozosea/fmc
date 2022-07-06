@@ -1,8 +1,14 @@
-import {OneTrackingEvent, BaseContainerConstructor, BaseTrackerByContainerNumber, ITrackingArgs} from "../../base";
-import {TrackingContainerResponse} from "../../base";
+import {
+    BaseContainerConstructor,
+    BaseTrackerByContainerNumber,
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
+} from "../../base";
 import {FesoApiFullResponseSchema, FesoApiResponse} from "./fescoApiResponseSchemas";
 import {NotThisShippingLineException} from "../../../exceptions";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
+import {IDatetime} from "../../helpers/datetime";
 
 
 export class FesoRequest {
@@ -31,17 +37,25 @@ export class FesoRequest {
             },
             body: body
         });
+        console.log(response)
         return JSON.parse(response.data.tracking.data.containers[0])
     }
 }
 
 export class FesoInfoAboutMovingParser {
+    protected datetime: IDatetime;
+
+    public constructor(datetime: IDatetime) {
+        this.datetime = datetime;
+    }
+
     public getInfoAboutMoving(fescoApiResponse: FesoApiResponse): OneTrackingEvent[] {
         let infoAboutMoving: OneTrackingEvent[] = [];
         let lastEvents = fescoApiResponse.lastEvents
         for (let item of lastEvents) {
+            let time = item.time.split("Z")[0]
             let oneOperationObject: OneTrackingEvent = {
-                time: new Date(item.time).getTime(),
+                time: this.datetime.strptime(time, "YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
                 operationName: item.operationNameLatin,
                 location: item.locNameLatin,
                 vessel: item.vessel ? item.vessel : ""
@@ -62,8 +76,8 @@ export class FesoApiParser {
     public infoAboutMovingParser: FesoInfoAboutMovingParser;
     public containerSizeParser: FesoContainerSizeParser;
 
-    public constructor() {
-        this.infoAboutMovingParser = new FesoInfoAboutMovingParser();
+    public constructor(datetime: IDatetime) {
+        this.infoAboutMovingParser = new FesoInfoAboutMovingParser(datetime);
         this.containerSizeParser = new FesoContainerSizeParser();
     }
 
@@ -86,14 +100,13 @@ export class FesoContainer extends BaseTrackerByContainerNumber<fetchArgs> {
     public constructor(args: BaseContainerConstructor<fetchArgs>) {
         super(args);
         this.request = new FesoRequest(args.requestSender)
-        this.apiParser = new FesoApiParser();
+        this.apiParser = new FesoApiParser(args.datetime);
     }
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         try {
-            let response = await this.request.sendRequestToFescoGraphQlApiAndGetJsonResponse(args.container);
-            let outputObject: TrackingContainerResponse = this.apiParser.getOutputObjectAndGetEta(response)
-            return outputObject
+            let response = await this.request.sendRequestToFescoGraphQlApiAndGetJsonResponse(args.number);
+            return this.apiParser.getOutputObjectAndGetEta(response)
         } catch (e) {
             throw new NotThisShippingLineException()
 

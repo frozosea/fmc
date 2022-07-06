@@ -1,0 +1,139 @@
+syntax = "proto3";
+package user;
+import "google/protobuf/empty.proto";
+option go_package = ".";
+
+service User{
+  //yes
+  rpc AddContainerToAccount(AddContainerToAccountRequest) returns (google.protobuf.Empty) {};
+  //no
+  rpc AddBillNumberToAccount(AddContainerToAccountRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc DeleteContainersFromAccount(DeleteContainersFromAccountRequest) returns (google.protobuf.Empty) {};
+  //no
+  rpc DeleteBillNumbersFromAccount(DeleteContainersFromAccountRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc GetAll(GetAllContainersFromAccountRequest) returns (GetAllContainersResponse) {};
+}
+message Container{
+  string number = 1;
+}
+message AddContainerToAccountRequest{
+  repeated Container container = 1;
+  int64 user_id = 2;
+}
+message DeleteContainersFromAccountRequest{
+  int64 user_id = 1;
+  repeated int64 number_ids = 2;
+}
+message GetAllContainersFromAccountRequest{
+  int64 user_id = 1;
+}
+message ContainerResponse{
+  int64 id = 1;
+  string number = 2;
+  bool is_on_track = 3;
+}
+message GetAllContainersResponse{
+  repeated ContainerResponse bill_numbers = 1;
+  repeated ContainerResponse containers = 2;
+}
+message GetInfoAboutUserResponse{
+  string username = 1;
+  GetAllContainersResponse all_containers = 2;
+}
+service ScheduleTracking{
+  //yes
+  rpc AddContainersOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
+  //yes
+  rpc AddBillNosOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
+  //yes
+  rpc UpdateTrackingTime(UpdateTrackingTimeRequest) returns (RepeatedBaseAddOnTrackResponse) {};
+  //yes
+  rpc AddEmailsOnTracking(AddEmailRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc DeleteEmailFromTrack(DeleteEmailFromTrackRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc DeleteContainersFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc DeleteBillNosFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
+  //yes
+  rpc GetInfoAboutTrack(GetInfoAboutTrackRequest) returns (GetInfoAboutTrackResponse) {};
+}
+message UpdateTrackingTimeRequest{
+  repeated string numbers = 1;
+  string time = 2;
+}
+message AddOnTrackRequest{
+  int64 user_id = 1;
+  repeated string number = 2;
+  repeated string emails = 3;
+  string time = 4;
+
+}
+message BaseAddOnTrackResponse{
+  bool success = 1;
+  string number = 2;
+  int64 next_run_time = 3;
+}
+message RepeatedBaseAddOnTrackResponse{
+  repeated BaseAddOnTrackResponse response = 1;
+}
+message AddOnTrackResponse{
+  repeated BaseAddOnTrackResponse base_response = 1;
+  repeated string already_on_track = 3;
+}
+message AddEmailRequest{
+  repeated string numbers = 1;
+  repeated string emails = 2;
+}
+message DeleteEmailFromTrackRequest{
+  string number = 1;
+  string email = 2;
+}
+message GetInfoAboutTrackRequest{
+  string number = 1;
+}
+message GetInfoAboutTrackResponse{
+  string number = 2;
+  repeated string emails = 3;
+  int64 next_run_time = 4;
+}
+message DeleteFromTrackRequest{
+  int64 user_id = 1;
+  repeated string number = 2;
+}
+service Auth{
+  //Yes
+  rpc RegisterUser(RegisterUserRequest) returns (google.protobuf.Empty) {};
+  //Yes
+  rpc LoginUser(LoginUserRequest) returns (LoginResponse) {};
+  //Yes
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {};
+  //Yes
+  rpc Auth(AuthRequest) returns (AuthResponse) {};
+}
+message RegisterUserRequest{
+  string username = 1;
+  string password = 2;
+}
+
+message LoginUserRequest{
+  string username = 1;
+  string password = 2;
+}
+message LoginResponse{
+  string tokens = 1;
+  string refresh_token = 2;
+  int64 token_expires = 3;
+  int64 refresh_token_expires = 4;
+}
+message RefreshTokenRequest{
+  string refresh_token = 1;
+}
+message AuthRequest{
+  string tokens = 1;
+}
+message AuthResponse{
+  bool success = 1;
+}

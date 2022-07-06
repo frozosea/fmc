@@ -13,7 +13,6 @@ Steps to run this project:
 - REDIS_URL
 - CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS
 - GRPC_PORT
-<<<<<<< develop
 3. Setup database settings inside `data-source.ts` file
 4. Run `npm start` command
 # Documentation of code
@@ -72,6 +71,3 @@ go to the directory(by bill number or by container number) and create directory 
 - go to the main tracker for your country and update main tracker(add your class)
 - go to the `container-tracking/src/server/proto/server.proto` and add this scac into enum
 - regenerate pb files (run sh script in `container-tracking/src/server/proto/`)
-=======
-2. Run `npm install`
-3. Run `npm run start` command

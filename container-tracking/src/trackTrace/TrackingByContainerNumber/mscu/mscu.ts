@@ -38,7 +38,7 @@ export class MscuRequest {
                 "x-requested-with": "XMLHttpRequest",
                 "user-agent": this.userAgentGenerator.generateUserAgent()
             },
-            body: JSON.stringify({trackingNumber: args.container, trackingMode: 0})
+            body: JSON.stringify({trackingNumber: args.number, trackingMode: 0})
         })
     }
 }
@@ -70,7 +70,7 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
             }
             infoAboutMovingArray.push(event)
         }
-        return infoAboutMovingArray
+        return infoAboutMovingArray.reverse()
     }
 }
 
@@ -114,7 +114,7 @@ export class MscuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
             } catch (e) {
             }
             return {
-                container: args.container,
+                container: args.number,
                 containerSize: this.containerSizeParser.getContainerSize(apiResp),
                 scac: "MSCU",
                 infoAboutMoving: infoAboutMoving

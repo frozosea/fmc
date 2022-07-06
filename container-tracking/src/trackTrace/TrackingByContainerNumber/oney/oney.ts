@@ -14,7 +14,6 @@ import {NotThisShippingLineException} from "../../../exceptions";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
 import {IDatetime} from "../../helpers/datetime";
 import {CopNo, BkgNo} from "../../../types";
-import {config} from "../../../../tests/classesConfigurator";
 import RequestsUtils from "../../helpers/utils/requestsUtils";
 
 export class OneyRequest {
@@ -134,11 +133,11 @@ export class OneyContainer extends BaseTrackerByContainerNumber<fetchArgs> {
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         try {
-            let [copNo, bkgNo] = this.CopNoAndBkgNoParser.getCopNoAndBkgNo(await this.request.sendReqToOneyApiAndGetFirstDataResp(args.container));
-            let containerSize: string = this.containerSizeParser.getContainerSize(await this.request.sendReqToOneyApiAndGetContainerSizeResponse(args.container, bkgNo, copNo));
-            let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMoving(await this.request.sendReqToOneyApiAndGetInfoAboutMovingResponse(args.container, bkgNo, copNo))
+            let [copNo, bkgNo] = this.CopNoAndBkgNoParser.getCopNoAndBkgNo(await this.request.sendReqToOneyApiAndGetFirstDataResp(args.number));
+            let containerSize: string = this.containerSizeParser.getContainerSize(await this.request.sendReqToOneyApiAndGetContainerSizeResponse(args.number, bkgNo, copNo));
+            let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMoving(await this.request.sendReqToOneyApiAndGetInfoAboutMovingResponse(args.number, bkgNo, copNo))
             return {
-                container: args.container,
+                container: args.number,
                 containerSize: containerSize,
                 scac: "ONEY",
                 infoAboutMoving: infoAboutMoving

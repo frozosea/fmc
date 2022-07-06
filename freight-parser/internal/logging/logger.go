@@ -6,3 +6,11 @@ type ILogger interface {
 	WarningLog(logString string)
 	FatalLog(logString string)
 }
+
+//TODO create logger
+type logger struct {
+}
+
+func NewLogger() *logger {
+	return &logger{}
+}

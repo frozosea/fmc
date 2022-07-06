@@ -1,13 +1,12 @@
 import startServer, {server} from "../../src/server/server";
-import {trackContainerByServer} from "../../src/server/client";
+import {trackContainerByServer} from "../../src/server/clients";
 import {SCAC_TYPE} from "../../src/types";
-import {Response} from "../../src/server/proto/server_pb";
-import {TrackingServiceConverter} from "../../src/server/services/trackingService";
-import {after} from "mocha";
+import {TrackingByContainerNumberResponse} from "../../src/server/proto/server_pb";
+import {TrackingServiceConverter} from "../../src/server/services/trackingByContainerNumberService";
 
 const assert = require("assert")
 
-const testTracking = (result: Response.AsObject, scac: SCAC_TYPE) => {
+const testTracking = (result: TrackingByContainerNumberResponse.AsObject, scac: SCAC_TYPE) => {
     try {
         assert.strictEqual(TrackingServiceConverter.convertEnumIntoScacType(result.scac), scac)
     } catch (e) {
@@ -17,17 +16,24 @@ const testTracking = (result: Response.AsObject, scac: SCAC_TYPE) => {
         throw new assert.AssertionError({message: "not info about moving len"})
     }
 }
-describe("grpc server test", () => {
+// try {
+//     startServer()
+// } catch (e) {
+//     console.log(`e: ${e}`)
+// }
+// before(()=>{
+//     startServer()
+// })
+describe("grpc services test", () => {
     try {
         startServer()
     } catch (e) {
-        server.tryShutdown(() => {
-        })
-        return
+        console.log(`e: ${e}`)
     }
     it("test FESO", async () => {
         let fesoResult = await trackContainerByServer("FESU2219270", "FESO", "RU")
-        testTracking(fesoResult.toObject(), "FESO")
+        console.log(fesoResult.toObject())
+        // testTracking(fesoResult.toObject(), "FESO")
     }).timeout(10000)
     it("test MAEU", async () => {
         let result = await trackContainerByServer("MSKU6874333", "MAEU", "OTHER")
@@ -67,10 +73,5 @@ describe("grpc server test", () => {
         let result = await trackContainerByServer("MSKU6874333", "AUTO", "OTHER")
         testTracking(result.toObject(), "MAEU")
     })
-    after(() => {
-        server.tryShutdown(() => {
-            return
-        })
-        return
-    })
+
 })

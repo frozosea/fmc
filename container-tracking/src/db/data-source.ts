@@ -2,7 +2,9 @@ import "reflect-metadata"
 import {DataSource} from "typeorm"
 import {Unlocode} from "./entity/Unlocode"
 import {ContainerScac} from "./entity/containerScac";
+import {config} from "dotenv";
 
+config()
 export const AppDataSource = new DataSource({
     type: "postgres",
     host: process.env.POSTGRES_HOST,
@@ -17,6 +19,12 @@ export const AppDataSource = new DataSource({
     migrations: [__dirname + "/migration/*{.js,.ts}"],
     subscribers: [],
 })
+
+AppDataSource.initialize()
+    .then(async (_) => {
+        console.log(process.env.POSTGRES_DATABASE)
+    })
+    .catch((error) => console.log("Error: ", error))
 
 
 

@@ -11,7 +11,8 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 
 const assert = require("assert")
 function testInfoAboutMoving(actualInfoAboutMoving: OneTrackingEvent[]): void {
-    for (let event in actualInfoAboutMoving) {
+    console.log(actualInfoAboutMoving)
+    for (let event in mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events.reverse()) {
         assert.strictEqual(actualInfoAboutMoving[event].time, new Date(new Date(actualInfoAboutMoving[event].time).toUTCString()).getTime())
         assert.strictEqual(actualInfoAboutMoving[event].location, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Location)
         assert.strictEqual(actualInfoAboutMoving[event].operationName, mscuResponseExample.Data.BillOfLadings[0].ContainersInfo[0].Events[event].Description)
@@ -34,7 +35,7 @@ describe("MSCU tracking by container number test", () => {
             requestSender: requestMoch,
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         })
-        let actualInfoAboutMoving = await mscu.trackContainer({container: "MEDU3170580"})
+        let actualInfoAboutMoving = await mscu.trackContainer({number: "MEDU3170580"})
         assert.strictEqual(actualInfoAboutMoving.containerSize, expectedContainerSize)
         assert.strictEqual(actualInfoAboutMoving.scac, "MSCU")
         testInfoAboutMoving([actualInfoAboutMoving.infoAboutMoving[0], actualInfoAboutMoving.infoAboutMoving[1]])

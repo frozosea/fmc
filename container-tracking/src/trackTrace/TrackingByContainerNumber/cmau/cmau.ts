@@ -24,7 +24,7 @@ export class CmauRequest {
             url: "https://www.cma-cgm.com/ebusiness/tracking",
             TypeToIntoField: {
                 selector: "#Reference",
-                text: args.container,
+                text: args.number,
                 clickAfterType: {
                     locatorSelector: "#btnTracking",
                     key: "Enter",

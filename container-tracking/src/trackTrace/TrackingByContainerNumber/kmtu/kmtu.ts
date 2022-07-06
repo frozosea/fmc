@@ -60,7 +60,7 @@ export class KmtuRequest extends BaseKmtuRequest {
             'Rail': '',
             'RailCnt': '',
             'condition': 'CN',
-            'bl_no': args.container
+            'bl_no': args.number
         }
         return await this.sendRequestToKmtu(RequestsUtils.jsonToQueryString(requestData), "http://www.ekmtc.com/CCIT100/searchContainerList.do")
     }
@@ -94,7 +94,7 @@ export class KmtuDataForInfoAboutMovingRequestCrawler {
     }
 
     protected getPod(data: any): string {
-        let pod: string = ""
+        let pod: string
         try {
             pod = data[1][4].split(/\d/gm)[0]
         } catch (e) {
@@ -278,7 +278,7 @@ export class KmtuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
                 let kmtuInfoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.getInfoAboutMoving(infoAboutMovingHtml)
                 kmtuInfoAboutMoving.push(eta)
                 return {
-                    container: args.container,
+                    container: args.number,
                     scac: "KMTU",
                     containerSize: "",
                     infoAboutMoving: kmtuInfoAboutMoving
@@ -287,7 +287,7 @@ export class KmtuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
                 let kmtuInfoAboutMoving = []
                 kmtuInfoAboutMoving.push(eta)
                 return {
-                    container: args.container,
+                    container: args.number,
                     scac: "KMTU",
                     containerSize: "",
                     infoAboutMoving: kmtuInfoAboutMoving

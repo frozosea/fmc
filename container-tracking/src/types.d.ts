@@ -16,7 +16,7 @@ export interface TrackingContainerResponse {
 }
 
 export interface ITrackingArgs {
-    container: string
+    number: string
 }
 
 
@@ -29,7 +29,8 @@ declare type ONEY = "ONEY"
 declare type SITC = "SITC"
 declare type MSCU = "MSCU"
 declare type AUTO = "AUTO"
-declare type SCAC_TYPE = FESO | SKLU | MAEU  | COSU | KMTU | ONEY  | SITC | MSCU | AUTO
+declare type HALU = "HALU"
+declare type SCAC_TYPE = FESO | SKLU | MAEU | COSU | KMTU | ONEY | SITC | MSCU | HALU | AUTO
 
 
 export interface TrackingArgsWithScac extends ITrackingArgs {
@@ -46,3 +47,10 @@ type BkgNo = string
 type CopNo = string
 
 type COUNTRY_TYPE = "RU" | "OTHER"
+
+export interface ITrackingByBillNumberResponse {
+    billNo: string
+    scac: SCAC_TYPE
+    infoAboutMoving: OneTrackingEvent[]
+    etaFinalDelivery: number
+}

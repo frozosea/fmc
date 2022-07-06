@@ -50,7 +50,7 @@ describe("MAEU Tracking by container number test", () => {
             UserAgentGenerator: config.USER_AGENT_GENERATOR
         });
         return (async () => {
-            let actualResponse = await maeu.trackContainer({container: "MSKU6874333"})
+            let actualResponse = await maeu.trackContainer({number: "MSKU6874333"})
             assert.deepEqual(actualResponse, expectedMaeuReadyObject)
         })()
     })

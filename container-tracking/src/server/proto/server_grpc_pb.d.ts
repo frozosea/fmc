@@ -8,34 +8,67 @@ import * as grpc from "@grpc/grpc-js";
 import * as server_pb from "./server_pb";
 
 interface ITrackingByContainerNumberService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
-    track: ITrackingByContainerNumberService_ITrack;
+    trackByContainerNumber: ITrackingByContainerNumberService_ITrackByContainerNumber;
 }
 
-interface ITrackingByContainerNumberService_ITrack extends grpc.MethodDefinition<server_pb.Request, server_pb.Response> {
-    path: "/tracking.TrackingByContainerNumber/Track";
+interface ITrackingByContainerNumberService_ITrackByContainerNumber extends grpc.MethodDefinition<server_pb.Request, server_pb.TrackingByContainerNumberResponse> {
+    path: "/tracking.TrackingByContainerNumber/TrackByContainerNumber";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<server_pb.Request>;
     requestDeserialize: grpc.deserialize<server_pb.Request>;
-    responseSerialize: grpc.serialize<server_pb.Response>;
-    responseDeserialize: grpc.deserialize<server_pb.Response>;
+    responseSerialize: grpc.serialize<server_pb.TrackingByContainerNumberResponse>;
+    responseDeserialize: grpc.deserialize<server_pb.TrackingByContainerNumberResponse>;
 }
 
 export const TrackingByContainerNumberService: ITrackingByContainerNumberService;
 
 export interface ITrackingByContainerNumberServer {
-    track: grpc.handleUnaryCall<server_pb.Request, server_pb.Response>;
+    trackByContainerNumber: grpc.handleUnaryCall<server_pb.Request, server_pb.TrackingByContainerNumberResponse>;
 }
 
 export interface ITrackingByContainerNumberClient {
-    track(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
-    track(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
-    track(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
+    trackByContainerNumber(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
+    trackByContainerNumber(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
+    trackByContainerNumber(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class TrackingByContainerNumberClient extends grpc.Client implements ITrackingByContainerNumberClient {
     constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
-    public track(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
-    public track(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
-    public track(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.Response) => void): grpc.ClientUnaryCall;
+    public trackByContainerNumber(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
+    public trackByContainerNumber(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
+    public trackByContainerNumber(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByContainerNumberResponse) => void): grpc.ClientUnaryCall;
+}
+
+interface ITrackingByBillNumberService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
+    trackByBillNumber: ITrackingByBillNumberService_ITrackByBillNumber;
+}
+
+interface ITrackingByBillNumberService_ITrackByBillNumber extends grpc.MethodDefinition<server_pb.Request, server_pb.TrackingByBillNumberResponse> {
+    path: "/tracking.TrackingByBillNumber/TrackByBillNumber";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<server_pb.Request>;
+    requestDeserialize: grpc.deserialize<server_pb.Request>;
+    responseSerialize: grpc.serialize<server_pb.TrackingByBillNumberResponse>;
+    responseDeserialize: grpc.deserialize<server_pb.TrackingByBillNumberResponse>;
+}
+
+export const TrackingByBillNumberService: ITrackingByBillNumberService;
+
+export interface ITrackingByBillNumberServer {
+    trackByBillNumber: grpc.handleUnaryCall<server_pb.Request, server_pb.TrackingByBillNumberResponse>;
+}
+
+export interface ITrackingByBillNumberClient {
+    trackByBillNumber(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
+    trackByBillNumber(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
+    trackByBillNumber(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
+}
+
+export class TrackingByBillNumberClient extends grpc.Client implements ITrackingByBillNumberClient {
+    constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
+    public trackByBillNumber(request: server_pb.Request, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
+    public trackByBillNumber(request: server_pb.Request, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
+    public trackByBillNumber(request: server_pb.Request, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: server_pb.TrackingByBillNumberResponse) => void): grpc.ClientUnaryCall;
 }

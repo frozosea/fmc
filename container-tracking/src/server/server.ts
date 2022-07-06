@@ -1,15 +1,16 @@
 import {Server, ServerCredentials} from "@grpc/grpc-js";
-import {TrackingByContainerNumberService} from "./proto/server_grpc_pb";
-import {grpcService} from "../containers";
+import {TrackingByBillNumberService, TrackingByContainerNumberService} from "./proto/server_grpc_pb";
+import {trackingByBillNumberService, trackingByContainerNumberService} from "../containers";
 
 export const server = new Server();
 // @ts-ignore
-server.addService(TrackingByContainerNumberService, grpcService)
-
+server.addService(TrackingByContainerNumberService, trackingByContainerNumberService)
+// @ts-ignore
+server.addService(TrackingByBillNumberService, trackingByBillNumberService)
 export default function startServer() {
     server.bindAsync(`localhost:${process.env.GRPC_PORT}`, ServerCredentials.createInsecure(), (error, port) => {
-        console.log("SERVER WAS STARTED")
         server.start()
+        console.log("SERVER WAS STARTED")
     })
 }
 

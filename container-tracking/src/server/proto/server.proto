@@ -2,10 +2,15 @@ syntax = "proto3";
 
 package tracking;
 
-service TrackingByContainerNumber{
-  rpc Track(Request) returns (Response) {};
-}
+option go_package = "../../../api-gateway/pkg/tracking";
 
+service TrackingByContainerNumber{
+  rpc TrackByContainerNumber(Request) returns (TrackingByContainerNumberResponse) {};
+}
+service TrackingByBillNumber{
+  rpc TrackByBillNumber(Request) returns (TrackingByBillNumberResponse) {};
+
+}
 enum Scac{
   FESO = 0;
   SKLU = 1;
@@ -15,7 +20,8 @@ enum Scac{
   ONEY = 5;
   SITC = 6;
   MSCU = 7;
-  AUTO = 8;
+  HALU = 8;
+  AUTO = 9;
 
 }
 enum Country{
@@ -23,7 +29,7 @@ enum Country{
   OTHER = 1;
 }
 message Request{
-  string container = 1;
+  string number = 1;
   Scac scac = 2;
   Country country = 3;
 }
@@ -34,9 +40,16 @@ message InfoAboutMoving{
   string vessel = 4;
 }
 
-message Response{
+message TrackingByContainerNumberResponse{
   string container = 1 ;
   string container_size = 2;
   Scac scac = 3;
   repeated InfoAboutMoving info_about_moving = 4;
+}
+
+message TrackingByBillNumberResponse{
+  string billNo = 1;
+  Scac scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+  int64 eta_final_delivery = 5;
 }

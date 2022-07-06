@@ -31,7 +31,7 @@ export interface IRequest<T extends _BaseRequestSenderArgs> {
 
 export class RequestSender implements IRequest<fetchArgs> {
     private async sendRequest(args: fetchArgs): Promise<any> {
-        return await fetch(args.url, {method: args.method, body: args.body, headers: args.headers})
+        return await fetch(args.url, {"method": args.method, "body": args.body, "headers": args.headers})
     }
 
     public async sendRequestAndGetHtml(args: fetchArgs): Promise<string> {

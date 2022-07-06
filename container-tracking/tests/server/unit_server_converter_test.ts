@@ -1,4 +1,4 @@
-import {TrackingServiceConverter} from "../../src/server/services/trackingService";
+import {TrackingServiceConverter} from "../../src/server/services/trackingByContainerNumberService";
 import {Country, Scac} from "../../src/server/proto/server_pb";
 
 const assert = require("assert")

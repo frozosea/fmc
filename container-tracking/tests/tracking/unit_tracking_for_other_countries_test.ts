@@ -1,19 +1,168 @@
 import {describe} from "mocha";
-import {baseArgs, FesoMoch, SitcMoch, SkluMoch, testInfoAboutMovingAndScac} from "./unit_tracking_for_russia_test";
 import {ITrackingArgs, TrackingContainerResponse} from "../../src/types";
 import {NotThisShippingLineException} from "../../src/exceptions";
 import {FesoContainers, SkluContainers} from "./expectedData";
 import {
-    TrackingForOtherCountries
-} from "../../src/trackTrace/TrackingByContainerNumber/tracking/trackingForOtherCountries";
+    MainTrackingForOtherCountries
+} from "../../src/trackTrace/TrackingByContainerNumber/tracking/mainTrackingForOtherCountries";
+import {MainTrackingForRussia} from "../../src/trackTrace/TrackingByContainerNumber/tracking/mainTrackingForRussia";
+import {BaseContainerConstructor, BaseTrackerByContainerNumber} from "../../src/trackTrace/base";
+import {fetchArgs} from "../../src/trackTrace/helpers/requestSender";
+import {config} from "../classesConfigurator";
 
+const assert = require("assert");
+
+export async function testInfoAboutMovingAndScac(tracking, containers): Promise<void> {
+    for (let container in containers) {
+        let actualResult = await tracking.trackContainer({container: container, scac: "AUTO"})
+        try {
+            assert.strictEqual(actualResult.scac, containers[container].scac)
+        } catch (e) {
+        }
+        assert.ok(actualResult.infoAboutMoving.length)
+    }
+}
+
+
+export const baseArgs = {
+    datetime: config.DATETIME,
+    requestSender: config.REQUEST_SENDER,
+    UserAgentGenerator: config.USER_AGENT_GENERATOR
+}
+
+export class FesoMoch extends BaseTrackerByContainerNumber<fetchArgs> {
+    protected shouldRaiseException: boolean;
+
+    public constructor(args: BaseContainerConstructor<fetchArgs>, shouldRaiseException: boolean) {
+        super(args);
+        this.shouldRaiseException = shouldRaiseException;
+    }
+
+    public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
+        if (!this.shouldRaiseException) {
+            return {
+                container: 'FESU2219270',
+                scac: 'FESO',
+                containerSize: '20DC',
+                infoAboutMoving: [
+                    {
+                        time: 1654495200000,
+                        operationName: 'Gate out empty for loading',
+                        location: 'MAGISTRAL',
+                        vessel: ''
+                    },
+                    {
+                        time: 1654588800000,
+                        operationName: 'Gate in empty from consignee',
+                        location: 'ZAPSIBCONT',
+                        vessel: ''
+                    }
+                ]
+            }
+        }
+        throw new NotThisShippingLineException()
+
+    }
+}
+
+export class SkluMoch extends FesoMoch {
+    async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
+        if (!this.shouldRaiseException) {
+            return {
+                container: 'SKLU1623413',
+                containerSize: "20'x15",
+                scac: 'SKLU',
+                infoAboutMoving: [
+                    {
+                        time: 1653906120000,
+                        operationName: 'Pickup (1/1)',
+                        location: 'SINOKOR TAM CANG CAT LAI Depot',
+                        vessel: ''
+                    },
+                    {
+                        time: 1653961680000,
+                        operationName: 'Return (1/1)',
+                        location: 'CAT LAI',
+                        vessel: ''
+                    },
+                    {
+                        time: 1654567200000,
+                        operationName: 'Departure',
+                        location: 'CAT LAI',
+                        vessel: 'HEUNG-A HOCHIMINH / 2205N'
+                    },
+                    {
+                        time: 1655085600000,
+                        operationName: 'Arrival(T/S) (Scheduled)',
+                        location: 'BPTS',
+                        vessel: 'HEUNG-A HOCHIMINH / 2205N'
+                    },
+                    {
+                        time: 1655283600000,
+                        operationName: 'Departure(T/S) (Scheduled)',
+                        location: 'BPTS',
+                        vessel: 'HEUNG-A ULSAN / 2256E'
+                    },
+                    {
+                        time: 1655452800000,
+                        operationName: 'Arrival (Scheduled)',
+                        location: 'HOSOSHIMA TERMINAL(SHIRAHMA #14)',
+                        vessel: 'HEUNG-A ULSAN / 2256E'
+                    },
+                    {
+                        operationName: 'ETA',
+                        time: 1655424000000,
+                        location: 'Hososhima',
+                        vessel: ''
+                    }
+                ]
+            }
+        }
+        throw new NotThisShippingLineException()
+
+    }
+}
+
+
+export class SitcMoch extends SkluMoch {
+    async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
+        if (!this.shouldRaiseException) {
+            return {
+                container: 'SITU9130070',
+                containerSize: '',
+                scac: 'SITC',
+                infoAboutMoving: [
+                    {
+                        time: 1654380000000,
+                        operationName: 'LOADED ONTO VESSEL',
+                        vessel: 'SITC CAGAYAN',
+                        location: 'DALIAN'
+                    },
+                    {
+                        time: 1653649140000,
+                        operationName: 'OUTBOUND PICKUP',
+                        vessel: 'SITC CAGAYAN',
+                        location: 'DALIAN'
+                    },
+                    {
+                        time: 1652899980000,
+                        operationName: 'EMPTY CONTAINER',
+                        vessel: 'SITC MAKASSAR',
+                        location: 'DALIAN'
+                    }
+                ]
+            }
+        }
+        throw new NotThisShippingLineException()
+    }
+}
 
 export class OneyMoch extends FesoMoch {
     async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         if (!this.shouldRaiseException) {
             return {
                 container: 'GAOU6642924',
-                containerSize: undefined,
+                containerSize: "undefined",
                 scac: 'ONEY',
                 infoAboutMoving: [
                     {
@@ -201,7 +350,7 @@ export class CosuMoch extends MscuMoch {
     async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         if (!this.shouldRaiseException) {
             return {
-                container: args.container, scac: "COSU", containerSize: "", infoAboutMoving: [
+                container: args.number, scac: "COSU", containerSize: "", infoAboutMoving: [
                     {
                         time: 1654083120000,
                         operationName: 'Empty Equipment Returned',
@@ -255,7 +404,7 @@ export class KmtuMoch extends CosuMoch {
     async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
         if (!this.shouldRaiseException) {
             return {
-                container: args.container, scac: "KMTU", containerSize: "", infoAboutMoving: [
+                container: args.number, scac: "KMTU", containerSize: "", infoAboutMoving: [
                     {
                         time: 1653436800000,
                         operationName: 'container was picked',
@@ -281,90 +430,152 @@ export class KmtuMoch extends CosuMoch {
     }
 }
 
-export const trackingForOtherWorldForSklu = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, false),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export class HaluMoch extends CosuMoch {
+    async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {
+        if (!this.shouldRaiseException) {
+            return {
+                container: args.number, scac: "HALU", containerSize: "", infoAboutMoving: [
+                    {
+                        time: 1653436800000,
+                        operationName: 'container was picked',
+                        location: 'BUSAN,Hutchison Busan Container Terminal',
+                        vessel: ''
+                    },
+                    {
+                        time: 1653436800000,
+                        operationName: 'container was arrived',
+                        location: 'BUSAN,Busan Port Terminal',
+                        vessel: ''
+                    },
+                    {
+                        time: 1653436800000,
+                        operationName: 'container is onboard and is scheduled to arrive at transshipment',
+                        location: 'BUSAN,Busan Port Terminal',
+                        vessel: ''
+                    }
+                ]
+            }
+        }
+        throw new NotThisShippingLineException()
+    }
+}
+
+export const trackingForOtherWorldForSklu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, false),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
 })
 
-export const trackingForOtherWorldForFeso = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, false),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForFeso = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, false),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForSitc = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, false),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForSitc = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, false),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForMscu = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, false),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForMscu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, false),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForMaeu = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, false),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForMaeu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, false),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForKmtu = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, false),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForKmtu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, false),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForOney = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, false),
-    cosuContainer: new CosuMoch(baseArgs, true)
+export const trackingForOtherWorldForOney = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, false),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, true)
+
 })
-export const trackingForOtherWorldForCosu = new TrackingForOtherCountries({
-    fescoContainer: new FesoMoch(baseArgs, true),
-    skluContainer: new SkluMoch(baseArgs, true),
-    sitcContainer: new SitcMoch(baseArgs, true),
-    maeuContainer: new MaeuMoch(baseArgs, true),
-    mscuContainer: new MscuMoch(baseArgs, true),
-    kmtuContainer: new KmtuMoch(baseArgs, true),
-    oneyContainer: new OneyMoch(baseArgs, true),
-    cosuContainer: new CosuMoch(baseArgs, false)
+export const trackingForOtherWorldForCosu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, false),
+    halu: new HaluMoch(baseArgs, true)
+
+})
+export const trackingForRussiaForHalu = new MainTrackingForRussia({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, false)
+})
+export const trackingForOtherWorldForHalu = new MainTrackingForOtherCountries({
+    feso: new FesoMoch(baseArgs, true),
+    sklu: new SkluMoch(baseArgs, true),
+    sitc: new SitcMoch(baseArgs, true),
+    maeu: new MaeuMoch(baseArgs, true),
+    mscu: new MscuMoch(baseArgs, true),
+    kmtu: new KmtuMoch(baseArgs, true),
+    oney: new OneyMoch(baseArgs, true),
+    cosu: new CosuMoch(baseArgs, true),
+    halu: new HaluMoch(baseArgs, false)
+
 })
 describe("tracking for other countries test", () => {
     it("FESO test", async () => {
-
         return await testInfoAboutMovingAndScac(trackingForOtherWorldForFeso, FesoContainers)
     }).timeout(10000)
     it("SKLU test", async () => {
@@ -382,10 +593,10 @@ describe("tracking for other countries test", () => {
     it("KMTU test", async () => {
         return await testInfoAboutMovingAndScac(trackingForOtherWorldForKmtu, SkluContainers)
     }).timeout(1000000000)
-    it("ONEY test",async()=>{
-        return await testInfoAboutMovingAndScac(trackingForOtherWorldForMscu,SkluContainers)
+    it("ONEY test", async () => {
+        return await testInfoAboutMovingAndScac(trackingForOtherWorldForMscu, SkluContainers)
     })
-    it("COSU test",async()=>{
-        return await testInfoAboutMovingAndScac(trackingForOtherWorldForCosu,SkluContainers)
+    it("COSU test", async () => {
+        return await testInfoAboutMovingAndScac(trackingForOtherWorldForCosu, SkluContainers)
     })
 })

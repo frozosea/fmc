@@ -45,6 +45,7 @@ function infoAboutMovingTest(infoAboutMovingParser: CosuInfoAboutMovingParser, r
     let containerExpectedHistory = cosuResponse.data.content.containers[0].containerHistorys
     assert.strictEqual(infoAboutMoving.length, containerExpectedHistory.length)
     for (let event in infoAboutMoving) {
+        console.log(infoAboutMoving)
         let actualEvent = infoAboutMoving[event]
         assert.strictEqual(actualEvent.location, containerExpectedHistory[event].location)
         assert.strictEqual(actualEvent.operationName, containerExpectedHistory[event].containerNumberStatus)
