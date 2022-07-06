@@ -15,7 +15,6 @@ jobs:
         working-directory: ./user-api
     steps:
     - uses: actions/checkout@v3
-
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
