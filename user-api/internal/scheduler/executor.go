@@ -19,14 +19,14 @@ func (e *Executor) Run(job *Job) ShouldBeCancelled {
 	ctx, cancel := context.WithCancel(job.Ctx)
 	e.cancellations = append(e.cancellations, cancel)
 	e.wg.Add(1)
-	return e.process(ctx, job.Fn, job.Interval)
+	return e.process(ctx, job.Fn, job.Interval, job.Args...)
 }
-func (e *Executor) process(ctx context.Context, task ITask, interval time.Duration) ShouldBeCancelled {
+func (e *Executor) process(ctx context.Context, task ITask, interval time.Duration, jobArgs ...interface{}) ShouldBeCancelled {
 	ticker := time.NewTicker(interval)
 	for {
 		select {
 		case <-ticker.C:
-			if shouldBeCancel := task(ctx); shouldBeCancel == true {
+			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel == true {
 				_, cancel := context.WithCancel(ctx)
 				cancel()
 				fmt.Println("ctx cancel")

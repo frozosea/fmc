@@ -44,6 +44,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.LoginUserResponse"
                         }
                     },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/auth.BaseResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -421,7 +427,7 @@ const docTemplate = `{
             }
         },
         "/schedule/getInfo": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []

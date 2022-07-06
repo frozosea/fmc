@@ -34,6 +34,12 @@ func (c *converter) loginResponseConvert(response *pb.LoginResponse) *LoginUserR
 	}
 }
 
+type InvalidUserError struct{}
+
+func (i *InvalidUserError) Error() string {
+	return "Cannot find user with these parameters"
+}
+
 type Client struct {
 	cli       pb.AuthClient
 	converter converter
@@ -57,8 +63,8 @@ func (c *Client) Register(ctx context.Context, user User) error {
 func (c *Client) Login(ctx context.Context, user User) (*LoginUserResponse, error) {
 	r, err := c.cli.LoginUser(ctx, c.converter.convertLoginUser(user))
 	if err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`login user with username %s failed: %s`, user.Username, err.Error()))
-		return &LoginUserResponse{}, err
+		return &LoginUserResponse{}, &InvalidUserError{}
+		//go c.logger.ExceptionLog(fmt.Sprintf(`login user with username %s failed: %s`, user.Username, err.Error()))
 	}
 	go c.logger.InfoLog(fmt.Sprintf(`user %s logged in successfully`, user.Username))
 	return c.converter.loginResponseConvert(r), nil

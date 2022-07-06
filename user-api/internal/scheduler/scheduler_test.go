@@ -25,6 +25,7 @@ func TestTimeParserValidator(t *testing.T) {
 		{"13:01", true},
 		{"13:01", true},
 		{"8:14", true},
+		{"00:14", true},
 	}
 	p := NewTimeParser()
 	for _, v := range testTable {
@@ -38,35 +39,29 @@ func TestTimeParserValidator(t *testing.T) {
 }
 
 func TestTimeParser(t *testing.T) {
-	//testTable := []struct {
-	//	TimeStr          string
-	//	expectedDuration time.Duration
-	//}{
-	//	{TimeStr: "14:00", expectedDuration: time.Hour*24 + time.Duration(14)*time.Hour},
-	//	{TimeStr: "15:00", expectedDuration: time.Hour*24 + time.Duration(15)*time.Hour},
-	//	{TimeStr: "16:00", expectedDuration: time.Hour*24 + time.Duration(16)*time.Hour},
-	//	{TimeStr: "17:00", expectedDuration: time.Hour*24 + time.Duration(17)*time.Hour},
-	//	{TimeStr: "18:00", expectedDuration: time.Hour*24 + time.Duration(18)*time.Hour},
-	//	{TimeStr: "19:00", expectedDuration: time.Hour*24 + time.Duration(19)*time.Hour},
-	//	{TimeStr: "20:00", expectedDuration: time.Hour*24 + time.Duration(20)*time.Hour},
-	//	{TimeStr: "9:00", expectedDuration: time.Hour*24 + time.Duration(9)*time.Hour},
-	//	{TimeStr: "8:00", expectedDuration: time.Hour*24 + time.Duration(8)*time.Hour},
-	//	{TimeStr: "7:00", expectedDuration: time.Hour*24 + time.Duration(7)*time.Hour},
-	//	{TimeStr: "9:05", expectedDuration: time.Hour*24 + time.Duration(9)*time.Hour + (time.Minute * time.Duration(5)) - (time.Duration(time.Now().Minute()) * time.Minute)},
-	//	//{TimeStr: "21:00", expectedDuration: time.Hour*24 + time.Duration(21)*time.Hour},
-	//	//{TimeStr: "21:00", expectedDuration: time.Hour*24 + time.Duration(14)*time.Hour},
-	//	//{TimeStr: "21:00", expectedDuration: time.Hour*24 + time.Duration(14)*time.Hour},
-	//	//{TimeStr: "21:00", expectedDuration: time.Hour*24 + time.Duration(14)*time.Hour},
-	//	//{TimeStr: "21:00", expectedDuration: time.Hour*24 + time.Duration(14)*time.Hour},
-	//}
+	testTable := []struct {
+		TimeStr          string
+		expectedDuration time.Duration
+	}{
+		{TimeStr: "14:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(14)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "15:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(15)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "16:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(16)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "17:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(17)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "18:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(18)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "9:05", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(9)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(05)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "18:03", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(18)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(03)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "18:08", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(18)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(8)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "7:12", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(7)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(12)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+		{TimeStr: "00:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(00)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
+	}
 	p := NewTimeParser()
 	_, err := p.ParseHourMinuteString("asfasfasf")
 	assert.Error(t, err)
-	//for _, v := range testTable {
-	//	d, err := timeParser.ParseHourMinuteString(v.TimeStr)
-	//	assert.NoError(t, err)
-	//	assert.Equal(t, v.expectedDuration, d)
-	//}
+	for _, v := range testTable {
+		d, err := p.ParseHourMinuteString(v.TimeStr)
+		assert.NoError(t, err)
+		assert.Equal(t, v.expectedDuration, d)
+	}
 }
 func TestJobStores(t *testing.T) {
 	const TASK_ID = "testTaskId"

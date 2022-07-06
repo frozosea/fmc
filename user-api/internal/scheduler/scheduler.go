@@ -40,17 +40,17 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 		return job, err
 	}
 	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, taskArgs)
-	fmt.Println(job.Args)
 	if err != nil {
-		m.baseLogger.Fatal(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
+		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return job, err
 	}
 	go func() {
 		shouldBeCancel := m.executor.Run(job)
 		if shouldBeCancel {
 			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
-				m.baseLogger.Fatal(fmt.Sprintf(`remove task with id: %s`, taskId))
+				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
 			}
+			job.Ctx.Done()
 		}
 		job.NextRunTime = time.Now().Add(job.Interval)
 	}()
@@ -60,14 +60,14 @@ func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask
 	job, err := m.jobstore.Save(ctx, taskId, task, interval, taskArgs)
 	fmt.Println(job.Args)
 	if err != nil {
-		m.baseLogger.Fatal(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
+		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return job, err
 	}
 	go func() {
 		shouldBeCancel := m.executor.Run(job)
 		if shouldBeCancel {
 			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
-				m.baseLogger.Fatal(fmt.Sprintf(`remove task with id: %s`, taskId))
+				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
 			}
 		}
 	}()

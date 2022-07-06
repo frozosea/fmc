@@ -28,6 +28,10 @@ func (c *Controller) RegisterUser(ctx context.Context, user domain.User) error {
 func (c *Controller) Login(ctx context.Context, user domain.User) (*Token, error) {
 	var token *Token
 	userId, err := c.repository.Login(ctx, user)
+	switch err.(type) {
+	case *InvalidUserError:
+		return token, err
+	}
 	if err != nil {
 		return token, err
 	}

@@ -19,21 +19,21 @@ type Controller struct {
 
 func (c *Controller) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
 	task := c.GetTrackByContainerNumberTask(number, country, userId)
-	job, err := c.taskManager.Add(ctx, number, task, time, util.ConvertArgsToInterface(emails)...)
+	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return job, err
 	}
 	if err := c.repository.AddMarkContainerOnTrack(ctx, number, int(userId)); err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
+		//go c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
 		return job, err
 	}
-	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
+	//go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
 	return job, nil
 }
 func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
-	var response *AddOnTrackResponse
+	response := new(AddOnTrackResponse)
 	for _, v := range req.numbers {
 		job, err := c.addOneContainer(ctx, v, req.country, req.time, req.userId, req.emails)
 		switch err.(type) {
@@ -55,14 +55,14 @@ func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, tim
 	task := c.GetTrackByBillNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(ctx, number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return job, err
 	}
 	if err := c.repository.AddMarkBillNoOnTrack(ctx, number, int(userId)); err != nil {
 		c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
 		return job, err
 	}
-	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
+	//go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
 	return job, nil
 }
 func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoReq) (*AddOnTrackResponse, error) {

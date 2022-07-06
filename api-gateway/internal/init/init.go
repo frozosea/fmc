@@ -85,7 +85,7 @@ func initTrackingRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *
 		return
 	}
 	handler := getTrackingHttpHandler(client, utils)
-	trackingGroup := router.Group(`tracking/`)
+	trackingGroup := router.Group(`/tracking`)
 	trackingGroup.Use(middleware.CheckAccessMiddleware)
 	{
 		trackingGroup.POST(`/trackByBillNumber`, handler.TrackByBillNumber)
@@ -108,7 +108,7 @@ func initScheduleRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *
 		panic(err)
 	}
 	handler := getScheduleTrackingHttpHandler(client, utils)
-	group := router.Group(`schedule/`)
+	group := router.Group(`/schedule`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.POST(`/addContainer`, handler.AddContainersOnTrack)
@@ -118,7 +118,7 @@ func initScheduleRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *
 		group.DELETE(`/deleteEmail`, handler.DeleteEmailFromTrack)
 		group.DELETE(`/deleteContainers`, handler.DeleteContainersFromTrack)
 		group.DELETE(`/deleteBillNumbers`, handler.DeleteBillNumbersFromTrack)
-		group.GET(`/getInfo`, handler.GetInfoAboutTracking)
+		group.POST(`/getInfo`, handler.GetInfoAboutTracking)
 	}
 }
 
@@ -196,5 +196,6 @@ func Run() {
 	initTrackingRoutes(router, httpUtils, authMiddleware, trackingSettings.Ip, trackingSettings.Port, logging.NewLogger("trackingLogs"))
 	initDocsRoutes(router)
 	initUserRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("userLogs"))
+	initScheduleRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("schedule"))
 	log.Fatal(router.Run(fmt.Sprintf(`localhost:8080`)))
 }

@@ -12,8 +12,8 @@ import (
 type converter struct {
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest) *BaseTrackReq {
-	return &BaseTrackReq{
+func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest) BaseTrackReq {
+	return BaseTrackReq{
 		numbers: r.GetNumber(),
 		userId:  r.GetUserId(),
 		country: "OTHER",
@@ -69,27 +69,27 @@ func NewService(controller *Controller, logger logging.ILogger) *Service {
 	return &Service{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
 }
 func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddContainerNumbersOnTrack(ctx, TrackByContainerNoReq{*s.converter.convertAddOnTrack(r)})
+	res, err := s.controller.AddContainerNumbersOnTrack(ctx, TrackByContainerNoReq{s.converter.convertAddOnTrack(r)})
 	if err != nil {
-		go func() {
-			for _, v := range res.result {
-				s.logger.FatalLog(fmt.Sprintf(`add container numbers: %s for user-pb: %d failed: %s`, v.number, r.UserId, err.Error()))
-			}
-		}()
+		//go func() {
+		//	for _, v := range res.result {
+		//		s.logger.FatalLog(fmt.Sprintf(`add container numbers: %s for user-pb: %d failed: %s`, v.number, r.UserId, err.Error()))
+		//	}
+		//}()
 		return s.converter.convertAddOnTrackResponse(res), err
 	}
-	go func() {
-		jsonRepr, err := json.Marshal(res)
-		if err != nil {
-			return
-		}
-		s.logger.InfoLog(fmt.Sprintf(`add container numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
-	}()
+	//go func() {
+	//	jsonRepr, err := json.Marshal(res)
+	//	if err != nil {
+	//		return
+	//	}
+	//	s.logger.InfoLog(fmt.Sprintf(`add container numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
+	//}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
 
 func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddBillNumbersOnTrack(ctx, TrackByBillNoReq{*s.converter.convertAddOnTrack(r)})
+	res, err := s.controller.AddBillNumbersOnTrack(ctx, TrackByBillNoReq{s.converter.convertAddOnTrack(r)})
 	if err != nil {
 		go func() {
 			for _, v := range res.result {
@@ -162,7 +162,7 @@ func (s *Service) DeleteBillNosFromTrack(ctx context.Context, r *pb.DeleteFromTr
 func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
 	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber())
 	if err != nil {
-		go s.logger.ExceptionLog(fmt.Sprintf(`get info about tracking err: %s`, err.Error))
+		//go s.logger.ExceptionLog(fmt.Sprintf(`get info about tracking err: %s`, err.Error))
 		return &pb.GetInfoAboutTrackResponse{
 			Number:      resp.number,
 			Emails:      []string{},

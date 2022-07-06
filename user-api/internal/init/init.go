@@ -180,6 +180,9 @@ func GetTimeFormatterSettings() (*TimeFormatterSettings, error) {
 	}
 	return config, nil
 }
+
+var TaskManager = scheduler.NewDefaultScheduler()
+
 func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	trackerConf, err := GetTrackingSettings()
 	if err != nil {
@@ -200,9 +203,8 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	}
 	timeFormatter := schedule_tracking.NewTimeFormatter(format.Format)
 	repository := schedule_tracking.NewRepository(db)
-	taskManager := scheduler.NewDefaultScheduler()
 	taskGetter := schedule_tracking.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
-	controller := schedule_tracking.NewController(controllerLogger, repository, taskManager, taskGetter)
+	controller := schedule_tracking.NewController(controllerLogger, repository, TaskManager, taskGetter)
 	return schedule_tracking.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func parseTime(timeStr string, sep string) int64 {

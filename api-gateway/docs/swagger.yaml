@@ -233,6 +233,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/auth.LoginUserResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -473,7 +477,7 @@ paths:
       tags:
       - Schedule Tracking
   /schedule/getInfo:
-    get:
+    post:
       consumes:
       - application/json
       description: get info about number on tracking

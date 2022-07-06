@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmc-with-git/internal/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -53,18 +52,24 @@ func (h *HttpHandler) Register(c *gin.Context) {
 // @Tags         Auth
 // @Success 200 {object} LoginUserResponse
 // @Failure 500 {object} BaseResponse
+// @Failure 422 {object} BaseResponse
 // @Router /auth/login [post]
 func (h *HttpHandler) Login(c *gin.Context) {
 	var s User
-	fmt.Println(c.Request.Body)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
 	token, err := h.client.Login(c.Request.Context(), s)
 	if err != nil {
-		c.JSON(500, gin.H{"success": false, "error": err.Error()})
-		return
+		switch err.(type) {
+		case *InvalidUserError:
+			c.JSON(422, gin.H{"success": false, "error": "no user with this data"})
+			return
+		default:
+			c.JSON(500, gin.H{"success": false, "error": err.Error()})
+			return
+		}
 	}
 	c.JSON(200, token)
 	return

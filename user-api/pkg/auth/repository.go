@@ -18,9 +18,14 @@ type AlreadyRegisterError struct{}
 func NewAlreadyRegisterError() *AlreadyRegisterError {
 	return &AlreadyRegisterError{}
 }
-
 func (a *AlreadyRegisterError) Error() string {
 	return "Cannot register with these parameters"
+}
+
+type InvalidUserError struct{}
+
+func (i *InvalidUserError) Error() string {
+	return "Cannot find user with these parameters"
 }
 
 type Repository struct {
@@ -52,12 +57,12 @@ func (r *Repository) Login(ctx context.Context, user domain.User) (int, error) {
 	}
 	switch err := row.Scan(&id, &userPassword); err {
 	case sql.ErrNoRows:
-		return id, sql.ErrNoRows
+		return id, &InvalidUserError{}
 	case nil:
 		if r.hash.CheckPasswordHash(userPassword, user.Password) {
 			return id, nil
 		}
-		return id, errors.New(`password is invalid`)
+		return id, &InvalidUserError{}
 	default:
 		return 1, errors.New(fmt.Sprintf(`something went wrong: %s`, err.Error()))
 	}
