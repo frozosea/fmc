@@ -12,7 +12,7 @@ export const requestMoch: IRequest<fetchArgs> = {
         return HaluExampleApiResponse
     },
     async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
-        return fs.readFileSync(path.resolve(__dirname, './haluExampleInfoAboutMoving.html')).toString("utf-8")
+        return fs.readFileSync(path.resolve(__dirname, './haluExampleInfoAboutMoving.txt')).toString("utf-8")
     }
 }
 

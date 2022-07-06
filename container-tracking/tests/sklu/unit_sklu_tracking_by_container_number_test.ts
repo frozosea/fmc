@@ -23,7 +23,7 @@ const requestMoch: IRequest<fetchArgs> = {
         return skluApiResponseExample
     },
     async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
-        return fs.readFileSync(path.resolve(__dirname, './skluInfoAboutMovingExampleHtml.html')).toString("utf-8")
+        return fs.readFileSync(path.resolve(__dirname, './skluInfoAboutMovingExampleHtml.txt')).toString("utf-8")
     }
 }
 
@@ -50,7 +50,7 @@ describe("SKLU container tracking test", () => {
     let unlocodesRepoMoch = new UnlocodesRepoMoch()
     const container = "TEMU2094051"
     it("SKLU info about moving parser test", () => {
-        SkluinfoAboutMovingTest('./skluInfoAboutMovingExampleHtml.html', container)
+        SkluinfoAboutMovingTest('./skluInfoAboutMovingExampleHtml.txt', container)
 
     })
     it("SKLU eta parser test", async () => {

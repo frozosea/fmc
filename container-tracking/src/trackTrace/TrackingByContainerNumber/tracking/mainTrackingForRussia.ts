@@ -76,7 +76,6 @@ export class MainTrackingForRussia {
             throw new ContainerNotFoundException()
         } else {
             try {
-                console.log(args)
                 return await this.getContainerByScac(args.scac).trackContainer(args);
             } catch (e) {
                 throw new ContainerNotFoundException()

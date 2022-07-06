@@ -12,7 +12,7 @@ const fs = require("fs")
 const assert = require("assert");
 describe("KMTU container tracking Test", () => {
     it("KMTU info about moving parser test", () => {
-        const buffetData = fs.readFileSync(path.resolve(__dirname, './kmtuInfoAboutMovingExample.html'))
+        const buffetData = fs.readFileSync(path.resolve(__dirname, './kmtuInfoAboutMovingExample.txt'))
         const infoAboutMovingParser = new KmtuInfoAboutMovingParser(config.DATETIME)
         const actualInfoAboutMoving = infoAboutMovingParser.getInfoAboutMoving(buffetData.toString("utf-8"))
         assert.ok(actualInfoAboutMoving.length > 1)
@@ -45,7 +45,7 @@ describe("KMTU container tracking Test", () => {
         const pod = "HONG KONG"
         const pol = "JAKARTA"
         let kmtuNextRequestDataParser = new KmtuDataForInfoAboutMovingRequestCrawler(config.DATETIME)
-        let data = fs.readFileSync(path.resolve(__dirname, './kmtuEtaHtmlExample.html'))
+        let data = fs.readFileSync(path.resolve(__dirname, './kmtuEtaHtmlExample.txt'))
         let requestData = kmtuNextRequestDataParser.getDataForInfoAboutMovingRequest(data.toString("utf-8"))
         assert.strictEqual(requestData.pod, pod)
         assert.strictEqual(requestData.pol, pol)
@@ -55,7 +55,7 @@ describe("KMTU container tracking Test", () => {
     })
     it("KMTU eta parser test", () => {
         let etaParser = new KmtuEtaParser(config.DATETIME)
-        let data = fs.readFileSync(path.resolve(__dirname, './kmtuEtaHtmlExample.html'))
+        let data = fs.readFileSync(path.resolve(__dirname, './kmtuEtaHtmlExample.txt'))
         let eta = etaParser.parseEta(data.toString("utf-8"))
         assert.strictEqual(eta.operationName, "ETA")
         assert.strictEqual(eta.time, 1655688600000)

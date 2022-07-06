@@ -37,7 +37,6 @@ export class FesoRequest {
             },
             body: body
         });
-        console.log(response)
         return JSON.parse(response.data.tracking.data.containers[0])
     }
 }

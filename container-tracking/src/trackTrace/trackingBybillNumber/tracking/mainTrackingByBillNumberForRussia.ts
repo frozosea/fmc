@@ -45,7 +45,6 @@ export default class MainTrackingByBillNumberForRussia {
             for (let task of tasks) {
                 try {
                     let res = await task.trackByBillNumber(args);
-                    // console.log(res)
                     if (res !== undefined) {
                         if (this.timeInspector.inspectTime(res)) {
                             return res
@@ -61,8 +60,7 @@ export default class MainTrackingByBillNumberForRussia {
             try {
                 return await this.getContainerByScac(args.scac).trackByBillNumber(args);
             } catch (e) {
-                console.log(e)
-                // throw new ContainerNotFoundException()
+                throw new ContainerNotFoundException()
             }
         }
     }
