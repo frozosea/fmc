@@ -1,4 +1,4 @@
-name: User-api
+name: Freight-Parser
 
 on:
   push:
@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./user-api
+        working-directory: ./freight-parser
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
