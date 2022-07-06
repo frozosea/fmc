@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"user-api/internal/util"
 )
 
 type isArrived bool
@@ -44,11 +43,18 @@ type fesoArrivedChecker struct {
 func newFesoArrivedChecker() *fesoArrivedChecker {
 	return &fesoArrivedChecker{}
 }
-
+func (f *fesoArrivedChecker) getIndex(item interface{}, s []BaseInfoAboutMoving) int {
+	for index, v := range s {
+		if v == item {
+			return index
+		}
+	}
+	return -1
+}
 func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
 	for _, v := range result {
 		if strings.ToUpper(v.OperationName) == "ETA" {
-			index := util.GetIndex(result, v)
+			index := f.getIndex(v, result)
 			if index != -1 {
 				return index != len(result)-1
 			}
