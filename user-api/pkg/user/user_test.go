@@ -80,6 +80,9 @@ func (c *cacheMoch) Get(ctx context.Context, key string, dest interface{}) error
 func (c *cacheMoch) Set(ctx context.Context, key string, value interface{}) error {
 	return nil
 }
+func (c *cacheMoch) Del(ctx context.Context, key string) error {
+	return nil
+}
 
 type loggerMoch struct{}
 
