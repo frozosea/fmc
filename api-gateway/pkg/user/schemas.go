@@ -5,7 +5,7 @@ type AddContainers struct {
 }
 
 type DeleteNumbers struct {
-	numberIds []int64 `json:"numbers" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	NumberIds []int64 `json:"numberIds" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
 }
 
 type BaseResponse struct {

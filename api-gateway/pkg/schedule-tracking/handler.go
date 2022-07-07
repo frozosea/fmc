@@ -7,8 +7,9 @@ import (
 )
 
 type HttpHandler struct {
-	client *Client
-	utils  *utils.HttpUtils
+	client    *Client
+	validator *Validator
+	utils     *utils.HttpUtils
 }
 
 func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
@@ -65,6 +66,18 @@ func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	if err := h.validator.ValidateBills(s.Numbers); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateTime(s.Time); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.JSON(401, gin.H{"message": "cannot decode token"})
@@ -97,6 +110,10 @@ func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	if err := h.validator.ValidateTime(s.NewTime); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
 	res, err := h.client.UpdateTrackingTime(c.Request.Context(), s)
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
@@ -112,7 +129,7 @@ func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 // @Description  add new email to tracking, bill or container doesn't matter
 // @accept json
 // @Produce      json
-// @Param input body UpdateTrackingTimeRequest true "info"
+// @Param input body AddEmailRequest true "info"
 // @Tags         Schedule Tracking
 // @Success      200 {object} BaseResponse
 // @Failure      400
@@ -121,6 +138,10 @@ func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
 	var s AddEmailRequest
 	if err := h.utils.Validate(c, &s); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -150,6 +171,10 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	if err := h.validator.ValidateEmails([]string{s.Email}); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
 	if err := h.client.DeleteEmailFromTrack(c.Request.Context(), s); err != nil {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
 		return
@@ -173,6 +198,10 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 	var s DeleteFromTrackRequest
 	if err := h.utils.Validate(c, &s); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateContainers(s.Numbers); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -207,6 +236,10 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	if err := h.validator.ValidateBills(s.Numbers); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.JSON(401, gin.H{"message": "cannot decode token"})
@@ -235,6 +268,10 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 	var s GetInfoAboutTrackRequest
 	if err := h.utils.Validate(c, &s); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateBill(s.Number); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}

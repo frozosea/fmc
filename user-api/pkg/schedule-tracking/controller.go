@@ -2,12 +2,17 @@ package schedule_tracking
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"user-api/internal/logging"
 	"user-api/internal/scheduler"
 	"user-api/internal/util"
 )
+
+type CannotFindEmailError struct{}
+
+func (c *CannotFindEmailError) Error() string {
+	return "cannot find email in job"
+}
 
 type Controller struct {
 	logger            logging.ILogger
@@ -24,36 +29,36 @@ func (c *Controller) addOneContainer(ctx context.Context, number, country, time 
 		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return job, err
 	}
-	if err := c.repository.AddMarkContainerOnTrack(ctx, number, int(userId)); err != nil {
-		//go c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
-		return job, err
+	if addMarkErr := c.repository.AddMarkContainerOnTrack(ctx, number, int(userId)); addMarkErr != nil {
+		go c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
+		return job, addMarkErr
 	}
-	//go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
+	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
 	return job, nil
 }
 func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
-	response := new(AddOnTrackResponse)
+	var result []*BaseAddOnTrackResponse
 	for _, v := range req.numbers {
 		job, err := c.addOneContainer(ctx, v, req.country, req.time, req.userId, req.emails)
 		switch err.(type) {
 		case *scheduler.AddJobError:
 			alreadyOnTrack = append(alreadyOnTrack, v)
-		default:
-			return response, err
 		}
-		response.result = append(response.result, &BaseAddOnTrackResponse{
+		result = append(result, &BaseAddOnTrackResponse{
 			success:     true,
 			number:      job.Id,
 			nextRunTime: job.NextRunTime,
 		})
 	}
-	response.alreadyOnTrack = alreadyOnTrack
-	return response, nil
+	return &AddOnTrackResponse{
+		result:         result,
+		alreadyOnTrack: alreadyOnTrack,
+	}, nil
 }
 func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
 	task := c.GetTrackByBillNumberTask(number, country, userId)
-	job, err := c.taskManager.Add(ctx, number, task, time, util.ConvertArgsToInterface(emails)...)
+	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
 		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return job, err
@@ -62,28 +67,28 @@ func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, tim
 		c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
 		return job, err
 	}
-	//go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
+	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
 	return job, nil
 }
 func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
-	var response *AddOnTrackResponse
+	var result []*BaseAddOnTrackResponse
 	for _, v := range req.numbers {
 		job, err := c.addOneBillOnTrack(ctx, v, req.country, req.time, req.userId, req.emails)
 		switch err.(type) {
 		case *scheduler.AddJobError:
 			alreadyOnTrack = append(alreadyOnTrack, v)
-		default:
-			return response, err
 		}
-		response.result = append(response.result, &BaseAddOnTrackResponse{
+		result = append(result, &BaseAddOnTrackResponse{
 			success:     true,
 			number:      job.Id,
 			nextRunTime: job.NextRunTime,
 		})
 	}
-	response.alreadyOnTrack = alreadyOnTrack
-	return response, nil
+	return &AddOnTrackResponse{
+		result:         result,
+		alreadyOnTrack: alreadyOnTrack,
+	}, nil
 }
 func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, newTime string) ([]*BaseAddOnTrackResponse, error) {
 	var response []*BaseAddOnTrackResponse
@@ -123,7 +128,7 @@ func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFr
 	}
 	indexOfEmail := util.GetIndex(req.email, job.Args...)
 	if indexOfEmail == -1 {
-		return errors.New("cannot find email in args")
+		return &CannotFindEmailError{}
 	}
 	job.Args = util.PopForInterfaces(job.Args, indexOfEmail)
 	return c.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...)

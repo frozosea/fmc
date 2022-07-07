@@ -19,7 +19,7 @@ func GetServer() (*grpc.Server, error) {
 	pb.RegisterUserServer(server, conf.GetUserService(db, conf.GetRedisSettings()))
 	pb.RegisterScheduleTrackingServer(server, conf.GetScheduleTrackingService(db))
 	fmt.Println("start scheduler")
-	go conf.TaskManager.Start()
+	//go conf.TaskManager.Start()
 	return server, nil
 }
 

@@ -71,7 +71,6 @@ export class MainTrackingForRussia {
                 } catch (e) {
                     continue
                 }
-
             }
             throw new ContainerNotFoundException()
         } else {

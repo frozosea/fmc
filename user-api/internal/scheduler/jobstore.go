@@ -11,10 +11,16 @@ func (a *AddJobError) Error() string {
 	return "job with this id already exists."
 }
 
-type GetJobError struct{}
+type JobAlreadyExistsError struct{}
 
-func (g *GetJobError) Error() string {
+func (g *JobAlreadyExistsError) Error() string {
 	return "job with this id already exists."
+}
+
+type LookupJobError struct{}
+
+func (l *LookupJobError) Error() string {
+	return "cannot find job with this id"
 }
 
 type IJobStore interface {
@@ -45,19 +51,23 @@ func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, in
 	return &job, nil
 }
 func (m *MemoryJobStore) Get(_ context.Context, taskId string) (*Job, error) {
-	return m.checkTask(taskId)
+	job := m.jobs[taskId]
+	if job == nil {
+		return new(Job), &LookupJobError{}
+	}
+	return job, nil
 }
 func (m *MemoryJobStore) checkTask(taskId string) (*Job, error) {
 	job := m.jobs[taskId]
 	if job == nil {
-		return nil, &GetJobError{}
+		return nil, &JobAlreadyExistsError{}
 	}
 	return job, nil
 }
 func (m *MemoryJobStore) Reschedule(_ context.Context, taskId string, interval time.Duration) (*Job, error) {
-	job, err := m.checkTask(taskId)
-	if err != nil {
-		return job, err
+	job := m.jobs[taskId]
+	if job == nil {
+		return new(Job), &LookupJobError{}
 	}
 	modifiedJob := Job{
 		Id:          taskId,
@@ -71,9 +81,9 @@ func (m *MemoryJobStore) Reschedule(_ context.Context, taskId string, interval t
 	return &modifiedJob, nil
 }
 func (m *MemoryJobStore) Remove(_ context.Context, taskId string) error {
-	_, err := m.checkTask(taskId)
-	if err != nil {
-		return err
+	job := m.jobs[taskId]
+	if job == nil {
+		return &LookupJobError{}
 	}
 	delete(m.jobs, taskId)
 	return nil

@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, Unique} from "typeorm"
+import {Column, Entity, PrimaryGeneratedColumn, Unique} from "typeorm"
 import {SCAC_TYPE} from "../../types";
 
 @Entity()
@@ -10,5 +10,4 @@ export class ContainerScac {
     container: string
     @Column()
     scac: SCAC_TYPE
-
 }

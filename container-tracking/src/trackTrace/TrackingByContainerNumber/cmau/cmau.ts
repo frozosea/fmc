@@ -1,13 +1,14 @@
 import {
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
     ITrackingArgs,
-    TrackingContainerResponse,
-    OneTrackingEvent, BaseContainerConstructor
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {IRequest} from "../../helpers/requestSender";
 import {IBrowserArgs} from "../../helpers/browser"
 import {GetContainerSizeException, GetEtaException} from "../../../exceptions";
-import {WAIT_SELECTOR_TIMEOUT,REQUEST_TIMEOUT_MS} from "../../../../config.json"
+
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
 
@@ -28,9 +29,12 @@ export class CmauRequest {
                 clickAfterType: {
                     locatorSelector: "#btnTracking",
                     key: "Enter",
-                    waitingSelector: {selector: "#trackingsearchsection", timeout: WAIT_SELECTOR_TIMEOUT}
+                    waitingSelector: {
+                        selector: "#trackingsearchsection",
+                        timeout: Number(process.env.WAIT_SELECTOR_TIMEOUT)
+                    }
                 }
-            }, requestTimeOut: REQUEST_TIMEOUT_MS
+            }, requestTimeOut: Number(process.env.REQUEST_TIMEOUT_MS)
         })
     }
 }

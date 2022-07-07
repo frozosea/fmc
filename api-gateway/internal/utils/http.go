@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"gopkg.in/validator.v2"
 	"strings"
 )
 
@@ -26,9 +25,6 @@ func (h *HttpUtils) ValidateSchemaError(c *gin.Context, statusCode int, message 
 }
 func (h *HttpUtils) Validate(c *gin.Context, schema interface{}) error {
 	if err := c.ShouldBindJSON(&schema); err != nil {
-		if err := validator.Validate(schema); err != nil {
-			return err
-		}
 		return err
 	}
 	return nil

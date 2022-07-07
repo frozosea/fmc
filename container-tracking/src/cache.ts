@@ -1,5 +1,4 @@
 const asyncRedis = require("async-redis");
-
 export interface ICache {
     get(key: string): Promise<string>
 
@@ -11,7 +10,7 @@ export class Cache implements ICache {
 
     public constructor() {
         this.client = asyncRedis.createClient({
-            url: process.env.REDIS_URL
+            url: process.env.REDIS_URL,
         })
     }
 

@@ -1,9 +1,9 @@
 package tracking
 
 type Track struct {
-	Number string `protobuf:"number" json:"number" form:"number" validate:"min=1,max=28,regexp=[a-zA-Z]{2,}\d{5,}`
-	Scac   string `protobuf:"scac" json:"scac" form:"scac" validate:"min=1,max=4,regexp=[a-zA-z]{4}`
-	//Country string `protobuf:"country" json:"country" form:"country" validate:"min=1,max=16,regexp=[a-zA-z]{2}`
+	Number string `protobuf:"number" json:"number" form:"number" validate:"min=7,max=28,regexp=[a-zA-Z]{2,}\d{5,}"`
+	Scac   string `protobuf:"scac" json:"scac" form:"scac" validate:"min=4,max=4,regexp=[a-zA-z]{4}"`
+	//Country string `protobuf:"country" json:"country" form:"country" validate:"min=1,max=16,regexp=[a-zA-z]{2}"`
 }
 type BaseInfoAboutMoving struct {
 	Time          int64  `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`

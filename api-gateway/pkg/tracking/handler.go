@@ -2,12 +2,14 @@ package tracking
 
 import (
 	"fmc-with-git/internal/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type HttpHandler struct {
-	client *Client
+	client    *Client
+	validator *Validator
 	*utils.HttpUtils
 }
 
@@ -30,6 +32,14 @@ func NewHttpHandler(client *Client, httpUtils *utils.HttpUtils) *HttpHandler {
 func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 	var schema Track
 	if err := h.Validate(c, &schema); err != nil {
+		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateContainer(schema.Number); err != nil {
+		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateScac(schema.Scac); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -58,7 +68,16 @@ func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	if err := h.validator.ValidateBillNumber(schema.Number); err != nil {
+		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateScac(schema.Scac); err != nil {
+		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
 	response, err := h.client.TrackByBillNumber(c.Request.Context(), schema, c.Request.Header.Get("X-REAL-IP"))
+	fmt.Println(err)
 	if err != nil {
 		c.JSON(204, gin.H{})
 		return

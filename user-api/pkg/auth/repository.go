@@ -64,8 +64,9 @@ func (r *Repository) Login(ctx context.Context, user domain.User) (int, error) {
 		}
 		return id, &InvalidUserError{}
 	default:
-		return 1, errors.New(fmt.Sprintf(`something went wrong: %s`, err.Error()))
+		return -1, errors.New(fmt.Sprintf(`something went wrong: %s`, err.Error()))
 	}
+
 }
 func (r *Repository) CheckAccess(ctx context.Context, userId int) (bool, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT * FROM "user" AS u WHERE u.id = $1`, userId)

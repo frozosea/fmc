@@ -46,6 +46,17 @@ definitions:
     - password
     - username
     type: object
+  schedule_tracking.AddEmailRequest:
+    properties:
+      emails:
+        items:
+          type: string
+        type: array
+      numbers:
+        items:
+          type: string
+        type: array
+    type: object
   schedule_tracking.AddOnTrackRequest:
     properties:
       emails:
@@ -167,6 +178,8 @@ definitions:
       number:
         type: string
       scac:
+        maxLength: 4
+        minLength: 4
         type: string
     type: object
   user.AddContainers:
@@ -208,6 +221,11 @@ definitions:
     - number
     type: object
   user.DeleteNumbers:
+    properties:
+      numberIds:
+        items:
+          type: integer
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -276,7 +294,7 @@ paths:
       - application/json
       description: register user by username and password
       parameters:
-      - description: info
+      - description: body
         in: body
         name: input
         required: true
@@ -367,7 +385,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/schedule_tracking.UpdateTrackingTimeRequest'
+          $ref: '#/definitions/schedule_tracking.AddEmailRequest'
       produces:
       - application/json
       responses:
@@ -664,7 +682,7 @@ paths:
           schema:
             $ref: '#/definitions/user.BaseResponse'
       security:
-      - OAuth2Application: []
+      - ApiKeyAuth: []
       summary: Delete bill numbers from account
       tags:
       - User
@@ -690,7 +708,7 @@ paths:
           schema:
             $ref: '#/definitions/user.BaseResponse'
       security:
-      - OAuth2Application: []
+      - ApiKeyAuth: []
       summary: Delete containers from account
       tags:
       - User
@@ -709,7 +727,7 @@ paths:
           schema:
             $ref: '#/definitions/user.BaseResponse'
       security:
-      - OAuth2Application: []
+      - ApiKeyAuth: []
       summary: Get all bill numbers and containers from account
       tags:
       - User

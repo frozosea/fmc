@@ -22,9 +22,8 @@ export const AppDataSource = new DataSource({
 
 AppDataSource.initialize()
     .then(async (_) => {
-        console.log(process.env.POSTGRES_DATABASE)
     })
-    .catch((error) => console.log("Error: ", error))
+    .catch((error) => console.log("Error of init db: ", error))
 
 
 

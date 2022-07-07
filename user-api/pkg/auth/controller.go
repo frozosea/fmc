@@ -19,25 +19,23 @@ func NewController(repository IRepository, tokenManager ITokenManager, logger lo
 
 func (c *Controller) RegisterUser(ctx context.Context, user domain.User) error {
 	if regUserErr := c.repository.Register(ctx, user); regUserErr != nil {
-		//go c.logger.ExceptionLog(fmt.Sprintf(`user-pb with username %s`, user.Username))
+		go c.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Username, regUserErr.Error()))
 		return regUserErr
 	}
-	//go c.logger.InfoLog(fmt.Sprintf(`user-pb with username %s was registered`, user.Username))
+	go c.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Username))
 	return nil
 }
 func (c *Controller) Login(ctx context.Context, user domain.User) (*Token, error) {
-	var token *Token
 	userId, err := c.repository.Login(ctx, user)
+	c.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
 	switch err.(type) {
 	case *InvalidUserError:
-		return token, err
-	}
-	if err != nil {
-		return token, err
+		return nil, err
 	}
 	token, genTokenErr := c.tokenManager.GenerateAccessRefreshTokens(userId)
 	if genTokenErr != nil {
 		c.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))
+		return nil, genTokenErr
 	}
 	return token, genTokenErr
 }

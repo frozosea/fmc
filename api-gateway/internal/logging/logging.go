@@ -13,65 +13,71 @@ type ILogger interface {
 	FatalLog(logString string)
 }
 
-func initLogger(dirName string) error {
-	if _, err := os.ReadDir(dirName); err != nil {
-		if err := os.Mkdir(dirName, 0700); err != nil {
+func createDirsAndFiles(dirName string) error {
+	if _, err := os.ReadDir(`logs`); err != nil {
+		if mkDirErr := os.Mkdir(`logs`, 0700); mkDirErr != nil {
 			return err
+		}
+	}
+	if _, err := os.ReadDir(`logs`); err != nil {
+		if createLogDirErr := os.Mkdir(`logs`, 0700); createLogDirErr != nil {
+			return createLogDirErr
+		}
+	}
+	if err := os.Mkdir(fmt.Sprintf(`logs/%s`, dirName), 0700); err != nil {
+		return err
+	}
+	logs := []string{"info.log", "exception.log", "warning.log", "fatal.log"}
+	for _, v := range logs {
+		if info := os.WriteFile(fmt.Sprintf(`logs/%s/%s`, dirName, v), nil, 0700); info != nil {
+			return info
 		}
 	}
 	return nil
 }
 
+func initOneLogger(filePath string) *log.Logger {
+	logger := log.New()
+	d, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		return logger
+	}
+	logger.Out = d
+	logger.Formatter = &log.JSONFormatter{}
+	return logger
+}
+
 type Logger struct {
 	SaveLogsDir     string
-	infoLogger      *log.Logger
-	exceptionLogger *log.Logger
-	warningLogger   *log.Logger
-	fatalLogger     *log.Logger
+	infoLogger      log.Logger
+	exceptionLogger log.Logger
+	warningLogger   log.Logger
+	fatalLogger     log.Logger
 }
 
 func (l *Logger) InfoLog(logString string) {
-	d, err := os.Open(fmt.Sprintf(`%s/info.log`, l.SaveLogsDir))
-	if err != nil {
-		return
-	}
-	l.infoLogger.SetOutput(d)
 	l.infoLogger.Info(logString)
 }
 func (l *Logger) ExceptionLog(logString string) {
-	d, err := os.Open(fmt.Sprintf(`%s/exception.log`, l.SaveLogsDir))
-	if err != nil {
-		return
-	}
-	l.exceptionLogger.SetOutput(d)
 	l.exceptionLogger.Error(logString)
 }
 func (l *Logger) WarningLog(logString string) {
-	d, err := os.Open(fmt.Sprintf(`%s/warning.log`, l.SaveLogsDir))
-	if err != nil {
-		return
-	}
-	l.warningLogger.SetOutput(d)
 	l.warningLogger.Warning(logString)
 }
 func (l *Logger) FatalLog(logString string) {
-	d, err := os.Open(fmt.Sprintf(`%s/fatal.log`, l.SaveLogsDir))
-	if err != nil {
-		return
-	}
-	l.fatalLogger.SetOutput(d)
 	l.fatalLogger.Fatal(logString)
 }
 
-func NewLogger(saveLogsDir string) ILogger {
-	if err := initLogger(saveLogsDir); err != nil {
-		return nil
+func NewLogger(saveLogsDir string) *Logger {
+	if err := createDirsAndFiles(saveLogsDir); err != nil {
+		//fmt.Println(err.Error())
+		return &Logger{}
 	}
 	return &Logger{
 		SaveLogsDir:     saveLogsDir,
-		infoLogger:      log.StandardLogger(),
-		exceptionLogger: log.StandardLogger(),
-		warningLogger:   log.StandardLogger(),
-		fatalLogger:     log.StandardLogger(),
+		infoLogger:      *initOneLogger(fmt.Sprintf(`logs/%s/info.log`, saveLogsDir)),
+		exceptionLogger: *initOneLogger(fmt.Sprintf(`logs/%s/exception.log`, saveLogsDir)),
+		warningLogger:   *initOneLogger(fmt.Sprintf(`logs/%s/warning.log`, saveLogsDir)),
+		fatalLogger:     *initOneLogger(fmt.Sprintf(`logs/%s/fatal.log`, saveLogsDir)),
 	}
 }
