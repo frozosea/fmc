@@ -19,9 +19,16 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.18
-
+    
     - name: Build
       run: go build -v ./...
-
+    - name: formatter
+      uses: sladyn98/auto-go-format@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: linter
+      uses: ArangoGutierrez/GoLinty-Action@go-1.13rc1-alpine
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Test
       run: go test -v --short ./...
