@@ -106,7 +106,7 @@
                 "summary": "Register user by username and password",
                 "parameters": [
                     {
-                        "description": "info",
+                        "description": "body",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -252,7 +252,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.UpdateTrackingTimeRequest"
+                            "$ref": "#/definitions/schedule_tracking.AddEmailRequest"
                         }
                     }
                 ],
@@ -690,7 +690,7 @@
             "delete": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "delete bill numbers from account",
@@ -732,7 +732,7 @@
             "delete": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "delete containers from account",
@@ -774,7 +774,7 @@
             "get": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Get all bill numbers and containers from account",
@@ -868,6 +868,23 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "schedule_tracking.AddEmailRequest": {
+            "type": "object",
+            "properties": {
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "numbers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1058,7 +1075,9 @@
                     "type": "string"
                 },
                 "scac": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 4,
+                    "minLength": 4
                 }
             }
         },
@@ -1121,7 +1140,15 @@
             }
         },
         "user.DeleteNumbers": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "numberIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
         }
     },
     "securityDefinitions": {

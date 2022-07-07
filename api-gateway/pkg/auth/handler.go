@@ -19,7 +19,7 @@ func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
 // @Summary Register user by username and password
 // @Description register user by username and password
 // @accept json
-// @Param input body User true "info"
+// @Param input body User true "body"
 // @Tags         Auth
 // @Success 200 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
@@ -31,11 +31,20 @@ func (h *HttpHandler) Register(c *gin.Context) {
 		return
 	}
 	if err := h.client.Register(c.Request.Context(), s); err != nil {
-		c.JSON(500, BaseResponse{
-			Success: false,
-			Error:   err.Error(),
-		})
-		return
+		switch err.(type) {
+		case *AlreadyRegisterError:
+			c.JSON(422, BaseResponse{
+				Success: false,
+				Error:   err.Error(),
+			})
+			return
+		default:
+			c.JSON(500, BaseResponse{
+				Success: false,
+				Error:   err.Error(),
+			})
+			return
+		}
 	}
 	c.JSON(200, BaseResponse{
 		Success: true,
@@ -96,6 +105,7 @@ func (h *HttpHandler) Refresh(c *gin.Context) {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
 		return
 	}
+	c.Request.Header.Set("Authorization", "Bearer "+token.Token)
 	c.JSON(200, token)
 	return
 }

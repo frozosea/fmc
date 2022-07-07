@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmc-with-git/internal/init"
+	init_package "fmc-with-git/internal/init"
 	"github.com/joho/godotenv"
 )
 

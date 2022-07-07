@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmc-with-git/internal/logging"
 	pb "fmc-with-git/internal/user-pb"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 )
 
@@ -34,6 +35,13 @@ func (c *converter) loginResponseConvert(response *pb.LoginResponse) *LoginUserR
 	}
 }
 
+type AlreadyRegisterError struct {
+}
+
+func (a *AlreadyRegisterError) Error() string {
+	return "user with this username already exists"
+}
+
 type InvalidUserError struct{}
 
 func (i *InvalidUserError) Error() string {
@@ -54,16 +62,31 @@ func (c *Client) Register(ctx context.Context, user User) error {
 	fmt.Println(user)
 	_, err := c.cli.RegisterUser(ctx, c.converter.convertUser(user))
 	if err != nil {
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.AlreadyExists:
+			return &AlreadyRegisterError{}
+		default:
+			return err
+
+		}
 		//go c.logger.ExceptionLog(fmt.Sprintf(`register user with username %s failed: %s`, user.Username, err.Error()))
-		return errors.New("cannot register user with username " + user.Username)
 	}
 	return nil
 }
 
 func (c *Client) Login(ctx context.Context, user User) (*LoginUserResponse, error) {
 	r, err := c.cli.LoginUser(ctx, c.converter.convertLoginUser(user))
+	fmt.Println(err)
 	if err != nil {
-		return &LoginUserResponse{}, &InvalidUserError{}
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return &LoginUserResponse{}, &InvalidUserError{}
+		default:
+			return &LoginUserResponse{}, err
+
+		}
 		//go c.logger.ExceptionLog(fmt.Sprintf(`login user with username %s failed: %s`, user.Username, err.Error()))
 	}
 	go c.logger.InfoLog(fmt.Sprintf(`user %s logged in successfully`, user.Username))

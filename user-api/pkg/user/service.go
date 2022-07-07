@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/pkg/domain"
 	pb "user-api/pkg/proto"
@@ -34,6 +35,7 @@ func (s *Service) DeleteBillNumbersFromAccount(ctx context.Context, r *pb.Delete
 func (s *Service) GetAll(ctx context.Context, r *pb.GetAllContainersFromAccountRequest) (*pb.GetAllContainersResponse, error) {
 	res, err := s.controller.GetAllContainers(ctx, int(r.GetUserId()))
 	if err != nil {
+		fmt.Println(err.Error())
 		return &pb.GetAllContainersResponse{}, err
 	}
 	return &pb.GetAllContainersResponse{

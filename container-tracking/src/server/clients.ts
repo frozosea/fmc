@@ -1,15 +1,14 @@
 import {TrackingByBillNumberClient, TrackingByContainerNumberClient} from "./proto/server_grpc_pb";
-import {GRPC_PORT} from "../../config.json";
 import {credentials} from "@grpc/grpc-js";
 import {Request, TrackingByBillNumberResponse, TrackingByContainerNumberResponse} from "./proto/server_pb";
 import {COUNTRY_TYPE, SCAC_TYPE} from "../types";
 import {TrackingServiceConverter} from "./services/trackingByContainerNumberService";
 
 export const trackingByContainerNumberClient = new TrackingByContainerNumberClient(
-    `localhost:${GRPC_PORT}`,
+    `localhost:${process.env.GRPC_PORT}`,
     credentials.createInsecure(),
 );
-export const trackingByBillNumberClient = new TrackingByBillNumberClient(`localhost:${GRPC_PORT}`,
+export const trackingByBillNumberClient = new TrackingByBillNumberClient(`localhost:${process.env.GRPC_PORT}`,
     credentials.createInsecure(),)
 
 export function trackContainerByServer(container: string, scac: SCAC_TYPE, country: COUNTRY_TYPE): Promise<TrackingByContainerNumberResponse> {

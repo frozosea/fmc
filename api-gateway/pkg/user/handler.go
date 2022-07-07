@@ -2,12 +2,14 @@ package user
 
 import (
 	"fmc-with-git/internal/utils"
+	schedule_tracking "fmc-with-git/pkg/schedule-tracking"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type HttpHandler struct {
-	client *Client
+	client    *Client
+	validator *schedule_tracking.Validator
 	*utils.HttpUtils
 }
 
@@ -16,7 +18,7 @@ func NewHttpHandler(client *Client, httpUtils *utils.HttpUtils) *HttpHandler {
 }
 func (h *HttpHandler) addBillOrContainer(c *gin.Context, isContainer bool) {
 	var s AddContainers
-	if err := h.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -26,13 +28,21 @@ func (h *HttpHandler) addBillOrContainer(c *gin.Context, isContainer bool) {
 		return
 	}
 	if isContainer {
+		if validateErr := h.validator.ValidateContainers(s.Numbers); validateErr != nil {
+			h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
 		if err := h.client.AddContainerToAccount(c.Request.Context(), int64(userId), &s); err != nil {
 			c.JSON(500, gin.H{"success": false, "error": err.Error()})
 			return
 		}
 	} else {
-		if err := h.client.AddBillNumbersToAccount(c.Request.Context(), int64(userId), &s); err != nil {
-			c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		if validateErr := h.validator.ValidateBills(s.Numbers); validateErr != nil {
+			h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+		if addBillErr := h.client.AddBillNumbersToAccount(c.Request.Context(), int64(userId), &s); addBillErr != nil {
+			c.JSON(500, gin.H{"success": false, "error": addBillErr.Error()})
 			return
 		}
 	}
@@ -96,7 +106,7 @@ func (h *HttpHandler) deleteContainersOrBillNumbers(c *gin.Context, isContainer 
 
 // DeleteContainersFromAccount
 // @Summary Delete containers from account
-// @Security OAuth2Application
+// @Security ApiKeyAuth
 // @Description delete containers from account
 // @accept json
 // @Param input body DeleteNumbers true "info"
@@ -110,7 +120,7 @@ func (h *HttpHandler) DeleteContainersFromAccount(c *gin.Context) {
 
 // DeleteBillNumbersFromAccount
 // @Summary Delete bill numbers from account
-// @Security OAuth2Application
+// @Security ApiKeyAuth
 // @Description delete bill numbers from account
 // @accept json
 // @Param input body DeleteNumbers true "info"
@@ -124,7 +134,7 @@ func (h *HttpHandler) DeleteBillNumbersFromAccount(c *gin.Context) {
 
 // GetAll
 // @Summary Get all bill numbers and containers from account
-// @Security OAuth2Application
+// @Security ApiKeyAuth
 // @Description Get all bill numbers and containers from account
 // @accept json
 // @Tags         User

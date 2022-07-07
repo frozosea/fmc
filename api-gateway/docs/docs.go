@@ -113,7 +113,7 @@ const docTemplate = `{
                 "summary": "Register user by username and password",
                 "parameters": [
                     {
-                        "description": "info",
+                        "description": "body",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -259,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.UpdateTrackingTimeRequest"
+                            "$ref": "#/definitions/schedule_tracking.AddEmailRequest"
                         }
                     }
                 ],
@@ -697,7 +697,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "delete bill numbers from account",
@@ -739,7 +739,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "delete containers from account",
@@ -781,7 +781,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "OAuth2Application": []
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "Get all bill numbers and containers from account",
@@ -875,6 +875,23 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "schedule_tracking.AddEmailRequest": {
+            "type": "object",
+            "properties": {
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "numbers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1065,7 +1082,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "scac": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 4,
+                    "minLength": 4
                 }
             }
         },
@@ -1128,7 +1147,15 @@ const docTemplate = `{
             }
         },
         "user.DeleteNumbers": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "numberIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
         }
     },
     "securityDefinitions": {

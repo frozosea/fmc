@@ -2,10 +2,13 @@ package schedule_tracking
 
 import (
 	"context"
+	"errors"
 	"fmc-with-git/internal/logging"
 	pb "fmc-with-git/internal/user-pb"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Client struct {
@@ -22,11 +25,11 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddContainersOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
-		go func() {
-			for _, v := range req.Numbers {
-				c.logger.ExceptionLog(fmt.Sprintf(`add container on track with number: %s err: %s`, v, err.Error()))
-			}
-		}()
+		//go func() {
+		//	for _, v := range req.Numbers {
+		//		c.logger.ExceptionLog(fmt.Sprintf(`add container on track with number: %s err: %s`, v, err.Error()))
+		//	}
+		//}()
 		return nil, err
 	}
 	return c.converter.addOnTrackResponseConvert(response), nil
@@ -35,11 +38,11 @@ func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddO
 func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddBillNosOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
-		go func() {
-			for _, v := range req.Numbers {
-				c.logger.ExceptionLog(fmt.Sprintf(`add bill number on track with number: %s err: %s`, v, err.Error()))
-			}
-		}()
+		//go func() {
+		//	for _, v := range req.Numbers {
+		//		c.logger.ExceptionLog(fmt.Sprintf(`add bill number on track with number: %s err: %s`, v, err.Error()))
+		//	}
+		//}()
 		return nil, err
 	}
 	return c.converter.addOnTrackResponseConvert(response), nil
@@ -47,12 +50,18 @@ func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTr
 func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeRequest) ([]BaseAddOnTrackResponse, error) {
 	result, err := c.cli.UpdateTrackingTime(ctx, c.converter.updateTrackingTimeRequestConvert(req))
 	if err != nil {
-		go func() {
-			for _, v := range req.Numbers {
-				c.logger.ExceptionLog(fmt.Sprintf(`update tracking time on track with number: %s err: %s`, v, err.Error()))
-			}
-		}()
 		var numbers []BaseAddOnTrackResponse
+		statusOfRequest := status.Convert(err)
+		fmt.Println(statusOfRequest.Code())
+		switch statusOfRequest.Code() {
+		case codes.NotFound:
+			return numbers, errors.New("cannot lookup job")
+		}
+		//go func() {
+		//	for _, v := range req.Numbers {
+		//		c.logger.ExceptionLog(fmt.Sprintf(`update tracking time on track with number: %s err: %s`, v, err.Error()))
+		//	}
+		//}()
 		return numbers, err
 	}
 	return c.converter.baseAddOnTrackResponseConver(result.GetResponse()), nil
@@ -61,11 +70,18 @@ func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeR
 func (c *Client) AddEmailsOnTracking(ctx context.Context, req AddEmailRequest) error {
 	_, err := c.cli.AddEmailsOnTracking(ctx, c.converter.AddEmailRequestConvert(req))
 	if err != nil {
-		go func() {
-			for index, v := range req.Emails {
-				c.logger.ExceptionLog(fmt.Sprintf(`add email on track with number: %s email: %s err: %s`, v, req.Emails[index], err.Error()))
-			}
-		}()
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return errors.New("cannot find job with this id")
+		default:
+			return err
+		}
+		//go func() {
+		//	for index, v := range req.Emails {
+		//		c.logger.ExceptionLog(fmt.Sprintf(`add email on track with number: %s email: %s err: %s`, v, req.Emails[index], err.Error()))
+		//	}
+		//}()
 	}
 	return err
 }
@@ -75,7 +91,14 @@ func (c *Client) DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrac
 		Email:  r.Email,
 	})
 	if err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`delete email from track with number: %s email: %s err: %s`, r.Number, r.Email, err.Error()))
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return errors.New("cannot find job or email with this params")
+		default:
+			return err
+		}
+		//go c.logger.ExceptionLog(fmt.Sprintf(`delete email from track with number: %s email: %s err: %s`, r.Number, r.Email, err.Error()))
 	}
 	return err
 }
@@ -86,17 +109,27 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 			UserId: userId,
 			Number: req.Numbers,
 		})
-		go func() {
-			for _, v := range req.Numbers {
-				c.logger.ExceptionLog(fmt.Sprintf(`delete from track with number: %s for user: %d err: %s`, v, userId, err.Error()))
-			}
-		}()
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return errors.New("cannot find job with this id")
+		}
+		//go func() {
+		//	for _, v := range req.Numbers {
+		//		c.logger.ExceptionLog(fmt.Sprintf(`delete from track with number: %s for user: %d err: %s`, v, userId, err.Error()))
+		//	}
+		//}()
 		return err
 	} else {
 		_, err := c.cli.DeleteBillNosFromTrack(ctx, &pb.DeleteFromTrackRequest{
 			UserId: userId,
 			Number: req.Numbers,
 		})
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return errors.New("cannot find job with this id")
+		}
 		return err
 	}
 }
@@ -105,8 +138,13 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 	resp, err := c.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{Number: r.Number})
 	if err != nil {
 		var s GetInfoAboutTrackResponse
-		go c.logger.ExceptionLog(fmt.Sprintf(`get info about track for number: %s err: %s`, r.Number, err.Error()))
-		return s, err
+		code := status.Convert(err).Code()
+		switch code {
+		case codes.NotFound:
+			return s, errors.New("cannot find job with this id")
+		default:
+			return s, err
+		}
 	}
 	return GetInfoAboutTrackResponse{
 		Number:      resp.GetNumber(),

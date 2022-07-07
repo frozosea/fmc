@@ -27,6 +27,7 @@ import {SkluBillNumber} from "./trackTrace/trackingBybillNumber/sklu/sklu";
 import {HaluBillNumber} from "./trackTrace/trackingBybillNumber/halu/halu";
 import MainTrackingByBillNumberForRussia
     from "./trackTrace/trackingBybillNumber/tracking/mainTrackingByBillNumberForRussia";
+import {AppDataSource} from "./db/data-source";
 
 // container.register<>("",{})
 const baseArgs = {

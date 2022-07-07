@@ -11,13 +11,13 @@ type converter struct{}
 
 func (c *converter) convertGrpcInfoAboutMoving(resp []*InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
-	for _, c := range resp {
-		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.GetTime(), Location: c.GetLocation(), OperationName: c.GetOperationName(), Vessel: c.GetVessel()})
+	for _, i := range resp {
+		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: i.GetTime(), Location: i.GetLocation(), OperationName: i.GetOperationName(), Vessel: i.GetVessel()})
 	}
 	return infoAboutMoving
 }
-func (c *converter) convertGrpcBlNoResponse(response *TrackingByBillNumberResponse) BillNumberResponse {
-	return BillNumberResponse{
+func (c *converter) convertGrpcBlNoResponse(response *TrackingByBillNumberResponse) *BillNumberResponse {
+	return &BillNumberResponse{
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac().String(),
 		InfoAboutMoving:  c.convertGrpcInfoAboutMoving(response.InfoAboutMoving),
@@ -42,26 +42,17 @@ type Client struct {
 	util
 }
 
-func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, ip string) (BillNumberResponse, error) {
-	country := c.getCountry(ip)
-	var request Request
-	if country == "RU" {
-		request = Request{
-			Number:  track.Number,
-			Scac:    Scac(Scac_value[track.Scac]),
-			Country: Country(Country_value["RU"]),
-		}
-	} else {
-		request = Request{
-			Number:  track.Number,
-			Scac:    Scac(Scac_value[track.Scac]),
-			Country: Country(Country_value["OTHER"]),
-		}
+func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, ip string) (*BillNumberResponse, error) {
+	request := Request{
+		Number:  track.Number,
+		Scac:    Scac(Scac_value[track.Scac]),
+		Country: Country(Country_value["RU"]),
 	}
+	//}
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
-		return c.convertGrpcBlNoResponse(response), err
+		//c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
+		return new(BillNumberResponse), err
 	}
 	return c.convertGrpcBlNoResponse(response), nil
 }

@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/logging"
 	"user-api/pkg/domain"
@@ -44,10 +46,9 @@ func NewService(controller *Controller, logger logging.ILogger) *Service {
 
 func (s *Service) RegisterUser(ctx context.Context, r *pb.RegisterUserRequest) (*emptypb.Empty, error) {
 	if err := s.controller.RegisterUser(ctx, s.converter.registerUserConvert(r)); err != nil {
-		//go s.logger.ExceptionLog(fmt.Sprintf(`register user-pb with username "%s" error: %s`, r.GetUsername(), err.Error()))
 		switch err.(type) {
 		case *AlreadyRegisterError:
-			return &emptypb.Empty{}, nil
+			return &emptypb.Empty{}, status.Error(codes.AlreadyExists, "user with these parameters already exists")
 		default:
 			return &emptypb.Empty{}, err
 		}
@@ -59,17 +60,33 @@ func (s *Service) RegisterUser(ctx context.Context, r *pb.RegisterUserRequest) (
 func (s *Service) LoginUser(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginResponse, error) {
 	resp, err := s.controller.Login(ctx, s.converter.loginUserConvert(r))
 	if err != nil {
-		return &pb.LoginResponse{}, err
+		switch err.(type) {
+		case *InvalidUserError:
+			return &pb.LoginResponse{}, status.Error(codes.NotFound, "cannot login user with these parameters")
+		default:
+			return &pb.LoginResponse{}, status.Error(codes.Internal, err.Error())
+		}
 	}
-	//go s.logger.InfoLog(fmt.Sprintf(`login user-pb with username "%s" was login`, r.GetUsername()))
 	return s.converter.loginResponseConvert(resp), nil
 }
 func (s *Service) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.LoginResponse, error) {
-	resp, err := s.controller.RefreshToken(r.GetRefreshToken())
-	if err != nil {
-		return &pb.LoginResponse{}, err
+	ch := make(chan *pb.LoginResponse, 1)
+	errCh := make(chan error, 1)
+	go func() {
+		resp, err := s.controller.RefreshToken(r.GetRefreshToken())
+		if err != nil {
+			errCh <- status.Error(codes.Internal, err.Error())
+			ch <- &pb.LoginResponse{}
+		}
+		errCh <- nil
+		ch <- s.converter.loginResponseConvert(resp)
+	}()
+	select {
+	case <-ctx.Done():
+		return &pb.LoginResponse{}, ctx.Err()
+	case result := <-ch:
+		return result, <-errCh
 	}
-	return s.converter.loginResponseConvert(resp), nil
 }
 func (s *Service) Auth(ctx context.Context, r *pb.AuthRequest) (*pb.AuthResponse, error) {
 	success, err := s.controller.CheckAccess(ctx, r.GetTokens())

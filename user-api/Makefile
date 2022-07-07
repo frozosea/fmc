@@ -9,4 +9,4 @@ test-unit:
 proto:
 	protoc --proto_path=${PWD}/pkg/proto/  --go_out=${PWD}/pkg/proto/  --go-grpc_out=${PWD}/pkg/proto/   -I ${PWD}/pkg/proto/ user.proto
 run:
-	docker-compose up
+	go run cmd/main.go

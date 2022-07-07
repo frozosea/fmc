@@ -61,7 +61,7 @@ func getTrackingSettings() (*TrackingSettings, error) {
 	return trackingSettings, nil
 
 }
-func getTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Client, error) {
+func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Client, error) {
 	var url string
 	if ip == "" {
 		url = fmt.Sprintf(`:%s`, port)
@@ -79,7 +79,7 @@ func getTrackingHttpHandler(client *tracking.Client, utils *utils.HttpUtils) *tr
 }
 
 func initTrackingRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *middleware.Middleware, ip, port string, logger logging.ILogger) {
-	client, err := getTrackingClient(ip, port, logger)
+	client, err := GetTrackingClient(ip, port, logger)
 	if err != nil {
 		panic(err)
 		return
@@ -132,19 +132,18 @@ func getAuthClient(ip, port string, logger logging.ILogger) (*auth.Client, error
 func getAuthHttpHandler(client *auth.Client, utils *utils.HttpUtils) *auth.HttpHandler {
 	return auth.NewHttpHandler(client, utils)
 }
-func initAuthRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *middleware.Middleware, ip, port string, logger logging.ILogger) {
+func initAuthRoutes(router *gin.Engine, utils *utils.HttpUtils, ip, port string, logger logging.ILogger) {
 	client, err := getAuthClient(ip, port, logger)
 	if err != nil {
 		panic(err)
 	}
 	handler := getAuthHttpHandler(client, utils)
 	group := router.Group(`/auth`)
-	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.POST(`/refresh`, handler.Refresh)
+		router.POST(`/auth/register`, handler.Register)
+		router.POST(`/auth/login`, handler.Login)
 	}
-	router.POST(`/auth/register`, handler.Register)
-	router.POST(`/auth/login`, handler.Login)
 }
 func getUserClient(ip, port string, logger logging.ILogger) (*user.Client, error) {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -192,7 +191,7 @@ func Run() {
 		panic(err)
 	}
 	fmt.Println(trackingSettings)
-	initAuthRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("authLogs"))
+	initAuthRoutes(router, httpUtils, authSettings.Ip, authSettings.Port, logging.NewLogger("authLogs"))
 	initTrackingRoutes(router, httpUtils, authMiddleware, trackingSettings.Ip, trackingSettings.Port, logging.NewLogger("trackingLogs"))
 	initDocsRoutes(router)
 	initUserRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("userLogs"))

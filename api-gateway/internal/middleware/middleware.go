@@ -26,7 +26,8 @@ func (m *Middleware) CheckAccessMiddleware(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	_, exc := m.GetUserIdByJwtToken(authParts[1])
+	userId, exc := m.GetUserIdByJwtToken(authParts[1])
+	fmt.Println(userId)
 	if exc != nil {
 		fmt.Println(exc.Error())
 		c.AbortWithStatus(401)

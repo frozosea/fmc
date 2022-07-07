@@ -66,8 +66,8 @@ func (c *customTasks) GetTrackByContainerNumberTask(number, country string, user
 			}()
 			wg.Wait()
 		}
-		if err := os.Remove(pathToFile); err != nil {
-			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, err.Error()))
+		if removeErr := os.Remove(pathToFile); removeErr != nil {
+			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
 		return false
 	}

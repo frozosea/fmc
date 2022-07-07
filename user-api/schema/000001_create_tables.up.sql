@@ -42,5 +42,32 @@ ALTER TABLE "containers"
 ALTER TABLE "bill_numbers"
     ADD CONSTRAINT "bill_numbers_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
+CREATE OR REPLACE FUNCTION is_value_free_for_containers(_header_id integer, _value varchar) RETURNS BOOLEAN AS
+$$
+BEGIN
+    RETURN NOT EXISTS(SELECT user_id, number
+                      FROM "containers"
+                      WHERE number LIKE _value
+                        AND user_id != _header_id
+                      LIMIT 1);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION is_value_free_for_bill_numbers(_header_id integer, _value varchar) RETURNS BOOLEAN AS
+
+$$
+BEGIN
+    RETURN NOT EXISTS(SELECT user_id, number
+                      FROM "bill_numbers"
+                      WHERE number LIKE _value
+                        AND user_id != _header_id
+                      LIMIT 1);
+END
+$$ LANGUAGE plpgsql;
+
+ALTER TABLE "bill_numbers"
+    ADD CONSTRAINT "bill" CHECK (is_value_free_for_bill_numbers("bill_numbers".user_id, "bill_numbers".number));
+ALTER TABLE "containers"
+    ADD CONSTRAINT "container" CHECK (is_value_free_for_containers(user_id, number));
 
 

@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"user-api/internal/cache"
 	"user-api/internal/logging"
@@ -20,68 +19,55 @@ func NewController(repository IRepository, logger logging.ILogger, cache cache.I
 }
 
 func (c *Controller) AddContainerToAccount(ctx context.Context, userId int, containers []string) error {
-	go func() {
-		jsonRepr, err := json.Marshal(containers)
-		if err != nil {
-			return
-		}
-		c.logger.InfoLog(fmt.Sprintf(`add container to user-pb: %d, containers: %s`, userId, jsonRepr))
-
-	}()
+	go c.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %v`, userId, containers))
 	if saveErr := c.repository.AddContainerToAccount(ctx, userId, containers); saveErr != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`add container to user-pb: %d failed with err: %s`, userId, saveErr.Error()))
+		go c.logger.ExceptionLog(fmt.Sprintf(`add container to user-pb: %d failed with err: %s`, userId, saveErr.Error()))
 		return saveErr
 	}
-	return nil
+	return c.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
 func (c *Controller) AddBillNumberToAccount(ctx context.Context, userId int, numbers []string) error {
-	go func() {
-		jsonRepr, err := json.Marshal(numbers)
-		if err != nil {
-			return
-		}
-		c.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %s`, userId, jsonRepr))
-
-	}()
+	go c.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %v`, &userId, &numbers))
 	if addBillErr := c.repository.AddBillNumberToAccount(ctx, userId, numbers); addBillErr != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`add numbers: %v to user: %d err: %s`, numbers, userId, addBillErr.Error()))
 		return addBillErr
 	}
-	return nil
+	return c.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
 func (c *Controller) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
 	if deleteErr := c.repository.DeleteContainersFromAccount(ctx, userId, numberIds); deleteErr != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`delete containers: %v from user-pb: %d failed with err: %s`, numberIds, userId, deleteErr.Error()))
 		return deleteErr
 	}
-	return nil
+	return c.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
 func (c *Controller) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
 	if delErr := c.repository.DeleteBillNumbersFromAccount(ctx, userId, numberIds); delErr != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers: %v from user-pb: %d failed with err: %s`, numberIds, userId, delErr.Error()))
+		//go c.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers: %v from user-pb: %d failed with err: %s`, numberIds, userId, delErr.Error()))
 		return delErr
 	}
-	return nil
+	return c.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
 func (c *Controller) GetAllContainers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
 	cacheCh := make(chan *domain.AllContainersAndBillNumbers)
 	go func() {
-		var containers *domain.AllContainersAndBillNumbers
+		var containers domain.AllContainersAndBillNumbers
 		if getFromCacheError := c.cache.Get(ctx, fmt.Sprintf(`%d`, userId), &containers); getFromCacheError != nil {
-			c.logger.ExceptionLog(fmt.Sprintf(`get from cache failed: %s`, getFromCacheError.Error()))
+			return
 		}
-		cacheCh <- containers
+		cacheCh <- &containers
 	}()
 	repoCh := make(chan *domain.AllContainersAndBillNumbers)
 	go func() {
 		result, getFromRepositoryErr := c.repository.GetAllContainersAndBillNumbers(ctx, userId)
 		if getFromRepositoryErr != nil {
-			c.logger.ExceptionLog(fmt.Sprintf(`get from repo failed: %s`, getFromRepositoryErr.Error()))
+			return
 		}
 		repoCh <- result
 	}()
 	select {
 	case <-ctx.Done():
+		fmt.Println("ctx done get all")
 		return nil, ctx.Err()
 	case cacheResult := <-cacheCh:
 		return cacheResult, nil

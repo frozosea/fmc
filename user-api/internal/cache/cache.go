@@ -10,6 +10,7 @@ import (
 type ICache interface {
 	Get(ctx context.Context, key string, dest interface{}) error
 	Set(ctx context.Context, key string, value interface{}) error
+	Del(ctx context.Context, key string) error
 }
 
 type cache struct {
@@ -35,7 +36,9 @@ func (c *cache) Set(ctx context.Context, key string, value interface{}) error {
 	}
 	return c.client.Set(ctx, key, jsonRepr, c.ttl).Err()
 }
-
+func (c *cache) Del(ctx context.Context, key string) error {
+	return c.client.Del(ctx, key).Err()
+}
 func NewCache(redisCli *redis.Client, ttl time.Duration) *cache {
 	return &cache{client: redisCli, ttl: ttl}
 }
