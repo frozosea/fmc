@@ -8,6 +8,9 @@ import {SitcBillNumberResponse, sitcExpectedResult} from "./sitcExpectedResult";
 import SitcBillNumberApiResponseSchema from "../../src/trackTrace/trackingBybillNumber/sitc/sitcApiResponseSchema";
 import {ICaptcha} from "../../src/trackTrace/trackingBybillNumber/sitc/captchaResolver";
 import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
+import {
+    SitcContainerTrackingApiResponseSchema
+} from "../../src/trackTrace/TrackingByContainerNumber/sitc/sitcApiResponseSchema";
 
 const assert = require("assert");
 
@@ -24,8 +27,11 @@ export const requestMoch: IRequest<fetchArgs> = {
 }
 
 export const billRequestMoch: ISitcBillNumberRequest = {
-    async getApiResponse(_: { billNo: string, solvedCaptcha: string, randomString: string }): Promise<SitcBillNumberApiResponseSchema> {
+    async getBillNoResponse(_: { billNo: string, solvedCaptcha: string, randomString: string }): Promise<SitcBillNumberApiResponseSchema> {
         return SitcBillNumberResponse
+    },
+    async getContainerInfo(_: { billNo: string; containerNo: string }): Promise<SitcContainerTrackingApiResponseSchema> {
+        return sitcExpectedResult.SITU9130070
     }
 }
 export const captchaSolverMoch: ICaptcha = {
