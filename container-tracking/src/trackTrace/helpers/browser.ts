@@ -6,6 +6,7 @@ interface waitingSelector {
     selector: string
     timeout: number
 }
+
 interface TypeToIntoField {
     selector: string
     text: any
@@ -15,12 +16,14 @@ interface TypeToIntoField {
         waitingSelector?: waitingSelector
     }
 }
+
 export interface IBrowserArgs extends _BaseRequestSenderArgs {
     waitingSelector?: string
     clickSelectors?: string[]
     TypeToIntoField?: TypeToIntoField
     visibleSelector?: string
 }
+
 export class BrowserRequestSender implements IRequest<IBrowserArgs> {
     private browser: Browser;
 
@@ -99,5 +102,9 @@ export class BrowserRequestSender implements IRequest<IBrowserArgs> {
         } else {
             throw new RequestSenderException()
         }
+    }
+
+    public async sendRequestAndGetImage(args: IBrowserArgs): Promise<any> {
+        return
     }
 }

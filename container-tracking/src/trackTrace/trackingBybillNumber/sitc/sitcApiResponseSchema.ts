@@ -13,7 +13,7 @@ interface OneSitcTrackingEvent {
     sealNo: string
     voyageNo: string
     cntrType: string
-    quanity: string
+    quantity: string | any
     cntrSize: string
     weight: string
     currentport: string

@@ -24,6 +24,9 @@ const requestMoch: IRequest<fetchArgs> = {
     },
     async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return fs.readFileSync(path.resolve(__dirname, './skluInfoAboutMovingExampleHtml.txt')).toString("utf-8")
+    },
+    async sendRequestAndGetImage(_: fetchArgs): Promise<any> {
+        return ""
     }
 }
 

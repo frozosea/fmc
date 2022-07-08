@@ -49,6 +49,9 @@ const requestMoch: IRequest<fetchArgs> = {
     },
     async sendRequestAndGetHtml(): Promise<string> {
         return ""
+    },
+    async sendRequestAndGetImage(_: fetchArgs): Promise<any> {
+        return ""
     }
 }
 describe("FESO tracking by bill number test", () => {

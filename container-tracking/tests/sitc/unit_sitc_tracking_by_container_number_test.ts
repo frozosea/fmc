@@ -6,11 +6,14 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 const assert = require("assert");
 
 
-const requestMoch: IRequest<fetchArgs> = {
+export const requestMoch: IRequest<fetchArgs> = {
     async sendRequestAndGetJson(args: fetchArgs): Promise<any> {
         return sitcExpectedResult[args.url.split(`=`)[1]]
     },
     async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
+        return ""
+    },
+    async sendRequestAndGetImage(_: fetchArgs): Promise<any> {
         return ""
     }
 }
