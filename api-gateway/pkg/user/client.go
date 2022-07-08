@@ -54,10 +54,10 @@ func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *Add
 func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
 	_, err := c.cli.DeleteContainersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
-		NumberIds: r.NumberIds,
+		NumberIds: r.Numbers,
 	})
 	if err != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`delete containers from account: %d for numbers: %v failed: %s`, userId, r.NumberIds, err.Error()))
+		go c.logger.ExceptionLog(fmt.Sprintf(`delete containers from account: %d for numbers: %v failed: %s`, userId, r.Numbers, err.Error()))
 		return err
 	}
 	return nil
@@ -65,7 +65,7 @@ func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, 
 func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
 	_, err := c.cli.DeleteBillNumbersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
-		NumberIds: r.NumberIds,
+		NumberIds: r.Numbers,
 	})
 	if err != nil {
 		//go c.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers from account: %d for numbers: %v failed: %s`, userId, r.numberIds, err.Error()))
@@ -80,7 +80,6 @@ func (c *Client) AddBillNumbersToAccount(ctx context.Context, userId int64, r *A
 	})
 
 	if err != nil {
-		//fmt.Println(err)
 		go c.logger.ExceptionLog(fmt.Sprintf(`add bill numbers to account: %d failed: %s`, userId, err.Error()))
 		return err
 	}

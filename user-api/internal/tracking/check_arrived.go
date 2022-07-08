@@ -9,11 +9,11 @@ import (
 	"strings"
 )
 
-type isArrived bool
+type IsArrived bool
 
 type IArrivedChecker interface {
-	CheckContainerArrived(result ContainerNumberResponse) isArrived
-	CheckBillNoArrived(result BillNumberResponse) isArrived
+	CheckContainerArrived(result ContainerNumberResponse) IsArrived
+	CheckBillNoArrived(result BillNumberResponse) IsArrived
 }
 
 type skluArrivedChecker struct{}
@@ -22,7 +22,7 @@ func newSkluArrivedChecker() *skluArrivedChecker {
 	return &skluArrivedChecker{}
 }
 
-func (s *skluArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
+func (s *skluArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, item := range result {
 		if strings.Contains(strings.ToLower(item.OperationName), "arrival") && !strings.Contains(strings.ToLower(item.OperationName), strings.ToLower("Arrival(T/S)")) {
 			return true
@@ -30,10 +30,10 @@ func (s *skluArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) 
 	}
 	return false
 }
-func (s *skluArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (s *skluArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	return s.checkInfoAboutMoving(result.InfoAboutMoving)
 }
-func (s *skluArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (s *skluArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	return s.checkInfoAboutMoving(result.InfoAboutMoving)
 }
 
@@ -51,7 +51,7 @@ func (f *fesoArrivedChecker) getIndex(item interface{}, s []BaseInfoAboutMoving)
 	}
 	return -1
 }
-func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
+func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
 		if strings.ToUpper(v.OperationName) == "ETA" {
 			index := f.getIndex(v, result)
@@ -65,10 +65,10 @@ func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAbou
 	}
 	return false
 }
-func (f *fesoArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (f *fesoArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	return f.checkArrivedByInfoAboutMoving(result.InfoAboutMoving)
 }
-func (f *fesoArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (f *fesoArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	return f.checkArrivedByInfoAboutMoving(result.InfoAboutMoving)
 }
 
@@ -78,7 +78,7 @@ func newMscuArrivedChecker() *mscuArrivedChecker {
 	return &mscuArrivedChecker{}
 }
 
-func (m *mscuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
+func (m *mscuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
 		if strings.ToLower(v.OperationName) == strings.ToLower("Empty to Shipper") {
 			return true
@@ -86,10 +86,10 @@ func (m *mscuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) 
 	}
 	return false
 }
-func (m *mscuArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (m *mscuArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	return m.checkInfoAboutMoving(result.InfoAboutMoving)
 }
-func (m *mscuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (m *mscuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	return m.checkInfoAboutMoving(result.InfoAboutMoving)
 }
 
@@ -99,7 +99,7 @@ func newOneyArrivedChecker() *oneyArrivedChecker {
 	return &oneyArrivedChecker{}
 }
 
-func (o *oneyArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
+func (o *oneyArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
 		if strings.Contains(strings.ToLower(v.OperationName), strings.ToLower("Arrival at Port of Discharging")) ||
 			strings.Contains(strings.ToLower(v.OperationName), strings.ToLower("Empty Container Returned from Customer")) ||
@@ -111,10 +111,10 @@ func (o *oneyArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) 
 	}
 	return false
 }
-func (o *oneyArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (o *oneyArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	return o.checkInfoAboutMoving(result.InfoAboutMoving)
 }
-func (o *oneyArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (o *oneyArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	return o.checkInfoAboutMoving(result.InfoAboutMoving)
 }
 
@@ -124,7 +124,7 @@ func newCosuArrivedChecker() *cosuArrivedChecker {
 	return &cosuArrivedChecker{}
 }
 
-func (c *cosuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) isArrived {
+func (c *cosuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
 		if strings.ToLower(v.OperationName) == strings.ToLower("Discharged at Last POD") || strings.ToLower(v.OperationName) == strings.ToLower("Empty Equipment Returned") {
 			return true
@@ -132,10 +132,10 @@ func (c *cosuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) 
 	}
 	return false
 }
-func (c *cosuArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (c *cosuArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	return c.checkInfoAboutMoving(result.InfoAboutMoving)
 }
-func (c *cosuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (c *cosuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	return c.checkInfoAboutMoving(result.InfoAboutMoving)
 }
 
@@ -235,17 +235,17 @@ type maeuArrivedChecker struct {
 func NewMaeuArrivedChecker(maeuRequest IMaeuRequest) *maeuArrivedChecker {
 	return &maeuArrivedChecker{r: maeuRequest}
 }
-func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) isArrived {
+func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) IsArrived {
 	return strings.ToUpper(response.Containers[0].Status) == "COMPLETE"
 }
-func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
+func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	resp, err := m.r.Get(result.Container)
 	if err != nil {
 		return true
 	}
 	return m.checkStatus(resp)
 }
-func (m *maeuArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
+func (m *maeuArrivedChecker) checkBillNoArrived(_ BillNumberResponse) IsArrived {
 	return true
 }
 
@@ -255,12 +255,21 @@ type sitcArrivedChecker struct{}
 func newSitcArrivedChecker() *sitcArrivedChecker {
 	return &sitcArrivedChecker{}
 }
-
-func (s *sitcArrivedChecker) checkContainerArrived(result ContainerNumberResponse) isArrived {
-	return true
+func (s *sitcArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
+	for _, item := range result {
+		if strings.Contains(strings.ToUpper(item.OperationName), strings.ToUpper("Inbound Delivery")) ||
+			strings.Contains(strings.ToUpper(item.OperationName), strings.ToUpper("Empty Container")) {
+			return true
+		}
+	}
+	return false
 }
-func (s *sitcArrivedChecker) checkBillNoArrived(result BillNumberResponse) isArrived {
-	return true
+func (s *sitcArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
+	return s.checkInfoAboutMoving(result.InfoAboutMoving)
+}
+func (s *sitcArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
+	return s.checkInfoAboutMoving(result.InfoAboutMoving)
+
 }
 
 type ArrivedChecker struct {
@@ -282,7 +291,7 @@ func NewArrivedChecker() *ArrivedChecker {
 		sitcArrivedChecker: newSitcArrivedChecker()}
 }
 
-func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) isArrived {
+func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) IsArrived {
 	switch strings.ToUpper(result.Scac) {
 	case "HALU":
 		return a.skluArrivedChecker.checkContainerArrived(result)
@@ -306,7 +315,7 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) i
 }
 
 // CheckBillNoArrived TODO create check arrived func for bill number
-func (a *ArrivedChecker) CheckBillNoArrived(result BillNumberResponse) isArrived {
+func (a *ArrivedChecker) CheckBillNoArrived(result BillNumberResponse) IsArrived {
 	switch strings.ToUpper(result.Scac) {
 	case "HALU":
 		return a.skluArrivedChecker.checkBillNoArrived(result)

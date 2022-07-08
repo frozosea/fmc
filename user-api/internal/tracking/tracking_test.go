@@ -23,9 +23,9 @@ func TestSkluArrivedChecker(t *testing.T) {
 	for _, v := range testTable {
 		res := a.checkInfoAboutMoving(v.infoAboutMoving)
 		if v.isArrived {
-			assert.Equal(t, isArrived(true), res)
+			assert.Equal(t, IsArrived(true), res)
 		} else {
-			assert.Equal(t, isArrived(false), res)
+			assert.Equal(t, IsArrived(false), res)
 		}
 	}
 }
@@ -43,9 +43,9 @@ func TestFesoArrivedChecker(t *testing.T) {
 	for _, v := range testTable {
 		res := a.checkArrivedByInfoAboutMoving(v.infoAboutMoving)
 		if v.isArrived {
-			assert.Equal(t, isArrived(true), res)
+			assert.Equal(t, IsArrived(true), res)
 		} else {
-			assert.Equal(t, isArrived(false), res)
+			assert.Equal(t, IsArrived(false), res)
 		}
 	}
 }
@@ -79,9 +79,9 @@ func TestMscuArrivedChecker(t *testing.T) {
 	for _, v := range testTable {
 		res := a.checkInfoAboutMoving(v.infoAboutMoving)
 		if v.isArrived {
-			assert.Equal(t, isArrived(true), res)
+			assert.Equal(t, IsArrived(true), res)
 		} else {
-			assert.Equal(t, isArrived(false), res)
+			assert.Equal(t, IsArrived(false), res)
 		}
 	}
 }
@@ -119,9 +119,9 @@ func TestOneyArrivedChecker(t *testing.T) {
 	for _, v := range testTable {
 		res := a.checkInfoAboutMoving(v.InfoAboutMoving)
 		if v.isArrived {
-			assert.Equal(t, isArrived(true), res)
+			assert.Equal(t, IsArrived(true), res)
 		} else {
-			assert.Equal(t, isArrived(false), res)
+			assert.Equal(t, IsArrived(false), res)
 		}
 	}
 }
@@ -325,7 +325,7 @@ func TestMaeuArrivedChecker(t *testing.T) {
 	a := NewMaeuArrivedChecker(moch)
 	r, err := moch.Get("")
 	assert.NoError(t, err)
-	assert.Equal(t, isArrived(false), a.checkStatus(r))
+	assert.Equal(t, IsArrived(false), a.checkStatus(r))
 }
 func TestCosuArrivedChecker(t *testing.T) {
 	testTable := []struct {
@@ -366,9 +366,9 @@ func TestCosuArrivedChecker(t *testing.T) {
 	for _, v := range testTable {
 		res := a.checkInfoAboutMoving(v.InfoAboutMoving)
 		if v.isArrived {
-			assert.Equal(t, isArrived(true), res)
+			assert.Equal(t, IsArrived(true), res)
 		} else {
-			assert.Equal(t, isArrived(false), res)
+			assert.Equal(t, IsArrived(false), res)
 		}
 	}
 }

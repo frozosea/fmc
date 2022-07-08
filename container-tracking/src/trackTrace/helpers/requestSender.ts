@@ -27,6 +27,8 @@ export interface IRequest<T extends _BaseRequestSenderArgs> {
     sendRequestAndGetJson(args: T): Promise<any>;
 
     sendRequestAndGetHtml(args: T): Promise<string>;
+
+    sendRequestAndGetImage(args: T): Promise<any>;
 }
 
 export class RequestSender implements IRequest<fetchArgs> {
@@ -54,6 +56,14 @@ export class RequestSender implements IRequest<fetchArgs> {
         } else {
             throw new RequestSenderException()
         }
+    }
+
+    public async sendRequestAndGetImage(args: fetchArgs): Promise<any> {
+        let response = await this.sendRequest(args)
+        if (response.status < 350){
+            throw new RequestSenderException()
+        }
+        return await response.blob()
     }
 }
 

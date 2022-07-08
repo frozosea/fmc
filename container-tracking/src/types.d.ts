@@ -32,7 +32,6 @@ declare type AUTO = "AUTO"
 declare type HALU = "HALU"
 declare type SCAC_TYPE = FESO | SKLU | MAEU | COSU | KMTU | ONEY | SITC | MSCU | HALU | AUTO
 
-
 export interface TrackingArgsWithScac extends ITrackingArgs {
     scac: SCAC_TYPE,
     country: COUNTRY_TYPE

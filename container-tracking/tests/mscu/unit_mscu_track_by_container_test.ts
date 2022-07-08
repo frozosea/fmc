@@ -24,6 +24,9 @@ const requestMoch: IRequest<fetchArgs> = {
     },
     async sendRequestAndGetHtml(_: fetchArgs): Promise<string> {
         return ""
+    },
+    async sendRequestAndGetImage(_: fetchArgs): Promise<any> {
+        return ""
     }
 }
 describe("MSCU tracking by container number test", () => {

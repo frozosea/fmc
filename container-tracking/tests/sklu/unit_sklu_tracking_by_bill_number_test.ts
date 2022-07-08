@@ -15,6 +15,9 @@ const requestMoch: IRequest<fetchArgs> = {
     },
     async sendRequestAndGetJson(_: fetchArgs): Promise<any> {
         return skluApiResponseExample
+    },
+    async sendRequestAndGetImage(_: fetchArgs): Promise<any> {
+        return ""
     }
 }
 
