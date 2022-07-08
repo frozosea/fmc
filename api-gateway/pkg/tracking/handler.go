@@ -18,20 +18,21 @@ func NewHttpHandler(client *Client, httpUtils *utils.HttpUtils) *HttpHandler {
 }
 
 // TrackByContainerNumber
-// @Summary      Track by bill number
-// @Security ApiKeyAuth
+// @Summary      Track by container number
+// @Security     ApiKeyAuth
 // @Description  tracking by container number
-// @accept json
+// @accept 		 json
 // @Produce      json
-// @Param input body Track true "info"
-// @Tags         Tracking
+// @Param        scac  	 query     string   false  "scac code"       	default(SKLU) Enums(AUTO, FESO, SKLU,SITC,HALU,MAEU,MSCU,COSU,ONEY,KMTU) Pattern([a-zA-Z]{4})
+// @Param        number  query     string   false  "container number"   	default(TEMU2094051) minlength(10)  maxlength(11) Pattern([a-zA-Z]{4}\d{6,7})
+// @Tags 	     Tracking
 // @Success      200  {object}  ContainerNumberResponse
 // @Success      204
 // @Failure      400
 // @Router       /tracking/trackByContainerNumber [post]
 func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 	var schema Track
-	if err := h.Validate(c, &schema); err != nil {
+	if err := c.ShouldBindQuery(&schema); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -54,17 +55,18 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 
 // TrackByBillNumber
 // @Summary      Track by bill number
-// @Security ApiKeyAuth
+// @Security     ApiKeyAuth
 // @Description  tracking by bill number, if eta not found will be 0
 // @Tags         Tracking
-// @Param input body Track true "info"
+// @Param        scac  query     string     false  "scac code"       default(FESO) Enums(AUTO, FESO, SKLU,SITC,HALU)
+// @Param        number  query     string   false  "bill number"   	default(FLCE405711) minlength(9)  maxlength(30)
 // @Success      200  {object}  BillNumberResponse
 // @Success      204
 // @Failure      400
 // @Router       /tracking/trackByBillNumber [post]
 func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 	var schema *Track
-	if err := h.Validate(c, &schema); err != nil {
+	if err := c.ShouldBindQuery(&schema); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
