@@ -49,7 +49,8 @@ func (c *customTasks) GetTrackByContainerNumberTask(number, country string, user
 		}
 		pathToFile, writeErr := c.writer.WriteContainerNo(result, c.timeFormatter.Convert)
 		if writeErr != nil {
-			go c.logger.FatalLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
+			fmt.Println(writeErr.Error())
+			//go c.logger.FatalLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
 			return false
 		}
 		for _, v := range emails {
@@ -60,13 +61,13 @@ func (c *customTasks) GetTrackByContainerNumberTask(number, country string, user
 				mu.Lock()
 				defer mu.Unlock()
 				defer wg.Done()
-				if err := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now())), pathToFile); err != nil {
+				if err := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now())), fmt.Sprintf(`%s.xlsx`, pathToFile)); err != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, err.Error()))
 				}
 			}()
 			wg.Wait()
 		}
-		if removeErr := os.Remove(pathToFile); removeErr != nil {
+		if removeErr := os.Remove(fmt.Sprintf(`%s.xlsx`, pathToFile)); removeErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
 		return false

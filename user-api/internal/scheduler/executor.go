@@ -26,10 +26,7 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 	for {
 		select {
 		case <-ticker.C:
-			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel == true {
-				_, cancel := context.WithCancel(ctx)
-				cancel()
-				fmt.Println("ctx cancel")
+			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel {
 				return true
 			}
 		case <-ctx.Done():
