@@ -3,6 +3,7 @@ package schedule_tracking
 import (
 	"context"
 	"fmt"
+	"user-api/internal/cache"
 	"user-api/internal/logging"
 	"user-api/internal/scheduler"
 	"user-api/internal/util"
@@ -18,6 +19,7 @@ type Controller struct {
 	logger            logging.ILogger
 	repository        IRepository
 	taskManager       *scheduler.Manager
+	cache             cache.ICache
 	saveResultDirPath string
 	*customTasks
 }
@@ -142,9 +144,15 @@ func (c *Controller) DeleteFromTracking(ctx context.Context, userId int, isConta
 			if err := c.repository.AddMarkContainerWasRemovedFromTrack(ctx, v, userId); err != nil {
 				return err
 			}
+			if deleteFromCacheErr := c.cache.Del(ctx, fmt.Sprintf(`%d`, userId)); deleteFromCacheErr != nil {
+				return deleteFromCacheErr
+			}
 		} else {
 			if err := c.repository.AddMarkBillNoWasRemovedFromTrack(ctx, v, userId); err != nil {
 				return err
+			}
+			if deleteFromCacheErr := c.cache.Del(ctx, fmt.Sprintf(`%d`, userId)); deleteFromCacheErr != nil {
+				return deleteFromCacheErr
 			}
 		}
 	}
@@ -161,6 +169,6 @@ func (c *Controller) GetInfoAboutTracking(ctx context.Context, number string) (*
 		nextRunTime: job.NextRunTime,
 	}, nil
 }
-func NewController(logger logging.ILogger, repository IRepository, taskManager *scheduler.Manager, taskGetter *customTasks) *Controller {
-	return &Controller{logger: logger, repository: repository, taskManager: taskManager, customTasks: taskGetter}
+func NewController(logger logging.ILogger, repository IRepository, taskManager *scheduler.Manager, taskGetter *customTasks, cache cache.ICache) *Controller {
+	return &Controller{logger: logger, repository: repository, taskManager: taskManager, customTasks: taskGetter, cache: cache}
 }
