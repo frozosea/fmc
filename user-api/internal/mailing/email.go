@@ -11,11 +11,6 @@ import (
 	"user-api/internal/logging"
 )
 
-//var (
-//	SENDER_NAME  = os.Getenv("SENDER_NAME")
-//	SENDER_EMAIL = os.Getenv("SENDER_EMAIL")
-//)
-
 type IMailing interface {
 	SendWithFile(toAddress, subject, filePath string) error
 }
@@ -35,14 +30,14 @@ type Mailing struct {
 	senderName      string
 	senderEmail     string
 	UnisenderApiKey string
-	htmlTemplate    IHtmlTemplate
+	signature       string
 }
 
-func NewMailing(logger logging.ILogger, senderName string, senderEmail string, unisenderApiKey string, htmlTemplate IHtmlTemplate) *Mailing {
-	return &Mailing{reader: file_reader.NewFileReader(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, htmlTemplate: htmlTemplate}
+func NewMailing(logger logging.ILogger, senderName string, senderEmail string, unisenderApiKey string, signature string) *Mailing {
+	return &Mailing{reader: file_reader.NewFileReader(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, signature: signature}
 }
 
-func (m *Mailing) getForm(toAddress, subject, fileName, htmlBody string, file string) url.Values {
+func (m *Mailing) getForm(toAddress, subject, fileName, body string, file string) url.Values {
 	query := url.Values{}
 	query.Set("format", "json")
 	query.Set("api_key", m.UnisenderApiKey)
@@ -50,7 +45,7 @@ func (m *Mailing) getForm(toAddress, subject, fileName, htmlBody string, file st
 	query.Set("email", toAddress)
 	query.Set("sender_email", m.senderEmail)
 	query.Set("subject", subject)
-	query.Set("body", htmlBody)
+	query.Set("body", body)
 	query.Set("wrap_type", "STRING")
 	query.Set("list_id", "1")
 	query.Set(fmt.Sprintf(`attachments[%s]`, fileName), file)
@@ -106,7 +101,7 @@ func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {
 	if err != nil {
 		return err
 	}
-	form := m.getForm(toAddress, subject, fileName, m.htmlTemplate.GetTrackingTemplate(fileName), string(readFile))
+	form := m.getForm(toAddress, subject, fileName, m.signature, string(readFile))
 	id, sendMailErr := m.sendEmail(form)
 	if sendMailErr != nil {
 		return sendMailErr

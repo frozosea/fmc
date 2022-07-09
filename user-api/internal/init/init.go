@@ -67,6 +67,9 @@ type (
 		ControllerSaveDir string
 		ServiceSaveDir    string
 	}
+	EmailSignatureSettings struct {
+		EmailSignature string
+	}
 )
 
 func SetupDatabaseConfig() *DataBaseSettings {
@@ -143,9 +146,26 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 	}
 	return clientSettings, nil
 }
+func GetEmailSignature() (*EmailSignatureSettings, error) {
+	settings := new(EmailSignatureSettings)
+	cfg, err := ini.Load(`conf/cfg.ini`)
+	tokenSection := cfg.Section(`EMAIL_SETTINGS`)
+	if err != nil {
+		log.Fatalf(`read config from ini file err:%s`, err)
+	}
+	if err := tokenSection.MapTo(&settings); err != nil {
+		return settings, err
+	}
+	return settings, nil
+}
 func GetMailing(sender *EmailSenderSettings) *mailing.Mailing {
 	logger := logging.NewLogger("emails")
-	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, mailing.NewHtmlTemplate())
+	settings, err := GetEmailSignature()
+	if err != nil {
+		panic(err)
+		return nil
+	}
+	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
 }
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
