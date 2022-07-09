@@ -2,13 +2,13 @@ package contact
 
 import (
 	"context"
-	"fmc-newest/pkg/proto"
+	pb "fmc-newest/pkg/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type converter struct{}
+type adapter struct{}
 
-func (c *converter) convertGrpcMessageToAddContactStruct(addContact *___.AddContactRequest) *BaseContact {
+func (a *adapter) convertGrpcMessageToAddContactStruct(addContact *pb.AddContactRequest) *BaseContact {
 	return &BaseContact{
 		Url:         addContact.Url,
 		Email:       addContact.Email,
@@ -17,31 +17,31 @@ func (c *converter) convertGrpcMessageToAddContactStruct(addContact *___.AddCont
 	}
 }
 
-func (c *converter) convertControllerResponseToGrpcMessage(repoContacts []*Contact) *___.GetAllContactsResponse {
-	var allContacts []*___.Contact
-	for _, c := range repoContacts {
-		oneContact := ___.Contact{
-			Id:          int64(c.Id),
-			Url:         c.Url,
-			PhoneNumber: c.PhoneNumber,
-			AgentName:   c.AgentName,
-			Email:       c.Email,
+func (a *adapter) convertControllerResponseToGrpcMessage(repoContacts []*Contact) *pb.GetAllContactsResponse {
+	var allContacts []*pb.Contact
+	for _, v := range repoContacts {
+		oneContact := pb.Contact{
+			Id:          int64(v.Id),
+			Url:         v.Url,
+			PhoneNumber: v.PhoneNumber,
+			AgentName:   v.AgentName,
+			Email:       v.Email,
 		}
 		allContacts = append(allContacts, &oneContact)
 	}
-	return &___.GetAllContactsResponse{Contact: allContacts}
+	return &pb.GetAllContactsResponse{Contact: allContacts}
 }
 
 type service struct {
 	controller IController
-	converter
-	___.UnimplementedContactServiceServer
+	adapter
+	pb.UnimplementedContactServiceServer
 }
 
-func (s *service) AddContact(ctx context.Context, addContact *___.AddContactRequest) (*emptypb.Empty, error) {
+func (s *service) AddContact(ctx context.Context, addContact *pb.AddContactRequest) (*emptypb.Empty, error) {
 	return &emptypb.Empty{}, s.controller.AddContact(ctx, *s.convertGrpcMessageToAddContactStruct(addContact))
 }
-func (s *service) GetAllContacts(ctx context.Context, _ *emptypb.Empty) (*___.GetAllContactsResponse, error) {
+func (s *service) GetAllContacts(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllContactsResponse, error) {
 	result, getContactsErr := s.controller.GetAllContacts(ctx)
 	return s.convertControllerResponseToGrpcMessage(result), getContactsErr
 }

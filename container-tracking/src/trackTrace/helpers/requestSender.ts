@@ -19,7 +19,7 @@ export interface _BaseRequestSenderArgs {
 export interface fetchArgs extends _BaseRequestSenderArgs {
     method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
     headers?: any,
-    body?: string,
+    body?: string | any,
 }
 
 

@@ -1,8 +1,12 @@
 package mailing
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	file_reader "user-api/internal/file-reader"
 	"user-api/internal/logging"
 )
@@ -15,8 +19,16 @@ import (
 type IMailing interface {
 	SendWithFile(toAddress, subject, filePath string) error
 }
+type Response struct {
+	Result struct {
+		Statuses []struct {
+			Id     int64  `json:"id"`
+			Status string `json:"status"`
+		} `json:"statuses"`
+	} `json:"result"`
+}
 
-//Mailing TODO test
+//Mailing can send email
 type Mailing struct {
 	reader          *file_reader.FileReader
 	logger          logging.ILogger
@@ -30,14 +42,60 @@ func NewMailing(logger logging.ILogger, senderName string, senderEmail string, u
 	return &Mailing{reader: file_reader.NewFileReader(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, htmlTemplate: htmlTemplate}
 }
 
-func (m *Mailing) getUrl(toAddress, subject, fileName, textBody, htmlBody string, file []byte) string {
-	return fmt.Sprintf("https://api.unisender.com/ru/api/createEmailMessage?format=json&api_key=%s&sender_name=%s&sender_email=%ssubject=%s&body=%s&attachements[%s]=%b&lang=RU&wrap_type=STRING&text_body=%s", m.UnisenderApiKey, m.senderName, m.senderEmail, subject, htmlBody, fileName, file, textBody)
+func (m *Mailing) getForm(toAddress, subject, fileName, htmlBody string, file string) url.Values {
+	query := url.Values{}
+	query.Set("format", "json")
+	query.Set("api_key", m.UnisenderApiKey)
+	query.Set("sender_name", m.senderName)
+	query.Set("email", toAddress)
+	query.Set("sender_email", m.senderEmail)
+	query.Set("subject", subject)
+	query.Set("body", htmlBody)
+	query.Set("wrap_type", "STRING")
+	query.Set("list_id", "1")
+	query.Set(fmt.Sprintf(`attachments[%s]`, fileName), file)
+	return query
 }
-func (m *Mailing) sendEmail(url string) error {
+func (m *Mailing) checkStatusOfEmail(id string) error {
 	client := http.Client{}
-	r, err := client.Post(url, "application/json", nil)
+	checkStatusUrl := fmt.Sprintf(`https://api.unisender.com/ru/api/checkEmail?format=json&api_key=%s&email_id=%s`, m.UnisenderApiKey, id)
+	r, err := client.Get(checkStatusUrl)
+	if err != nil {
+		return err
+	}
 	defer r.Body.Close()
-	return err
+	body, readErr := io.ReadAll(r.Body)
+	if readErr != nil {
+		return readErr
+	}
+	var s Response
+	if unmarshalErr := json.Unmarshal(body, &s); unmarshalErr != nil {
+		return unmarshalErr
+	}
+	for _, v := range s.Result.Statuses {
+		if v.Status != "ok_sent" {
+			return errors.New("email was not sent successfully")
+		}
+	}
+	return nil
+}
+func (m *Mailing) sendEmail(form url.Values) (string, error) {
+	client := http.Client{}
+	r, err := client.PostForm("https://api.unisender.com/ru/api/sendEmail", form)
+	if err != nil {
+		return "", err
+	}
+	defer r.Body.Close()
+	if r.StatusCode > 250 {
+		return "", errors.New("bad status code")
+	}
+	body, readErr := io.ReadAll(r.Body)
+	if readErr != nil {
+		return "", readErr
+	}
+	go m.logger.InfoLog(fmt.Sprintf(`send email result: %s`, string(body)))
+
+	return "", nil
 }
 func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {
 	fileName, err := m.reader.GetFileName(filePath)
@@ -48,10 +106,10 @@ func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {
 	if err != nil {
 		return err
 	}
-	url := m.getUrl(toAddress, subject, fileName, "", m.htmlTemplate.GetTrackingTemplate(fileName), readFile)
-	if err := m.sendEmail(url); err != nil {
-		go m.logger.ExceptionLog(fmt.Sprintf(`send email: %s failed: %s`, toAddress, err.Error()))
-		return err
+	form := m.getForm(toAddress, subject, fileName, m.htmlTemplate.GetTrackingTemplate(fileName), string(readFile))
+	id, sendMailErr := m.sendEmail(form)
+	if sendMailErr != nil {
+		return sendMailErr
 	}
-	return nil
+	return m.checkStatusOfEmail(id)
 }

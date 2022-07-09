@@ -1,8 +1,9 @@
 import {
-    OneTrackingEvent,
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
-    TrackingContainerResponse,
-    ITrackingArgs, BaseContainerConstructor
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
@@ -84,13 +85,12 @@ export class KmtuDataForInfoAboutMovingRequestCrawler {
     protected getTableJsonAndDocInstance(stringHtml: string): object[] {
         let doc = new JSDOM(stringHtml).window.document
         let table = doc.querySelector("#paging_1")
-        const rows = [...table.rows].map(r => {
+        return [...table.rows].map(r => {
             const entries = [...r.cells].map((c, i) => {
                 return [i, c.textContent.replace(/(\r\n|\n|\r\t|\t)/gm, "")]
             })
             return Object.fromEntries(entries)
         })
-        return rows
     }
 
     protected getPod(data: any): string {

@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
     logging: false,
     migrationsTableName: 'migrations',
     entities: [ContainerScac, Unlocode],
-    migrations: [__dirname + "/migration/*{.js,.ts}"],
+    migrations: [__dirname + "/schema/*{.js,.ts}"],
     subscribers: [],
 })
 

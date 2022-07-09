@@ -143,7 +143,7 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 	}
 	return clientSettings, nil
 }
-func getMailing(sender *EmailSenderSettings) *mailing.Mailing {
+func GetMailing(sender *EmailSenderSettings) *mailing.Mailing {
 	logger := logging.NewLogger("emails")
 	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, mailing.NewHtmlTemplate())
 }
@@ -196,7 +196,7 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
 	excelWriter := excel_writer.NewWriter(loggerConf.ServiceSaveDir)
 	sender := GetEmailSenderSettings()
-	emailSender := getMailing(sender)
+	emailSender := GetMailing(sender)
 	format, err := GetTimeFormatterSettings()
 	if err != nil {
 		panic(err)

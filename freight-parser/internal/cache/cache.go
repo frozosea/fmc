@@ -4,15 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 type ICache interface {
 	Get(ctx context.Context, key string, dest interface{}) error
 	Set(ctx context.Context, key string, value interface{}) error
+	Del(ctx context.Context, key string) error
 }
 
 type cache struct {
 	client *redis.Client
+	ttl    time.Duration
 }
 
 func (c *cache) Get(ctx context.Context, key string, dest interface{}) error {
@@ -27,9 +30,15 @@ func (c *cache) Get(ctx context.Context, key string, dest interface{}) error {
 	return json.Unmarshal(bytes, &dest)
 }
 func (c *cache) Set(ctx context.Context, key string, value interface{}) error {
-	return nil
+	jsonRepr, marshErr := json.Marshal(value)
+	if marshErr != nil {
+		return marshErr
+	}
+	return c.client.Set(ctx, key, jsonRepr, c.ttl).Err()
 }
-
-func NewCache(redisCli *redis.Client) *cache {
-	return &cache{client: redisCli}
+func (c *cache) Del(ctx context.Context, key string) error {
+	return c.client.Del(ctx, key).Err()
+}
+func NewCache(redisCli *redis.Client, ttl time.Duration) *cache {
+	return &cache{client: redisCli, ttl: ttl}
 }

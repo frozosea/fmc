@@ -42,6 +42,8 @@ declare global {
         capitalizeFirstLetter(): string
     }
 }
+
+
 type BkgNo = string
 type CopNo = string
 
