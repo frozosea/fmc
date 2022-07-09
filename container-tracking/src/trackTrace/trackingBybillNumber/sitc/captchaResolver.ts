@@ -1,4 +1,7 @@
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
+import * as fs from "fs";
+
+const FormData = require('form-data');
 
 export interface IRandomStringGenerator {
     generate(): string
@@ -9,7 +12,7 @@ export interface ICaptchaGetter {
 }
 
 export interface ICaptchaSolver {
-    solve(image: Blob): Promise<string>;
+    solve(image: Blob | Buffer | any): Promise<string>;
 }
 
 export interface ICaptcha {
@@ -55,8 +58,10 @@ interface CaptchaSolverGetIdResponse {
 }
 
 interface CaptchaSolverResponse {
-    status: string | null
+    status: string | null | number
     text: string | null
+    request?: string | null
+
 }
 
 //TODO test captcha solver
@@ -78,27 +83,20 @@ export class CaptchaSolver implements ICaptchaSolver {
         formData.append('min_len', '4')
         formData.append('max_len', '4')
         formData.append('language', '0')
-        formData.append('file', image)
+        formData.append('file', image, {})
         let response: CaptchaSolverGetIdResponse = await this.requestSender.sendRequestAndGetJson({
             url: `http://2captcha.com/in.php`,
             method: "POST",
-            body: formData
+            body: formData,
         })
         return response.request
     }
 
-    protected async sendRequestAndGetSolvedCaptcha(id: string): Promise<string> {
-        let formData = new FormData()
-        formData.append('key', process.env.CAPTCHA_SOLVER_SERVICE_KEY)
-        formData.append('action', 'get')
-        formData.append('id', id)
-        formData.append('json', '1')
-        let response: CaptchaSolverResponse = await this.requestSender.sendRequestAndGetJson({
-            url: `http://2captcha.com/res.php`,
+    protected async sendRequestAndGetSolvedCaptcha(id: string): Promise<CaptchaSolverResponse> {
+        return await this.requestSender.sendRequestAndGetJson({
+            url: `http://2captcha.com/res.php?key=${process.env.CAPTCHA_SOLVER_SERVICE_KEY}&action=get&id=${id}&json=1`,
             method: "GET",
-            body: formData
         })
-        return response.text
     }
 
     public async solve(image: Blob): Promise<string> {
@@ -108,8 +106,11 @@ export class CaptchaSolver implements ICaptchaSolver {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        await sleep(500)
-        return await this.sendRequestAndGetSolvedCaptcha(idOfRequest)
+        do {
+            await sleep(1000)
+            let resp = await this.sendRequestAndGetSolvedCaptcha(idOfRequest)
+            if (resp.request !== "CAPCHA_NOT_READY") return resp.request
+        } while (true)
     }
 }
 
@@ -128,7 +129,10 @@ export class Captcha implements ICaptcha {
     public async getSolvedCaptchaAndRandomString(): Promise<[string, string]> {
         let randStr = this.randomStringGenerator.generate()
         let imageWithCaptcha = await this.captchaGetter.get(randStr)
-        let response = await this.captchaSolver.solve(imageWithCaptcha)
+        fs.writeFileSync(`${process.env.PWD}/${randStr}.jpeg`, Buffer.from(await imageWithCaptcha.arrayBuffer()))
+        let response = await this.captchaSolver.solve(fs.createReadStream(`${process.env.PWD}/${randStr}.jpeg`))
+        fs.unlink(`${process.env.PWD}/${randStr}.jpeg`, () => {
+        })
         return [response, randStr]
     }
 }

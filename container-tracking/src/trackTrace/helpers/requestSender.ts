@@ -51,7 +51,12 @@ export class RequestSender implements IRequest<fetchArgs> {
             try {
                 return await response.json()
             } catch (e) {
-                return JSON.parse(await response.text())
+                console.log(e)
+                try{
+                    return JSON.parse(await response.text())
+                }catch (e) {
+                    console.log(e)
+                }
             }
         } else {
             throw new RequestSenderException()
@@ -60,9 +65,7 @@ export class RequestSender implements IRequest<fetchArgs> {
 
     public async sendRequestAndGetImage(args: fetchArgs): Promise<any> {
         let response = await this.sendRequest(args)
-        if (response.status < 350){
-            throw new RequestSenderException()
-        }
+
         return await response.blob()
     }
 }

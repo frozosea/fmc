@@ -222,10 +222,11 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	if err != nil {
 		panic(err)
 	}
+	rdsCache := GetCache(GetRedisSettings())
 	timeFormatter := schedule_tracking.NewTimeFormatter(format.Format)
 	repository := schedule_tracking.NewRepository(db)
 	taskGetter := schedule_tracking.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
-	controller := schedule_tracking.NewController(controllerLogger, repository, TaskManager, taskGetter)
+	controller := schedule_tracking.NewController(controllerLogger, repository, TaskManager, taskGetter, rdsCache)
 	return schedule_tracking.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func parseTime(timeStr string, sep string) int64 {
@@ -284,17 +285,21 @@ func getUserLoggerConfig() (*UserLoggerSettings, error) {
 	}
 	return config, nil
 }
-func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
+func GetCache(redisConf *RedisSettings) cache.ICache {
 	redisCache := cache.NewCache(redis.NewClient(&redis.Options{
 		Addr:     redisConf.Url,
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	}), parseExpiration(redisConf.Ttl))
+	return redisCache
+}
+func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
+	cache := GetCache(redisConf)
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
 	repository := user.NewRepository(db)
-	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), cache)
 	return user.NewService(controller)
 }

@@ -27,7 +27,13 @@ import {SkluBillNumber} from "./trackTrace/trackingBybillNumber/sklu/sklu";
 import {HaluBillNumber} from "./trackTrace/trackingBybillNumber/halu/halu";
 import MainTrackingByBillNumberForRussia
     from "./trackTrace/trackingBybillNumber/tracking/mainTrackingByBillNumberForRussia";
-import {AppDataSource} from "./db/data-source";
+import {
+    Captcha,
+    CaptchaGetter,
+    CaptchaSolver,
+    RandomStringGenerator
+} from "./trackTrace/trackingBybillNumber/sitc/captchaResolver";
+import {SitcBillNumber, SitcBillNumberRequest} from "./trackTrace/trackingBybillNumber/sitc/sitc";
 
 // container.register<>("",{})
 const baseArgs = {
@@ -49,7 +55,12 @@ export const halu = new HaluContainer(baseArgs, unlocodesRepo)
 export const fesoBill = new FesoBillNumber(baseArgs)
 export const skluBill = new SkluBillNumber(baseArgs, unlocodesRepo)
 export const haluBill = new HaluBillNumber(baseArgs, unlocodesRepo)
+export const randomStringGenerator = new RandomStringGenerator()
+export const captchaGetter = new CaptchaGetter(randomStringGenerator, baseArgs.requestSender)
+export const captchaSolver = new CaptchaSolver(baseArgs.requestSender)
+export const captchaController = new Captcha(randomStringGenerator, captchaGetter, captchaSolver)
 
+export const sitcbill = new SitcBillNumber(baseArgs, captchaController, new SitcBillNumberRequest(baseArgs.requestSender))
 export const trackingByContainerNumberForRussia = new MainTrackingForRussia({
     feso: feso,
     sitc: sitc,
@@ -70,7 +81,8 @@ export const trackingByContainerNumberForOtherWorld = new MainTrackingForOtherCo
 export const mainTrackingByBillNumberForRussia = new MainTrackingByBillNumberForRussia({
     feso: fesoBill,
     sklu: skluBill,
-    halu: haluBill
+    halu: haluBill,
+    sitc: sitcbill
 })
 const scacRepo = new ScacRepository()
 const cache = new Cache()

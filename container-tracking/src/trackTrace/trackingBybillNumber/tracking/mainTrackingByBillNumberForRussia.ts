@@ -8,29 +8,34 @@ export interface TrackingByBillNumberConstructorArgs {
     feso: IBillNumberTracker;
     sklu: IBillNumberTracker;
     halu: IBillNumberTracker;
+    sitc: IBillNumberTracker;
 }
 
 export interface BillNumberTrackingInRussia {
     FESO: IBillNumberTracker;
     SKLU: IBillNumberTracker;
     HALU: IBillNumberTracker;
+    SITC: IBillNumberTracker;
 }
 
 export default class MainTrackingByBillNumberForRussia {
     public readonly feso: IBillNumberTracker;
     public readonly sklu: IBillNumberTracker;
     public readonly halu: IBillNumberTracker;
+    public readonly sitc: IBillNumberTracker;
     public readonly scacStruct: BillNumberTrackingInRussia;
     protected timeInspector: TimeInspector;
 
     public constructor(trackers: TrackingByBillNumberConstructorArgs) {
         this.feso = trackers.feso;
         this.sklu = trackers.sklu;
-        this.halu = trackers.halu
+        this.halu = trackers.halu;
+        this.sitc = trackers.sitc;
         this.scacStruct = {
             FESO: this.feso,
             SKLU: this.sklu,
             HALU: this.halu,
+            SITC: this.sitc,
         };
         this.timeInspector = new TimeInspector();
     }
