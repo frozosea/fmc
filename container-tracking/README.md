@@ -30,7 +30,6 @@ src-|
                      |---trackingByBillNumber
 ```
 ### Tracking  support
-
 | Steamship Line                              | Scac | tracking by container number support    | tracking by bill number support | tracking link                                                                   | example container | example bill number |
 |---------------------------------------------|------|-----------------------------------------|---------------------------------|---------------------------------------------------------------------------------|-------------------|---------------------|
 | APL                                         | APLU | :x:                                     | :x:                             | [Link](https://www.apl.com/ebusiness/tracking)                                  | CMAU3018179       |                     |
@@ -44,7 +43,7 @@ src-|
 | Fesco Shipping Co.                          | FESO | :white_check_mark:                      | :white_check_mark:              | [Link](https://www.fesco.ru/ru/clients/tracking/)                               |                   |                     |
 | Sinokor Merchant Marine                     | SKLU | :white_check_mark:                      | :white_check_mark:              | [Link](http://ebiz.sinokor.co.kr/Tracking)                                      |                   |                     |
 | Heung-a Merchant Marine                     | HALU | :white_check_mark:                      | :white_check_mark:              | [Link](http://ebiz.heung-a.com/Tracking)                                        |                   |                     |
-| SITC International Holdings Company Limited | SITC | :white_check_mark:                      | :x:                             | [Link](https://api.sitcline.com/sitcline/query/cargoTrack)                      | SITU9130070       | SITDLVK222G951      |
+| SITC International Holdings Company Limited | SITC | :white_check_mark:                      | :white_check_mark:              | [Link](https://api.sitcline.com/sitcline/query/cargoTrack)                      | SITU9130070       | SITDLVK222G951      |
 | Korea Marine Transport Co                   | KMTU | :white_check_mark: (should be refactor) | :x:                             | [Link](https://www.ekmtc.com/index.html#/cargo-tracking)                        | TRHU3368865       |                     |
 
 ### How it working?
