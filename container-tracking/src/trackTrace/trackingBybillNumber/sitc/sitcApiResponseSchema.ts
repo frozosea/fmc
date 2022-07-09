@@ -62,3 +62,20 @@ export default interface SitcBillNumberApiResponseSchema {
     }
 
 }
+
+interface SitcOneEventSchema {
+    movementid: string
+    blNo: string | null
+    containerNo: string | null
+    eventdate: string
+    portname: string
+    movementcode: string
+    movementname: string
+    movementnameen: string
+}
+
+export interface SitcContainerMovementInfoSchema {
+    code: string | null | number
+    msg: string | null
+    data: { list: SitcOneEventSchema[] }
+}

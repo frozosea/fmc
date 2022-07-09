@@ -1,18 +1,16 @@
-import {SitcContainer, SitcRequest} from "../../TrackingByContainerNumber/sitc/sitc";
+import {SitcContainer, SitcInfoAboutMovingParser, SitcRequest} from "../../TrackingByContainerNumber/sitc/sitc";
 import {IBillNumberTracker} from "../base";
 import {ITrackingArgs, ITrackingByBillNumberResponse, OneTrackingEvent} from "../../../types";
 import {ICaptcha} from "./captchaResolver";
 import {BaseContainerConstructor} from "../../base";
 import {fetchArgs} from "../../helpers/requestSender";
-import SitcBillNumberApiResponseSchema from "./sitcApiResponseSchema";
+import SitcBillNumberApiResponseSchema, {SitcContainerMovementInfoSchema} from "./sitcApiResponseSchema";
 import {IDatetime} from "../../helpers/datetime";
-import {NotThisShippingLineException} from "../../../exceptions";
-import {SitcContainerTrackingApiResponseSchema} from "../../TrackingByContainerNumber/sitc/sitcApiResponseSchema";
 
 export interface ISitcBillNumberRequest {
     getBillNoResponse(args: { billNo: string, solvedCaptcha: string, randomString: string }): Promise<SitcBillNumberApiResponseSchema>;
 
-    getContainerInfo(args: { billNo: string, containerNo: string }): Promise<SitcContainerTrackingApiResponseSchema>;
+    getContainerInfo(args: { billNo: string, containerNo: string }): Promise<SitcContainerMovementInfoSchema>;
 }
 
 export class SitcBillNumberRequest extends SitcRequest implements ISitcBillNumberRequest {
@@ -31,7 +29,7 @@ export class SitcBillNumberRequest extends SitcRequest implements ISitcBillNumbe
         })
     }
 
-    public async getContainerInfo(args: { billNo: string, containerNo: string }): Promise<SitcContainerTrackingApiResponseSchema> {
+    public async getContainerInfo(args: { billNo: string, containerNo: string }): Promise<SitcContainerMovementInfoSchema> {
         return await this.request.sendRequestAndGetJson({
             url: `http://api.sitcline.com/doc/cargoTrack/movementDetailApp?blNo=${args.billNo}&containerNo=${args.containerNo}`,
             method: "POST",
@@ -69,11 +67,26 @@ export class SitcEtaParser {
     }
 }
 
+export class SitcBillInfoAboutMovingParser extends SitcInfoAboutMovingParser {
+    public parseInfoAboutMoving(response: SitcContainerMovementInfoSchema): OneTrackingEvent[] {
+        let events: OneTrackingEvent[] = []
+        for (let item of response.data.list) {
+            let event: OneTrackingEvent = {
+                time: this.datetime.strptime(item.eventdate, "YYYY-MM-DD").getTime(),
+                operationName: item.movementnameen, location: item.portname, vessel: ""
+            }
+            events.push(event)
+        }
+        return events
+    }
+}
+
 export class SitcBillNumber extends SitcContainer implements IBillNumberTracker {
     protected captchaSolver: ICaptcha;
     protected billRequest: ISitcBillNumberRequest
     protected containerNumberParser: SitcContainerNumberParser;
     protected etaParser: SitcEtaParser;
+    protected infoAboutMovingParser: SitcBillInfoAboutMovingParser
 
     public constructor(args: BaseContainerConstructor<fetchArgs>, captchaSolver: ICaptcha, sitcBillNumberRequest: ISitcBillNumberRequest) {
         super(args);
@@ -81,20 +94,11 @@ export class SitcBillNumber extends SitcContainer implements IBillNumberTracker 
         this.captchaSolver = captchaSolver;
         this.containerNumberParser = new SitcContainerNumberParser();
         this.etaParser = new SitcEtaParser(this.datetime);
+        this.infoAboutMovingParser = new SitcBillInfoAboutMovingParser(this.datetime);
     }
 
     public async trackByBillNumber(args: ITrackingArgs): Promise<ITrackingByBillNumberResponse> {
-        let solvedCaptcha: string
-        let randomString: string
-        try {
-            [solvedCaptcha, randomString] = await this.captchaSolver.getSolvedCaptchaAndRandomString();
-        } catch (e) {
-        }
-        try {
-            [solvedCaptcha, randomString] = await this.captchaSolver.getSolvedCaptchaAndRandomString();
-        } catch (e) {
-            throw new NotThisShippingLineException();
-        }
+        let [solvedCaptcha, randomString] = await this.captchaSolver.getSolvedCaptchaAndRandomString();
         let response: SitcBillNumberApiResponseSchema = await this.billRequest.getBillNoResponse({
             billNo: args.number,
             solvedCaptcha: solvedCaptcha,
@@ -106,8 +110,7 @@ export class SitcBillNumber extends SitcContainer implements IBillNumberTracker 
             billNo: args.number,
             containerNo: containerNumber
         })
-        let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.getInfoAboutMoving(containerNumberTrackingResponse)
+        let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMoving(containerNumberTrackingResponse)
         return {billNo: args.number, scac: "SITC", infoAboutMoving: infoAboutMoving, etaFinalDelivery: eta}
-
     }
 }

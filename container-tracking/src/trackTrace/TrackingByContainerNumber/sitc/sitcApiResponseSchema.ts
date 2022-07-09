@@ -2,6 +2,7 @@ interface _SitcInfoAboutMoving {
     containerNo: string
     movementName: string
     movementCode: string
+    portname?: string
     movementNameEn: string
     eventPort: string
     eventDate: string

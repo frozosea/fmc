@@ -1,7 +1,6 @@
 import startServer from "./server/server";
 import {config} from "dotenv"
 import {AppDataSource} from "./db/data-source";
-import {trackBillNoByServer} from "./server/clients";
 
 function main() {
     config();
@@ -12,6 +11,5 @@ function main() {
     startServer();
 
 }
-
 main();
 
