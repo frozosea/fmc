@@ -539,13 +539,27 @@ const docTemplate = `{
                 "summary": "Track by bill number",
                 "parameters": [
                     {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tracking.Track"
-                        }
+                        "enum": [
+                            "AUTO",
+                            "FESO",
+                            "SKLU",
+                            "SITC",
+                            "HALU"
+                        ],
+                        "type": "string",
+                        "default": "FESO",
+                        "description": "scac code",
+                        "name": "scac",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 30,
+                        "minLength": 9,
+                        "type": "string",
+                        "default": "FLCE405711",
+                        "description": "bill number",
+                        "name": "number",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -581,16 +595,35 @@ const docTemplate = `{
                 "tags": [
                     "Tracking"
                 ],
-                "summary": "Track by bill number",
+                "summary": "Track by container number",
                 "parameters": [
                     {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tracking.Track"
-                        }
+                        "enum": [
+                            "AUTO",
+                            "FESO",
+                            "SKLU",
+                            "SITC",
+                            "HALU",
+                            "MAEU",
+                            "MSCU",
+                            "COSU",
+                            "ONEY",
+                            "KMTU"
+                        ],
+                        "type": "string",
+                        "default": "SKLU",
+                        "description": "scac code",
+                        "name": "scac",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 11,
+                        "minLength": 10,
+                        "type": "string",
+                        "default": "TEMU2094051",
+                        "description": "container number",
+                        "name": "number",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1075,24 +1108,13 @@ const docTemplate = `{
                 }
             }
         },
-        "tracking.Track": {
-            "type": "object",
-            "properties": {
-                "number": {
-                    "type": "string"
-                },
-                "scac": {
-                    "type": "string",
-                    "maxLength": 4,
-                    "minLength": 4
-                }
-            }
-        },
         "user.AddContainers": {
             "type": "object",
             "properties": {
                 "numbers": {
                     "type": "array",
+                    "maxItems": 28,
+                    "minItems": 10,
                     "items": {
                         "type": "string"
                     }
@@ -1151,6 +1173,8 @@ const docTemplate = `{
             "properties": {
                 "numberIds": {
                     "type": "array",
+                    "maxItems": 28,
+                    "minItems": 10,
                     "items": {
                         "type": "integer"
                     }

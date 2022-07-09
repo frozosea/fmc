@@ -173,20 +173,13 @@ definitions:
           $ref: '#/definitions/tracking.BaseInfoAboutMoving'
         type: array
     type: object
-  tracking.Track:
-    properties:
-      number:
-        type: string
-      scac:
-        maxLength: 4
-        minLength: 4
-        type: string
-    type: object
   user.AddContainers:
     properties:
       numbers:
         items:
           type: string
+        maxItems: 28
+        minItems: 10
         type: array
     type: object
   user.AllContainersAndBillNumbers:
@@ -225,6 +218,8 @@ definitions:
       numberIds:
         items:
           type: integer
+        maxItems: 28
+        minItems: 10
         type: array
     type: object
 host: localhost:8080
@@ -560,12 +555,24 @@ paths:
     post:
       description: tracking by bill number, if eta not found will be 0
       parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/tracking.Track'
+      - default: FESO
+        description: scac code
+        enum:
+        - AUTO
+        - FESO
+        - SKLU
+        - SITC
+        - HALU
+        in: query
+        name: scac
+        type: string
+      - default: FLCE405711
+        description: bill number
+        in: query
+        maxLength: 30
+        minLength: 9
+        name: number
+        type: string
       responses:
         "200":
           description: OK
@@ -586,12 +593,29 @@ paths:
       - application/json
       description: tracking by container number
       parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/tracking.Track'
+      - default: SKLU
+        description: scac code
+        enum:
+        - AUTO
+        - FESO
+        - SKLU
+        - SITC
+        - HALU
+        - MAEU
+        - MSCU
+        - COSU
+        - ONEY
+        - KMTU
+        in: query
+        name: scac
+        type: string
+      - default: TEMU2094051
+        description: container number
+        in: query
+        maxLength: 11
+        minLength: 10
+        name: number
+        type: string
       produces:
       - application/json
       responses:
@@ -605,7 +629,7 @@ paths:
           description: ""
       security:
       - ApiKeyAuth: []
-      summary: Track by bill number
+      summary: Track by container number
       tags:
       - Tracking
   /user/addBillNumbers:

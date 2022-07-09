@@ -21,7 +21,7 @@ func (v *Validator) ValidateContainer(s string) error {
 	return nil
 }
 func (v *Validator) ValidateBillNumber(bill string) error {
-	if len(bill) > 30 {
+	if len(bill) > 30 || len(bill) < 9 {
 		return errors.New("cannot validate bill number")
 	}
 	ok, err := regexp.MatchString(`[a-zA-Z]{3,8}[0-9]{5,22}`, bill)

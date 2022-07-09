@@ -42,6 +42,4 @@ func main() {
 	if err := server.Serve(l); err != nil {
 		panic(err)
 	}
-	//fmt.Println(getIndex(4, i))
-	//fmt.Println(time.Duration(time.Now().Day()))
 }

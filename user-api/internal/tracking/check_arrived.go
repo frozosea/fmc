@@ -249,7 +249,6 @@ func (m *maeuArrivedChecker) checkBillNoArrived(_ BillNumberResponse) IsArrived 
 	return true
 }
 
-//TODO create sitcArrivedChecker
 type sitcArrivedChecker struct{}
 
 func newSitcArrivedChecker() *sitcArrivedChecker {
