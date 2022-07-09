@@ -121,6 +121,7 @@ func GetTokenSettings() *JwtSettings {
 	jwt.JwtSecretKey = GetJwtSecret()
 	return jwt
 }
+
 func GetEmailSenderSettings() *EmailSenderSettings {
 	emailSender := new(EmailSenderSettings)
 	emailSender.SenderEmail = os.Getenv("SENDER_EMAIL")
@@ -214,7 +215,7 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	}
 	arrivedChecker := tracking.NewArrivedChecker()
 	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
-	excelWriter := excel_writer.NewWriter(loggerConf.ServiceSaveDir)
+	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
 	sender := GetEmailSenderSettings()
 	emailSender := GetMailing(sender)
 	format, err := GetTimeFormatterSettings()

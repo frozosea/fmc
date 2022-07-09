@@ -80,7 +80,7 @@ func (w *Writer) WriteContainerNo(result tracking.ContainerNumberResponse, timeF
 		return "", baseWriteErr
 	}
 	filePath := w.reader.GetFileNameByDirNameAndFilename(w.dirName, result.Container)
-	if saveErr := file.SaveAs(filePath); saveErr != nil {
+	if saveErr := file.SaveAs(fmt.Sprintf(`%s.xlsx`, filePath)); saveErr != nil {
 		return "", saveErr
 	}
 	return filePath, nil
@@ -95,7 +95,7 @@ func (w *Writer) WriteBillNo(result tracking.BillNumberResponse, timeFormatter f
 		return "", err
 	}
 	filePath := w.reader.GetFileNameByDirNameAndFilename(w.dirName, result.BillNo)
-	if saveErr := file.SaveAs(filePath); saveErr != nil {
+	if saveErr := file.SaveAs(fmt.Sprintf(`%s.xlsx`, filePath)); saveErr != nil {
 		return "", saveErr
 	}
 	return filePath, nil

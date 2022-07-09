@@ -26,7 +26,7 @@ func (c *Controller) addOneContainer(ctx context.Context, number, country, time 
 	task := c.GetTrackByContainerNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
-		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return job, err
 	}
 	if addMarkErr := c.repository.AddMarkContainerOnTrack(ctx, number, int(userId)); addMarkErr != nil {
