@@ -4,13 +4,12 @@ import {
     SitcEtaParser
 } from "../../src/trackTrace/trackingBybillNumber/sitc/sitc";
 import {config} from "../classesConfigurator";
-import {SitcBillNumberResponse, sitcExpectedResult} from "./sitcExpectedResult";
-import SitcBillNumberApiResponseSchema from "../../src/trackTrace/trackingBybillNumber/sitc/sitcApiResponseSchema";
+import {SitcBillNumberResponse, SitcContainerMovementInfo, sitcExpectedResult} from "./sitcExpectedResult";
+import SitcBillNumberApiResponseSchema, {
+    SitcContainerMovementInfoSchema
+} from "../../src/trackTrace/trackingBybillNumber/sitc/sitcApiResponseSchema";
 import {ICaptcha} from "../../src/trackTrace/trackingBybillNumber/sitc/captchaResolver";
 import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
-import {
-    SitcContainerTrackingApiResponseSchema
-} from "../../src/trackTrace/TrackingByContainerNumber/sitc/sitcApiResponseSchema";
 
 const assert = require("assert");
 
@@ -30,8 +29,8 @@ export const billRequestMoch: ISitcBillNumberRequest = {
     async getBillNoResponse(_: { billNo: string, solvedCaptcha: string, randomString: string }): Promise<SitcBillNumberApiResponseSchema> {
         return SitcBillNumberResponse
     },
-    async getContainerInfo(_: { billNo: string; containerNo: string }): Promise<SitcContainerTrackingApiResponseSchema> {
-        return sitcExpectedResult.SITU9130070
+    async getContainerInfo(_: { billNo: string; containerNo: string }): Promise<SitcContainerMovementInfoSchema> {
+        return SitcContainerMovementInfo
     }
 }
 export const captchaSolverMoch: ICaptcha = {
@@ -56,10 +55,10 @@ describe("SITC tracking by bill number test", () => {
         assert.strictEqual(result.scac, "SITC")
         assert.strictEqual(result.billNo, billNo)
         for (let item = 0; item < result.infoAboutMoving.length; item++) {
-            assert.strictEqual(result.infoAboutMoving[item].operationName, sitcExpectedResult.SITU9130070.data.list[item].movementNameEn);
-            assert.strictEqual(result.infoAboutMoving[item].time, config.DATETIME.strptime(sitcExpectedResult.SITU9130070.data.list[item].eventDate, "YYYY-MM-DD HH:mm:ss").getTime());
-            assert.strictEqual(result.infoAboutMoving[item].vessel, sitcExpectedResult.SITU9130070.data.list[item].vesselCode);
-            assert.strictEqual(result.infoAboutMoving[item].location, sitcExpectedResult.SITU9130070.data.list[item].eventPort);
+            assert.strictEqual(result.infoAboutMoving[item].operationName, SitcContainerMovementInfo.data.list[item].movementnameen);
+            assert.strictEqual(result.infoAboutMoving[item].time, config.DATETIME.strptime(SitcContainerMovementInfo.data.list[item].eventdate, "YYYY-MM-DD").getTime());
+            assert.strictEqual(result.infoAboutMoving[item].vessel, "");
+            assert.strictEqual(result.infoAboutMoving[item].location, SitcContainerMovementInfo.data.list[item].portname);
         }
     })
 })

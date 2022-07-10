@@ -5,13 +5,17 @@ import (
 	"fmc-newest/internal/logging"
 	pb "fmc-newest/pkg/proto"
 	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"time"
 )
 
 type adapter struct {
 }
 
 func (a *adapter) convertRequestToGetFreightStruct(request *pb.GetFreightRequest) GetFreight {
-	return GetFreight{FromCityId: request.FromCityId, ToCityId: request.ToCityId, ContainerType: request.ContainerType.String(), Limit: request.Limit}
+	return GetFreight{FromCityId: request.GetFromCityId(), ToCityId: request.GetToCityId(), ContainerTypeId: request.GetContainerTypeId(), Limit: request.GetLimit()}
 
 }
 
@@ -51,15 +55,27 @@ func (a *adapter) convertResponseToGrpcResponse(freights []BaseFreight) *pb.GetF
 	}
 	return &pb.GetFreightsResponseList{MultiResponse: outputSlice}
 }
+func (a *adapter) convertAddFreight(r *pb.AddFreightRequest) AddFreight {
+	return AddFreight{
+		FromCityId:      r.GetFromCityId(),
+		ToCityId:        r.GetToCityId(),
+		ContainerTypeId: int(r.GetContainerTypeId()),
+		UsdPrice:        int(r.GetUsdPrice()),
+		LineId:          r.GetLineId(),
+		FromDate:        time.Unix(r.GetFromDate().GetSeconds(), 0),
+		ExpiresDate:     time.Unix(r.GetExpiryDate().GetSeconds(), 0),
+		ContactId:       int(r.GetContactId()),
+	}
+}
 
-type GetFreightService struct {
-	controller IController
+type Service struct {
+	controller *controller
 	logger     logging.ILogger
 	pb.UnimplementedFreightServiceServer
 	converter adapter
 }
 
-func (s *GetFreightService) GetFreight(ctx context.Context, r *pb.GetFreightRequest) (*pb.GetFreightsResponseList, error) {
+func (s *Service) GetFreight(ctx context.Context, r *pb.GetFreightRequest) (*pb.GetFreightsResponseList, error) {
 	convertedRequest := s.converter.convertRequestToGetFreightStruct(r)
 	response, err := s.controller.GetFreights(ctx, convertedRequest)
 	if err != nil {
@@ -68,9 +84,14 @@ func (s *GetFreightService) GetFreight(ctx context.Context, r *pb.GetFreightRequ
 	}
 	return s.converter.convertResponseToGrpcResponse(response), nil
 }
-
-func NewGetFreightService(freightController IController, logger logging.ILogger) *GetFreightService {
-	return &GetFreightService{
+func (s *Service) AddFreight(ctx context.Context, r *pb.AddFreightRequest) (*emptypb.Empty, error) {
+	if err := s.controller.AddFreight(ctx, s.converter.convertAddFreight(r)); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+func NewGetFreightService(freightController *controller, logger logging.ILogger) *Service {
+	return &Service{
 		controller:                        freightController,
 		logger:                            logger,
 		UnimplementedFreightServiceServer: pb.UnimplementedFreightServiceServer{},

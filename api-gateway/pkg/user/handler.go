@@ -51,28 +51,28 @@ func (h *HttpHandler) addBillOrContainer(c *gin.Context, isContainer bool) {
 }
 
 // AddContainersToAccount
-// @Summary Add containers to account
-// @Security ApiKeyAuth
+// @Summary 	Add containers to account
+// @Security 	ApiKeyAuth
 // @Description Add containers to account
-// @accept json
-// @Param input body AddContainers true "info"
-// @Tags         User
-// @Success 200 {object} BaseResponse
-// @Failure 500 {object} BaseResponse
+// @accept 		json
+// @Param 		input body AddContainers true "info"
+// @Tags        User
+// @Success 	200 	{object} BaseResponse
+// @Failure 	500 	{object} BaseResponse
 // @Router /user/addContainers [post]
 func (h *HttpHandler) AddContainersToAccount(c *gin.Context) {
 	h.addBillOrContainer(c, true)
 }
 
 // AddBillNumbersToAccount
-// @Summary Add bill numbers to account
-// @Security ApiKeyAuth
+// @Summary 	Add bill numbers to account
+// @Security 	ApiKeyAuth
 // @Description Add bill numbers to account
-// @accept json
-// @Param input body AddContainers true "info"
-// @Tags         User
-// @Success 200 {object} BaseResponse
-// @Failure 500 {object} BaseResponse
+// @accept 		json
+// @Param 		input body AddContainers true "info"
+// @Tags        User
+// @Success 	200 	{object} BaseResponse
+// @Failure 	500 	{object} BaseResponse
 // @Router /user/addBillNumbers [post]
 func (h *HttpHandler) AddBillNumbersToAccount(c *gin.Context) {
 	h.addBillOrContainer(c, false)
@@ -105,14 +105,14 @@ func (h *HttpHandler) deleteContainersOrBillNumbers(c *gin.Context, isContainer 
 }
 
 // DeleteContainersFromAccount
-// @Summary Delete containers from account
-// @Security ApiKeyAuth
+// @Summary 	Delete containers from account
+// @Security 	ApiKeyAuth
 // @Description delete containers from account
-// @accept json
-// @Param input body DeleteNumbers true "info"
-// @Tags         User
-// @Success 200 {object} BaseResponse
-// @Failure 500 {object} BaseResponse
+// @accept 		json
+// @Param 		input body DeleteNumbers true "request"
+// @Tags        User
+// @Success 	200 	{object} BaseResponse
+// @Failure 	500 	{object} BaseResponse
 // @Router /user/deleteContainers [delete]
 func (h *HttpHandler) DeleteContainersFromAccount(c *gin.Context) {
 	h.deleteContainersOrBillNumbers(c, true)

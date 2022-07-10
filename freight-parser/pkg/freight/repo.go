@@ -14,9 +14,9 @@ type repository struct {
 	db *sql.DB
 }
 
-func (repo *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
+func (r *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
 	var freights []BaseFreight
-	rows, err := repo.db.QueryContext(ctx, `SELECT 
+	rows, err := r.db.QueryContext(ctx, `SELECT 
        freight.id as price_id,
        from_city.full_name as from_city_full_name,
        from_city.id as from_city_id,
@@ -43,10 +43,10 @@ func (repo *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFrei
 	    JOIN "container" AS container ON container.id = freight.container_id 
 	    JOIN "contact" AS contact ON contact.id = freight.contact_id
 		WHERE from_city.id = $1 AND to_city.id = $2 AND freight.expires_date <= NOW()::DATE
-		AND container.type = $3
+		AND container.id = $3
 		ORDER BY freight.usd_price
 		LIMIT $4
-`, freight.FromCityId, freight.ToCityId, freight.ContainerType, freight.Limit)
+`, freight.FromCityId, freight.ToCityId, freight.ContainerTypeId, freight.Limit)
 	defer rows.Close()
 	if err != nil {
 		return freights, err
@@ -62,8 +62,8 @@ func (repo *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFrei
 
 }
 
-func (repo *repository) Add(ctx context.Context, freight AddFreight) error {
-	tx, getTxErr := repo.db.BeginTx(ctx, nil)
+func (r *repository) Add(ctx context.Context, freight AddFreight) error {
+	tx, getTxErr := r.db.BeginTx(ctx, nil)
 	if getTxErr != nil {
 		return getTxErr
 	}

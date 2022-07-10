@@ -35,8 +35,8 @@ type AddFreight struct {
 	ContactId       int
 }
 type GetFreight struct {
-	FromCityId    int64
-	ToCityId      int64
-	ContainerType string
-	Limit         int64
+	FromCityId      int64
+	ToCityId        int64
+	ContainerTypeId int64
+	Limit           int64
 }

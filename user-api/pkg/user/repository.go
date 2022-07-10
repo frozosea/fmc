@@ -21,21 +21,47 @@ type Repository struct {
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
+func (r *Repository) checkContainerOrBillExists(ctx context.Context, userId int, isContainer bool, number string) bool {
+	if isContainer {
+		row := r.db.QueryRowContext(ctx, `SELECT c.number FROM "containers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, number)
+		var s sql.NullString
+		if scanErr := row.Scan(&s); scanErr != nil {
+			return false
+		}
+		if s.String != "" || s.Valid {
+			return true
+		}
 
+	} else {
+		row := r.db.QueryRowContext(ctx, `SELECT c.number FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, number)
+		var s sql.NullString
+		if scanErr := row.Scan(&s); scanErr != nil {
+			return false
+		}
+		if s.String != "" || s.Valid {
+			return true
+		}
+	}
+	return false
+}
 func (r *Repository) AddContainerToAccount(ctx context.Context, userId int, containers []string) error {
 	for _, v := range containers {
-		_, err := r.db.ExecContext(ctx, `INSERT INTO "containers" (number,user_id,is_on_track,is_arrived) VALUES($1,$2,false,false)`, v, userId)
-		if err != nil {
-			return err
+		if !r.checkContainerOrBillExists(ctx, userId, true, v) {
+			_, err := r.db.ExecContext(ctx, `INSERT INTO "containers" (number,user_id,is_on_track,is_arrived) VALUES($1,$2,false,false)`, v, userId)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 func (r *Repository) AddBillNumberToAccount(ctx context.Context, userId int, containers []string) error {
 	for _, v := range containers {
-		_, err := r.db.ExecContext(ctx, `INSERT INTO "bill_numbers" (number,user_id,is_on_track,is_arrived) VALUES($1,$2,false,false)`, v, userId)
-		if err != nil {
-			return err
+		if !r.checkContainerOrBillExists(ctx, userId, false, v) {
+			_, err := r.db.ExecContext(ctx, `INSERT INTO "bill_numbers" (number,user_id,is_on_track,is_arrived) VALUES($1,$2,false,false)`, v, userId)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

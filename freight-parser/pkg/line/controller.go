@@ -12,6 +12,9 @@ type IController interface {
 	AddLine(ctx context.Context, lineObj WithByteImage) error
 	GetAllLines(ctx context.Context) ([]*Line, error)
 }
+
+const cacheKey = "allLines"
+
 type controller struct {
 	repo        IRepository
 	logger      logging.ILogger
@@ -36,14 +39,19 @@ func (s *controller) AddLine(ctx context.Context, lineObj WithByteImage) error {
 		Scac:     lineObj.Scac,
 		FullName: lineObj.FullName,
 	}, stringUrl}
-	return s.repo.Add(ctx, readyRepoObj)
+	if err := s.repo.Add(ctx, readyRepoObj); err != nil {
+		return err
+	}
+	return s.cache.Del(ctx, cacheKey)
 }
 func (s *controller) GetAllLines(ctx context.Context) ([]*Line, error) {
-	const cacheKey = "allLines"
 	cacheCh := make(chan []*Line)
 	go func() {
 		var lines []*Line
-		s.cache.Get(ctx, cacheKey, &lines)
+		if err := s.cache.Get(ctx, cacheKey, &lines); err != nil {
+			s.logger.ExceptionLog(fmt.Sprintf(`get lines from cache error: %s`, err.Error()))
+			return
+		}
 		cacheCh <- lines
 	}()
 	repoCh := make(chan []*Line)
@@ -51,6 +59,7 @@ func (s *controller) GetAllLines(ctx context.Context) ([]*Line, error) {
 		result, repoErr := s.repo.GetAll(ctx)
 		if repoErr != nil {
 			s.logger.ExceptionLog(fmt.Sprintf(`get all lines from repo error: %s`, repoErr.Error()))
+			return
 		}
 		repoCh <- result
 	}()

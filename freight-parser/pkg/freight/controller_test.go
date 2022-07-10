@@ -20,7 +20,7 @@ func (s *freightRepoMoch) Get(_ context.Context, freight GetFreight) ([]BaseFrei
 	}
 	return array, nil
 }
-func (s *freightRepoMoch) Add(ctx context.Context, freight AddFreight) error {
+func (s *freightRepoMoch) Add(_ context.Context, _ AddFreight) error {
 	return nil
 }
 
@@ -28,10 +28,10 @@ func (s *freightRepoMoch) Add(ctx context.Context, freight AddFreight) error {
 type cityRepoMoch struct {
 }
 
-func (r *cityRepoMoch) Add(_ context.Context, city city.BaseCity) error {
+func (r *cityRepoMoch) Add(_ context.Context, _ city.BaseCity) error {
 	return nil
 }
-func (r *cityRepoMoch) GetAll(ctx context.Context) ([]*city.City, error) {
+func (r *cityRepoMoch) GetAll(_ context.Context) ([]*city.City, error) {
 	var cities []*city.City
 	return cities, nil
 }
@@ -39,11 +39,11 @@ func (r *cityRepoMoch) GetAll(ctx context.Context) ([]*city.City, error) {
 type contactRepoMoch struct {
 }
 
-func (r *contactRepoMoch) Add(ctx context.Context, contact contact.BaseContact) error {
+func (r *contactRepoMoch) Add(_ context.Context, _ contact.BaseContact) error {
 	return nil
 }
 
-func (r *contactRepoMoch) GetAll(ctx context.Context) ([]*contact.BaseContact, error) {
+func (r *contactRepoMoch) GetAll(_ context.Context) ([]*contact.BaseContact, error) {
 	var contacts []*contact.BaseContact
 	return contacts, nil
 }
@@ -51,10 +51,10 @@ func (r *contactRepoMoch) GetAll(ctx context.Context) ([]*contact.BaseContact, e
 type containerRepoMoch struct {
 }
 
-func (r *containerRepoMoch) Add(ctx context.Context, containerType string) error {
+func (r *containerRepoMoch) Add(_ context.Context, _ string) error {
 	return nil
 }
-func (r *containerRepoMoch) Get(ctx context.Context) ([]*Container, error) {
+func (r *containerRepoMoch) Get(_ context.Context) ([]*Container, error) {
 	var containers []*Container
 	return containers, nil
 }
@@ -78,18 +78,24 @@ func (s loggerMoch) FatalLog(logString string) {
 
 }
 
-var service = NewController(&freightRepoMoch{}, &loggerMoch{})
+type cacheMoch struct{}
+
+func (c *cacheMoch) Get(_ context.Context, _ string, _ interface{}) error { return nil }
+func (c *cacheMoch) Set(_ context.Context, _ string, _ interface{}) error { return nil }
+func (c *cacheMoch) Del(_ context.Context, _ string) error                { return nil }
+
+var service = NewController(&freightRepoMoch{}, &loggerMoch{}, &cacheMoch{})
 
 func TestGetBestFreights(t *testing.T) {
 	ctx := context.TODO()
 	const limit = 20
 	var getFreightRequestStruct = GetFreight{
-		FromCityId:    0,
-		ToCityId:      0,
-		ContainerType: "40DC",
-		Limit:         limit,
+		FromCityId:      0,
+		ToCityId:        0,
+		ContainerTypeId: 1,
+		Limit:           limit,
 	}
-	result, err := service.freightRepository.Get(ctx, getFreightRequestStruct)
+	result, err := service.repo.Get(ctx, getFreightRequestStruct)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

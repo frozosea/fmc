@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
 	"io"
-	"log"
 	"os"
 	"time"
 )
@@ -39,8 +38,8 @@ func (s *fileStorage) UploadImage(ctx context.Context, image io.Reader) (string,
 	return s.getObjectUrl(uniqueId), err
 }
 
-func NewFileStorage() *fileStorage {
-	return &fileStorage{client: configureFileStorage()}
+func NewFileStorage(cli *s3.Client) *fileStorage {
+	return &fileStorage{client: cli}
 }
 
 type credentials struct {
@@ -56,7 +55,7 @@ func (s *credentials) Retrieve(ctx context.Context) (aws.Credentials, error) {
 		Expires:         time.Time{},
 	}, nil
 }
-func configureFileStorage() *s3.Client {
+func ConfigureFileStorage() *s3.Client {
 	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		if service == s3.ServiceID && region == "ru-central1" {
 			return aws.Endpoint{
@@ -67,7 +66,6 @@ func configureFileStorage() *s3.Client {
 		}
 		return aws.Endpoint{}, fmt.Errorf("unknown endpoint requested")
 	})
-
 	_, err := config.LoadDefaultConfig(context.TODO(), config.WithEndpointResolverWithOptions(customResolver))
 	cfg := aws.Config{
 		Region:                      "ru-central1",
@@ -86,12 +84,13 @@ func configureFileStorage() *s3.Client {
 		RuntimeEnvironment:          aws.RuntimeEnvironment{},
 	}
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	client := s3.NewFromConfig(cfg)
 	_, err = client.CreateBucket(context.TODO(), &s3.CreateBucketInput{Bucket: aws.String(bucketName)})
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
+
 	}
 	return client
 }

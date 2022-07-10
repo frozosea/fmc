@@ -51,11 +51,9 @@ export class RequestSender implements IRequest<fetchArgs> {
             try {
                 return await response.json()
             } catch (e) {
-                console.log(e)
-                try{
+                try {
                     return JSON.parse(await response.text())
-                }catch (e) {
-                    console.log(e)
+                } catch (e) {
                 }
             }
         } else {
