@@ -785,7 +785,7 @@ const docTemplate = `{
                 "summary": "Delete containers from account",
                 "parameters": [
                     {
-                        "description": "info",
+                        "description": "request",
                         "name": "input",
                         "in": "body",
                         "required": true,
@@ -1113,8 +1113,6 @@ const docTemplate = `{
             "properties": {
                 "numbers": {
                     "type": "array",
-                    "maxItems": 28,
-                    "minItems": 10,
                     "items": {
                         "type": "string"
                     }
@@ -1173,8 +1171,6 @@ const docTemplate = `{
             "properties": {
                 "numberIds": {
                     "type": "array",
-                    "maxItems": 28,
-                    "minItems": 10,
                     "items": {
                         "type": "integer"
                     }

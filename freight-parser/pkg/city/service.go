@@ -22,9 +22,13 @@ func (c *cityConverter) convertResponseToGrpcResponse(cities []*City) *pb.GetAll
 }
 
 type Service struct {
-	controller IController
+	controller *Controller
 	pb.UnimplementedCityServiceServer
 	converter *cityConverter
+}
+
+func NewService(controller *Controller) *Service {
+	return &Service{controller: controller, UnimplementedCityServiceServer: pb.UnimplementedCityServiceServer{}, converter: &cityConverter{}}
 }
 
 func (s *Service) AddCity(ctx context.Context, addCityRequest *pb.AddCityRequest) (*emptypb.Empty, error) {

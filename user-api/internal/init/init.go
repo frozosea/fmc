@@ -72,6 +72,18 @@ type (
 	}
 )
 
+func readIni[T comparable](section string, settingsModel *T) (*T, error) {
+	cfg, err := ini.Load(`conf/cfg.ini`)
+	sectionRead := cfg.Section(section)
+	if err != nil {
+		log.Fatalf(`read config from ini file err:%s`, err)
+		return settingsModel, err
+	}
+	if readErr := sectionRead.MapTo(&settingsModel); readErr != nil {
+		return settingsModel, readErr
+	}
+	return settingsModel, nil
+}
 func SetupDatabaseConfig() *DataBaseSettings {
 	DbSettings := new(DataBaseSettings)
 	DbSettings.DatabaseUser = os.Getenv(`POSTGRES_USER`)
@@ -107,19 +119,10 @@ func GetJwtSecret() string {
 	return os.Getenv(`JWT_SECRET_KEY`)
 }
 
-func GetTokenSettings() *JwtSettings {
+func GetTokenSettings() (*JwtSettings, error) {
 	jwt := new(JwtSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`TOKEN`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&jwt); err != nil {
-		panic(err)
-		return jwt
-	}
 	jwt.JwtSecretKey = GetJwtSecret()
-	return jwt
+	return readIni("TOKEN", jwt)
 }
 
 func GetEmailSenderSettings() *EmailSenderSettings {
@@ -137,34 +140,17 @@ func GetRedisSettings() *RedisSettings {
 }
 func GetTrackingSettings() (*TrackingClientSettings, error) {
 	clientSettings := new(TrackingClientSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`TRACKING`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&clientSettings); err != nil {
-		return clientSettings, err
-	}
-	return clientSettings, nil
+	return readIni("TRACKING", clientSettings)
 }
 func GetEmailSignature() (*EmailSignatureSettings, error) {
 	settings := new(EmailSignatureSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`EMAIL_SETTINGS`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&settings); err != nil {
-		return settings, err
-	}
-	return settings, nil
+	return readIni("EMAIL_SETTINGS", settings)
 }
 func GetMailing(sender *EmailSenderSettings) *mailing.Mailing {
 	logger := logging.NewLogger("emails")
 	settings, err := GetEmailSignature()
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
 }
@@ -179,35 +165,19 @@ func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tr
 }
 func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error) {
 	config := new(ScheduleTrackingLoggerSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`SCHEDULE_LOGS`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&config); err != nil {
-		return config, err
-	}
-	return config, nil
+	return readIni("SCHEDULE_LOGS", config)
 }
 func GetTimeFormatterSettings() (*TimeFormatterSettings, error) {
 	config := new(TimeFormatterSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`TIME_FORMAT`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&config); err != nil {
-		return config, err
-	}
-	return config, nil
+	return readIni("TIME_FORMAT", config)
 }
 
 var TaskManager = scheduler.NewDefaultScheduler()
 
 func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
-	trackerConf, err := GetTrackingSettings()
-	if err != nil {
-		panic(err)
+	trackerConf, getSettingsErr := GetTrackingSettings()
+	if getSettingsErr != nil {
+		panic(getSettingsErr)
 	}
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
@@ -218,9 +188,9 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
 	sender := GetEmailSenderSettings()
 	emailSender := GetMailing(sender)
-	format, err := GetTimeFormatterSettings()
-	if err != nil {
-		panic(err)
+	format, getTimeFormatErr := GetTimeFormatterSettings()
+	if getTimeFormatErr != nil {
+		panic(getTimeFormatErr)
 	}
 	rdsCache := GetCache(GetRedisSettings())
 	timeFormatter := schedule_tracking.NewTimeFormatter(format.Format)
@@ -249,15 +219,7 @@ func parseExpiration(parseString string) time.Duration {
 }
 func getAuthLoggerConfig() (*AuthLoggerSettings, error) {
 	config := new(AuthLoggerSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	authLoggerSection := cfg.Section(`AUTH_LOGS`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := authLoggerSection.MapTo(&config); err != nil {
-		return config, err
-	}
-	return config, nil
+	return readIni("AUTH_LOGS", config)
 }
 
 func GetAuthService(db *sql.DB) *auth.Service {
@@ -265,7 +227,10 @@ func GetAuthService(db *sql.DB) *auth.Service {
 	if err != nil {
 		panic(err)
 	}
-	tokenSettings := GetTokenSettings()
+	tokenSettings, getTokenSettingsErr := GetTokenSettings()
+	if getTokenSettingsErr != nil {
+		panic(getTokenSettingsErr)
+	}
 	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
 	hash := auth.NewHash()
 	repository := auth.NewRepository(db, hash)
@@ -275,15 +240,7 @@ func GetAuthService(db *sql.DB) *auth.Service {
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {
 	config := new(UserLoggerSettings)
-	cfg, err := ini.Load(`conf/cfg.ini`)
-	tokenSection := cfg.Section(`USER_LOGS`)
-	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
-	}
-	if err := tokenSection.MapTo(&config); err != nil {
-		return config, err
-	}
-	return config, nil
+	return readIni("USER_LOGS", config)
 }
 func GetCache(redisConf *RedisSettings) cache.ICache {
 	redisCache := cache.NewCache(redis.NewClient(&redis.Options{

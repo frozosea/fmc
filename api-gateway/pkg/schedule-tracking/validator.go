@@ -20,7 +20,7 @@ func (v *Validator) ValidateBill(oneBill string) error {
 	if len(oneBill) > 30 {
 		return errors.New("cannot validate bill number")
 	}
-	ok, err := regexp.MatchString(`[a-zA-Z]{3,8}[0-9]{5,22}`, oneBill)
+	ok, err := regexp.MatchString(`[a-zA-Z]{3,20}\w(.+)`, oneBill)
 	if !ok || err != nil {
 		return errors.New("cannot validate container")
 	}

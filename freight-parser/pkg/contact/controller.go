@@ -58,10 +58,11 @@ func (c *controller) AddContact(ctx context.Context, contact BaseContact) error 
 	c.logger.InfoLog(fmt.Sprintf(`add new contact: %s`, marshResp))
 	if addErr != nil {
 		c.logger.ExceptionLog(fmt.Sprintf(`add new contact error: %s`, addErr.Error()))
+		return addErr
 	}
-	return addErr
+	return c.cache.Del(ctx, cacheKey)
 }
-func NewController(repo IRepository, cache cache.ICache, logger logging.ILogger) *controller {
+func NewController(repo IRepository, logger logging.ILogger, cache cache.ICache) *controller {
 	return &controller{
 		repo:   repo,
 		cache:  cache,

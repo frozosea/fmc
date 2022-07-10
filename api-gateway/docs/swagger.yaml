@@ -178,8 +178,6 @@ definitions:
       numbers:
         items:
           type: string
-        maxItems: 28
-        minItems: 10
         type: array
     type: object
   user.AllContainersAndBillNumbers:
@@ -218,8 +216,6 @@ definitions:
       numberIds:
         items:
           type: integer
-        maxItems: 28
-        minItems: 10
         type: array
     type: object
 host: localhost:8080
@@ -716,7 +712,7 @@ paths:
       - application/json
       description: delete containers from account
       parameters:
-      - description: info
+      - description: request
         in: body
         name: input
         required: true

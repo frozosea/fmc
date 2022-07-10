@@ -26,13 +26,17 @@ func (c *converter) convertControllerResponseToGrpcMessage(result []*Line) *pb.G
 	return &pb.GetAllLinesResponse{Lines: allGrpcLines}
 }
 
-type service struct {
+type Service struct {
 	controller IController
 	converter  converter
 	pb.UnimplementedLineServiceServer
 }
 
-func (s *service) AddLine(stream pb.LineService_AddLineServer) error {
+func NewService(controller IController) *Service {
+	return &Service{controller: controller, UnimplementedLineServiceServer: pb.UnimplementedLineServiceServer{}, converter: converter{}}
+}
+
+func (s *Service) AddLine(stream pb.LineService_AddLineServer) error {
 	req, readStreamErr := stream.Recv()
 	if readStreamErr != nil {
 		return readStreamErr
@@ -64,7 +68,7 @@ func (s *service) AddLine(stream pb.LineService_AddLineServer) error {
 	}
 	return s.controller.AddLine(stream.Context(), line)
 }
-func (s *service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllLinesResponse, error) {
+func (s *Service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllLinesResponse, error) {
 	result, err := s.controller.GetAllLines(ctx)
 	if err != nil {
 		var allGrpcLines *pb.GetAllLinesResponse
@@ -72,10 +76,6 @@ func (s *service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*pb.GetAll
 	}
 	return s.converter.convertControllerResponseToGrpcMessage(result), nil
 }
-func newService(controller IController) *service {
-	return &service{controller: controller, converter: converter{}}
-}
-
 func contextError(ctx context.Context) error {
 	switch ctx.Err() {
 	case context.Canceled:

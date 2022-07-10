@@ -2,66 +2,74 @@ package freight
 
 import (
 	"context"
+	"encoding/json"
 	"fmc-newest/internal/cache"
 	"fmc-newest/internal/logging"
 	"fmt"
 )
 
-type IController interface {
-	GetFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error)
-}
-
 type controllerUtils struct{}
 
 func (c *controllerUtils) getCacheKeyByFreightRequest(freight *GetFreight) string {
-	return fmt.Sprintf(`%d;%d;%s`, freight.FromCityId, freight.ToCityId, freight.ContainerType)
+	return fmt.Sprintf(`%d;%d;%d`, freight.FromCityId, freight.ToCityId, freight.ContainerTypeId)
 }
 
 type controller struct {
-	freightRepository IRepository
-	cache             cache.ICache
-	logger            logging.ILogger
+	repo   IRepository
+	cache  cache.ICache
+	logger logging.ILogger
 	controllerUtils
 }
 
-func (s *controller) getFreightsFromRepo(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
-	result, err := s.freightRepository.Get(ctx, freight)
-	if err != nil {
-		s.logger.FatalLog(fmt.Sprintf(`get information from database error: %s`, err.Error()))
-	}
-	go s.logger.InfoLog(fmt.Sprintf(`get info from database has result: %v`, result))
-	return result, err
-}
-
-func (s *controller) getFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
+func (c *controller) getFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
 	cacheCh := make(chan []BaseFreight)
 	go func() {
 		var cacheFreights []BaseFreight
-		chErr := s.cache.Get(ctx, s.getCacheKeyByFreightRequest(&freight), &cacheFreights)
+		chErr := c.cache.Get(ctx, c.getCacheKeyByFreightRequest(&freight), &cacheFreights)
 		if chErr != nil {
-			s.logger.FatalLog(fmt.Sprintf(`getFromCacheError: %s`, chErr.Error()))
+			c.logger.ExceptionLog(fmt.Sprintf(`getFromCacheError: %s`, chErr.Error()))
 		}
 		cacheCh <- cacheFreights
 	}()
 	repoCh := make(chan []BaseFreight)
 	go func() {
-		result, err := s.getFreightsFromRepo(ctx, freight)
+		result, err := c.repo.Get(ctx, freight)
 		if err != nil {
-			s.logger.FatalLog(fmt.Sprintf(`getFreightsFromRepo err: %s`, err.Error()))
+			go c.logger.ExceptionLog(fmt.Sprintf(`get information from database error: %s`, err.Error()))
 		}
+		go c.logger.InfoLog(fmt.Sprintf(`get info from database has result: %v`, result))
 		repoCh <- result
 	}()
 	select {
 	case res := <-repoCh:
-		return res, s.cache.Set(ctx, s.getCacheKeyByFreightRequest(&freight), res)
+		return res, c.cache.Set(ctx, c.getCacheKeyByFreightRequest(&freight), res)
 	case result := <-cacheCh:
 		return result, nil
 	}
 }
-func (s *controller) GetFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
-	return s.getFreights(ctx, freight)
+func (c *controller) AddFreight(ctx context.Context, freight AddFreight) error {
+	if err := c.repo.Add(ctx, freight); err != nil {
+		go func() {
+			jsonRepr, marshErr := json.Marshal(freight)
+			if marshErr != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`add freight: %v failed: %s`, jsonRepr, err.Error()))
+				return
+			}
+			c.logger.InfoLog(fmt.Sprintf(`freight: %v was add to repository`, jsonRepr))
+		}()
+		return err
+	}
+	return c.cache.Del(ctx, c.getCacheKeyByFreightRequest(&GetFreight{
+		FromCityId:      freight.FromCityId,
+		ToCityId:        freight.ToCityId,
+		ContainerTypeId: int64(freight.ContainerTypeId),
+		Limit:           1,
+	}))
+}
+func (c *controller) GetFreights(ctx context.Context, freight GetFreight) ([]BaseFreight, error) {
+	return c.getFreights(ctx, freight)
 }
 
-func NewController(freightRepo IRepository, logger logging.ILogger) *controller {
-	return &controller{freightRepository: freightRepo, logger: logger}
+func NewController(freightRepo IRepository, logger logging.ILogger, cache cache.ICache) *controller {
+	return &controller{repo: freightRepo, logger: logger, cache: cache, controllerUtils: controllerUtils{}}
 }
