@@ -1,4 +1,4 @@
-version: "3.9"
+version: "2"
 
 services:
   tracking_api:
@@ -8,11 +8,9 @@ services:
     depends_on:
       - postgres
       - redis
-    links:
-      - postgres
     ports:
       - "${GRPC_PORT}:${GRPC_PORT}"
-    entrypoint: ["npm","run","entrypoint"]
+    entrypoint: [ "npm","run","entrypoint" ]
 
   redis:
     image: 'bitnami/redis:latest'
@@ -22,7 +20,7 @@ services:
     image: postgres:13.3
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     environment:
       LC_ALL: C.UTF-8
       POSTGRES_USER: ${POSTGRES_USER}

@@ -11,7 +11,6 @@ import (
 	"fmc-with-git/pkg/user"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-ini/ini"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"google.golang.org/grpc"
@@ -37,27 +36,14 @@ type (
 
 func getAuthSettings() (*AuthSettings, error) {
 	authSettings := AuthSettings{}
-	cfg, err := ini.Load(`conf/config.ini`)
-	if err != nil {
-		return nil, err
-	}
-	section := cfg.Section("USER_API")
-	if err := section.MapTo(&authSettings); err != nil {
-		return nil, err
-	}
+	authSettings.Ip = os.Getenv("AUTH_IP")
+	authSettings.Port = os.Getenv("AUTH_PORT")
 	return &authSettings, nil
 }
 func getTrackingSettings() (*TrackingSettings, error) {
 	trackingSettings := new(TrackingSettings)
-	cfg, err := ini.Load(`conf/config.ini`)
-	if err != nil {
-		return nil, err
-	}
-	section := cfg.Section("TRACKING")
-
-	if err := section.MapTo(&trackingSettings); err != nil {
-		return nil, err
-	}
+	trackingSettings.Ip = os.Getenv("TRACKING_IP")
+	trackingSettings.Port = os.Getenv("TRACKING_PORT")
 	return trackingSettings, nil
 
 }
@@ -196,5 +182,5 @@ func Run() {
 	initDocsRoutes(router)
 	initUserRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("userLogs"))
 	initScheduleRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("schedule"))
-	log.Fatal(router.Run(fmt.Sprintf(`localhost:8080`)))
+	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }

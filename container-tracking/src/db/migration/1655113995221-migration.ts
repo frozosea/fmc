@@ -32,6 +32,7 @@ export class migration1655113995221 implements MigrationInterface {
                 unloObj.fullname = array[1]
                 await queryRunner.manager.save(unloObj, {})
             } catch (e) {
+                console.log(e)
             }
         }
     }

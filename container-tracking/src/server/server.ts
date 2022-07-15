@@ -10,7 +10,7 @@ server.addService(TrackingByContainerNumberService, trackingByContainerNumberSer
 server.addService(TrackingByBillNumberService, trackingByBillNumberService)
 export default function startServer() {
     config()
-    server.bindAsync(`localhost:${process.env.GRPC_PORT}`, ServerCredentials.createInsecure(), (error, port) => {
+    server.bindAsync(`0.0.0.0:${process.env.GRPC_PORT}`, ServerCredentials.createInsecure(), (error, port) => {
         server.start()
         console.log("SERVER WAS STARTED")
     })
