@@ -25,8 +25,7 @@ func GetServer() (*grpc.Server, error) {
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		panic(err)
-		return
+		fmt.Println("no env file")
 	}
 	server, err := GetServer()
 	if err != nil {
@@ -34,7 +33,7 @@ func main() {
 		return
 	}
 	serverSettings := conf.GetServerSettings()
-	l, err := net.Listen("tcp", fmt.Sprintf(`:%s`, serverSettings.Port))
+	l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:%s`, serverSettings.Port))
 	if err != nil {
 		panic(err)
 		return

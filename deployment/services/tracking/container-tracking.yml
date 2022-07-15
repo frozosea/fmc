@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tracking-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tracking-svc
+      role: tracking
+  template:
+    metadata:
+      labels:
+        app: tracking-svc
+        role: tracking
+    spec:
+      containers:
+        - name: tracking-cntr
+          image: flyasea/fmc-tracking:v0.0.2
+          ports:
+            - containerPort: 51473
+          env:
+            - name: GRPC_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: GRPC_PORT
+            - name: REQUEST_TIMEOUT_MS
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: REQUEST_TIMEOUT_MS
+            - name: WAIT_SELECTOR_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: WAIT_SELECTOR_TIMEOUT
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: POSTGRES_DATABASE
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: REDIS_URL
+            - name: CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS
+            - name: CAPTCHA_SOLVER_SERVICE_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: tracking-conf
+                  key: CAPTCHA_SOLVER_SERVICE_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tracking-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 51473
+      targetPort: 51473
+  selector:
+    app: tracking-api
+    role: tracking

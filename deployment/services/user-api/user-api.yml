@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-app
+  labels:
+    app: user-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-api
+      role: user
+  template:
+    metadata:
+      labels:
+        app: user-api
+        role: user
+    spec:
+      containers:
+        - name: user-api
+          image: flyasea/fms-user-api:v0.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: user-port
+              containerPort: 3000
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: JWT_SECRET_KEY
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: DATABASE_HOST
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: DATABASE_NAME
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: DATABASE_PORT
+            - name: SENDER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: SENDER_NAME
+            - name: SENDER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: SENDER_EMAIL
+            - name: UNISENDER_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: user-conf
+                  key: UNISENDER_API_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  labels:
+    app: user-api
+spec:
+  selector:
+    app: user-api
+    role: user
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: user-port

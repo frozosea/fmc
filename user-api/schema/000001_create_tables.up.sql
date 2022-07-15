@@ -1,4 +1,4 @@
-CREATE TABLE "user"
+CREATE TABLE IF NOT EXISTS "user"
 (
     "id"       serial              NOT NULL,
     "username" varchar(255) UNIQUE NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE "user"
 
 
 
-CREATE TABLE "containers"
+CREATE TABLE IF NOT EXISTS "containers"
 (
     "id"          serial      NOT NULL,
     "number"      varchar(15) NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE "containers"
 
 
 
-CREATE TABLE "bill_numbers"
+CREATE TABLE IF NOT EXISTS "bill_numbers"
 (
     "id"          serial      NOT NULL,
     "number"      varchar(35) NOT NULL,

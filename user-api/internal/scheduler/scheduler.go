@@ -58,7 +58,6 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 }
 func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask, interval time.Duration, taskArgs ...interface{}) (*Job, error) {
 	job, err := m.jobstore.Save(ctx, taskId, task, interval, taskArgs)
-	fmt.Println(job.Args)
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return job, err
@@ -70,6 +69,7 @@ func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask
 				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
 			}
 		}
+		job.NextRunTime = time.Now().Add(job.Interval)
 	}()
 	return job, err
 }
