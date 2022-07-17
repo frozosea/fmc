@@ -116,5 +116,4 @@ func NewDefaultScheduler() *Manager {
 }
 func NewDefaultSchedulerWithCustomLogger(out io.Writer) *Manager {
 	return &Manager{executor: NewExecutor(), jobstore: NewMemoryJobStore(), baseLogger: *log.New(out, "log", 1), timeParser: NewTimeParser()}
-
 }
