@@ -10,6 +10,8 @@ services:
       USER_APP_PORT: 51472
       TRACKING_IP: tracking_api
       TRACKING_PORT: 51372
+    networks:
+      - public
   nginx:
     image: nginx
     restart: always
