@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  tracking_api:
+  api:
     image: flyasea/fmc-tracking:latest
     environment:
       POSTGRES_USER: tracking_user
