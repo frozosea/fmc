@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  gateway:
+  api:
     image: flyasea/fmc-gateway:latest
     ports:
       - "8080:8080"
