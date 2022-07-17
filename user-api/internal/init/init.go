@@ -29,6 +29,7 @@ type (
 		DatabaseUser     string
 		DatabasePassword string
 		Database         string
+		Port             string
 	}
 	ServerSettings struct {
 		Port string
@@ -90,14 +91,15 @@ func SetupDatabaseConfig() *DataBaseSettings {
 	DbSettings.DatabasePassword = os.Getenv(`POSTGRES_PASSWORD`)
 	DbSettings.Database = os.Getenv(`POSTGRES_DATABASE`)
 	DbSettings.Host = os.Getenv("POSTGRES_HOST")
+	DbSettings.Port = os.Getenv("POSTGRES_PORT")
 	return DbSettings
 }
 
 func GetDatabase() (*sql.DB, error) {
 	dbConf := SetupDatabaseConfig()
-	db, err := sql.Open(`pgx`, fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	db, err := sql.Open(`pgx`, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbConf.Host,
-		5432,
+		dbConf.Port,
 		dbConf.DatabaseUser,
 		dbConf.DatabasePassword,
 		dbConf.Database))
