@@ -4,6 +4,6 @@ dashboard:
 deploy-user-api:
 	docker stack deploy -c services/user-api/user-api.yaml user_api
 deploy-tracking-api:
-	docker stack deploy -c services/tracking.yaml tracking_api
+	docker stack deploy -c services/tracking/tracking.yaml tracking_api
 deploy-gateway:
-	docker stack deploy -c services/gateway.yaml api_gateway
+	docker stack deploy -c services/gateway/gateway.yaml api_gateway
