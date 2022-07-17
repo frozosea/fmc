@@ -12,7 +12,6 @@ services:
       TRACKING_PORT: 51372
   nginx:
     image: nginx
-    container_name: nginx-proxy
     restart: always
     ports:
       - "80:80"
@@ -20,8 +19,6 @@ services:
       - "./nginx_templates/nginx.conf:/etc/nginx/nginx.conf"
       - "./nginx_templates/proxy.conf:/etc/nginx/proxy.conf"
       - "./:/var/www"
-    links:
-      - gateway
     depends_on:
       - gateway
 

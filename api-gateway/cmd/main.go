@@ -3,6 +3,7 @@ package main
 import (
 	init_package "fmc-with-git/internal/init"
 	"github.com/joho/godotenv"
+	"log"
 )
 
 // @title FindMyCargo API
@@ -16,8 +17,7 @@ import (
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		panic(err)
-		return
+		log.Println("no env file")
 	}
 	init_package.Run()
 }

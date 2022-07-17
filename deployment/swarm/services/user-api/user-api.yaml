@@ -1,9 +1,7 @@
 version: "3.9"
 services:
-  user_api:
-    image: flyasea/fmc-user-api:latest
-    links:
-      - db
+  app:
+    image: flyasea/fmc-user-api
     depends_on:
       - db
       - redis
@@ -40,7 +38,7 @@ services:
       POSTGRES_DB: user_api_db
     command: -p 5433
   redis:
-    image: 'bitnami/redis:latest'
+    image: bitnami/redis:latest
     restart: always
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
@@ -53,8 +51,6 @@ services:
       - ./schema/:/schema
     command:
       [ "-path", "./schema" ,"-database",  "postgres://user_api_db_user:user_api_db_password@db:5433/user_api_db?sslmode=disable", "up" ]
-    links:
-      - db
     depends_on:
       - db
 networks:

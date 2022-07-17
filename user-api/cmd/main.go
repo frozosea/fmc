@@ -32,8 +32,7 @@ func main() {
 		panic(err)
 		return
 	}
-	serverSettings := conf.GetServerSettings()
-	l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:%s`, serverSettings.Port))
+	l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:51472`))
 	if err != nil {
 		panic(err)
 		return

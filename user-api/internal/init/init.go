@@ -31,9 +31,6 @@ type (
 		Database         string
 		Port             string
 	}
-	ServerSettings struct {
-		Port string
-	}
 	JwtSettings struct {
 		AccessTokenExpiration  string
 		RefreshTokenExpiration string
@@ -112,11 +109,7 @@ func GetDatabase() (*sql.DB, error) {
 	}
 	return db, nil
 }
-func GetServerSettings() *ServerSettings {
-	config := new(ServerSettings)
-	config.Port = os.Getenv("GRPC_PORT")
-	return config
-}
+
 func GetJwtSecret() string {
 	return os.Getenv(`JWT_SECRET_KEY`)
 }
@@ -253,12 +246,12 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 	return redisCache
 }
 func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
-	cache := GetCache(redisConf)
+	redisCache := GetCache(redisConf)
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
 	repository := user.NewRepository(db)
-	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), cache)
+	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
 	return user.NewService(controller)
 }

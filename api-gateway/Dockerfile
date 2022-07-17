@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang
 MAINTAINER User="i20072004@gmail.com"
 RUN mkdir /app
 WORKDIR /app/
