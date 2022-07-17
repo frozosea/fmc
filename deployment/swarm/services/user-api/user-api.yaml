@@ -22,6 +22,8 @@ services:
       SENDER_NAME: <YOUR_SENDER_NAME>
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <UNISENDER_API_KEY>
+    networks:
+      - public
     command:
       - "/app/main"
   db:

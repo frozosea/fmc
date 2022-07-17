@@ -20,6 +20,8 @@ services:
       - redis
     ports:
       - "51372:51372"
+    networks:
+      - public
     entrypoint: [ "npm","run","entrypoint" ]
   redis:
     image: 'bitnami/redis:latest'
