@@ -36,8 +36,8 @@ type (
 
 func getAuthSettings() (*AuthSettings, error) {
 	authSettings := AuthSettings{}
-	authSettings.Ip = os.Getenv("AUTH_IP")
-	authSettings.Port = os.Getenv("AUTH_PORT")
+	authSettings.Ip = os.Getenv("USER_APP_IP")
+	authSettings.Port = os.Getenv("USER_APP_PORT")
 	return &authSettings, nil
 }
 func getTrackingSettings() (*TrackingSettings, error) {

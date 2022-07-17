@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  gateway:
+    image: flyasea/fmc-gateway:latest
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET_KEY: asdafasfasfasf
+      USER_APP_IP: user_api
+      USER_APP_PORT: 51472
+      TRACKING_IP: tracking_api
+      TRACKING_PORT: 51372
+  nginx:
+    image: nginx
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - "./nginx_templates/nginx.conf:/etc/nginx/nginx.conf"
+      - "./nginx_templates/proxy.conf:/etc/nginx/proxy.conf"
+      - "./:/var/www"
+    links:
+      - gateway
+    depends_on:
+      - gateway
+
+networks:
+  public:
+    external:
+      name: public

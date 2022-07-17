@@ -1,0 +1,63 @@
+version: "3.9"
+services:
+  user_api:
+    image: flyasea/fmc-user-api:latest
+    links:
+      - db
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "51472:51472"
+    restart:
+      on-failure
+    environment:
+      POSTGRES_USER: user_api_db_user
+      POSTGRES_PASSWORD: user_api_db_password
+      POSTGRES_DATABASE: user_api_db
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5433
+      REDIS_URL: redis:7000
+      GRPC_PORT: 51472
+      REDIS_TTL: 4h #format is like <12h> or <15m>
+      JWT_SECRET_KEY: <JWT_SECRET_KEY>
+      SENDER_NAME: <YOUR_SENDER_NAME>
+      SENDER_EMAIL: <YOUR_SENDER_EMAIL>
+      UNISENDER_API_KEY: <UNISENDER_API_KEY>
+    command:
+      - "/app/main"
+  db:
+    image: postgres:13.3
+    restart: unless-stopped
+    expose:
+      - "5433"
+    ports:
+      - "5433:5433"
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: user_api_db_user
+      POSTGRES_PASSWORD: user_api_db_password
+      POSTGRES_DB: user_api_db
+    command: -p 5433
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PORT_NUMBER=7000
+    ports:
+      - "7000:7000"
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./schema/:/schema
+    command:
+      [ "-path", "./schema" ,"-database",  "postgres://user_api_db_user:user_api_db_password@db:5433/user_api_db?sslmode=disable", "up" ]
+    links:
+      - db
+    depends_on:
+      - db
+networks:
+  public:
+    external:
+      name: public
