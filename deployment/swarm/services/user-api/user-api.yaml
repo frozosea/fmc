@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  apш:
+  api:
     image: flyasea/fmc-user-api
     depends_on:
       - db
