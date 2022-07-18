@@ -7,7 +7,7 @@ services:
     environment:
       JWT_SECRET_KEY: asdafasfasfasf
       USER_APP_IP: user_api
-      USER_APP_PORT: 51472
+      USER_APP_PORT: 9001
       TRACKING_IP: tracking_api
       TRACKING_PORT: 51372
     networks:

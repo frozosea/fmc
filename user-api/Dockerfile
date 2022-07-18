@@ -5,5 +5,5 @@ COPY schema/ /app/
 COPY  cmd/ /app/
 ADD . /app/
 RUN go build -o main
-EXPOSE 51472
+EXPOSE 9001
 CMD ["/app/main"]

@@ -6,7 +6,7 @@ services:
       - db
       - redis
     ports:
-      - "51472:51472"
+      - "9001:9001"
     environment:
       POSTGRES_USER: user_api_db_user
       POSTGRES_PASSWORD: user_api_db_password
