@@ -21,7 +21,7 @@ services:
     ports:
       - "51372:51372"
     networks:
-      - overnet
+      - public
     entrypoint: [ "npm","run","entrypoint" ]
   redis:
     image: 'bitnami/redis:latest'
@@ -44,4 +44,4 @@ services:
 networks:
   public:
     external:
-      name: overnet
+      name: public

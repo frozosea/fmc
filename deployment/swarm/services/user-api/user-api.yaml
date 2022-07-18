@@ -23,7 +23,7 @@ services:
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <UNISENDER_API_KEY>
     networks:
-      - overnet
+      - public
     command:
       - "/app/main"
   db:
@@ -58,4 +58,4 @@ services:
 networks:
   public:
     external:
-      name: overnet
+      name: public
