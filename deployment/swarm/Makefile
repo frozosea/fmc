@@ -1,4 +1,3 @@
-deploy: network dashboard deploy-user-api deploy-tracking-api deploy-gateway
 network:
 	docker network create -d overlay --attachable public
 dashboard:
@@ -9,3 +8,4 @@ deploy-tracking-api:
 	docker stack deploy -c services/tracking/tracking.yaml tracking
 deploy-gateway:
 	docker stack deploy -c services/gateway/gateway.yaml gateway
+deploy: network dashboard deploy-user-api deploy-tracking-api deploy-gateway
