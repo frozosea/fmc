@@ -39,6 +39,8 @@ services:
       POSTGRES_PASSWORD: user_api_db_password
       POSTGRES_DB: user_api_db
     command: -p 5433
+    networks:
+      - public
   redis:
     image: bitnami/redis:latest
     restart: always
@@ -47,6 +49,8 @@ services:
       - REDIS_PORT_NUMBER=7000
     ports:
       - "7000:7000"
+    networks:
+      - public
   migrate:
     image: migrate/migrate
     volumes:
@@ -55,6 +59,8 @@ services:
       [ "-path", "./schema" ,"-database",  "postgres://user_api_db_user:user_api_db_password@db:5433/user_api_db?sslmode=disable", "up" ]
     depends_on:
       - db
+    networks:
+      - public
 networks:
   public:
     external:
