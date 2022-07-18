@@ -60,4 +60,5 @@ services:
       - public
 networks:
   public:
-    name: public
+    external:
+      name: public
