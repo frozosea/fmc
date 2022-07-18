@@ -35,7 +35,6 @@ services:
       - public
   postgres:
     image: postgres:13.3
-    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
@@ -47,5 +46,4 @@ services:
       - public
 networks:
   public:
-    external:
-      name: public
+    name: public

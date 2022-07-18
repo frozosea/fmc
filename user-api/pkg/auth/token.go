@@ -65,11 +65,11 @@ func (t *TokenManager) DecodeToken(tokenStr string) (int, error) {
 		return []byte(t.SecretKey), nil
 	})
 	if parsedTokenErr != nil {
-		return 1, parsedTokenErr
+		return -1, parsedTokenErr
 	}
 	claims, ok := parsedToken.Claims.(*TokenClaims)
 	if !ok {
-		return 1, errors.New(`token claims are not valid`)
+		return -1, errors.New(`token claims are not valid`)
 	}
 	return claims.UserId, nil
 }

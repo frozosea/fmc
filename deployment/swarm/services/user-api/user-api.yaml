@@ -7,8 +7,6 @@ services:
       - redis
     ports:
       - "51472:51472"
-    restart:
-      on-failure
     environment:
       POSTGRES_USER: user_api_db_user
       POSTGRES_PASSWORD: user_api_db_password
@@ -18,7 +16,7 @@ services:
       REDIS_URL: redis:7000
       GRPC_PORT: 51472
       REDIS_TTL: 4h #format is like <12h> or <15m>
-      JWT_SECRET_KEY: <JWT_SECRET_KEY>
+      JWT_SECRET_KEY: <YOUR_JWT_SECRET_KEY>
       SENDER_NAME: <YOUR_SENDER_NAME>
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <UNISENDER_API_KEY>
@@ -43,7 +41,6 @@ services:
       - public
   redis:
     image: bitnami/redis:latest
-    restart: always
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_PORT_NUMBER=7000
@@ -63,5 +60,4 @@ services:
       - public
 networks:
   public:
-    external:
-      name: public
+    name: public

@@ -14,7 +14,6 @@ services:
       - public
   nginx:
     image: nginx
-    restart: always
     ports:
       - "80:80"
     volumes:
@@ -28,5 +27,4 @@ services:
 
 networks:
   public:
-    external:
-      name: public
+    name: public
