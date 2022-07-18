@@ -41,8 +41,3 @@ services:
       POSTGRES_USER: tracking_user
       POSTGRES_PASSWORD: tracking_password
       POSTGRES_DB: tracking_database
-
-networks:
-  public:
-    external:
-      name: public
