@@ -23,3 +23,8 @@ services:
       - "./:/var/www"
     depends_on:
       - gateway
+
+networks:
+  public:
+    external:
+      name: public

@@ -55,3 +55,7 @@ services:
       [ "-path", "./schema" ,"-database",  "postgres://user_api_db_user:user_api_db_password@db:5433/user_api_db?sslmode=disable", "up" ]
     depends_on:
       - db
+networks:
+  public:
+    external:
+      name: public
