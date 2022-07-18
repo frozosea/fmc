@@ -8,4 +8,4 @@ deploy-tracking-api:
 	docker stack deploy -c services/tracking/tracking.yaml tracking
 deploy-gateway:
 	docker stack deploy -c services/gateway/gateway.yaml gateway
-deploy: dashboard deploy-user-api deploy-tracking-api deploy-gateway
+deploy: network dashboard deploy-user-api deploy-tracking-api deploy-gateway
