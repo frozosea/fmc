@@ -69,18 +69,13 @@ func (r *Repository) Login(ctx context.Context, user domain.User) (int, error) {
 
 }
 func (r *Repository) CheckAccess(ctx context.Context, userId int) (bool, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT * FROM "user" AS u WHERE u.id = $1`, userId)
-	if err != nil {
-		return false, err
-	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-		}
-	}(rows)
-	var scanId int
-	if scanErr := rows.Scan(&scanId); scanErr != nil {
+	row := r.db.QueryRowContext(ctx, `SELECT id FROM "user" AS u WHERE u.id = $1`, userId)
+	var id sql.NullInt64
+	if scanErr := row.Scan(&id); scanErr != nil {
 		return false, scanErr
 	}
-	return true, nil
+	if id.Valid {
+		return true, nil
+	}
+	return false, &InvalidUserError{}
 }

@@ -10,6 +10,7 @@ import (
 	"fmc-with-git/pkg/tracking"
 	"fmc-with-git/pkg/user"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -17,6 +18,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
+	"time"
 )
 
 type (
@@ -50,7 +52,7 @@ func getTrackingSettings() (*TrackingSettings, error) {
 func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Client, error) {
 	var url string
 	if ip == "" {
-		url = fmt.Sprintf(`:%s`, port)
+		url = fmt.Sprintf(`localhost:%s`, port)
 	}
 	url = fmt.Sprintf(`%s:%s`, ip, port)
 	trackingConnection, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -60,17 +62,12 @@ func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Clien
 	}
 	return tracking.NewClient(trackingConnection, logger), nil
 }
+
 func getTrackingHttpHandler(client *tracking.Client, utils *utils.HttpUtils) *tracking.HttpHandler {
 	return tracking.NewHttpHandler(client, utils)
 }
 
-func initTrackingRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *middleware.Middleware, ip, port string, logger logging.ILogger) {
-	client, err := GetTrackingClient(ip, port, logger)
-	if err != nil {
-		panic(err)
-		return
-	}
-	handler := getTrackingHttpHandler(client, utils)
+func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler, middleware *middleware.Middleware) {
 	trackingGroup := router.Group(`/tracking`)
 	trackingGroup.Use(middleware.CheckAccessMiddleware)
 	{
@@ -88,12 +85,7 @@ func getScheduleTrackingClient(ip, port string, logger logging.ILogger) (*schedu
 func getScheduleTrackingHttpHandler(client *schedule_tracking.Client, utils *utils.HttpUtils) *schedule_tracking.HttpHandler {
 	return schedule_tracking.NewHttpHandler(client, utils)
 }
-func initScheduleRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *middleware.Middleware, ip, port string, logger logging.ILogger) {
-	client, err := getScheduleTrackingClient(ip, port, logger)
-	if err != nil {
-		panic(err)
-	}
-	handler := getScheduleTrackingHttpHandler(client, utils)
+func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandler, middleware *middleware.Middleware) {
 	group := router.Group(`/schedule`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
@@ -111,27 +103,24 @@ func initScheduleRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *
 func getAuthClient(ip, port string, logger logging.ILogger) (*auth.Client, error) {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
+		panic(err)
 		return &auth.Client{}, err
 	}
 	return auth.NewClient(conn, logger), nil
 }
-func getAuthHttpHandler(client *auth.Client, utils *utils.HttpUtils) *auth.HttpHandler {
-	return auth.NewHttpHandler(client, utils)
+func getAuthHttpHandler(client *auth.Client) *auth.HttpHandler {
+	return auth.NewHttpHandler(client)
 }
-func initAuthRoutes(router *gin.Engine, utils *utils.HttpUtils, ip, port string, logger logging.ILogger) {
-	client, err := getAuthClient(ip, port, logger)
-	if err != nil {
-		panic(err)
-	}
-	handler := getAuthHttpHandler(client, utils)
+func initAuthRoutes(router *gin.Engine, AuthHttpHandler *auth.HttpHandler) {
 	group := router.Group(`/auth`)
 	{
-		group.POST(`/refresh`, handler.Refresh)
-		router.POST(`/auth/register`, handler.Register)
-		router.POST(`/auth/login`, handler.Login)
+		group.POST(`/refresh`, AuthHttpHandler.Refresh)
+		router.POST(`/auth/register`, AuthHttpHandler.Register)
+		router.POST(`/auth/login`, AuthHttpHandler.Login)
 	}
 }
 func getUserClient(ip, port string, logger logging.ILogger) (*user.Client, error) {
+	fmt.Println(ip, port)
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &user.Client{}, err
@@ -142,12 +131,7 @@ func getUserClient(ip, port string, logger logging.ILogger) (*user.Client, error
 func getUserHttpHandler(client *user.Client, utils *utils.HttpUtils) *user.HttpHandler {
 	return user.NewHttpHandler(client, utils)
 }
-func initUserRoutes(router *gin.Engine, utils *utils.HttpUtils, middleware *middleware.Middleware, ip, port string, logger logging.ILogger) {
-	client, err := getUserClient(ip, port, logger)
-	if err != nil {
-		panic(err.Error())
-	}
-	handler := getUserHttpHandler(client, utils)
+func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *middleware.Middleware) {
 	group := router.Group(`/user`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
@@ -164,23 +148,68 @@ func initDocsRoutes(router *gin.Engine) {
 }
 
 func Run() {
-	router := gin.Default()
-	httpUtils := utils.NewHttpUtils(os.Getenv("JWT_SECRET_KEY"))
-	authMiddleware := middleware.NewMiddleware(httpUtils)
-	authSettings, err := getAuthSettings()
+	var AuthServerSettings, err = getAuthSettings()
 	if err != nil {
 		panic(err)
 		return
 	}
-	trackingSettings, err := getTrackingSettings()
-	if err != nil {
-		panic(err)
+	var AuthLogger = logging.NewLogger("authLogs")
+	var AuthClient, exc = getAuthClient(AuthServerSettings.Ip, AuthServerSettings.Port, AuthLogger)
+	if exc != nil {
+		panic(exc)
+		return
 	}
-	fmt.Println(trackingSettings)
-	initAuthRoutes(router, httpUtils, authSettings.Ip, authSettings.Port, logging.NewLogger("authLogs"))
-	initTrackingRoutes(router, httpUtils, authMiddleware, trackingSettings.Ip, trackingSettings.Port, logging.NewLogger("trackingLogs"))
+	var AuthHttpHandler = getAuthHttpHandler(AuthClient)
+
+	var httpUtils = utils.NewHttpUtils(AuthClient)
+
+	var TrackingServerSettings, getTrackingSettingsErr = getTrackingSettings()
+	if getTrackingSettingsErr != nil {
+		panic(getTrackingSettingsErr)
+		return
+	}
+	var TrackingClientLogger = logging.NewLogger("trackingLogs")
+	var TrackingClient, getTrackingClientErr = GetTrackingClient(TrackingServerSettings.Ip, TrackingServerSettings.Port, TrackingClientLogger)
+	if getTrackingClientErr != nil {
+		panic(getTrackingClientErr)
+		return
+	}
+	var TrackingHttpHandler = getTrackingHttpHandler(TrackingClient, httpUtils)
+
+	var UserLogger = logging.NewLogger("userLogs")
+	var UserClient, getUserClientErr = getUserClient(AuthServerSettings.Ip, AuthServerSettings.Port, UserLogger)
+	if getUserClientErr != nil {
+		panic(getUserClientErr)
+		return
+	}
+	var UserHttpHandler = getUserHttpHandler(UserClient, httpUtils)
+
+	var ScheduleTrackingLogger = logging.NewLogger("scheduleTrackingLogs")
+	var ScheduleTrackingClient, getScheduleTrackingClientErr = getScheduleTrackingClient(AuthServerSettings.Ip, AuthServerSettings.Port, ScheduleTrackingLogger)
+	if getScheduleTrackingClientErr != nil {
+		panic(getScheduleTrackingClientErr)
+		return
+	}
+	var ScheduleTrackingHttpHandler = getScheduleTrackingHttpHandler(ScheduleTrackingClient, httpUtils)
+
+	var Middleware = middleware.NewMiddleware(httpUtils, AuthClient)
+
+	router := gin.Default()
+	initAuthRoutes(router, AuthHttpHandler)
+	initTrackingRoutes(router, TrackingHttpHandler, Middleware)
 	initDocsRoutes(router)
-	initUserRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("userLogs"))
-	initScheduleRoutes(router, httpUtils, authMiddleware, authSettings.Ip, authSettings.Port, logging.NewLogger("schedule"))
+	initUserRoutes(router, UserHttpHandler, Middleware)
+	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"https://foo.com"},
+		AllowMethods:     []string{"OPTIONS", "POST", "GET", "DELETE", "PUT", "PATCH"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }

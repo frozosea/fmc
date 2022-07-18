@@ -1,23 +1,25 @@
 package utils
 
 import (
+	"context"
 	"errors"
+	"fmc-with-git/pkg/auth"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
-type userId int
+type UserId int
 type TokenClaims struct {
 	jwt.StandardClaims
 	UserId int `json:"UserId"`
 }
 type HttpUtils struct {
-	secretKey string
+	cli *auth.Client
 }
 
-func NewHttpUtils(secretKey string) *HttpUtils {
-	return &HttpUtils{secretKey: secretKey}
+func NewHttpUtils(cli *auth.Client) *HttpUtils {
+	return &HttpUtils{cli: cli}
 }
 
 func (h *HttpUtils) ValidateSchemaError(c *gin.Context, statusCode int, message string) {
@@ -29,20 +31,14 @@ func (h *HttpUtils) Validate(c *gin.Context, schema interface{}) error {
 	}
 	return nil
 }
-func (h *HttpUtils) GetUserIdByJwtToken(accessToken string) (userId, error) {
-	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(h.secretKey), nil
-	})
+func (h *HttpUtils) GetUserIdByJwtToken(accessToken string) (UserId, error) {
+	user, err := h.cli.GetUserIdByJwtToken(context.Background(), accessToken)
 	if err != nil {
-		return 0, err
+		return UserId(user), err
 	}
-	claims, ok := token.Claims.(*TokenClaims)
-	if !ok {
-		return 0, errors.New(`token claims are not valid`)
-	}
-	return userId(claims.UserId), nil
+	return UserId(user), nil
 }
-func (h *HttpUtils) DecodeToken(c *gin.Context) (userId, error) {
+func (h *HttpUtils) DecodeToken(c *gin.Context) (UserId, error) {
 	authHeader := c.GetHeader(`Authorization`)
 	if authHeader == "" {
 		return -1, errors.New("cannot decode token")

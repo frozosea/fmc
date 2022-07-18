@@ -13,7 +13,7 @@ services:
       POSTGRES_DATABASE: tracking_database
       REDIS_URL: redis://redis:6379
       CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS: 14400
-      GRPC_PORT: 9080
+      GRPC_PORT: 51372
       CAPTCHA_SOLVER_SERVICE_KEY: <2_CAPTCHA_SOLVER_SERVICE_KEY>
     depends_on:
       - postgres

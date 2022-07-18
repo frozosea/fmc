@@ -49,8 +49,20 @@ func (c *Controller) RefreshToken(refreshToken string) (*Token, error) {
 }
 func (c *Controller) CheckAccess(ctx context.Context, tokenString string) (bool, error) {
 	userId, decodeTokenErr := c.tokenManager.DecodeToken(tokenString)
-	if decodeTokenErr != nil {
+	if decodeTokenErr != nil || userId < 0 {
 		return false, decodeTokenErr
 	}
 	return c.repository.CheckAccess(ctx, userId)
+}
+func (c *Controller) GetUserIdByJwtToken(ctx context.Context, tokenString string) (int, error) {
+	res, err := c.tokenManager.DecodeToken(tokenString)
+	if err != nil {
+		return -1, err
+	}
+	select {
+	case <-ctx.Done():
+		return -1, ctx.Err()
+	default:
+	}
+	return res, nil
 }

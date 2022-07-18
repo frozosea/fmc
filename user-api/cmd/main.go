@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 		return
 	}
-	l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:51472`))
+	l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:9001`))
 	if err != nil {
 		panic(err)
 		return

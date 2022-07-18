@@ -218,7 +218,6 @@ definitions:
           type: integer
         type: array
     type: object
-host: 0.0.0.0:8080
 info:
   contact: {}
   description: API server for application
