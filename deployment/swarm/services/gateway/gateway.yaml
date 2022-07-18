@@ -11,7 +11,7 @@ services:
       TRACKING_IP: tracking_api
       TRACKING_PORT: 51372
     networks:
-      - public
+      - overnet
   nginx:
     image: nginx
     restart: always
@@ -27,4 +27,4 @@ services:
 networks:
   public:
     external:
-      name: public
+      name: overnet
