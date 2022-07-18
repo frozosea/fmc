@@ -1,10 +1,9 @@
 FROM golang:latest
-MAINTAINER User="i20072004@gmail.com"
 RUN mkdir /app
 WORKDIR /app/
 COPY schema/ /app/
 COPY  cmd/ /app/
 ADD . /app/
 RUN go build -o main
-EXPOSE ${GRPC_PORT}
+EXPOSE 51472
 CMD ["/app/main"]

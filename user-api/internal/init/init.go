@@ -29,9 +29,7 @@ type (
 		DatabaseUser     string
 		DatabasePassword string
 		Database         string
-	}
-	ServerSettings struct {
-		Port string
+		Port             string
 	}
 	JwtSettings struct {
 		AccessTokenExpiration  string
@@ -90,14 +88,15 @@ func SetupDatabaseConfig() *DataBaseSettings {
 	DbSettings.DatabasePassword = os.Getenv(`POSTGRES_PASSWORD`)
 	DbSettings.Database = os.Getenv(`POSTGRES_DATABASE`)
 	DbSettings.Host = os.Getenv("POSTGRES_HOST")
+	DbSettings.Port = os.Getenv("POSTGRES_PORT")
 	return DbSettings
 }
 
 func GetDatabase() (*sql.DB, error) {
 	dbConf := SetupDatabaseConfig()
-	db, err := sql.Open(`pgx`, fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	db, err := sql.Open(`pgx`, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbConf.Host,
-		5432,
+		dbConf.Port,
 		dbConf.DatabaseUser,
 		dbConf.DatabasePassword,
 		dbConf.Database))
@@ -110,11 +109,7 @@ func GetDatabase() (*sql.DB, error) {
 	}
 	return db, nil
 }
-func GetServerSettings() *ServerSettings {
-	config := new(ServerSettings)
-	config.Port = os.Getenv("GRPC_PORT")
-	return config
-}
+
 func GetJwtSecret() string {
 	return os.Getenv(`JWT_SECRET_KEY`)
 }
@@ -251,12 +246,12 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 	return redisCache
 }
 func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
-	cache := GetCache(redisConf)
+	redisCache := GetCache(redisConf)
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
 	repository := user.NewRepository(db)
-	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), cache)
+	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
 	return user.NewService(controller)
 }

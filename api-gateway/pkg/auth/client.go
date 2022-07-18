@@ -48,6 +48,12 @@ func (i *InvalidUserError) Error() string {
 	return "Cannot find user with these parameters"
 }
 
+type UnauthenticatedError struct{}
+
+func (u *UnauthenticatedError) Error() string {
+	return "Unauthenticated, cannot validate or decode token"
+}
+
 type Client struct {
 	cli       pb.AuthClient
 	converter converter
@@ -59,7 +65,6 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 }
 
 func (c *Client) Register(ctx context.Context, user User) error {
-	fmt.Println(user)
 	_, err := c.cli.RegisterUser(ctx, c.converter.convertUser(user))
 	if err != nil {
 		statusCode := status.Convert(err).Code()
@@ -68,9 +73,7 @@ func (c *Client) Register(ctx context.Context, user User) error {
 			return &AlreadyRegisterError{}
 		default:
 			return err
-
 		}
-		//go c.logger.ExceptionLog(fmt.Sprintf(`register user with username %s failed: %s`, user.Username, err.Error()))
 	}
 	return nil
 }
@@ -109,4 +112,14 @@ func (c *Client) CheckAccess(ctx context.Context, token string) (bool, error) {
 		return false, nil
 	}
 	return success.GetSuccess(), nil
+}
+func (c *Client) GetUserIdByJwtToken(ctx context.Context, token string) (int64, error) {
+	response, err := c.cli.GetUserIdByJwtToken(ctx, &pb.GetUserIdByJwtTokenRequest{Token: token})
+	statusCode := status.Convert(err).Code()
+	switch statusCode {
+	case codes.Unauthenticated:
+		return -1, &UnauthenticatedError{}
+	default:
+		return response.GetUserId(), err
+	}
 }

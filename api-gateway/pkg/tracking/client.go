@@ -59,7 +59,6 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 }
 
 func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip string) (ContainerNumberResponse, error) {
-	//start := time.Now()
 	country := c.getCountry(ip)
 	var request Request
 	if country == "RU" {
@@ -75,9 +74,9 @@ func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip str
 			Country: Country(Country_value["OTHER"]),
 		}
 	}
-	//fmt.Println(time.Since(start))
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
+		fmt.Println(err.Error())
 		c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
 		return c.convertGrpcContainerNoResponse(response), err
 	}

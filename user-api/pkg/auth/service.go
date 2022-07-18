@@ -96,3 +96,10 @@ func (s *Service) Auth(ctx context.Context, r *pb.AuthRequest) (*pb.AuthResponse
 	return &pb.AuthResponse{Success: true}, nil
 
 }
+func (s *Service) GetUserIdByJwtToken(ctx context.Context, r *pb.GetUserIdByJwtTokenRequest) (*pb.GetUserIdByJwtTokenResponse, error) {
+	userId, err := s.controller.GetUserIdByJwtToken(ctx, r.GetToken())
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
+	}
+	return &pb.GetUserIdByJwtTokenResponse{UserId: int64(userId)}, nil
+}

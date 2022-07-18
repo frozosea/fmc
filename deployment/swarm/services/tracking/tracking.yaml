@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  api:
+    image: flyasea/fmc-tracking:latest
+    environment:
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: tracking_password
+      POSTGRES_DB: tracking_database
+      REQUEST_TIMEOUT_MS: 1000
+      WAIT_SELECTOR_TIMEOUT: 6000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: tracking_database
+      REDIS_URL: redis://redis:6379
+      CONTAINER_TRACKING_RESULT_REDIS_TTL_SECONDS: 14400
+      GRPC_PORT: 51372
+      CAPTCHA_SOLVER_SERVICE_KEY: <2_CAPTCHA_SOLVER_SERVICE_KEY>
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "51372:51372"
+    networks:
+      - public
+    entrypoint: [ "npm","run","entrypoint" ]
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PORT_NUMBER=6379
+    ports:
+      - "6379:6379"
+  postgres:
+    image: postgres:13.3
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: tracking_password
+      POSTGRES_DB: tracking_database
+
+networks:
+  public:
+    external:
+      name: public

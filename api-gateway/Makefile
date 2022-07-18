@@ -1,5 +1,4 @@
 swag:
-	swag init -g cmd/server/main.go
-
+	swag init -g cmd/main.go
 run:
-	go run cmd/server/main.go
+	go run cmd/main.go

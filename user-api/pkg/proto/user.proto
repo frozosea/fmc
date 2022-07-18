@@ -112,6 +112,8 @@ service Auth{
   rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {};
   //Yes
   rpc Auth(AuthRequest) returns (AuthResponse) {};
+
+  rpc GetUserIdByJwtToken(GetUserIdByJwtTokenRequest) returns (GetUserIdByJwtTokenResponse) {};
 }
 message RegisterUserRequest{
   string username = 1;
@@ -136,4 +138,11 @@ message AuthRequest{
 }
 message AuthResponse{
   bool success = 1;
+}
+message GetUserIdByJwtTokenRequest{
+  string token = 1;
+}
+message GetUserIdByJwtTokenResponse{
+  bool success = 1;
+  int64 user_id = 2;
 }

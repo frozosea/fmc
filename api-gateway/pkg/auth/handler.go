@@ -1,18 +1,16 @@
 package auth
 
 import (
-	"fmc-with-git/internal/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type HttpHandler struct {
 	client *Client
-	utils  *utils.HttpUtils
 }
 
-func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
-	return &HttpHandler{client: client, utils: utils}
+func NewHttpHandler(client *Client) *HttpHandler {
+	return &HttpHandler{client: client}
 }
 
 // Register
@@ -26,8 +24,8 @@ func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
 // @Router /auth/register [post]
 func (h *HttpHandler) Register(c *gin.Context) {
 	var s User
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
 	if err := h.client.Register(c.Request.Context(), s); err != nil {
@@ -65,8 +63,8 @@ func (h *HttpHandler) Register(c *gin.Context) {
 // @Router /auth/login [post]
 func (h *HttpHandler) Login(c *gin.Context) {
 	var s User
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
 	token, err := h.client.Login(c.Request.Context(), s)
@@ -96,8 +94,8 @@ func (h *HttpHandler) Login(c *gin.Context) {
 // @Router /auth/refresh [post]
 func (h *HttpHandler) Refresh(c *gin.Context) {
 	var s RefreshTokenRequest
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"success": false, "message": err.Error()})
 		return
 	}
 	token, err := h.client.RefreshToken(c.Request.Context(), s.RefreshToken)

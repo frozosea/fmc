@@ -2,17 +2,19 @@ package middleware
 
 import (
 	"fmc-with-git/internal/utils"
+	"fmc-with-git/pkg/auth"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 type Middleware struct {
+	cli *auth.Client
 	*utils.HttpUtils
 }
 
-func NewMiddleware(httpUtils *utils.HttpUtils) *Middleware {
-	return &Middleware{HttpUtils: httpUtils}
+func NewMiddleware(httpUtils *utils.HttpUtils, cli *auth.Client) *Middleware {
+	return &Middleware{HttpUtils: httpUtils, cli: cli}
 }
 
 func (m *Middleware) CheckAccessMiddleware(c *gin.Context) {
@@ -26,10 +28,10 @@ func (m *Middleware) CheckAccessMiddleware(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	userId, exc := m.GetUserIdByJwtToken(authParts[1])
-	fmt.Println(userId)
-	if exc != nil {
-		fmt.Println(exc.Error())
+	hasAccess, err := m.cli.CheckAccess(c.Request.Context(), authParts[1])
+	if err != nil || !hasAccess {
+		fmt.Println(err)
 		c.AbortWithStatus(401)
+		return
 	}
 }
