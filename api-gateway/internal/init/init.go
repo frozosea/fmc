@@ -203,7 +203,6 @@ func Run() {
 		panic(getSettingsErr)
 		return
 	}
-	fmt.Println(scheduleTrackingSettings)
 	var ScheduleTrackingLogger = logging.NewLogger("scheduleTrackingLogs")
 	var ScheduleTrackingClient, getScheduleTrackingClientErr = getScheduleTrackingClient(scheduleTrackingSettings.Ip, scheduleTrackingSettings.Port, ScheduleTrackingLogger)
 	if getScheduleTrackingClientErr != nil {
