@@ -55,13 +55,13 @@ func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeR
 		fmt.Println(statusOfRequest.Code())
 		switch statusOfRequest.Code() {
 		case codes.NotFound:
-			return numbers, errors.New("cannot lookup job")
+			return numbers, errors.New("cannot lookup job with this id")
 		}
-		//go func() {
-		//	for _, v := range req.Numbers {
-		//		c.logger.ExceptionLog(fmt.Sprintf(`update tracking time on track with number: %s err: %s`, v, err.Error()))
-		//	}
-		//}()
+		go func() {
+			for _, v := range req.Numbers {
+				c.logger.ExceptionLog(fmt.Sprintf(`update tracking time on track with number: %s err: %s`, v, err.Error()))
+			}
+		}()
 		return numbers, err
 	}
 	return c.converter.baseAddOnTrackResponseConver(result.GetResponse()), nil

@@ -31,14 +31,14 @@ func (c *Controller) addOneContainer(ctx context.Context, number, country, time 
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
-		return nil, err
+		return job, err
 	}
 	if addCntrErr := c.cli.MarkContainerOnTrack(ctx, userId, number); addCntrErr != nil {
 		c.logger.ExceptionLog(fmt.Sprintf(`mark on track container with number %s failed: %s`, number, addCntrErr.Error()))
-		return nil, addCntrErr
+		return job, addCntrErr
 	}
 	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
-	return nil, nil
+	return job, nil
 }
 func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string

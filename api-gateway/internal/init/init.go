@@ -203,6 +203,7 @@ func Run() {
 		panic(getSettingsErr)
 		return
 	}
+	fmt.Println(scheduleTrackingSettings)
 	var ScheduleTrackingLogger = logging.NewLogger("scheduleTrackingLogs")
 	var ScheduleTrackingClient, getScheduleTrackingClientErr = getScheduleTrackingClient(scheduleTrackingSettings.Ip, scheduleTrackingSettings.Port, ScheduleTrackingLogger)
 	if getScheduleTrackingClientErr != nil {
@@ -220,7 +221,6 @@ func Run() {
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://foo.com"},
 		AllowMethods:     []string{"OPTIONS", "POST", "GET", "DELETE", "PUT", "PATCH"},
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
