@@ -1,6 +1,10 @@
 ## User api microservice
-### How to run?
-#### Set env variables
+
+### How to run:
+
+    make run 
+
+### Env variables
 
 - POSTGRES_USER
 - POSTGRES_PASSWORD
@@ -15,4 +19,5 @@
 - SENDER_EMAIL
 - UNISENDER_API_KEY
 
-#### Go to `conf/cfg.ini` and change parameters if you want
+
+Microservice methods are in `pkg/proto`.

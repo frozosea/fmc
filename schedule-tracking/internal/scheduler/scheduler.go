@@ -3,7 +3,6 @@ package scheduler
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -110,10 +109,7 @@ func (m *Manager) Modify(ctx context.Context, taskId string, task ITask, args ..
 	return nil
 }
 
-func NewDefaultScheduler() *Manager {
+func NewDefault() *Manager {
 	return &Manager{executor: NewExecutor(), jobstore: NewMemoryJobStore(), baseLogger: *log.New(os.Stdout, "log", 1), timeParser: NewTimeParser()}
 
-}
-func NewDefaultSchedulerWithCustomLogger(out io.Writer) *Manager {
-	return &Manager{executor: NewExecutor(), jobstore: NewMemoryJobStore(), baseLogger: *log.New(out, "log", 1), timeParser: NewTimeParser()}
 }

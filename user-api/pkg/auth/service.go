@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -53,7 +54,7 @@ func (s *Service) RegisterUser(ctx context.Context, r *pb.RegisterUserRequest) (
 			return &emptypb.Empty{}, err
 		}
 	}
-	//go s.logger.InfoLog(fmt.Sprintf(`user-pb with username "%s" was registered`, r.GetUsername()))
+	go s.logger.InfoLog(fmt.Sprintf(`user-pb with username "%s" was registered`, r.GetUsername()))
 	return &emptypb.Empty{}, nil
 }
 

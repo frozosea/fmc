@@ -42,67 +42,6 @@ message GetInfoAboutUserResponse{
   string username = 1;
   GetAllContainersResponse all_containers = 2;
 }
-service ScheduleTracking{
-  //yes
-  rpc AddContainersOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
-  //yes
-  rpc AddBillNosOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
-  //yes
-  rpc UpdateTrackingTime(UpdateTrackingTimeRequest) returns (RepeatedBaseAddOnTrackResponse) {};
-  //yes
-  rpc AddEmailsOnTracking(AddEmailRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteEmailFromTrack(DeleteEmailFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteContainersFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteBillNosFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc GetInfoAboutTrack(GetInfoAboutTrackRequest) returns (GetInfoAboutTrackResponse) {};
-}
-message UpdateTrackingTimeRequest{
-  repeated string numbers = 1;
-  string time = 2;
-}
-message AddOnTrackRequest{
-  int64 user_id = 1;
-  repeated string number = 2;
-  repeated string emails = 3;
-  string time = 4;
-
-}
-message BaseAddOnTrackResponse{
-  bool success = 1;
-  string number = 2;
-  int64 next_run_time = 3;
-}
-message RepeatedBaseAddOnTrackResponse{
-  repeated BaseAddOnTrackResponse response = 1;
-}
-message AddOnTrackResponse{
-  repeated BaseAddOnTrackResponse base_response = 1;
-  repeated string already_on_track = 3;
-}
-message AddEmailRequest{
-  repeated string numbers = 1;
-  repeated string emails = 2;
-}
-message DeleteEmailFromTrackRequest{
-  string number = 1;
-  string email = 2;
-}
-message GetInfoAboutTrackRequest{
-  string number = 1;
-}
-message GetInfoAboutTrackResponse{
-  string number = 2;
-  repeated string emails = 3;
-  int64 next_run_time = 4;
-}
-message DeleteFromTrackRequest{
-  int64 user_id = 1;
-  repeated string number = 2;
-}
 service Auth{
   //Yes
   rpc RegisterUser(RegisterUserRequest) returns (google.protobuf.Empty) {};
@@ -145,4 +84,17 @@ message GetUserIdByJwtTokenRequest{
 message GetUserIdByJwtTokenResponse{
   bool success = 1;
   int64 user_id = 2;
+}
+service ScheduleTracking{
+  //No
+  rpc MarkBillNoOnTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc MarkContainerOnTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc MarkContainerWasArrived(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc MarkBillNoWasArrived(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc MarkBillNoWasRemovedFromTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc MarkContainerWasRemovedFromTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+}
+message AddMarkOnTrackingRequest{
+  int64 user_id = 1;
+  string number = 2;
 }

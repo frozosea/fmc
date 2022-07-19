@@ -1,9 +1,8 @@
 FROM golang:latest
 RUN mkdir /app
 WORKDIR /app/
-COPY schema/ /app/
 COPY  cmd/ /app/
 ADD . /app/
 RUN go build -o main
-EXPOSE 8005
+EXPOSE 9005
 CMD ["/app/main"]

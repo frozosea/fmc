@@ -1,12 +1,11 @@
-package schedule_tracking
+package domain
 
 import (
 	"context"
 	"fmt"
-	"user-api/internal/cache"
-	"user-api/internal/logging"
-	"user-api/internal/scheduler"
-	"user-api/internal/util"
+	"schedule-tracking/internal/logging"
+	"schedule-tracking/internal/scheduler"
+	"schedule-tracking/internal/util"
 )
 
 type CannotFindEmailError struct{}
@@ -17,11 +16,14 @@ func (c *CannotFindEmailError) Error() string {
 
 type Controller struct {
 	logger            logging.ILogger
-	repository        IRepository
+	cli               *Client
 	taskManager       *scheduler.Manager
-	cache             cache.ICache
 	saveResultDirPath string
-	*customTasks
+	*CustomTasks
+}
+
+func NewController(logger logging.ILogger, cli *Client, taskManager *scheduler.Manager, saveResultDirPath string, customTasks *CustomTasks) *Controller {
+	return &Controller{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, CustomTasks: customTasks}
 }
 
 func (c *Controller) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
@@ -29,14 +31,14 @@ func (c *Controller) addOneContainer(ctx context.Context, number, country, time 
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
-		return job, err
+		return nil, err
 	}
-	if addMarkErr := c.repository.AddMarkContainerOnTrack(ctx, number, int(userId)); addMarkErr != nil {
-		go c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
-		return job, addMarkErr
+	if addCntrErr := c.cli.MarkContainerOnTrack(ctx, userId, number); addCntrErr != nil {
+		c.logger.ExceptionLog(fmt.Sprintf(`mark on track container with number %s failed: %s`, number, addCntrErr.Error()))
+		return nil, addCntrErr
 	}
 	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
-	return job, nil
+	return nil, nil
 }
 func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
@@ -62,15 +64,15 @@ func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, tim
 	task := c.GetTrackByBillNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
-		//go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
-		return job, err
+		go c.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		return nil, err
 	}
-	if err := c.repository.AddMarkBillNoOnTrack(ctx, number, int(userId)); err != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`add mark container is on track failed: %s`, err.Error()))
-		return job, err
+	if addCntrErr := c.cli.MarkBillNoOnTrack(ctx, userId, number); addCntrErr != nil {
+		c.logger.ExceptionLog(fmt.Sprintf(`mark bill on track with number %s failed: %s`, number, addCntrErr.Error()))
+		return nil, addCntrErr
 	}
 	go c.logger.InfoLog(fmt.Sprintf(`add job success: %s, nextRunTime: %s`, job.Id, job.NextRunTime.String()))
-	return job, nil
+	return nil, nil
 }
 func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
@@ -135,24 +137,18 @@ func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFr
 	job.Args = util.PopForInterfaces(job.Args, indexOfEmail)
 	return c.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...)
 }
-func (c *Controller) DeleteFromTracking(ctx context.Context, userId int, isContainer bool, number ...string) error {
+func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, number ...string) error {
 	for _, v := range number {
 		if err := c.taskManager.Remove(ctx, v); err != nil {
 			return err
 		}
 		if isContainer {
-			if err := c.repository.AddMarkContainerWasRemovedFromTrack(ctx, v, userId); err != nil {
-				return err
-			}
-			if deleteFromCacheErr := c.cache.Del(ctx, fmt.Sprintf(`%d`, userId)); deleteFromCacheErr != nil {
-				return deleteFromCacheErr
+			if markErr := c.cli.MarkContainerWasRemovedFromTrack(ctx, userId, v); markErr != nil {
+				return markErr
 			}
 		} else {
-			if err := c.repository.AddMarkBillNoWasRemovedFromTrack(ctx, v, userId); err != nil {
-				return err
-			}
-			if deleteFromCacheErr := c.cache.Del(ctx, fmt.Sprintf(`%d`, userId)); deleteFromCacheErr != nil {
-				return deleteFromCacheErr
+			if markErr := c.cli.MarkBillNoOnTrack(ctx, userId, v); markErr != nil {
+				return markErr
 			}
 		}
 	}
@@ -168,7 +164,4 @@ func (c *Controller) GetInfoAboutTracking(ctx context.Context, number string) (*
 		emails:      job.Args,
 		nextRunTime: job.NextRunTime,
 	}, nil
-}
-func NewController(logger logging.ILogger, repository IRepository, taskManager *scheduler.Manager, taskGetter *customTasks, cache cache.ICache) *Controller {
-	return &Controller{logger: logger, repository: repository, taskManager: taskManager, customTasks: taskGetter, cache: cache}
 }

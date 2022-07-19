@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"schedule-tracking/internal/logging"
 	"time"
-	"user-api/internal/logging"
 )
 
 type Client struct {
