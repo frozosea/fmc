@@ -2,8 +2,8 @@ package auth
 
 import (
 	"context"
-	"fmc-with-git/internal/logging"
-	pb "fmc-with-git/internal/user-pb"
+	"fmc-gateway/internal/logging"
+	pb "fmc-gateway/internal/user-pb"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

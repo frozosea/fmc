@@ -2,7 +2,7 @@ package tracking
 
 import (
 	"context"
-	"fmc-with-git/internal/logging"
+	"fmc-gateway/internal/logging"
 	"fmt"
 	"google.golang.org/grpc"
 )

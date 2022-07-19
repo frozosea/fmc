@@ -3,8 +3,8 @@ package schedule_tracking
 import (
 	"context"
 	"errors"
-	"fmc-with-git/internal/logging"
-	pb "fmc-with-git/internal/schedule-tracking-pb"
+	"fmc-gateway/internal/logging"
+	pb "fmc-gateway/internal/schedule-tracking-pb"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

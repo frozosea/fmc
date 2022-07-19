@@ -24,9 +24,10 @@ avoid direct dependence on the GRPC.
 
 #### Tracking
 
-A tracking is "core" of this project. It tracks containers or bill numbers, user TypeScript, Redis and Postgres. It uses
-SCAC codes and numbers for get result of tracking. Scac code is world code of shipping line. Support of lines and other
-information you can check in [link](https://github.com/frozosea/fmc/tree/master/container-tracking/README.md).
+A tracking is "core" of this project. It tracks containers or bill numbers, written on TypeScript,uses Redis and
+Postgres. It uses SCAC codes and numbers for get result of tracking. Scac code is world code of shipping line. Support
+of lines and other information you can check
+in [link](https://github.com/frozosea/fmc/tree/master/container-tracking/README.md).
 
 Tracking steps looks like this:
 
@@ -53,6 +54,7 @@ User api has auth part and other "User" part. Account possibility:
 - Add container/bill number to your account
 - Delete container/bill number from your account
 
-## Deployment 
+## Deployment
 
-You can use docker swarm for deploy, k8s not ready yet, for get instruction go to the [link](https://github.com/frozosea/fmc/tree/master/deployment/swarm/Readme.md)
+You can use docker swarm for deploy, k8s not ready yet, for get instruction go to
+the [link](https://github.com/frozosea/fmc/tree/master/deployment/swarm/Readme.md)
