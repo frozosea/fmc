@@ -1,7 +1,7 @@
 package tracking
 
 import (
-	"fmc-with-git/internal/utils"
+	"fmc-gateway/internal/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"

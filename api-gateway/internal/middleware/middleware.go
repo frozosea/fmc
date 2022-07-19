@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"fmc-with-git/internal/utils"
-	"fmc-with-git/pkg/auth"
+	"fmc-gateway/internal/utils"
+	"fmc-gateway/pkg/auth"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"

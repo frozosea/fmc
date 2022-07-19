@@ -3,7 +3,7 @@ package utils
 import (
 	"context"
 	"errors"
-	"fmc-with-git/pkg/auth"
+	"fmc-gateway/pkg/auth"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"strings"

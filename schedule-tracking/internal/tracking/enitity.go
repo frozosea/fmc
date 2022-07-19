@@ -3,9 +3,9 @@ package tracking
 import "time"
 
 type Track struct {
-	Number  string `protobuf:"number" json:"number" form:"number" validate:"min=1,max=25,regexp=[a-zA-Z]{4,}\d{3,}`
-	Scac    string `protobuf:"scac" json:"scac" form:"scac" validate:"min=1,max=4,regexp=[a-zA-z]{4}`
-	Country string `protobuf:"country" json:"country" form:"country" validate:"min=1,max=16,regexp=[a-zA-z]{2}`
+	Number  string `protobuf:"number" json:"number" form:"number"`
+	Scac    string `protobuf:"scac" json:"scac" form:"scac"`
+	Country string `protobuf:"country" json:"country" form:"country" `
 }
 type BaseInfoAboutMoving struct {
 	Time          time.Time `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`

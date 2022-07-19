@@ -1,8 +1,8 @@
 package user
 
 import (
-	"fmc-with-git/internal/utils"
-	schedule_tracking "fmc-with-git/pkg/schedule-tracking"
+	"fmc-gateway/internal/utils"
+	schedule_tracking "fmc-gateway/pkg/schedule-tracking"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

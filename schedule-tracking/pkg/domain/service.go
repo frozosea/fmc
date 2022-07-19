@@ -48,7 +48,7 @@ func (c *converter) convertAddEmails(r *pb.AddEmailRequest) AddEmailRequest {
 		emails:  r.GetEmails(),
 	}
 }
-func (c *converter) converDeleteEmails(r *pb.DeleteEmailFromTrackRequest) DeleteEmailFromTrack {
+func (c *converter) convertDeleteEmails(r *pb.DeleteEmailFromTrackRequest) DeleteEmailFromTrack {
 	return DeleteEmailFromTrack{
 		number: r.GetNumber(),
 		email:  r.GetEmail(),
@@ -150,7 +150,7 @@ func (s *Service) AddEmailsOnTracking(ctx context.Context, r *pb.AddEmailRequest
 	return &emptypb.Empty{}, nil
 }
 func (s *Service) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFromTrackRequest) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteEmailFromTrack(ctx, s.converter.converDeleteEmails(r)); err != nil {
+	if err := s.controller.DeleteEmailFromTrack(ctx, s.converter.convertDeleteEmails(r)); err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")

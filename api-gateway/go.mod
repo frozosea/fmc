@@ -1,4 +1,4 @@
-module fmc-with-git
+module fmc-gateway
 
 go 1.18
 

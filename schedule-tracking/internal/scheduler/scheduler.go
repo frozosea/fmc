@@ -35,13 +35,12 @@ func (m *Manager) Start() {
 func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr string, taskArgs ...interface{}) (*Job, error) {
 	taskTime, err := m.timeParser.ParseHourMinuteString(timeStr)
 	if err != nil {
-		var job *Job
-		return job, err
+		return &Job{}, err
 	}
 	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, taskArgs)
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
-		return job, err
+		return &Job{}, err
 	}
 	go func() {
 		shouldBeCancel := m.executor.Run(job)
