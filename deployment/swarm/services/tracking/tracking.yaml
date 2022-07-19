@@ -31,9 +31,10 @@ services:
       - REDIS_PORT_NUMBER=6379
     ports:
       - "6379:6379"
+    networks:
+      - public
   postgres:
     image: postgres:13.3
-    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
@@ -41,8 +42,9 @@ services:
       POSTGRES_USER: tracking_user
       POSTGRES_PASSWORD: tracking_password
       POSTGRES_DB: tracking_database
-
+    networks:
+      - public
 networks:
   public:
-    external:
-      name: public
+    name: public
+    external: true

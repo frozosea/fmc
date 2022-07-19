@@ -6,9 +6,7 @@ services:
       - db
       - redis
     ports:
-      - "51472:51472"
-    restart:
-      on-failure
+      - "9001:9001"
     environment:
       POSTGRES_USER: user_api_db_user
       POSTGRES_PASSWORD: user_api_db_password
@@ -18,7 +16,7 @@ services:
       REDIS_URL: redis:7000
       GRPC_PORT: 51472
       REDIS_TTL: 4h #format is like <12h> or <15m>
-      JWT_SECRET_KEY: <JWT_SECRET_KEY>
+      JWT_SECRET_KEY: <YOUR_JWT_SECRET_KEY>
       SENDER_NAME: <YOUR_SENDER_NAME>
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <UNISENDER_API_KEY>
@@ -39,14 +37,17 @@ services:
       POSTGRES_PASSWORD: user_api_db_password
       POSTGRES_DB: user_api_db
     command: -p 5433
+    networks:
+      - public
   redis:
     image: bitnami/redis:latest
-    restart: always
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_PORT_NUMBER=7000
     ports:
       - "7000:7000"
+    networks:
+      - public
   migrate:
     image: migrate/migrate
     volumes:
@@ -55,7 +56,9 @@ services:
       [ "-path", "./schema" ,"-database",  "postgres://user_api_db_user:user_api_db_password@db:5433/user_api_db?sslmode=disable", "up" ]
     depends_on:
       - db
+    networks:
+      - public
 networks:
   public:
-    external:
-      name: public
+    name: public
+    external: true
