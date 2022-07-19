@@ -48,6 +48,8 @@ func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackBy
 		switch err.(type) {
 		case *scheduler.AddJobError:
 			alreadyOnTrack = append(alreadyOnTrack, v)
+		default:
+			continue
 		}
 		result = append(result, &BaseAddOnTrackResponse{
 			success:     true,
