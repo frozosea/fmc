@@ -2,7 +2,6 @@ package tracking
 
 import (
 	"fmc-gateway/internal/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -79,7 +78,6 @@ func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 		return
 	}
 	response, err := h.client.TrackByBillNumber(c.Request.Context(), schema, c.Request.Header.Get("X-REAL-IP"))
-	fmt.Println(err)
 	if err != nil {
 		c.JSON(204, gin.H{})
 		return

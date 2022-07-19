@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -30,7 +29,6 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 				return true
 			}
 		case <-ctx.Done():
-			fmt.Println("ctx done")
 			e.wg.Done()
 			ticker.Stop()
 			return true

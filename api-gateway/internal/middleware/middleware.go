@@ -3,7 +3,6 @@ package middleware
 import (
 	"fmc-gateway/internal/utils"
 	"fmc-gateway/pkg/auth"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -30,7 +29,6 @@ func (m *Middleware) CheckAccessMiddleware(c *gin.Context) {
 	}
 	hasAccess, err := m.cli.CheckAccess(c.Request.Context(), authParts[1])
 	if err != nil || !hasAccess {
-		fmt.Println(err)
 		c.AbortWithStatus(401)
 		return
 	}

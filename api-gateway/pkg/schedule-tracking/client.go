@@ -52,7 +52,6 @@ func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeR
 	if err != nil {
 		var numbers []BaseAddOnTrackResponse
 		statusOfRequest := status.Convert(err)
-		fmt.Println(statusOfRequest.Code())
 		switch statusOfRequest.Code() {
 		case codes.NotFound:
 			return numbers, errors.New("cannot lookup job with this id")

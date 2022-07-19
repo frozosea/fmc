@@ -134,7 +134,6 @@ func initAuthRoutes(router *gin.Engine, AuthHttpHandler *auth.HttpHandler) {
 	}
 }
 func getUserClient(ip, port string, logger logging.ILogger) (*user.Client, error) {
-	fmt.Println(ip, port)
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return &user.Client{}, err

@@ -49,7 +49,6 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 		Country: Country(Country_value["RU"]),
 	}
 	//}
-	fmt.Println(Scac(Scac_value[track.Scac]))
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
 		//c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
@@ -76,7 +75,6 @@ func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip str
 	}
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
-		fmt.Println(err.Error())
 		c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
 		return c.convertGrpcContainerNoResponse(response), err
 	}
