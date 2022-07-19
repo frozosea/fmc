@@ -3,9 +3,9 @@ package excel_writer
 import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	file_reader "schedule-tracking/internal/file-reader"
+	"schedule-tracking/internal/tracking"
 	"time"
-	file_reader "user-api/internal/file-reader"
-	"user-api/internal/tracking"
 )
 
 type IWriter interface {
@@ -71,7 +71,7 @@ type Writer struct {
 }
 
 func NewWriter(dirName string) *Writer {
-	return &Writer{dirName: dirName, baseWriter: newBaseWriter(), reader: file_reader.NewFileReader()}
+	return &Writer{dirName: dirName, baseWriter: newBaseWriter(), reader: file_reader.New()}
 }
 
 func (w *Writer) WriteContainerNo(result tracking.ContainerNumberResponse, timeFormatter func(time.Time) string) (string, error) {

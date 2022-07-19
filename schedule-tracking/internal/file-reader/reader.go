@@ -10,7 +10,7 @@ import (
 
 type FileReader struct{}
 
-func NewFileReader() *FileReader {
+func New() *FileReader {
 	return &FileReader{}
 }
 
@@ -18,9 +18,9 @@ func (f *FileReader) ReadFile(filePath string) ([]byte, error) {
 	return os.ReadFile(filePath)
 }
 func (f *FileReader) GetFileName(filePath string) (string, error) {
-	os := runtime.GOOS
+	goos := runtime.GOOS
 	var splitFilePath []string
-	switch os {
+	switch goos {
 	case "windows":
 		splitFilePath = strings.Split(filePath, `\`)
 	case "darwin":
@@ -33,17 +33,14 @@ func (f *FileReader) GetFileName(filePath string) (string, error) {
 	return splitFilePath[len(splitFilePath)-1], nil
 }
 func (f *FileReader) GetFileNameByDirNameAndFilename(dirName string, filename string) string {
-	os := runtime.GOOS
-	var fullPath string
-	switch os {
+	switch runtime.GOOS {
 	case "windows":
-		fullPath = fmt.Sprintf(`%s\%s`, dirName, filename)
+		return fmt.Sprintf(`%s\%s`, dirName, filename)
 	case "darwin":
-		fullPath = fmt.Sprintf(`%s/%s`, dirName, filename)
+		return fmt.Sprintf(`%s/%s`, dirName, filename)
 	case "linux":
-		fullPath = fmt.Sprintf(`%s/%s`, dirName, filename)
+		return fmt.Sprintf(`%s/%s`, dirName, filename)
 	default:
 		return ""
 	}
-	return fullPath
 }

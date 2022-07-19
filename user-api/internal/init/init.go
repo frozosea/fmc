@@ -6,18 +6,12 @@ import (
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx/v4/stdlib"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
 	"strings"
 	"time"
 	"user-api/internal/cache"
-	excel_writer "user-api/internal/excel-writer"
 	"user-api/internal/logging"
-	"user-api/internal/mailing"
-	"user-api/internal/scheduler"
-	"user-api/internal/tracking"
 	"user-api/pkg/auth"
 	schedule_tracking "user-api/pkg/schedule-tracking"
 	"user-api/pkg/user"
@@ -36,27 +30,12 @@ type (
 		RefreshTokenExpiration string
 		JwtSecretKey           string
 	}
-	EmailSenderSettings struct {
-		SenderName      string
-		SenderEmail     string
-		UnisenderApiKey string
-	}
 	RedisSettings struct {
 		Url string
 		Ttl string
 	}
-	TrackingClientSettings struct {
-		Ip   string
-		Port string
-	}
-	TimeFormatterSettings struct {
-		Format string
-	}
 	ScheduleTrackingLoggerSettings struct {
-		TrackingResultSaveDir string
-		ServiceSaveDir        string
-		ControllerSaveDir     string
-		TaskGetterSaveDir     string
+		ServiceSaveDir string
 	}
 	UserLoggerSettings struct {
 		ControllerSaveDir string
@@ -64,9 +43,6 @@ type (
 	AuthLoggerSettings struct {
 		ControllerSaveDir string
 		ServiceSaveDir    string
-	}
-	EmailSignatureSettings struct {
-		EmailSignature string
 	}
 )
 
@@ -120,79 +96,24 @@ func GetTokenSettings() (*JwtSettings, error) {
 	return readIni("TOKEN", jwt)
 }
 
-func GetEmailSenderSettings() *EmailSenderSettings {
-	emailSender := new(EmailSenderSettings)
-	emailSender.SenderEmail = os.Getenv("SENDER_EMAIL")
-	emailSender.SenderName = os.Getenv("SENDER_NAME")
-	emailSender.UnisenderApiKey = os.Getenv("UNISENDER_API_KEY")
-	return emailSender
-}
 func GetRedisSettings() *RedisSettings {
 	redisCli := new(RedisSettings)
 	redisCli.Url = os.Getenv("REDIS_URL")
 	redisCli.Ttl = os.Getenv("REDIS_TTL")
 	return redisCli
 }
-func GetTrackingSettings() (*TrackingClientSettings, error) {
-	clientSettings := new(TrackingClientSettings)
-	return readIni("TRACKING", clientSettings)
-}
-func GetEmailSignature() (*EmailSignatureSettings, error) {
-	settings := new(EmailSignatureSettings)
-	return readIni("EMAIL_SETTINGS", settings)
-}
-func GetMailing(sender *EmailSenderSettings) *mailing.Mailing {
-	logger := logging.NewLogger("emails")
-	settings, err := GetEmailSignature()
-	if err != nil {
-		panic(err)
-	}
-	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
-}
-func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		panic(err)
-		return &tracking.Client{}
-	}
-	client := tracking.NewClient(conn, logger)
-	return client
-}
 func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error) {
 	config := new(ScheduleTrackingLoggerSettings)
 	return readIni("SCHEDULE_LOGS", config)
 }
-func GetTimeFormatterSettings() (*TimeFormatterSettings, error) {
-	config := new(TimeFormatterSettings)
-	return readIni("TIME_FORMAT", config)
-}
-
-var TaskManager = scheduler.NewDefaultScheduler()
-
 func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
-	trackerConf, getSettingsErr := GetTrackingSettings()
-	if getSettingsErr != nil {
-		panic(getSettingsErr)
-	}
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
+		return nil
 	}
-	arrivedChecker := tracking.NewArrivedChecker()
-	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
-	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
-	sender := GetEmailSenderSettings()
-	emailSender := GetMailing(sender)
-	format, getTimeFormatErr := GetTimeFormatterSettings()
-	if getTimeFormatErr != nil {
-		panic(getTimeFormatErr)
-	}
-	rdsCache := GetCache(GetRedisSettings())
-	timeFormatter := schedule_tracking.NewTimeFormatter(format.Format)
 	repository := schedule_tracking.NewRepository(db)
-	taskGetter := schedule_tracking.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
-	controller := schedule_tracking.NewController(controllerLogger, repository, TaskManager, taskGetter, rdsCache)
-	return schedule_tracking.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func parseTime(timeStr string, sep string) int64 {
 	splitInfo := strings.Split(timeStr, sep)

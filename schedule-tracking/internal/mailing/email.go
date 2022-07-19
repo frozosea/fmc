@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	file_reader "user-api/internal/file-reader"
-	"user-api/internal/logging"
+	file_reader "schedule-tracking/internal/file-reader"
+	"schedule-tracking/internal/logging"
 )
 
 type IMailing interface {
@@ -34,7 +34,7 @@ type Mailing struct {
 }
 
 func NewMailing(logger logging.ILogger, senderName string, senderEmail string, unisenderApiKey string, signature string) *Mailing {
-	return &Mailing{reader: file_reader.NewFileReader(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, signature: signature}
+	return &Mailing{reader: file_reader.New(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, signature: signature}
 }
 
 func (m *Mailing) getForm(toAddress, subject, fileName, body string, file string) url.Values {

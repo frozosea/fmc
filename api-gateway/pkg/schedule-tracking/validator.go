@@ -10,7 +10,7 @@ type Validator struct {
 }
 
 func (v *Validator) ValidateTime(s string) error {
-	ok, err := regexp.MatchString("/d{1,2}:/{2}", s)
+	ok, err := regexp.MatchString("\\d{1,2}:\\d{2}", s)
 	if !ok || err != nil {
 		return errors.New("cannot validate time")
 	}

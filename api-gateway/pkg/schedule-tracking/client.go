@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmc-with-git/internal/logging"
-	pb "fmc-with-git/internal/user-pb"
+	pb "fmc-with-git/internal/schedule-tracking-pb"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

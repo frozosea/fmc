@@ -5,11 +5,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      JWT_SECRET_KEY: asdafasfasfasf
       USER_APP_IP: user_api
       USER_APP_PORT: 9001
       TRACKING_IP: tracking_api
       TRACKING_PORT: 51372
+      SCHEDULE_TRACKING_HOST: schedule_tracking_api
+      SCHEDULE_TRACKING_PORT: 8005
     networks:
       - public
   nginx:

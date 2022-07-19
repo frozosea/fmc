@@ -1,6 +1,7 @@
 package init_package
 
 import (
+	"errors"
 	"fmc-with-git/docs"
 	"fmc-with-git/internal/logging"
 	"fmc-with-git/internal/middleware"
@@ -34,6 +35,10 @@ type (
 		Ip   string
 		Port string
 	}
+	ScheduleTrackingSettings struct {
+		Ip   string
+		Port string
+	}
 )
 
 func getAuthSettings() (*AuthSettings, error) {
@@ -48,6 +53,15 @@ func getTrackingSettings() (*TrackingSettings, error) {
 	trackingSettings.Port = os.Getenv("TRACKING_PORT")
 	return trackingSettings, nil
 
+}
+func getScheduleTrackingSettings() (*ScheduleTrackingSettings, error) {
+	settings := new(ScheduleTrackingSettings)
+	ip, port := os.Getenv("SCHEDULE_TRACKING_HOST"), os.Getenv("SCHEDULE_TRACKING_PORT")
+	if ip == "" || port == "" {
+		return nil, errors.New("no env variables")
+	}
+	settings.Ip, settings.Port = ip, port
+	return settings, nil
 }
 func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Client, error) {
 	var url string
@@ -184,8 +198,13 @@ func Run() {
 	}
 	var UserHttpHandler = getUserHttpHandler(UserClient, httpUtils)
 
+	var scheduleTrackingSettings, getSettingsErr = getScheduleTrackingSettings()
+	if getSettingsErr != nil {
+		panic(getSettingsErr)
+		return
+	}
 	var ScheduleTrackingLogger = logging.NewLogger("scheduleTrackingLogs")
-	var ScheduleTrackingClient, getScheduleTrackingClientErr = getScheduleTrackingClient(AuthServerSettings.Ip, AuthServerSettings.Port, ScheduleTrackingLogger)
+	var ScheduleTrackingClient, getScheduleTrackingClientErr = getScheduleTrackingClient(scheduleTrackingSettings.Ip, scheduleTrackingSettings.Port, ScheduleTrackingLogger)
 	if getScheduleTrackingClientErr != nil {
 		panic(getScheduleTrackingClientErr)
 		return

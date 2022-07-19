@@ -30,7 +30,7 @@ func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
 // @Router       /schedule/addContainer [post]
 func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 	var s AddOnTrackRequest
-	if err := h.utils.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
@@ -62,7 +62,7 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // @Router       /schedule/addBillNo [post]
 func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 	var s AddOnTrackRequest
-	if err := h.utils.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}

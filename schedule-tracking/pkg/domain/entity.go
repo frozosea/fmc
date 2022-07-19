@@ -1,4 +1,4 @@
-package schedule_tracking
+package domain
 
 import (
 	"time"
