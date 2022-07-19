@@ -129,7 +129,7 @@ func TestOneyArrivedChecker(t *testing.T) {
 type maeuRequestMoch struct {
 }
 
-func (m *maeuRequestMoch) Get(number string) (*maeuResponse, error) {
+func (m *maeuRequestMoch) Get(_ string) (*maeuResponse, error) {
 	var s maeuResponse
 	if err := json.Unmarshal([]byte(`{
     "isContainerSearch": true,

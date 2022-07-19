@@ -53,3 +53,6 @@ User api has auth part and other "User" part. Account possibility:
 - Add container/bill number to your account
 - Delete container/bill number from your account
 
+## Deployment 
+
+You can use docker swarm for deploy, k8s not ready yet, for get instruction go to the [link](https://github.com/frozosea/fmc/tree/master/deployment/swarm/Readme.md)
