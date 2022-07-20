@@ -1,9 +1,12 @@
 package initpackage
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/go-ini/ini"
+	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -18,6 +21,13 @@ import (
 )
 
 type (
+	DataBaseSettings struct {
+		Host             string
+		DatabaseUser     string
+		DatabasePassword string
+		Database         string
+		Port             string
+	}
 	EmailSenderSettings struct {
 		SenderName      string
 		SenderEmail     string
@@ -48,6 +58,32 @@ type (
 
 const ExcelTrackingResultSaveDir = "."
 
+func SetupDatabaseConfig() *DataBaseSettings {
+	DbSettings := new(DataBaseSettings)
+	DbSettings.DatabaseUser = os.Getenv(`POSTGRES_USER`)
+	DbSettings.DatabasePassword = os.Getenv(`POSTGRES_PASSWORD`)
+	DbSettings.Database = os.Getenv(`POSTGRES_DATABASE`)
+	DbSettings.Host = os.Getenv("POSTGRES_HOST")
+	DbSettings.Port = os.Getenv("POSTGRES_PORT")
+	return DbSettings
+}
+func GetDatabase() (*sql.DB, error) {
+	dbConf := SetupDatabaseConfig()
+	db, err := sql.Open(`postgres`, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbConf.Host,
+		dbConf.Port,
+		dbConf.DatabaseUser,
+		dbConf.DatabasePassword,
+		dbConf.Database))
+	if err != nil {
+		log.Fatalf(`open database err:%s`, err.Error())
+		return db, err
+	}
+	if exc := db.Ping(); exc != nil {
+		return db, exc
+	}
+	return db, nil
+}
 func readIni[T comparable](section string, settingsModel *T) (*T, error) {
 	cfg, err := ini.Load(`conf/cfg.ini`)
 	sectionRead := cfg.Section(section)
@@ -152,7 +188,51 @@ func GetScheduleTrackingService() *domain.Service {
 	}
 	client := GetUserScheduleTrackingClient(userConf, logging.NewLogger(loggerConf.ClientSaveDir))
 	timeFormatter := domain.NewTimeFormatter(format.Format)
-	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter)
-	controller := domain.NewController(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, taskGetter)
+	db, getDbErr := GetDatabase()
+	if getDbErr != nil {
+		panic(getDbErr)
+	}
+	repository := domain.NewRepository(db)
+	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
+	controller := domain.NewController(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
+	if recoveryTaskErr := RecoveryTasks(repository, controller); recoveryTaskErr != nil {
+		panic(recoveryTaskErr)
+	}
 	return domain.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+}
+
+func RecoveryTasks(repo domain.IRepository, controller *domain.Controller) error {
+	tasks, err := repo.GetAll(context.Background())
+	if err != nil {
+		switch err.(type) {
+		case *domain.NoTasksError:
+			return nil
+		default:
+			return err
+		}
+	}
+	for _, task := range tasks {
+		if !task.IsContainer {
+			if _, addErr := controller.AddBillNumbersOnTrack(context.Background(), domain.TrackByBillNoReq{BaseTrackReq: domain.BaseTrackReq{
+				Numbers: []string{task.Number},
+				UserId:  task.UserId,
+				Country: task.Country,
+				Time:    task.Time,
+				Emails:  task.Emails,
+			}}); addErr != nil {
+				return addErr
+			}
+		} else {
+			if _, addErr := controller.AddContainerNumbersOnTrack(context.Background(), domain.TrackByContainerNoReq{BaseTrackReq: domain.BaseTrackReq{
+				Numbers: []string{task.Number},
+				UserId:  task.UserId,
+				Country: task.Country,
+				Time:    task.Time,
+				Emails:  task.Emails,
+			}}); addErr != nil {
+				return addErr
+			}
+		}
+	}
+	return nil
 }

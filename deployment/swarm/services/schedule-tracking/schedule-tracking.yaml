@@ -11,10 +11,39 @@ services:
       TRACKING_GRPC_PORT: 51372
       USER_GRPC_HOST: user_api
       USER_GRPC_PORT: 9001
+      POSTGRES_USER: schedule_tracking
+      POSTGRES_PASSWORD: schedule_tracking_password
+      POSTGRES_DATABASE: schedule_tracking_db
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 5434
       SENDER_NAME: FindMyCargo
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <YOUR_UNISENDER_API_KEY>
-
+  postgres_db:
+    image: postgres:13.3
+    restart: unless-stopped
+    expose:
+      - "5434"
+    ports:
+      - "5434:5434"
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: schedule_tracking
+      POSTGRES_PASSWORD: schedule_tracking_password
+      POSTGRES_DB: schedule_tracking_db
+    command: -p 5434
+    networks:
+      - public
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./schema/:/schema
+    command:
+      [ "-path", "./schema" ,"-database",  "postgres://schedule_tracking:schedule_tracking_password@postgres_db:5434/schedule_tracking_db?sslmode=disable", "up" ]
+    depends_on:
+      - db
+    networks:
+      - public
 networks:
   public:
     name: public

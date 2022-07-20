@@ -17,11 +17,11 @@ type converter struct {
 
 func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest) BaseTrackReq {
 	return BaseTrackReq{
-		numbers: r.GetNumber(),
-		userId:  r.GetUserId(),
-		country: "OTHER",
-		time:    r.GetTime(),
-		emails:  r.GetEmails(),
+		Numbers: r.GetNumber(),
+		UserId:  r.GetUserId(),
+		Country: "OTHER",
+		Time:    r.GetTime(),
+		Emails:  r.GetEmails(),
 	}
 }
 func (c *converter) convertBaseAddOnTrackResponse(r []*BaseAddOnTrackResponse) []*pb.BaseAddOnTrackResponse {
@@ -76,7 +76,7 @@ func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequ
 	if err != nil {
 		go func() {
 			for _, v := range res.result {
-				s.logger.FatalLog(fmt.Sprintf(`add container numbers: %s for user-pb: %d failed: %s`, v.number, r.UserId, err.Error()))
+				s.logger.FatalLog(fmt.Sprintf(`add container Numbers: %s for user-pb: %d failed: %s`, v.number, r.UserId, err.Error()))
 			}
 		}()
 		switch err.(type) {
@@ -91,7 +91,7 @@ func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequ
 		if reprErr != nil {
 			return
 		}
-		s.logger.InfoLog(fmt.Sprintf(`add container numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
+		s.logger.InfoLog(fmt.Sprintf(`add container Numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
 	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
@@ -111,7 +111,7 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 		if err != nil {
 			return
 		}
-		s.logger.InfoLog(fmt.Sprintf(`add container numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
+		s.logger.InfoLog(fmt.Sprintf(`add container Numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
 	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
@@ -127,7 +127,7 @@ func (s *Service) UpdateTrackingTime(ctx context.Context, r *pb.UpdateTrackingTi
 	}
 	go func() {
 		for _, v := range resp {
-			s.logger.InfoLog(fmt.Sprintf(`task with id: %s new time: %s`, v.number, r.Time))
+			s.logger.InfoLog(fmt.Sprintf(`task with id: %s new Time: %s`, v.number, r.Time))
 		}
 	}()
 	return &pb.RepeatedBaseAddOnTrackResponse{Response: s.convertBaseAddOnTrackResponse(resp)}, nil
@@ -140,7 +140,7 @@ func (s *Service) AddEmailsOnTracking(ctx context.Context, r *pb.AddEmailRequest
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
 		default:
 			go func() {
-				s.logger.ExceptionLog(fmt.Sprintf(`add emails: %v for numbers: %v err: %s`, r.GetEmails(), r.GetNumbers(), err.Error()))
+				s.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v for Numbers: %v err: %s`, r.GetEmails(), r.GetNumbers(), err.Error()))
 			}()
 			return &emptypb.Empty{}, err
 		}
@@ -155,7 +155,7 @@ func (s *Service) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFro
 		case *CannotFindEmailError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find email in job args")
 		default:
-			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
+			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for Number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
 			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 
 		}
@@ -171,7 +171,7 @@ func (s *Service) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackR
 		default:
 			go func() {
 				for _, v := range r.GetNumber() {
-					s.logger.ExceptionLog(fmt.Sprintf(`delete number: %s for user-pb %d from tracking err: %s`, v, r.GetUserId(), err.Error()))
+					s.logger.ExceptionLog(fmt.Sprintf(`delete Number: %s for user-pb %d from tracking err: %s`, v, r.GetUserId(), err.Error()))
 				}
 			}()
 			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())

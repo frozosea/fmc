@@ -64,7 +64,7 @@ func (m *MemoryJobStore) checkTask(taskId string) (*Job, error) {
 	}
 	return job, nil
 }
-func (m *MemoryJobStore) Reschedule(_ context.Context, taskId string, interval time.Duration) (*Job, error) {
+func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval time.Duration) (*Job, error) {
 	job := m.jobs[taskId]
 	if job == nil {
 		return new(Job), &LookupJobError{}
@@ -75,7 +75,7 @@ func (m *MemoryJobStore) Reschedule(_ context.Context, taskId string, interval t
 		NextRunTime: time.Now().Add(interval),
 		Args:        job.Args,
 		Interval:    interval,
-		Ctx:         job.Ctx,
+		Ctx:         ctx,
 	}
 	m.jobs[taskId] = &modifiedJob
 	return &modifiedJob, nil
