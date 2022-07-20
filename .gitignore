@@ -8,3 +8,4 @@
 /container-tracking/tests/feso/fesoTrackingByContainerNumberTest.js
 /container-tracking/tests/feso/fesoTrackingByContainerNumberTest.js.map
 /freight-parser/cmd/.aws/
+*.env
