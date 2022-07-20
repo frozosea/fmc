@@ -19,6 +19,8 @@ services:
       SENDER_NAME: FindMyCargo
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <YOUR_UNISENDER_API_KEY>
+    depends_on:
+      - postgres_db
   postgres_db:
     image: postgres:13.3
     restart: unless-stopped
