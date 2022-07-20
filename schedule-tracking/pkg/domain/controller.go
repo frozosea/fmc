@@ -119,7 +119,6 @@ func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, n
 	}
 	updErr := c.repository.UpdateTime(ctx, numbers, newTime)
 	if updErr != nil {
-		fmt.Println(updErr.Error())
 		c.logger.ExceptionLog(fmt.Sprintf(`update tracking Time with Numbers: %v error: %s`, numbers, updErr.Error()))
 	}
 	return response, updErr
@@ -138,7 +137,6 @@ func (c *Controller) AddEmailToTracking(ctx context.Context, req AddEmailRequest
 		}
 	}
 	if addErr := c.repository.AddEmails(ctx, req.numbers, req.emails); addErr != nil {
-		fmt.Println(addErr.Error())
 		c.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v to Numbers: %v error: %s`, req.emails, req.numbers, addErr.Error()))
 		return addErr
 	}
@@ -155,7 +153,6 @@ func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFr
 	}
 	job.Args = util.PopForInterfaces(job.Args, indexOfEmail)
 	if delErr := c.repository.DeleteEmail(ctx, req.number, req.email); delErr != nil {
-		fmt.Println(delErr.Error())
 		c.logger.ExceptionLog(fmt.Sprintf(`delete email: %s from Number: %s error: %s`, req.email, req.number, delErr.Error()))
 	}
 	return c.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...)
@@ -176,7 +173,6 @@ func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isCon
 		}
 	}
 	if delErr := c.repository.Delete(ctx, number); delErr != nil {
-		fmt.Println(delErr.Error())
 		if isContainer {
 			c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %v error: %s`, number, delErr.Error()))
 		} else {
