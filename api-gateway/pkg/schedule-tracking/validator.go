@@ -2,7 +2,6 @@ package schedule_tracking
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 )
 
@@ -27,7 +26,6 @@ func (v *Validator) ValidateBill(oneBill string) error {
 	return nil
 }
 func (v *Validator) ValidateBills(bills []string) error {
-	fmt.Println(bills)
 	for _, oneBill := range bills {
 		if err := v.ValidateBill(oneBill); err != nil {
 			return err

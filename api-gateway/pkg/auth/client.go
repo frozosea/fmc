@@ -80,7 +80,6 @@ func (c *Client) Register(ctx context.Context, user User) error {
 
 func (c *Client) Login(ctx context.Context, user User) (*LoginUserResponse, error) {
 	r, err := c.cli.LoginUser(ctx, c.converter.convertLoginUser(user))
-	fmt.Println(err)
 	if err != nil {
 		statusCode := status.Convert(err).Code()
 		switch statusCode {

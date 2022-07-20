@@ -26,7 +26,6 @@ func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest) BaseTrackReq {
 }
 func (c *converter) convertBaseAddOnTrackResponse(r []*BaseAddOnTrackResponse) []*pb.BaseAddOnTrackResponse {
 	var res []*pb.BaseAddOnTrackResponse
-	fmt.Println(r)
 	for _, v := range r {
 		res = append(res, &pb.BaseAddOnTrackResponse{
 			Success:     v.success,
@@ -84,7 +83,7 @@ func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequ
 		case *scheduler.LookupJobError:
 			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
 		default:
-			return s.converter.convertAddOnTrackResponse(res), err
+			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
 		}
 	}
 	go func() {
@@ -104,7 +103,7 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 		case *scheduler.LookupJobError:
 			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
 		default:
-			return s.converter.convertAddOnTrackResponse(res), err
+			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
 		}
 	}
 	go func() {
@@ -119,7 +118,6 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 func (s *Service) UpdateTrackingTime(ctx context.Context, r *pb.UpdateTrackingTimeRequest) (*pb.RepeatedBaseAddOnTrackResponse, error) {
 	resp, err := s.controller.UpdateTrackingTime(ctx, r.GetNumbers(), r.GetTime())
 	if err != nil {
-		fmt.Println(err.Error())
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id ")
@@ -158,7 +156,7 @@ func (s *Service) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFro
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find email in job args")
 		default:
 			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
-			return &emptypb.Empty{}, err
+			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 
 		}
 	}

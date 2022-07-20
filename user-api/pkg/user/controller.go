@@ -67,7 +67,6 @@ func (c *Controller) GetAllContainers(ctx context.Context, userId int) (*domain.
 	}()
 	select {
 	case <-ctx.Done():
-		fmt.Println("ctx done get all")
 		return nil, ctx.Err()
 	case cacheResult := <-cacheCh:
 		return cacheResult, nil

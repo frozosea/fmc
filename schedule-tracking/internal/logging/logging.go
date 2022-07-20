@@ -70,7 +70,6 @@ func (l *Logger) FatalLog(logString string) {
 
 func NewLogger(saveLogsDir string) *Logger {
 	if err := createDirsAndFiles(saveLogsDir); err != nil {
-		//fmt.Println(err.Error())
 		return &Logger{}
 	}
 	return &Logger{
