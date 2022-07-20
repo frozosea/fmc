@@ -22,10 +22,11 @@ type CustomTasks struct {
 	writer         excelwriter.IWriter
 	mailing        mailing.IMailing
 	timeFormatter  ITimeFormatter
+	repository     IRepository
 }
 
-func NewCustomTasks(trackingClient *tracking.Client, userClient *Client, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter) *CustomTasks {
-	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter}
+func NewCustomTasks(trackingClient *tracking.Client, userClient *Client, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter, repository IRepository) *CustomTasks {
+	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter, repository: repository}
 }
 
 func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, userId int64) scheduler.ITask {
@@ -36,13 +37,18 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 			Country: country,
 		})
 		if err != nil {
-			go c.logger.ExceptionLog(fmt.Sprintf(`track container with number %s failed: %s`, number, err.Error()))
+			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
 			return true
 		}
 		if c.arrivedChecker.CheckContainerArrived(result) {
 			go func() {
 				if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, result.Container, markErr.Error()))
+				}
+			}()
+			go func() {
+				if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
+					c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
 				}
 			}()
 			return true
@@ -82,13 +88,18 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 			Country: country,
 		})
 		if err != nil {
-			go c.logger.ExceptionLog(fmt.Sprintf(`track container with number %s failed: %s`, number, err.Error()))
+			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
 			return true
 		}
 		if c.arrivedChecker.CheckBillNoArrived(result) {
 			go func() {
 				if markErr := c.userClient.MarkBillNoWasArrived(ctx, userId, number); markErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`mark bill no is arrived  with: %s err: %s `, result.BillNo, markErr.Error()))
+				}
+			}()
+			go func() {
+				if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
+					c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
 				}
 			}()
 			return true

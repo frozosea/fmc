@@ -1,8 +1,5 @@
 ## Schedule tracking microservice
 
-Do not scale or redeploy this application,because if you do it, all schedule tasks will be deleted,and you should parse
-logs and in hand mode add it.
-
 ### Env variables
 
 - TRACKING_GRPC_HOST
@@ -12,6 +9,11 @@ logs and in hand mode add it.
 - SENDER_NAME
 - SENDER_EMAIL
 - UNISENDER_API_KEY
+- POSTGRES_USER
+- POSTGRES_PASSWORD
+- POSTGRES_DATABASE
+- POSTGRES_HOST
+- POSTGRES_PORT
 
 ### How to run:
 
@@ -19,9 +21,4 @@ logs and in hand mode add it.
 
 ### Go to `conf/cfg.ini` and change parameters if you want.
 
-
 Methods are in `pkg/proto`.
-
-### TODO
-
-- write script for parse logs and automatically reset deleted tasks.

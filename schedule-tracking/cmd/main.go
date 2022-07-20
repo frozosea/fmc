@@ -22,7 +22,7 @@ func Run() {
 		panic(err)
 		return
 	}
-	fmt.Println("server should started on 0.0.0.0:8005")
+	fmt.Println("START ON 0.0.0.0:8005")
 	log.Fatal(s.Serve(l))
 }
 

@@ -5,11 +5,11 @@ import (
 )
 
 type BaseTrackReq struct {
-	numbers []string
-	userId  int64
-	country string
-	time    string
-	emails  []string
+	Numbers []string
+	UserId  int64
+	Country string
+	Time    string
+	Emails  []string
 }
 
 type TrackByBillNoReq struct {
@@ -39,4 +39,13 @@ type GetInfoAboutTrackResponse struct {
 	number      string
 	emails      []interface{}
 	nextRunTime time.Time
+}
+
+type TrackingTask struct {
+	Number      string
+	UserId      int64
+	Country     string
+	Time        string
+	Emails      []string
+	IsContainer bool
 }
