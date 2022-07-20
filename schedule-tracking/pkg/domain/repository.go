@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/lib/pq"
 	"schedule-tracking/internal/util"
 )
@@ -83,7 +82,6 @@ func (r *Repository) AddEmails(ctx context.Context, numbers []string, emails []s
 	for _, v := range numbers {
 		_, err := r.db.ExecContext(ctx, `UPDATE "tasks" AS t SET emails = t.emails || $1 WHERE t.number = $2`, pq.Array(emails), v)
 		if err != nil {
-			fmt.Println(fmt.Sprintf(`add emails err: %s`, err.Error()))
 			return err
 		}
 	}
