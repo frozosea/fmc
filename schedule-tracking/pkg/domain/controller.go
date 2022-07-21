@@ -46,9 +46,17 @@ func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackBy
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
 		job, err := c.addOneContainer(ctx, v, req.Country, req.Time, req.UserId, req.Emails)
-		switch err.(type) {
-		case *scheduler.AddJobError:
-			alreadyOnTrack = append(alreadyOnTrack, v)
+		if err != nil {
+			switch err.(type) {
+			case *scheduler.AddJobError:
+				alreadyOnTrack = append(alreadyOnTrack, v)
+				continue
+			default:
+				return &AddOnTrackResponse{
+					result:         result,
+					alreadyOnTrack: alreadyOnTrack,
+				}, err
+			}
 		}
 		result = append(result, &BaseAddOnTrackResponse{
 			success:     true,
@@ -84,9 +92,17 @@ func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillN
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
 		job, err := c.addOneBillOnTrack(ctx, v, req.Country, req.Time, req.UserId, req.Emails)
-		switch err.(type) {
-		case *scheduler.AddJobError:
-			alreadyOnTrack = append(alreadyOnTrack, v)
+		if err != nil {
+			switch err.(type) {
+			case *scheduler.AddJobError:
+				alreadyOnTrack = append(alreadyOnTrack, v)
+				continue
+			default:
+				return &AddOnTrackResponse{
+					result:         result,
+					alreadyOnTrack: alreadyOnTrack,
+				}, err
+			}
 		}
 		result = append(result, &BaseAddOnTrackResponse{
 			success:     true,
