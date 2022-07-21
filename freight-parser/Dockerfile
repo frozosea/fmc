@@ -4,7 +4,7 @@ RUN mkdir /app
 WORKDIR /app/
 COPY schema/ /app/
 COPY  cmd/ /app/
-ADD . go.mod .env /app/
+ADD . go.mod /app/
 RUN go build -o main
 EXPOSE ${GRPC_PORT}
 CMD ["/app/main"]

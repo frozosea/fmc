@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS "bill_numbers";
-DROP TABLE IF EXISTS "containers";
-DROP TABLE IF EXISTS "user";
