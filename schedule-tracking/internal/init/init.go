@@ -134,11 +134,11 @@ func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tr
 	client := tracking.NewClient(conn, logger)
 	return client
 }
-func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger) *domain.Client {
+func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger) *domain.UserClient {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
-		return &domain.Client{}
+		return &domain.UserClient{}
 	}
 	var pbClient = user_pb.NewScheduleTrackingClient(conn)
 	return domain.NewClient(pbClient, logger)

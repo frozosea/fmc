@@ -16,6 +16,7 @@ func (n *NoTasksError) Error() string {
 type IRepository interface {
 	Add(ctx context.Context, req *BaseTrackReq, isContainer bool) error
 	GetAll(ctx context.Context) ([]*TrackingTask, error)
+	GetByNumber(ctx context.Context, number string) (*TrackingTask, error)
 	AddEmails(ctx context.Context, numbers []string, emails []string) error
 	DeleteEmail(ctx context.Context, number string, email string) error
 	UpdateTime(ctx context.Context, numbers []string, newTime string) error
@@ -70,6 +71,14 @@ func (r *Repository) GetAll(ctx context.Context) ([]*TrackingTask, error) {
 		return res, &NoTasksError{}
 	}
 	return res, nil
+}
+func (r *Repository) GetByNumber(ctx context.Context, number string) (*TrackingTask, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT number,user_id,country,time,emails,is_container FROM "tasks" AS t WHERE t.number = $1`, number)
+	var task TrackingTask
+	if err := row.Scan(&task.Number, &task.UserId, &task.Country, &task.Time, pq.Array(&task.Emails), &task.IsContainer); err != nil {
+		return &TrackingTask{}, err
+	}
+	return &task, nil
 }
 func (r *Repository) getEmails(ctx context.Context, number string) ([]string, error) {
 	var s []string

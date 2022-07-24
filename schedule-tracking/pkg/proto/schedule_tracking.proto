@@ -24,6 +24,7 @@ service ScheduleTracking{
 message UpdateTrackingTimeRequest{
   repeated string numbers = 1;
   string time = 2;
+  int64 user_id = 3;
 }
 message AddOnTrackRequest{
   int64 user_id = 1;
@@ -47,13 +48,16 @@ message AddOnTrackResponse{
 message AddEmailRequest{
   repeated string numbers = 1;
   repeated string emails = 2;
+  int64 user_id = 3;
 }
 message DeleteEmailFromTrackRequest{
   string number = 1;
   string email = 2;
+  int64 user_id = 3;
 }
 message GetInfoAboutTrackRequest{
   string number = 1;
+  int64 user_id = 3;
 }
 message GetInfoAboutTrackResponse{
   string number = 2;

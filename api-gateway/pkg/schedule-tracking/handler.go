@@ -106,6 +106,12 @@ func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 // @Router       /schedule/updateTime [put]
 func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 	var s UpdateTrackingTimeRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -137,6 +143,12 @@ func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 // @Router       /schedule/addEmail [put]
 func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
 	var s AddEmailRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -167,6 +179,12 @@ func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
 // @Router       /schedule/deleteEmail [delete]
 func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 	var s DeleteEmailFromTrackRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -197,17 +215,18 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 // @Router       /schedule/deleteContainers [delete]
 func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 	var s DeleteFromTrackRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
 	if err := h.validator.ValidateContainers(s.Numbers); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.JSON(401, gin.H{"message": "cannot decode token"})
 		return
 	}
 	if err := h.client.DeleteFromTracking(c.Request.Context(), true, int64(userId), s); err != nil {
@@ -232,17 +251,18 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 // @Router       /schedule/deleteBillNumbers [delete]
 func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 	var s DeleteFromTrackRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
 	if err := h.validator.ValidateBills(s.Numbers); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.JSON(401, gin.H{"message": "cannot decode token"})
 		return
 	}
 	if err := h.client.DeleteFromTracking(c.Request.Context(), false, int64(userId), s); err != nil {
@@ -267,6 +287,12 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 // @Router       /schedule/getInfo [post]
 func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 	var s GetInfoAboutTrackRequest
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	s.UserId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return

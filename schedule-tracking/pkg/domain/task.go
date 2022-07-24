@@ -16,7 +16,7 @@ import (
 
 type CustomTasks struct {
 	trackingClient *tracking.Client
-	userClient     *Client
+	userClient     *UserClient
 	arrivedChecker tracking.IArrivedChecker
 	logger         logging.ILogger
 	writer         excelwriter.IWriter
@@ -25,7 +25,7 @@ type CustomTasks struct {
 	repository     IRepository
 }
 
-func NewCustomTasks(trackingClient *tracking.Client, userClient *Client, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter, repository IRepository) *CustomTasks {
+func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter, repository IRepository) *CustomTasks {
 	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter, repository: repository}
 }
 

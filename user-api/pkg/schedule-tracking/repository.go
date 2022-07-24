@@ -41,5 +41,5 @@ func (r *Repository) AddMarkBillNoWasArrived(ctx context.Context, number string,
 	return r.wrapperExec(ctx, `UPDATE "bill_numbers" AS b SET is_arrived = true WHERE b.number = $1 AND b.user_id = $2`, number, userId)
 }
 func (r *Repository) AddMarkBillNoWasRemovedFromTrack(ctx context.Context, number string, userId int) error {
-	return r.wrapperExec(ctx, `UPDATE "bill_numbers" AS b SET is_on_track = false WHERE b.number = $1 AND b.user_od = $2`, number, userId)
+	return r.wrapperExec(ctx, `UPDATE "bill_numbers" AS b SET is_on_track = false WHERE b.number = $1 AND b.user_id = $2`, number, userId)
 }

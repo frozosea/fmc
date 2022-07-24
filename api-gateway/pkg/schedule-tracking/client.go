@@ -55,6 +55,8 @@ func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeR
 		switch statusOfRequest.Code() {
 		case codes.NotFound:
 			return numbers, errors.New("cannot lookup job with this id")
+		case codes.PermissionDenied:
+			return numbers, errors.New("number does not belong to this user or cannot find job by your params")
 		}
 		go func() {
 			for _, v := range req.Numbers {
@@ -73,14 +75,11 @@ func (c *Client) AddEmailsOnTracking(ctx context.Context, req AddEmailRequest) e
 		switch statusCode {
 		case codes.NotFound:
 			return errors.New("cannot find job with this id")
+		case codes.PermissionDenied:
+			return errors.New("number does not belong to this user or cannot find job by your params")
 		default:
 			return err
 		}
-		//go func() {
-		//	for index, v := range req.Emails {
-		//		c.logger.ExceptionLog(fmt.Sprintf(`add email on track with number: %s email: %s err: %s`, v, req.Emails[index], err.Error()))
-		//	}
-		//}()
 	}
 	return err
 }
@@ -88,16 +87,19 @@ func (c *Client) DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrac
 	_, err := c.cli.DeleteEmailFromTrack(ctx, &pb.DeleteEmailFromTrackRequest{
 		Number: r.Number,
 		Email:  r.Email,
+		UserId: r.UserId,
 	})
 	if err != nil {
 		statusCode := status.Convert(err).Code()
 		switch statusCode {
 		case codes.NotFound:
 			return errors.New("cannot find job or email with this params")
+		case codes.PermissionDenied:
+			return errors.New("number does not belong to this user or cannot find job by your params")
+
 		default:
 			return err
 		}
-		//go c.logger.ExceptionLog(fmt.Sprintf(`delete email from track with number: %s email: %s err: %s`, r.Number, r.Email, err.Error()))
 	}
 	return err
 }
@@ -112,12 +114,9 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 		switch statusCode {
 		case codes.NotFound:
 			return errors.New("cannot find job with this id")
+		case codes.PermissionDenied:
+			return errors.New("number does not belong to this user or cannot find job by your params")
 		}
-		//go func() {
-		//	for _, v := range req.Numbers {
-		//		c.logger.ExceptionLog(fmt.Sprintf(`delete from track with number: %s for user: %d err: %s`, v, userId, err.Error()))
-		//	}
-		//}()
 		return err
 	} else {
 		_, err := c.cli.DeleteBillNosFromTrack(ctx, &pb.DeleteFromTrackRequest{
@@ -128,19 +127,23 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 		switch statusCode {
 		case codes.NotFound:
 			return errors.New("cannot find job with this id")
+		case codes.PermissionDenied:
+			return errors.New("number does not belong to this user or cannot find job by your params")
 		}
 		return err
 	}
 }
 
 func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackRequest) (GetInfoAboutTrackResponse, error) {
-	resp, err := c.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{Number: r.Number})
+	resp, err := c.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{Number: r.Number, UserId: r.UserId})
 	if err != nil {
 		var s GetInfoAboutTrackResponse
 		code := status.Convert(err).Code()
 		switch code {
 		case codes.NotFound:
 			return s, errors.New("cannot find job with this id")
+		case codes.PermissionDenied:
+			return s, errors.New("number does not belong to this user or cannot find job by your params")
 		default:
 			return s, err
 		}
@@ -184,11 +187,13 @@ func (c *converter) updateTrackingTimeRequestConvert(r UpdateTrackingTimeRequest
 	return &pb.UpdateTrackingTimeRequest{
 		Numbers: r.Numbers,
 		Time:    r.NewTime,
+		UserId:  r.UserId,
 	}
 }
 func (c *converter) AddEmailRequestConvert(r AddEmailRequest) *pb.AddEmailRequest {
 	return &pb.AddEmailRequest{
 		Numbers: r.Numbers,
 		Emails:  r.Emails,
+		UserId:  r.UserId,
 	}
 }
