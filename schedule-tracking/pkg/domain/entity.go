@@ -30,10 +30,12 @@ type AddOnTrackResponse struct {
 type AddEmailRequest struct {
 	numbers []string
 	emails  []string
+	userId  int64
 }
 type DeleteEmailFromTrack struct {
 	number string
 	email  string
+	userId int64
 }
 type GetInfoAboutTrackResponse struct {
 	number      string

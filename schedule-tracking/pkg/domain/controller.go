@@ -14,19 +14,34 @@ func (c *CannotFindEmailError) Error() string {
 	return "cannot find email in job"
 }
 
+type NumberDoesntBelongThisUserError struct{}
+
+func (n *NumberDoesntBelongThisUserError) Error() string {
+	return "number does not belong to this user or cannot find job by your params"
+}
+
 type Controller struct {
 	logger            logging.ILogger
-	cli               *Client
+	cli               *UserClient
 	taskManager       *scheduler.Manager
 	saveResultDirPath string
 	repository        IRepository
 	*CustomTasks
 }
 
-func NewController(logger logging.ILogger, cli *Client, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Controller {
+func NewController(logger logging.ILogger, cli *UserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Controller {
 	return &Controller{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, repository: repository, CustomTasks: customTasks}
 }
-
+func (c *Controller) checkNumberBelongUser(ctx context.Context, number string, userId int64) bool {
+	task, err := c.repository.GetByNumber(ctx, number)
+	if task.UserId != userId {
+		return false
+	}
+	if err != nil {
+		return false
+	}
+	return true
+}
 func (c *Controller) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
 	task := c.GetTrackByContainerNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
@@ -119,9 +134,12 @@ func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillN
 		alreadyOnTrack: alreadyOnTrack,
 	}, nil
 }
-func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, newTime string) ([]*BaseAddOnTrackResponse, error) {
+func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, newTime string, userId int64) ([]*BaseAddOnTrackResponse, error) {
 	var response []*BaseAddOnTrackResponse
 	for _, v := range numbers {
+		if !c.checkNumberBelongUser(ctx, v, userId) {
+			return response, &NumberDoesntBelongThisUserError{}
+		}
 		job, err := c.taskManager.Reschedule(ctx, v, newTime)
 		if err != nil {
 			return response, err
@@ -141,6 +159,9 @@ func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, n
 }
 func (c *Controller) AddEmailToTracking(ctx context.Context, req AddEmailRequest) error {
 	for _, number := range req.numbers {
+		if !c.checkNumberBelongUser(ctx, number, req.userId) {
+			return &NumberDoesntBelongThisUserError{}
+		}
 		job, err := c.taskManager.Get(ctx, number)
 		if err != nil {
 			return err
@@ -159,6 +180,9 @@ func (c *Controller) AddEmailToTracking(ctx context.Context, req AddEmailRequest
 	return nil
 }
 func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFromTrack) error {
+	if !c.checkNumberBelongUser(ctx, req.number, req.userId) {
+		return &NumberDoesntBelongThisUserError{}
+	}
 	job, err := c.taskManager.Get(ctx, req.number)
 	if err != nil {
 		return err
@@ -173,8 +197,11 @@ func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFr
 	}
 	return c.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...)
 }
-func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, number ...string) error {
-	for _, v := range number {
+func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, numbers ...string) error {
+	for _, v := range numbers {
+		if !c.checkNumberBelongUser(ctx, v, userId) {
+			return &NumberDoesntBelongThisUserError{}
+		}
 		if err := c.taskManager.Remove(ctx, v); err != nil {
 			return err
 		}
@@ -183,22 +210,25 @@ func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isCon
 				return markErr
 			}
 		} else {
-			if markErr := c.cli.MarkBillNoOnTrack(ctx, userId, v); markErr != nil {
+			if markErr := c.cli.MarkBillNoWasRemovedFromTrack(ctx, userId, v); markErr != nil {
 				return markErr
 			}
 		}
 	}
-	if delErr := c.repository.Delete(ctx, number); delErr != nil {
+	if delErr := c.repository.Delete(ctx, numbers); delErr != nil {
 		if isContainer {
-			c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %v error: %s`, number, delErr.Error()))
+			c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %v error: %s`, numbers, delErr.Error()))
 		} else {
-			c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking bills with Numbers: %v error: %s`, number, delErr.Error()))
+			c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking bills with Numbers: %v error: %s`, numbers, delErr.Error()))
 		}
 		return delErr
 	}
 	return nil
 }
-func (c *Controller) GetInfoAboutTracking(ctx context.Context, number string) (*GetInfoAboutTrackResponse, error) {
+func (c *Controller) GetInfoAboutTracking(ctx context.Context, number string, userId int64) (*GetInfoAboutTrackResponse, error) {
+	if !c.checkNumberBelongUser(ctx, number, userId) {
+		return &GetInfoAboutTrackResponse{}, &NumberDoesntBelongThisUserError{}
+	}
 	job, err := c.taskManager.Get(ctx, number)
 	if err != nil {
 		return &GetInfoAboutTrackResponse{}, err

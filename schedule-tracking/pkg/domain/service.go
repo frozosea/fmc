@@ -45,12 +45,14 @@ func (c *converter) convertAddEmails(r *pb.AddEmailRequest) AddEmailRequest {
 	return AddEmailRequest{
 		numbers: r.GetNumbers(),
 		emails:  r.GetEmails(),
+		userId:  r.GetUserId(),
 	}
 }
 func (c *converter) convertDeleteEmails(r *pb.DeleteEmailFromTrackRequest) DeleteEmailFromTrack {
 	return DeleteEmailFromTrack{
 		number: r.GetNumber(),
 		email:  r.GetEmail(),
+		userId: r.GetUserId(),
 	}
 }
 func (c *converter) convertInterfaceArrayToStringArray(r []interface{}) []string {
@@ -116,11 +118,13 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
 func (s *Service) UpdateTrackingTime(ctx context.Context, r *pb.UpdateTrackingTimeRequest) (*pb.RepeatedBaseAddOnTrackResponse, error) {
-	resp, err := s.controller.UpdateTrackingTime(ctx, r.GetNumbers(), r.GetTime())
+	resp, err := s.controller.UpdateTrackingTime(ctx, r.GetNumbers(), r.GetTime(), r.GetUserId())
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id ")
+		case *NumberDoesntBelongThisUserError:
+			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}
@@ -138,6 +142,8 @@ func (s *Service) AddEmailsOnTracking(ctx context.Context, r *pb.AddEmailRequest
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
+		case *NumberDoesntBelongThisUserError:
+			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go func() {
 				s.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v for Numbers: %v err: %s`, r.GetEmails(), r.GetNumbers(), err.Error()))
@@ -154,6 +160,8 @@ func (s *Service) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFro
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
 		case *CannotFindEmailError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find email in job args")
+		case *NumberDoesntBelongThisUserError:
+			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for Number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
 			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -168,6 +176,8 @@ func (s *Service) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackR
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
+		case *NumberDoesntBelongThisUserError:
+			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go func() {
 				for _, v := range r.GetNumber() {
@@ -186,7 +196,7 @@ func (s *Service) DeleteBillNosFromTrack(ctx context.Context, r *pb.DeleteFromTr
 	return s.deleteFromTracking(ctx, r, false)
 }
 func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
-	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber())
+	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber(), r.GetUserId())
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
@@ -195,6 +205,8 @@ func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrack
 				Emails:      []string{},
 				NextRunTime: 0,
 			}, status.Error(codes.NotFound, "task with this id was not found")
+		case *NumberDoesntBelongThisUserError:
+			return &pb.GetInfoAboutTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go s.logger.ExceptionLog(fmt.Sprintf(`get info about tracking err: %s`, err.Error()))
 			return &pb.GetInfoAboutTrackResponse{
