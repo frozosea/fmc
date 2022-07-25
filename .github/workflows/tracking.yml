@@ -30,22 +30,4 @@ jobs:
         npm install
     - name: unit test
       run: npm run test:unit
-  ci:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: container-tracking
-    steps:
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fmc-tracking:latest
+
