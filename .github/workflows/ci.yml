@@ -3,8 +3,6 @@ name: Ci
 on:
   push:
     branches: [ "master"]
-  pull_request:
-    branches: [ "master" ]
 jobs:
   tracking:
     runs-on: ubuntu-latest
