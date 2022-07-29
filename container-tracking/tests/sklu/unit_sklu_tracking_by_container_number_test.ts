@@ -34,7 +34,6 @@ export const SkluinfoAboutMovingTest = (pathToHtml: string, container: string) =
     let infoAboutMovingParser = new SkluInfoAboutMovingParser(config.DATETIME);
     let data = fs.readFileSync(path.resolve(__dirname, pathToHtml))
     let infoAboutMoving = infoAboutMovingParser.parseInfoAboutMovingPage(data.toString(), container)
-    console.log(infoAboutMoving)
     assert.deepEqual(infoAboutMoving, expectedInfoAboutMoving)
 }
 export const SkluEtaParserTest = async (example, unlocodesRepoMoch, skluParser) => {

@@ -43,13 +43,13 @@ export const expectedInfoAboutMoving = [
         "location": "SINOKOR TAM CANG CAT LAI Depot",
         "operationName": "Pickup (1/1)",
         "time": 1653906120000,
-        "vessel": ""
+        "vessel": " "
     },
     {
         "location": "CAT LAI",
         "operationName": "Return (1/1)",
         "time": 1653961680000,
-        "vessel": ""
+        "vessel": " "
     },
     {
         "location": "CAT LAI",
@@ -85,7 +85,7 @@ export const expectedResult = {
         "location": "Hososhima",
         "operationName": "ETA",
         "time": 1655424000000,
-        "vessel": ""
+        "vessel": " "
     }]
 }
 

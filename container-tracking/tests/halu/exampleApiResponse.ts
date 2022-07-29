@@ -41,6 +41,6 @@ export const expectedInfoAboutMoving = [
         operationName: 'ETA',
         time: 1656892800000,
         location: 'Hososhima',
-        vessel: ''
+        vessel: ' '
     }
 ]

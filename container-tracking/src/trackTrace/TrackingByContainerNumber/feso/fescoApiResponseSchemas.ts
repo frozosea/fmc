@@ -21,17 +21,8 @@ export interface FesoApiResponse {
 }
 
 
-
 export interface FesoApiFullResponseSchema {
-    data: {
-        tracking: {
-            data: {
-                requestKey: string,
-                containers: FesoApiResponse | string[]
-                missing: [],
-                __typename: string
-            },
-            __typename: string
-        }
-    }
+    requestKey: string,
+    containers: FesoApiResponse | string[],
+    missing: string[]
 }

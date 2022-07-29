@@ -16,23 +16,13 @@ import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
 const assert = require('assert');
 
 export function parseFesoResp(fesoApiResp: FesoApiFullResponseSchema): FesoApiResponse {
-    return JSON.parse(fesoApiResp.data.tracking.data.containers[0])
+    return JSON.parse(fesoApiResp.containers[0])
 }
 
 const RawFesoApiResp: FesoApiFullResponseSchema = {
-    "data": {
-        "tracking": {
-            "data": {
-                "requestKey": "Ors2jy_ihL",
-                "containers": [
-                    "{\"container\":\"FESU2219270\",\"time\":\"2022-06-11T04:51:35.626Z\",\"containerCTCode\":\"20DC\",\"containerOwner\":\"COC\",\"latLng\":null,\"lastEvents\":[{\"time\":\"2022-06-06T16:00:00\",\"operation\":\"GATE-OUT\",\"operationName\":\"Вывоз с терминала\",\"operationNameLatin\":\"Gate out empty for loading\",\"locId\":43765,\"locName\":\"МАГИСТРАЛЬ\",\"locNameLatin\":\"MAGISTRAL\",\"locIdTo\":33427,\"locNameTo\":\"СКЛАД ГРУЗОВЛАДЕЛЬЦА\",\"locNameLatinTo\":\"sklad gruzovladel'сa\",\"etCode\":null,\"transportType\":null},{\"time\":\"2022-06-07T18:00:00\",\"operation\":\"GATE-IN\",\"operationName\":\"Прибытие на терминал\",\"operationNameLatin\":\"Gate in empty from consignee\",\"locId\":33378,\"locName\":\"Трансгарант\",\"locNameLatin\":\"ZAPSIBCONT\",\"locIdTo\":33378,\"locNameTo\":\"Трансгарант\",\"locNameLatinTo\":\"ZAPSIBCONT\",\"etCode\":\"T\",\"transportType\":\"Автомобиль\",\"vessel\":\"\",\"location\":{\"id\":43765,\"text\":\"МАГИСТРАЛЬ\",\"textLatin\":\"MAGISTRAL\",\"parentText\":\"Новосибирск\",\"parentTextLatin\":\"Novosibirsk\",\"country\":\"Россия\",\"countryLatin\":\"Russia\",\"ltCode\":\"T\",\"softshipCode\":\"MAGIST\",\"code\":null}}]}"
-                ],
-                "missing": [],
-                "__typename": "tracking_screenResult"
-            },
-            "__typename": "trackingQueries"
-        }
-    }
+    requestKey: "",
+    containers: ["{\"container\":\"FESU2219270\",\"time\":\"2022-06-11T04:51:35.626Z\",\"containerCTCode\":\"20DC\",\"containerOwner\":\"COC\",\"latLng\":null,\"lastEvents\":[{\"time\":\"2022-06-06T16:00:00\",\"operation\":\"GATE-OUT\",\"operationName\":\"Вывоз с терминала\",\"operationNameLatin\":\"Gate out empty for loading\",\"locId\":43765,\"locName\":\"МАГИСТРАЛЬ\",\"locNameLatin\":\"MAGISTRAL\",\"locIdTo\":33427,\"locNameTo\":\"СКЛАД ГРУЗОВЛАДЕЛЬЦА\",\"locNameLatinTo\":\"sklad gruzovladel'сa\",\"etCode\":null,\"transportType\":null},{\"time\":\"2022-06-07T18:00:00\",\"operation\":\"GATE-IN\",\"operationName\":\"Прибытие на терминал\",\"operationNameLatin\":\"Gate in empty from consignee\",\"locId\":33378,\"locName\":\"Трансгарант\",\"locNameLatin\":\"ZAPSIBCONT\",\"locIdTo\":33378,\"locNameTo\":\"Трансгарант\",\"locNameLatinTo\":\"ZAPSIBCONT\",\"etCode\":\"T\",\"transportType\":\"Автомобиль\",\"vessel\":\"\",\"location\":{\"id\":43765,\"text\":\"МАГИСТРАЛЬ\",\"textLatin\":\"MAGISTRAL\",\"parentText\":\"Новосибирск\",\"parentTextLatin\":\"Novosibirsk\",\"country\":\"Россия\",\"countryLatin\":\"Russia\",\"ltCode\":\"T\",\"softshipCode\":\"MAGIST\",\"code\":null}}]}"],
+    missing: []
 }
 
 const ExampleFesoInfoAboutMovingApiResponse: FesoApiResponse = parseFesoResp(RawFesoApiResp)

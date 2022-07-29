@@ -19,25 +19,34 @@ export class FesoRequest {
     }
 
     public async sendRequestToFescoGraphQlApiAndGetJsonResponse(container: string): Promise<FesoApiResponse> {
-        const FESCO_GRAPHQL_API_URL = "https://tracking.fesco.com/graphql";
-        let body = `{\"query\":\"query trackingData($codes: [String!], $fromFile: Boolean, $request: String, $filename: String, $email: String, $forDate: String) {\\n  tracking {\\n    data(codes: $codes, fromFile: $fromFile, request: $request, filename: $filename, email: $email, forDate: $forDate) {\\n      requestKey\\n      containers\\n      missing\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\",\"variables\":{\"codes\":[\"${container}\"],\"fromFile\":false,\"request\":null,\"filename\":null,\"email\":null,\"forDate\":null},\"operationName\":\"trackingData\"}`
+        const FESO_API_URL = "https://tracking.fesco.com/api/v1/tracking/get";
+        let body = {
+            "codes": [
+                container
+            ],
+            "email": null,
+            "forDate": null,
+            "fromFile": false
+        }
         let response: FesoApiFullResponseSchema = await this.request.sendRequestAndGetJson({
-            url: FESCO_GRAPHQL_API_URL,
+            url: FESO_API_URL,
             method: "POST",
             headers: {
-                "accept": "*/*",
+                "accept": "application/json, text/plain, */*",
                 "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
                 "content-type": "application/json",
-                "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"101\", \"Google Chrome\";v=\"101\"",
+                "sec-ch-ua": "\".Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"103\", \"Chromium\";v=\"103\"",
                 "sec-ch-ua-mobile": "?0",
                 "sec-ch-ua-platform": "\"macOS\"",
                 "sec-fetch-dest": "empty",
                 "sec-fetch-mode": "cors",
-                "sec-fetch-site": "cross-site"
+                "sec-fetch-site": "cross-site",
+                "Referer": "https://www.fesco.ru/",
+                "Referrer-Policy": "strict-origin-when-cross-origin"
             },
-            body: body
+            body: JSON.stringify(body)
         });
-        return JSON.parse(response.data.tracking.data.containers[0])
+        return JSON.parse(response.containers[0])
     }
 }
 
@@ -52,13 +61,12 @@ export class FesoInfoAboutMovingParser {
         let infoAboutMoving: OneTrackingEvent[] = [];
         let lastEvents = fescoApiResponse.lastEvents
         for (let item of lastEvents) {
-            console.log(item)
             let time = item.time.split("Z")[0]
             let oneOperationObject: OneTrackingEvent = {
                 time: this.datetime.strptime(time, "YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
-                operationName: item.operationNameLatin,
-                location: item.locNameLatin,
-                vessel: item.vessel ? item.vessel : ""
+                operationName: item.operationNameLatin.trim(),
+                location: item.locNameLatin.trim(),
+                vessel: item.vessel ? item.vessel : " "
             }
             infoAboutMoving.push(oneOperationObject)
         }
