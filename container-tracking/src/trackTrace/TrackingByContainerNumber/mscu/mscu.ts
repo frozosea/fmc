@@ -64,9 +64,9 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
         for (let item of apiResp.Data.BillOfLadings[0].ContainersInfo[0].Events) {
             let event: OneTrackingEvent = {
                 time: this.datetime.strptime(item.Date, "DD/MM/YYYY").getTime(),
-                operationName: item.Description,
-                location: item.Location,
-                vessel: ""
+                operationName: item.Description === "" ? " " : item.Description.trim(),
+                location: item.Location === "" ? " " : item.Location.trim(),
+                vessel: " "
             }
             infoAboutMovingArray.push(event)
         }
@@ -83,8 +83,8 @@ export class MscuEtaParser extends BaseMscuParser {
         return {
             time: this.datetime.strptime(etaDate, "DD/MM/YYYY").getTime(),
             operationName: "ETA",
-            location: "",
-            vessel: ""
+            location: " ",
+            vessel: " "
         }
     }
 }

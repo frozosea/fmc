@@ -36,7 +36,7 @@ describe("MAEU Tracking by container number test", () => {
             time: config.DATETIME.strptime("2022-06-11T13:54:00.000","YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
             operationName: "ETA",
             location: "Spartanburg",
-            vessel: ""
+            vessel: " "
         }
         let acutalEtaObject: OneTrackingEvent = maeuEtaParser.getEta(maeuExamleApiResponse);
         assert.deepEqual(acutalEtaObject, expectedEtaObject)

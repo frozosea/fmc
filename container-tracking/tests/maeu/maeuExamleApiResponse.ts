@@ -223,7 +223,7 @@ export const MaeuinfoAboutMoving = [
         "location": "Charleston Wando Welch terminal N59",
         "operationName": "GATE-OUT",
         "time": 1655200800000,
-        "vessel": ""
+        "vessel": " "
     }
 ]
 export const expectedMaeuReadyObject = {
@@ -234,6 +234,6 @@ export const expectedMaeuReadyObject = {
         'time': 1654955640000,
         'operationName': 'ETA',
         'location': 'Spartanburg',
-        'vessel': ''
+        'vessel': ' '
     }]
 }

@@ -60,7 +60,7 @@ export class CosuRequest {
 
     public getPod(cosuEtaResp: CosuApiResponseSchema): string {
         let pod = cosuEtaResp.data.content.containers[0].container.pod
-        return pod !== null ? pod : ""
+        return pod !== null ? pod : " "
     }
 
 }
@@ -75,7 +75,7 @@ export class CosuEtaParser {
     public getEtaObject(cosuEtaResp: EtaResponseSchema, pod: string): OneTrackingEvent {
         let rawEta: string = cosuEtaResp.data.content
         let etaTimeStamp: number = this.datetime.strptime(rawEta, "YYYY-MM-DD HH:mm").getTime()
-        return {time: etaTimeStamp, operationName: "ETA", vessel: "", location: pod}
+        return {time: etaTimeStamp, operationName: "ETA", vessel: " ", location: pod}
     }
 
 }
@@ -83,7 +83,7 @@ export class CosuEtaParser {
 export class CosuPodParser {
     public getPod(cosuApiResp: CosuApiResponseSchema): string {
         let pod = cosuApiResp.data.content.containers[0].container.pod
-        return pod !== null ? pod : ""
+        return pod !== null ? pod : " "
     }
 }
 

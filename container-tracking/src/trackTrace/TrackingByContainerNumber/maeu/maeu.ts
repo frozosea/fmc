@@ -66,14 +66,14 @@ export class MaeuEtaParser {
         try {
             eta = maerskApiResponse.containers[0].eta_final_delivery
         } catch (e) {
-            eta = ""
+            eta = " "
         }
-        if (eta !== "") {
+        if (eta !== " ") {
             return {
                 time: config.DATETIME.strptime(eta,"YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
                 operationName: "ETA",
                 location: this.podParser.getPortOfDischarging(maerskApiResponse),
-                vessel: ""
+                vessel: " "
             }
         } else {
             throw new GetEtaException()
@@ -85,7 +85,7 @@ export class MaeuInfoAboutMovingParser {
     public parseInfoAboutMoving(maerskApiResp: MaerskApiResponseSchema): OneTrackingEvent[] {
         let infoAboutMovingArray: OneTrackingEvent[] = []
         for (let bigEvent of maerskApiResp.containers[0].locations) {
-            let terminal = bigEvent.terminal !== null || true || bigEvent.terminal !== "" ? bigEvent.terminal : bigEvent.city
+            let terminal = bigEvent.terminal !== null || true || bigEvent.terminal !== " " ? bigEvent.terminal : bigEvent.city
             for (let event of bigEvent.events) {
                 let eventTime = event.actual_time ? event.actual_time : event.expected_time
                 let operationTime = config.DATETIME.strptime(eventTime,"YYYY-MM-DDTHH:mm:ss.SSS").getTime()
@@ -93,7 +93,7 @@ export class MaeuInfoAboutMovingParser {
                     time: operationTime,
                     location: terminal,
                     operationName: event.activity,
-                    vessel: event.vessel_name
+                    vessel: event.vessel_name === "" ? " " : event.vessel_name
                 }
                 infoAboutMovingArray.push(infoAboutMovingDict)
             }

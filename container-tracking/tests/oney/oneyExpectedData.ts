@@ -13,13 +13,13 @@ export const oneyExpectedData: TrackingContainerResponse = {
             "location": "PUSAN, KOREA REPUBLIC OF",
             "operationName": "Empty Container Release to Shipper",
             "time": 1648120740000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "PUSAN, KOREA REPUBLIC OF",
             "operationName": "Gate In to Outbound Terminal",
             "time": 1649155200000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "PUSAN, KOREA REPUBLIC OF",
@@ -55,37 +55,37 @@ export const oneyExpectedData: TrackingContainerResponse = {
             "location": "VANCOUVER, BC, CANADA",
             "operationName": "Loaded on rail at inbound rail origin",
             "time": 1654215840000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "VANCOUVER, BC, CANADA",
             "operationName": "Inbound Rail Departure",
             "time": 1654240140000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "DETROIT, MI, UNITED STATES",
             "operationName": "Inbound Rail Arrival",
             "time": 1654799640000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "DETROIT, MI, UNITED STATES",
             "operationName": "Unloaded from rail at inbound rail destination",
             "time": 1654808520000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "DETROIT, MI, UNITED STATES",
             "operationName": "Gate Out from Inbound CY for Delivery to Consignee",
             "time": 1654857480000,
-            "vessel": ""
+            "vessel": " "
         },
         {
             "location": "DETROIT, MI, UNITED STATES",
             "operationName": "Empty Container Returned from Customer",
             "time": 1654863840000,
-            "vessel": ""
+            "vessel": " "
         }
     ]
 }
