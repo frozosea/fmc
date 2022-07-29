@@ -212,6 +212,7 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
                 let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.number);
                 let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.number);
                 infoAboutMoving.push(eta)
+                console.log(eta)
                 return {
                     container: args.number,
                     containerSize: nextRequestDataObject.containerSize,
@@ -237,16 +238,3 @@ export class UnlocodesRepoMoch implements IUnlocodesRepo {
     public async addUnlocode(obj: UnlocodeObject): Promise<void> {
     }
 }
-
-// (async () => {
-//     let sklu = new SkluContainer({
-//         requestSender: config.REQUEST_SENDER,
-//         datetime: config.DATETIME,
-//         UserAgentGenerator: config.USER_AGENT_GENERATOR
-//     }, new UnlocodesRepoMoch())
-//     console.time('sklu');
-//     let actualResult = await sklu.trackContainer({container: "TCLU3277337"})
-//     // console.log(actualResult)
-//     console.timeEnd("sklu")
-//     // assert.deepEqual(actualResult, expectedResult)
-// })();

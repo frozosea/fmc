@@ -508,6 +508,7 @@ type ScheduleTrackingClient interface {
 	MarkBillNoWasArrived(ctx context.Context, in *AddMarkOnTrackingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MarkBillNoWasRemovedFromTrack(ctx context.Context, in *AddMarkOnTrackingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MarkContainerWasRemovedFromTrack(ctx context.Context, in *AddMarkOnTrackingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CheckNumberExists(ctx context.Context, in *CheckNumberExistsRequest, opts ...grpc.CallOption) (*CheckNumberExistsResponse, error)
 }
 
 type scheduleTrackingClient struct {
@@ -572,6 +573,15 @@ func (c *scheduleTrackingClient) MarkContainerWasRemovedFromTrack(ctx context.Co
 	return out, nil
 }
 
+func (c *scheduleTrackingClient) CheckNumberExists(ctx context.Context, in *CheckNumberExistsRequest, opts ...grpc.CallOption) (*CheckNumberExistsResponse, error) {
+	out := new(CheckNumberExistsResponse)
+	err := c.cc.Invoke(ctx, "/user.ScheduleTracking/CheckNumberBelongUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScheduleTrackingServer is the server API for ScheduleTracking service.
 // All implementations must embed UnimplementedScheduleTrackingServer
 // for forward compatibility
@@ -583,6 +593,7 @@ type ScheduleTrackingServer interface {
 	MarkBillNoWasArrived(context.Context, *AddMarkOnTrackingRequest) (*emptypb.Empty, error)
 	MarkBillNoWasRemovedFromTrack(context.Context, *AddMarkOnTrackingRequest) (*emptypb.Empty, error)
 	MarkContainerWasRemovedFromTrack(context.Context, *AddMarkOnTrackingRequest) (*emptypb.Empty, error)
+	CheckNumberExists(context.Context, *CheckNumberExistsRequest) (*CheckNumberExistsResponse, error)
 	mustEmbedUnimplementedScheduleTrackingServer()
 }
 
@@ -607,6 +618,9 @@ func (UnimplementedScheduleTrackingServer) MarkBillNoWasRemovedFromTrack(context
 }
 func (UnimplementedScheduleTrackingServer) MarkContainerWasRemovedFromTrack(context.Context, *AddMarkOnTrackingRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkContainerWasRemovedFromTrack not implemented")
+}
+func (UnimplementedScheduleTrackingServer) CheckNumberExists(context.Context, *CheckNumberExistsRequest) (*CheckNumberExistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckNumberBelongUser not implemented")
 }
 func (UnimplementedScheduleTrackingServer) mustEmbedUnimplementedScheduleTrackingServer() {}
 
@@ -729,6 +743,24 @@ func _ScheduleTracking_MarkContainerWasRemovedFromTrack_Handler(srv interface{},
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScheduleTracking_CheckNumberExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckNumberExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScheduleTrackingServer).CheckNumberExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.ScheduleTracking/CheckNumberBelongUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScheduleTrackingServer).CheckNumberExists(ctx, req.(*CheckNumberExistsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ScheduleTracking_ServiceDesc is the grpc.ServiceDesc for ScheduleTracking service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -759,6 +791,10 @@ var ScheduleTracking_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MarkContainerWasRemovedFromTrack",
 			Handler:    _ScheduleTracking_MarkContainerWasRemovedFromTrack_Handler,
+		},
+		{
+			MethodName: "CheckNumberBelongUser",
+			Handler:    _ScheduleTracking_CheckNumberExists_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

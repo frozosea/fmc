@@ -16,7 +16,7 @@ type Token struct {
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"UserId"`
+	UserId int `json:"userId"`
 }
 
 type ITokenManager interface {

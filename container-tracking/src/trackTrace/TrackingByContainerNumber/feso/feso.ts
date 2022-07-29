@@ -52,6 +52,7 @@ export class FesoInfoAboutMovingParser {
         let infoAboutMoving: OneTrackingEvent[] = [];
         let lastEvents = fescoApiResponse.lastEvents
         for (let item of lastEvents) {
+            console.log(item)
             let time = item.time.split("Z")[0]
             let oneOperationObject: OneTrackingEvent = {
                 time: this.datetime.strptime(time, "YYYY-MM-DDTHH:mm:ss.SSS").getTime(),

@@ -113,7 +113,7 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 		return nil
 	}
 	repository := schedule_tracking.NewRepository(db)
-	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir))
+	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
 }
 func parseTime(timeStr string, sep string) int64 {
 	splitInfo := strings.Split(timeStr, sep)
@@ -166,8 +166,11 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 	}), parseExpiration(redisConf.Ttl))
 	return redisCache
 }
+
+var redisConf = GetRedisSettings()
+var redisCache = GetCache(redisConf)
+
 func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
-	redisCache := GetCache(redisConf)
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)

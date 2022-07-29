@@ -93,8 +93,17 @@ service ScheduleTracking{
   rpc MarkBillNoWasArrived(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
   rpc MarkBillNoWasRemovedFromTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
   rpc MarkContainerWasRemovedFromTrack(AddMarkOnTrackingRequest) returns (google.protobuf.Empty) {};
+  rpc CheckNumberExists(CheckNumberExistsRequest) returns (CheckNumberExistsResponse) {};
 }
 message AddMarkOnTrackingRequest{
   int64 user_id = 1;
   string number = 2;
+}
+message CheckNumberExistsRequest{
+  int64 user_id = 1;
+  string number = 2;
+  bool is_container = 3;
+}
+message CheckNumberExistsResponse{
+  bool exists = 1;
 }

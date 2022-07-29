@@ -12,7 +12,7 @@ import (
 type UserId int
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserId int `json:"UserId"`
+	UserId int `json:"userId"`
 }
 type HttpUtils struct {
 	cli *auth.Client

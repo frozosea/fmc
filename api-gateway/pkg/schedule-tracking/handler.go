@@ -19,7 +19,7 @@ func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
 // AddContainersOnTrack
 // @Summary      add containers on track
 // @Security ApiKeyAuth
-// @Description  add containers on track. Every day in your selected time track container and send email with result about it.
+// @Description  add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
 // @Param input body AddOnTrackRequest true "info"
@@ -51,7 +51,7 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // AddBillNumbersOnTrack
 // @Summary      add bill numbers on track
 // @Security ApiKeyAuth
-// @Description  add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it.
+// @Description  add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
 // @Param input body AddOnTrackRequest true "info"
@@ -111,7 +111,7 @@ func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -148,7 +148,7 @@ func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -184,7 +184,7 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -220,7 +220,7 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -256,7 +256,7 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -292,7 +292,7 @@ func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.UserId = int64(userId)
+	s.userId = int64(userId)
 	if err := h.utils.Validate(c, &s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -307,5 +307,22 @@ func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 		return
 	}
 	c.JSON(200, res)
+	return
+}
+
+//GetTimeZone
+// @Summary      get timezone information
+// @Tags         Schedule Tracking
+// @Description  get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works
+// @Success      200 {object} TimeZoneResponse
+// @Failure 	 500  {object} BaseResponse
+// @Router       /schedule/getTz [get]
+func (h *HttpHandler) GetTimeZone(c *gin.Context) {
+	timeZone, err := h.client.GetTimeZone(c.Request.Context())
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, timeZone)
 	return
 }

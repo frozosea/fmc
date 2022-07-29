@@ -474,6 +474,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/schedule/getTz": {
+            "get": {
+                "description": "get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works",
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "get timezone information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.TimeZoneResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/updateTime": {
             "put": {
                 "security": [
@@ -1033,6 +1056,14 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "schedule_tracking.TimeZoneResponse": {
+            "type": "object",
+            "properties": {
+                "timeZone": {
                     "type": "string"
                 }
             }
