@@ -3,6 +3,7 @@ package schedule_tracking
 import (
 	"context"
 	"database/sql"
+	"errors"
 )
 
 type IRepository interface {
@@ -12,6 +13,7 @@ type IRepository interface {
 	AddMarkBillNoOnTrack(ctx context.Context, number string, userId int) error
 	AddMarkBillNoWasArrived(ctx context.Context, number string, userId int) error
 	AddMarkBillNoWasRemovedFromTrack(ctx context.Context, number string, userId int) error
+	CheckNumberExists(ctx context.Context, number string, userId int64, isContainer bool) (bool, error)
 }
 type Repository struct {
 	db *sql.DB
@@ -42,4 +44,23 @@ func (r *Repository) AddMarkBillNoWasArrived(ctx context.Context, number string,
 }
 func (r *Repository) AddMarkBillNoWasRemovedFromTrack(ctx context.Context, number string, userId int) error {
 	return r.wrapperExec(ctx, `UPDATE "bill_numbers" AS b SET is_on_track = false WHERE b.number = $1 AND b.user_id = $2`, number, userId)
+}
+func (r *Repository) CheckNumberExists(ctx context.Context, number string, userId int64, isContainer bool) (bool, error) {
+	var returnedNumber sql.NullString
+	if isContainer {
+		if err := r.db.QueryRowContext(ctx, `SELECT c.number FROM "container" AS c WHERE c.number = $1 AND c.user_id = $2`, number, userId).Scan(&returnedNumber); err != nil {
+			return false, err
+		}
+		if returnedNumber.Valid {
+			return true, nil
+		}
+	} else {
+		if err := r.db.QueryRowContext(ctx, `SELECT c.number FROM "bill_numbers" AS c WHERE c.number = $1 AND c.user_id = $2`, number, userId).Scan(&returnedNumber); err != nil {
+			return false, err
+		}
+		if returnedNumber.Valid {
+			return true, nil
+		}
+	}
+	return false, errors.New("no number exists")
 }

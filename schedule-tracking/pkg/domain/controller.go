@@ -32,7 +32,7 @@ type Controller struct {
 func NewController(logger logging.ILogger, cli *UserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Controller {
 	return &Controller{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, repository: repository, CustomTasks: customTasks}
 }
-func (c *Controller) checkNumberBelongUser(ctx context.Context, number string, userId int64) bool {
+func (c *Controller) checkNumberInTaskTable(ctx context.Context, number string, userId int64) bool {
 	task, err := c.repository.GetByNumber(ctx, number)
 	if task.UserId != userId {
 		return false
@@ -43,6 +43,9 @@ func (c *Controller) checkNumberBelongUser(ctx context.Context, number string, u
 	return true
 }
 func (c *Controller) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
+	if !c.cli.CheckNumberBelongUser(ctx, number, userId, true) {
+		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
+	}
 	task := c.GetTrackByContainerNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
@@ -53,7 +56,7 @@ func (c *Controller) addOneContainer(ctx context.Context, number, country, time 
 		c.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return job, markErr
 	}
-	go c.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,UserId: %d, IsContainer: true`, job.Id, time, emails, userId))
+	go c.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
 	return job, nil
 }
 func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
@@ -89,6 +92,9 @@ func (c *Controller) AddContainerNumbersOnTrack(ctx context.Context, req TrackBy
 	}, addErr
 }
 func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
+	if !c.cli.CheckNumberBelongUser(ctx, number, userId, false) {
+		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
+	}
 	task := c.GetTrackByBillNumberTask(number, country, userId)
 	job, err := c.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
@@ -99,7 +105,7 @@ func (c *Controller) addOneBillOnTrack(ctx context.Context, number, country, tim
 		c.logger.ExceptionLog(fmt.Sprintf(`mark bill on track with Number %s failed: %s`, number, addCntrErr.Error()))
 		return job, addCntrErr
 	}
-	go c.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,UserId: %d, IsContainer: false`, job.Id, time, emails, userId))
+	go c.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: false`, job.Id, time, emails, userId))
 	return job, nil
 }
 func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoReq) (*AddOnTrackResponse, error) {
@@ -137,7 +143,7 @@ func (c *Controller) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillN
 func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, newTime string, userId int64) ([]*BaseAddOnTrackResponse, error) {
 	var response []*BaseAddOnTrackResponse
 	for _, v := range numbers {
-		if !c.checkNumberBelongUser(ctx, v, userId) {
+		if !c.checkNumberInTaskTable(ctx, v, userId) {
 			return response, &NumberDoesntBelongThisUserError{}
 		}
 		job, err := c.taskManager.Reschedule(ctx, v, newTime)
@@ -159,7 +165,7 @@ func (c *Controller) UpdateTrackingTime(ctx context.Context, numbers []string, n
 }
 func (c *Controller) AddEmailToTracking(ctx context.Context, req AddEmailRequest) error {
 	for _, number := range req.numbers {
-		if !c.checkNumberBelongUser(ctx, number, req.userId) {
+		if !c.checkNumberInTaskTable(ctx, number, req.userId) {
 			return &NumberDoesntBelongThisUserError{}
 		}
 		job, err := c.taskManager.Get(ctx, number)
@@ -180,7 +186,7 @@ func (c *Controller) AddEmailToTracking(ctx context.Context, req AddEmailRequest
 	return nil
 }
 func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFromTrack) error {
-	if !c.checkNumberBelongUser(ctx, req.number, req.userId) {
+	if !c.checkNumberInTaskTable(ctx, req.number, req.userId) {
 		return &NumberDoesntBelongThisUserError{}
 	}
 	job, err := c.taskManager.Get(ctx, req.number)
@@ -199,7 +205,7 @@ func (c *Controller) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFr
 }
 func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, numbers ...string) error {
 	for _, v := range numbers {
-		if !c.checkNumberBelongUser(ctx, v, userId) {
+		if !c.checkNumberInTaskTable(ctx, v, userId) {
 			return &NumberDoesntBelongThisUserError{}
 		}
 		if err := c.taskManager.Remove(ctx, v); err != nil {
@@ -226,7 +232,7 @@ func (c *Controller) DeleteFromTracking(ctx context.Context, userId int64, isCon
 	return nil
 }
 func (c *Controller) GetInfoAboutTracking(ctx context.Context, number string, userId int64) (*GetInfoAboutTrackResponse, error) {
-	if !c.checkNumberBelongUser(ctx, number, userId) {
+	if !c.checkNumberInTaskTable(ctx, number, userId) {
 		return &GetInfoAboutTrackResponse{}, &NumberDoesntBelongThisUserError{}
 	}
 	job, err := c.taskManager.Get(ctx, number)

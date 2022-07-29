@@ -20,6 +20,8 @@ service ScheduleTracking{
   rpc DeleteBillNosFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
   //yes
   rpc GetInfoAboutTrack(GetInfoAboutTrackRequest) returns (GetInfoAboutTrackResponse) {};
+  //no
+  rpc GetTimeZone(google.protobuf.Empty) returns (GetTimeZoneResponse) {};
 }
 message UpdateTrackingTimeRequest{
   repeated string numbers = 1;
@@ -67,4 +69,7 @@ message GetInfoAboutTrackResponse{
 message DeleteFromTrackRequest{
   int64 user_id = 1;
   repeated string number = 2;
+}
+message GetTimeZoneResponse{
+  string time_zone = 1;
 }

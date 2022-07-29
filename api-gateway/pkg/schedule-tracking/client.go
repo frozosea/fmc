@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Client struct {
@@ -25,11 +26,11 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddContainersOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
-		//go func() {
-		//	for _, v := range req.Numbers {
-		//		c.logger.ExceptionLog(fmt.Sprintf(`add container on track with number: %s err: %s`, v, err.Error()))
-		//	}
-		//}()
+		statusOfRequest := status.Convert(err)
+		switch statusOfRequest.Code() {
+		case codes.PermissionDenied:
+			return &AddOnTrackResponse{}, errors.New("number does not belong to this user or cannot find job by your params")
+		}
 		return nil, err
 	}
 	return c.converter.addOnTrackResponseConvert(response), nil
@@ -38,11 +39,11 @@ func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddO
 func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddBillNosOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
-		//go func() {
-		//	for _, v := range req.Numbers {
-		//		c.logger.ExceptionLog(fmt.Sprintf(`add bill number on track with number: %s err: %s`, v, err.Error()))
-		//	}
-		//}()
+		statusOfRequest := status.Convert(err)
+		switch statusOfRequest.Code() {
+		case codes.PermissionDenied:
+			return &AddOnTrackResponse{}, errors.New("number does not belong to this user or cannot find job by your params")
+		}
 		return nil, err
 	}
 	return c.converter.addOnTrackResponseConvert(response), nil
@@ -87,7 +88,7 @@ func (c *Client) DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrac
 	_, err := c.cli.DeleteEmailFromTrack(ctx, &pb.DeleteEmailFromTrackRequest{
 		Number: r.Number,
 		Email:  r.Email,
-		UserId: r.UserId,
+		UserId: r.userId,
 	})
 	if err != nil {
 		statusCode := status.Convert(err).Code()
@@ -135,7 +136,7 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 }
 
 func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackRequest) (GetInfoAboutTrackResponse, error) {
-	resp, err := c.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{Number: r.Number, UserId: r.UserId})
+	resp, err := c.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{Number: r.Number, UserId: r.userId})
 	if err != nil {
 		var s GetInfoAboutTrackResponse
 		code := status.Convert(err).Code()
@@ -153,6 +154,14 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 		Emails:      resp.GetEmails(),
 		NextRunTime: resp.GetNextRunTime(),
 	}, nil
+}
+func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {
+	timeZone, err := c.cli.GetTimeZone(ctx, &emptypb.Empty{})
+	if err != nil {
+		return &TimeZoneResponse{}, err
+	}
+	return &TimeZoneResponse{TimeZone: timeZone.GetTimeZone()}, nil
+
 }
 
 type converter struct {
@@ -187,13 +196,13 @@ func (c *converter) updateTrackingTimeRequestConvert(r UpdateTrackingTimeRequest
 	return &pb.UpdateTrackingTimeRequest{
 		Numbers: r.Numbers,
 		Time:    r.NewTime,
-		UserId:  r.UserId,
+		UserId:  r.userId,
 	}
 }
 func (c *converter) AddEmailRequestConvert(r AddEmailRequest) *pb.AddEmailRequest {
 	return &pb.AddEmailRequest{
 		Numbers: r.Numbers,
 		Emails:  r.Emails,
-		UserId:  r.UserId,
+		UserId:  r.userId,
 	}
 }

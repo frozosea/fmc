@@ -237,16 +237,3 @@ export class UnlocodesRepoMoch implements IUnlocodesRepo {
     public async addUnlocode(obj: UnlocodeObject): Promise<void> {
     }
 }
-
-// (async () => {
-//     let sklu = new SkluContainer({
-//         requestSender: config.REQUEST_SENDER,
-//         datetime: config.DATETIME,
-//         UserAgentGenerator: config.USER_AGENT_GENERATOR
-//     }, new UnlocodesRepoMoch())
-//     console.time('sklu');
-//     let actualResult = await sklu.trackContainer({container: "TCLU3277337"})
-//     // console.log(actualResult)
-//     console.timeEnd("sklu")
-//     // assert.deepEqual(actualResult, expectedResult)
-// })();

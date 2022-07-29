@@ -112,6 +112,8 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 		group.DELETE(`/deleteBillNumbers`, handler.DeleteBillNumbersFromTrack)
 		group.POST(`/getInfo`, handler.GetInfoAboutTracking)
 	}
+	router.GET(`/schedule/getTz`, handler.GetTimeZone)
+
 }
 
 func getAuthClient(ip, port string, logger logging.ILogger) (*auth.Client, error) {

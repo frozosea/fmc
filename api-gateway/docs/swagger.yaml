@@ -127,6 +127,11 @@ definitions:
       number:
         type: string
     type: object
+  schedule_tracking.TimeZoneResponse:
+    properties:
+      timeZone:
+        type: string
+    type: object
   schedule_tracking.UpdateTrackingTimeRequest:
     properties:
       newTime:
@@ -512,6 +517,22 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: get info about number on tracking
+      tags:
+      - Schedule Tracking
+  /schedule/getTz:
+    get:
+      description: get timezone in format UTC+10, this route is for get time zone,
+        because users want to know in which tz will tracking works
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.TimeZoneResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      summary: get timezone information
       tags:
       - Schedule Tracking
   /schedule/updateTime:

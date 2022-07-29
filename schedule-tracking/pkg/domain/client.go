@@ -24,7 +24,7 @@ func (c *UserClient) MarkBillNoOnTrack(ctx context.Context, userId int64, number
 	return nil
 }
 func (c *UserClient) MarkContainerOnTrack(ctx context.Context, userId int64, number string) error {
-	if _, err := c.cli.MarkBillNoOnTrack(ctx, &user_pb.AddMarkOnTrackingRequest{UserId: userId, Number: number}); err != nil {
+	if _, err := c.cli.MarkContainerOnTrack(ctx, &user_pb.AddMarkOnTrackingRequest{UserId: userId, Number: number}); err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`mark container with Number %s no add on track for user %d failed: %s`, number, userId, err.Error()))
 		return err
 	}
@@ -58,8 +58,14 @@ func (c *UserClient) MarkBillNoWasRemovedFromTrack(ctx context.Context, userId i
 	}
 	return nil
 }
-
-type AuthClient struct {
-	client user_pb.AuthClient
-	logger logging.ILogger
+func (c *UserClient) CheckNumberBelongUser(ctx context.Context, number string, userId int64, isContainer bool) bool {
+	existStruct, err := c.cli.CheckNumberExists(ctx, &user_pb.CheckNumberExistsRequest{
+		UserId:      userId,
+		Number:      number,
+		IsContainer: isContainer,
+	})
+	if err != nil || !existStruct.GetExists() {
+		return false
+	}
+	return true
 }
