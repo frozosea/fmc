@@ -212,6 +212,7 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
                 let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.number);
                 let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.number);
                 infoAboutMoving.push(eta)
+                console.log(eta)
                 return {
                     container: args.number,
                     containerSize: nextRequestDataObject.containerSize,
