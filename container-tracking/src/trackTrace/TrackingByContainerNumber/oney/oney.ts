@@ -1,19 +1,20 @@
 import {
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
     ITrackingArgs,
-    TrackingContainerResponse,
-    OneTrackingEvent, BaseContainerConstructor
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {
-    OneyGetContainerSizeSchema,
     OneyGetBillNumberResponse,
+    OneyGetContainerSizeSchema,
     OneyInfoAboutMovingSchema
 } from "./oneyApiResponseSchemas";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {NotThisShippingLineException} from "../../../exceptions";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
 import {IDatetime} from "../../helpers/datetime";
-import {CopNo, BkgNo} from "../../../types";
+import {BkgNo, CopNo} from "../../../types";
 import RequestsUtils from "../../helpers/utils/requestsUtils";
 
 export class OneyRequest {
@@ -101,9 +102,9 @@ export class OneyInfoAboutMovingParser {
         for (let item of infoAboutMovingApiResp.list) {
             let oneInfoObject: OneTrackingEvent = {
                 time: this.datetime.strptime(item.eventDt, "YYYY-MM-DD HH:mm").getTime(),
-                operationName: item.statusNm,
-                location: item.placeNm,
-                vessel: item.vslEngNm
+                operationName: item.statusNm === "" ? " " : item.statusNm.trim(),
+                location: item.placeNm === "" ? " " : item.placeNm.trim(),
+                vessel: item.vslEngNm === "" ? " " : item.vslEngNm.trim()
             }
             infoAboutMoving.push(oneInfoObject)
         }
@@ -148,13 +149,3 @@ export class OneyContainer extends BaseTrackerByContainerNumber<fetchArgs> {
 
     }
 }
-
-// (async () => {
-//     let oney = new OneyContainer({
-//         datetime: config.DATETIME,
-//         requestSender: config.REQUEST_SENDER,
-//         UserAgentGenerator: config.USER_AGENT_GENERATOR
-//     })
-//     let actualResponse = await oney.trackContainer({container: "GAOU6642924"})
-//     console.log(actualResponse)
-// })();

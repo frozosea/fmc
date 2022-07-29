@@ -165,7 +165,7 @@ export class SkluInfoAboutMovingParser {
         }
         for (let item of outputArr) {
             if (item.vessel === container) {
-                item.vessel = ""
+                item.vessel = " "
             }
         }
         return outputArr
@@ -185,7 +185,7 @@ export class SkluEtaParser {
 
     async getEtaObject(data: _NextRequestDataResp): Promise<OneTrackingEvent> {
         let etaPortFullName: string = await this.repo.getUnlocode(data.unlocode)
-        return {operationName: "ETA", time: data.eta, location: etaPortFullName, vessel: ""}
+        return {operationName: "ETA", time: data.eta, location: etaPortFullName, vessel: " "}
     }
 }
 
@@ -212,7 +212,6 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
                 let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.number);
                 let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.number);
                 infoAboutMoving.push(eta)
-                console.log(eta)
                 return {
                     container: args.number,
                     containerSize: nextRequestDataObject.containerSize,
