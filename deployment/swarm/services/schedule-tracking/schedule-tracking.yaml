@@ -19,6 +19,7 @@ services:
       SENDER_NAME: FindMyCargo
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <YOUR_UNISENDER_API_KEY>
+      TZ: Asia/Vladivostok
     depends_on:
       - postgres_db
   postgres_db:

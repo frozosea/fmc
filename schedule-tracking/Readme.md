@@ -22,3 +22,5 @@
 ### Go to `conf/cfg.ini` and change parameters if you want.
 
 Methods are in `pkg/proto`.
+
+Default timezone of running tasks is Asia/Vladivostok. If you want to change it you can open dockerfile and change the timezone.

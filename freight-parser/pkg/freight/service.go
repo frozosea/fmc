@@ -76,17 +76,16 @@ type Service struct {
 }
 
 func (s *Service) GetFreight(ctx context.Context, r *pb.GetFreightRequest) (*pb.GetFreightsResponseList, error) {
-	convertedRequest := s.converter.convertRequestToGetFreightStruct(r)
-	response, err := s.controller.GetFreights(ctx, convertedRequest)
+	response, err := s.controller.GetFreights(ctx, s.converter.convertRequestToGetFreightStruct(r))
 	if err != nil {
 		s.logger.ExceptionLog(fmt.Sprintf(`GetFreights error: %s`, err.Error()))
-		return s.converter.convertResponseToGrpcResponse(response), err
+		return &pb.GetFreightsResponseList{}, status.Error(codes.Internal, err.Error())
 	}
 	return s.converter.convertResponseToGrpcResponse(response), nil
 }
 func (s *Service) AddFreight(ctx context.Context, r *pb.AddFreightRequest) (*emptypb.Empty, error) {
 	if err := s.controller.AddFreight(ctx, s.converter.convertAddFreight(r)); err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
