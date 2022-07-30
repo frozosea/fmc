@@ -21,7 +21,6 @@ export class SitcBillNumberRequest extends SitcRequest implements ISitcBillNumbe
             headers: {
                 "accept": "application/json, text/plain, */*",
                 "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
-                // "cookie": "rememberMe=true; username=flyasea; Hm_lvt_6c6c344c19846b08289aece9f968bd6f=1655363989,1657166543; password=qCbbbVcqDxGb6GMzs6bWLk11MXsF5K0xgTumeXo1GX/4BbpCdWZ8y0ZMRBXntKfj3pr/vwghgsRtcYqLKiLFUA==; Hm_lpvt_6c6c344c19846b08289aece9f968bd6f=1657266306",
                 "Referer": "http://api.sitcline.com/app/cargoTrackSearch",
                 "Referrer-Policy": "strict-origin-when-cross-origin"
             },
@@ -36,7 +35,6 @@ export class SitcBillNumberRequest extends SitcRequest implements ISitcBillNumbe
             headers: {
                 "accept": "application/json, text/plain, */*",
                 "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
-                // "cookie": "rememberMe=true; username=flyasea; Hm_lvt_6c6c344c19846b08289aece9f968bd6f=1655363989,1657166543; password=qCbbbVcqDxGb6GMzs6bWLk11MXsF5K0xgTumeXo1GX/4BbpCdWZ8y0ZMRBXntKfj3pr/vwghgsRtcYqLKiLFUA==; Hm_lpvt_6c6c344c19846b08289aece9f968bd6f=1657266306",
                 "Referer": "http://api.sitcline.com/app/cargoTrack",
                 "Referrer-Policy": "strict-origin-when-cross-origin"
             },
