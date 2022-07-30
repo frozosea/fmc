@@ -71,8 +71,7 @@ func (s *Service) AddLine(stream pb.LineService_AddLineServer) error {
 func (s *Service) GetAllLines(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllLinesResponse, error) {
 	result, err := s.controller.GetAllLines(ctx)
 	if err != nil {
-		var allGrpcLines *pb.GetAllLinesResponse
-		return allGrpcLines, err
+		return &pb.GetAllLinesResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return s.converter.convertControllerResponseToGrpcMessage(result), nil
 }

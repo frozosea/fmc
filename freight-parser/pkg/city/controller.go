@@ -38,6 +38,7 @@ func (c *Controller) GetAll(ctx context.Context) ([]*City, error) {
 		var s []*City
 		if err := c.cache.Get(ctx, CitiesRedisKey, &s); err != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`get all cities from cache failed: %s`, err.Error()))
+			close(cacheCh)
 			return
 		}
 		cacheCh <- s
@@ -47,6 +48,7 @@ func (c *Controller) GetAll(ctx context.Context) ([]*City, error) {
 		res, err := c.repo.GetAll(ctx)
 		if err != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`get all city from repo failed: %s`, err.Error()))
+			close(repoCh)
 			return
 		}
 		repoCh <- res

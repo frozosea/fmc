@@ -3,6 +3,8 @@ package city
 import (
 	"context"
 	pb "fmc-newest/pkg/proto"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -32,9 +34,15 @@ func NewService(controller *Controller) *Service {
 }
 
 func (s *Service) AddCity(ctx context.Context, addCityRequest *pb.AddCityRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.AddCity(ctx, *s.converter.addCityGrpcRequestConvertToAddCityStruct(addCityRequest))
+	if err := s.controller.AddCity(ctx, *s.converter.addCityGrpcRequestConvertToAddCityStruct(addCityRequest)); err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }
 func (s *Service) GetAllCities(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllCitiesResponse, error) {
 	result, err := s.controller.GetAll(ctx)
+	if err != nil {
+		return &pb.GetAllCitiesResponse{}, status.Error(codes.Internal, err.Error())
+	}
 	return s.converter.convertResponseToGrpcResponse(result), err
 }
