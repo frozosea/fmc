@@ -1,4 +1,5 @@
 const asyncRedis = require("async-redis");
+
 export interface ICache {
     get(key: string): Promise<string>
 
@@ -19,6 +20,6 @@ export class Cache implements ICache {
     }
 
     public async set<T>(key: string, value: T, ttl?: number): Promise<void> {
-        return await this.client.set(key, value)
+        return await this.client.set(key, value, 'EX', ttl)
     }
 }
