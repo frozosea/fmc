@@ -1,7 +1,7 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 'use strict';
-var grpc = require('@grpc/grpc-js');
+var grpc = require('grpc');
 var server_pb = require('./server_pb.js');
 
 function serialize_tracking_Request(arg) {

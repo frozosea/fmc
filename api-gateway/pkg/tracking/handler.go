@@ -57,7 +57,7 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 // @Security     ApiKeyAuth
 // @Description  tracking by bill number, if eta not found will be 0
 // @Tags         Tracking
-// @Param        scac  query     string     false  "scac code"       default(FESO) Enums(AUTO, FESO, SKLU,SITC,HALU)
+// @Param        scac  query     string     false  "scac code"       default(FESO) Enums(AUTO, FESO, SKLU,SITC,HALU, ZHGU)
 // @Param        number  query     string   false  "bill number"   	default(FLCE405711) minlength(9)  maxlength(30)
 // @Success      200  {object}  BillNumberResponse
 // @Success      204

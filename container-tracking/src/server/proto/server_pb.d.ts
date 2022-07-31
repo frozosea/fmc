@@ -133,7 +133,8 @@ export enum Scac {
     SITC = 6,
     MSCU = 7,
     HALU = 8,
-    AUTO = 9,
+    ZHGU = 9,
+    AUTO = 10,
 }
 
 export enum Country {

@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "@grpc/grpc-js";
+import * as grpc from "grpc";
 import * as server_pb from "./server_pb";
 
 interface ITrackingByContainerNumberService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {

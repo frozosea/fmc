@@ -13,7 +13,7 @@ describe("tracking utils test", () => {
                 ]
             }
         }
-        const newInfoMoch = (time: number):TrackingContainerResponse => {
+        const newInfoMoch = (time: number): TrackingContainerResponse => {
             return {
                 container: "cosuContainer", scac: "COSU", containerSize: "container size", infoAboutMoving: [
                     {time: time, operationName: "operation1", location: "loc1", vessel: "vessel1"}
@@ -26,13 +26,13 @@ describe("tracking utils test", () => {
         }
 
         const getNewTime = (): number[] => {
-            return [1652591461000, 1655269861000, 1649999461000, 1652159461000, 1651468261000]
+            return [new Date().getTime()]
         }
-        for (let time of getOldTime()){
-            assert.strictEqual(timeInspector.inspectTime(oldInfoMoch(time)),false)
+        for (let time of getOldTime()) {
+            assert.strictEqual(timeInspector.inspectTime(oldInfoMoch(time)), false)
         }
-        for (let newTime of getNewTime()){
-            assert.strictEqual(timeInspector.inspectTime(newInfoMoch(newTime)),true)
+        for (let newTime of getNewTime()) {
+            assert.strictEqual(timeInspector.inspectTime(newInfoMoch(newTime)), true)
         }
     })
 })
