@@ -145,7 +145,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it.",
+                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.",
                 "consumes": [
                     "application/json"
                 ],
@@ -193,7 +193,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "add containers on track. Every day in your selected time track container and send email with result about it.",
+                "description": "add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.",
                 "consumes": [
                     "application/json"
                 ],
@@ -567,7 +567,8 @@ const docTemplate = `{
                             "FESO",
                             "SKLU",
                             "SITC",
-                            "HALU"
+                            "HALU",
+                            "ZHGU"
                         ],
                         "type": "string",
                         "default": "FESO",

@@ -1,5 +1,5 @@
 import {TrackingServiceConverter} from "../../src/server/services/trackingByContainerNumberService";
-import {Country, Scac} from "../../src/server/proto/server_pb";
+import {Country, Scac} from "../../src/server/proto/tracking_pb";
 
 const assert = require("assert")
 describe("converters test", () => {

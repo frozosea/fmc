@@ -57,7 +57,7 @@ export default class ContainerTrackingController {
                 this.logger.containerSuccessLog(res)
                 return res
             default:
-                throw new Error("user-pb only RU or OTHER")
+                throw new Error("use only RU or OTHER")
         }
     }
 

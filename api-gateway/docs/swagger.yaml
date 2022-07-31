@@ -312,7 +312,8 @@ paths:
       consumes:
       - application/json
       description: add bill numbers on track. Every day in your selected time track
-        bill numbers and send email with result about it.
+        bill numbers and send email with result about it. You can add on track only
+        if container/bill already in your account.
       parameters:
       - description: info
         in: body
@@ -343,7 +344,8 @@ paths:
       consumes:
       - application/json
       description: add containers on track. Every day in your selected time track
-        container and send email with result about it.
+        container and send email with result about it. You can add on track only if
+        container/bill already in your account.
       parameters:
       - description: info
         in: body
@@ -579,6 +581,7 @@ paths:
         - SKLU
         - SITC
         - HALU
+        - ZHGU
         in: query
         name: scac
         type: string

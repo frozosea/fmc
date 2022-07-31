@@ -1,5 +1,5 @@
 // package: tracking
-// file: server.proto
+// file: tracking.proto
 
 /* tslint:disable */
 /* eslint-disable */

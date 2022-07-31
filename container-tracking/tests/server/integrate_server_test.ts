@@ -1,7 +1,7 @@
-import startServer, {server} from "../../src/server/server";
+import startServer from "../../src/server/server";
 import {trackContainerByServer} from "../../src/server/clients";
 import {SCAC_TYPE} from "../../src/types";
-import {TrackingByContainerNumberResponse} from "../../src/server/proto/server_pb";
+import {TrackingByContainerNumberResponse} from "../../src/server/proto/tracking_pb";
 import {TrackingServiceConverter} from "../../src/server/services/trackingByContainerNumberService";
 
 const assert = require("assert")
@@ -16,14 +16,6 @@ const testTracking = (result: TrackingByContainerNumberResponse.AsObject, scac: 
         throw new assert.AssertionError({message: "not info about moving len"})
     }
 }
-// try {
-//     startServer()
-// } catch (e) {
-//     console.log(`e: ${e}`)
-// }
-// before(()=>{
-//     startServer()
-// })
 describe("grpc services test", () => {
     try {
         startServer()

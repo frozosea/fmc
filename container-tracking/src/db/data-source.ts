@@ -20,10 +20,5 @@ export const AppDataSource = new DataSource({
     subscribers: [],
 })
 
-AppDataSource.initialize()
-    .then(async (_) => {
-    })
-    .catch((error) => console.log("Error of init db: ", error))
-
 
 

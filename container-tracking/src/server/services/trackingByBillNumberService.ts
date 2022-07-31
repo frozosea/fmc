@@ -1,5 +1,5 @@
-import {ITrackingByBillNumberServer} from "../proto/server_grpc_pb";
-import {Request, TrackingByBillNumberResponse} from "../proto/server_pb";
+import {ITrackingByBillNumberServer} from "../proto/tracking_grpc_pb";
+import {Request, TrackingByBillNumberResponse} from "../proto/tracking_pb";
 import {sendUnaryData, ServerUnaryCall} from '@grpc/grpc-js';
 import {ILogger} from "../../logging";
 import {ServiceSerializer, TrackingServiceConverter} from "./trackingByContainerNumberService";

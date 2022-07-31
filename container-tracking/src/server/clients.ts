@@ -1,6 +1,6 @@
-import {TrackingByBillNumberClient, TrackingByContainerNumberClient} from "./proto/server_grpc_pb";
+import {TrackingByBillNumberClient, TrackingByContainerNumberClient} from "./proto/tracking_grpc_pb";
 import {credentials} from "@grpc/grpc-js";
-import {Request, TrackingByBillNumberResponse, TrackingByContainerNumberResponse} from "./proto/server_pb";
+import {Request, TrackingByBillNumberResponse, TrackingByContainerNumberResponse} from "./proto/tracking_pb";
 import {COUNTRY_TYPE, SCAC_TYPE} from "../types";
 import {TrackingServiceConverter} from "./services/trackingByContainerNumberService";
 

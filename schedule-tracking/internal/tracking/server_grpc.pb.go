@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.19.4
-// source: server.proto
+// source: tracking.proto
 
 package tracking
 
@@ -102,7 +102,7 @@ var TrackingByContainerNumber_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "server.proto",
+	Metadata: "tracking.proto",
 }
 
 // TrackingByBillNumberClient is the client API for TrackingByBillNumber service.
@@ -188,5 +188,5 @@ var TrackingByBillNumber_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "server.proto",
+	Metadata: "tracking.proto",
 }

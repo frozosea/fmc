@@ -135,7 +135,7 @@ export class ZhguBillNumber implements IBillNumberTracker {
             let eta = this.etaParser.getEta(resp)
             return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: eta}
         } catch (e) {
-            return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: 0}
+            return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: 1}
         }
     }
 }
