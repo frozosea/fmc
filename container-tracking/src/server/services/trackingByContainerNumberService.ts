@@ -1,7 +1,7 @@
 import {sendUnaryData, ServerUnaryCall} from '@grpc/grpc-js';
 import ContainerTrackingController from "../../containerTrackingController";
-import {ITrackingByContainerNumberServer} from "../proto/server_grpc_pb";
-import {Country, InfoAboutMoving, Request, Scac, TrackingByContainerNumberResponse} from "../proto/server_pb";
+import {ITrackingByContainerNumberServer} from "../proto/tracking_grpc_pb";
+import {Country, InfoAboutMoving, Request, Scac, TrackingByContainerNumberResponse} from "../proto/tracking_pb";
 import {COUNTRY_TYPE, OneTrackingEvent, SCAC_TYPE, TrackingContainerResponse} from "../../types";
 import {ILogger} from "../../logging";
 

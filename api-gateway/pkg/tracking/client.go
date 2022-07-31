@@ -51,6 +51,7 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 	//}
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
+		fmt.Println(err)
 		//c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
 		return new(BillNumberResponse), err
 	}

@@ -34,6 +34,8 @@ import {
     RandomStringGenerator
 } from "./trackTrace/trackingBybillNumber/sitc/captchaResolver";
 import {SitcBillNumber, SitcBillNumberRequest} from "./trackTrace/trackingBybillNumber/sitc/sitc";
+import {ZhguBillNumber} from "./trackTrace/trackingBybillNumber/zhgu/zhgu";
+import {AppDataSource} from "./db/data-source";
 
 // container.register<>("",{})
 const baseArgs = {
@@ -55,6 +57,7 @@ export const halu = new HaluContainer(baseArgs, unlocodesRepo)
 export const fesoBill = new FesoBillNumber(baseArgs)
 export const skluBill = new SkluBillNumber(baseArgs, unlocodesRepo)
 export const haluBill = new HaluBillNumber(baseArgs, unlocodesRepo)
+export const zhguBill = new ZhguBillNumber(baseArgs)
 export const randomStringGenerator = new RandomStringGenerator()
 export const captchaGetter = new CaptchaGetter(randomStringGenerator, baseArgs.requestSender)
 export const captchaSolver = new CaptchaSolver(baseArgs.requestSender)
@@ -82,7 +85,8 @@ export const mainTrackingByBillNumberForRussia = new MainTrackingByBillNumberFor
     feso: fesoBill,
     sklu: skluBill,
     halu: haluBill,
-    sitc: sitcbill
+    sitc: sitcbill,
+    zhgu: zhguBill
 })
 const scacRepo = new ScacRepository()
 const cache = new Cache()
@@ -92,3 +96,4 @@ export const trackingByContainerNumberGrpcService = new ContainerTrackingControl
 export const trackingByContainerNumberService = new TrackingByContainerNumberService(trackingByContainerNumberGrpcService, baseLogger);
 export const billNumberTrackingController = new BillNumberTrackingController(mainTrackingByBillNumberForRussia, scacRepo, cache, serviceLogger)
 export const trackingByBillNumberService = new TrackingBybillNumberService(billNumberTrackingController, baseLogger)
+

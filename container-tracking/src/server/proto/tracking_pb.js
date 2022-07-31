@@ -1,4 +1,4 @@
-// source: server.proto
+// source: tracking.proto
 /**
  * @fileoverview
  * @enhanceable
@@ -1028,7 +1028,8 @@ proto.tracking.Scac = {
   SITC: 6,
   MSCU: 7,
   HALU: 8,
-  AUTO: 9
+  ZHGU: 9,
+  AUTO: 10
 };
 
 /**
