@@ -271,6 +271,26 @@ func (s *sitcArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 
 }
 
+type zhguArrivedChecker struct{}
+
+func (z *zhguArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
+	for _, v := range result.InfoAboutMoving {
+		if strings.ToUpper(v.OperationName) == "ATA" {
+			return true
+		}
+	}
+	return false
+}
+func (z *zhguArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
+	for _, v := range result.InfoAboutMoving {
+		if strings.ToUpper(v.OperationName) == "ATA" {
+			return true
+		}
+	}
+	return false
+
+}
+
 type ArrivedChecker struct {
 	*skluArrivedChecker
 	*fesoArrivedChecker
@@ -279,6 +299,7 @@ type ArrivedChecker struct {
 	*cosuArrivedChecker
 	*maeuArrivedChecker
 	*sitcArrivedChecker
+	*zhguArrivedChecker
 }
 
 func NewArrivedChecker() *ArrivedChecker {
@@ -308,6 +329,8 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 		return a.maeuArrivedChecker.checkContainerArrived(result)
 	case "SITC":
 		return a.sitcArrivedChecker.checkContainerArrived(result)
+	case "ZHGU":
+		return a.zhguArrivedChecker.checkContainerArrived(result)
 	default:
 		return false
 	}
@@ -332,6 +355,8 @@ func (a *ArrivedChecker) CheckBillNoArrived(result BillNumberResponse) IsArrived
 		return a.maeuArrivedChecker.checkBillNoArrived(result)
 	case "SITC":
 		return a.sitcArrivedChecker.checkBillNoArrived(result)
+	case "ZHGU":
+		return a.zhguArrivedChecker.checkBillNoArrived(result)
 	default:
 		return false
 	}
