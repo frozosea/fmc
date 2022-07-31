@@ -18,9 +18,6 @@ export default function startServer() {
         .catch((error) => console.log("Error of init db: ", error))
     server.bindAsync(`0.0.0.0:${process.env.GRPC_PORT}`, ServerCredentials.createInsecure(), (error, port) => {
         server.start();
-        // trackBillNoByServer("ZGSHA0100001921", "AUTO", "RU").then((res) => {
-        //     console.log(res)
-        // })
         console.log("SERVER WAS STARTED")
     })
 }
