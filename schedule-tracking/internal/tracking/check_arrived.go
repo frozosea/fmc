@@ -273,6 +273,10 @@ func (s *sitcArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 
 type zhguArrivedChecker struct{}
 
+func newZhguArrivedChecker() *zhguArrivedChecker {
+	return &zhguArrivedChecker{}
+}
+
 func (z *zhguArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	for _, v := range result.InfoAboutMoving {
 		if strings.ToUpper(v.OperationName) == "ATA" {
@@ -308,7 +312,8 @@ func NewArrivedChecker() *ArrivedChecker {
 		oneyArrivedChecker: newOneyArrivedChecker(),
 		cosuArrivedChecker: newCosuArrivedChecker(),
 		maeuArrivedChecker: NewMaeuArrivedChecker(newMaeuRequest()),
-		sitcArrivedChecker: newSitcArrivedChecker()}
+		sitcArrivedChecker: newSitcArrivedChecker(),
+		zhguArrivedChecker: newZhguArrivedChecker()}
 }
 
 func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) IsArrived {
