@@ -16,11 +16,11 @@ import (
 type converter struct {
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest) BaseTrackReq {
+func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) BaseTrackReq {
 	return BaseTrackReq{
 		Numbers: r.GetNumber(),
 		UserId:  r.GetUserId(),
-		Country: "OTHER",
+		Country: country,
 		Time:    r.GetTime(),
 		Emails:  r.GetEmails(),
 	}
@@ -75,7 +75,7 @@ func NewService(controller *Controller, logger logging.ILogger) *Service {
 	return &Service{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
 }
 func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddContainerNumbersOnTrack(ctx, TrackByContainerNoReq{s.converter.convertAddOnTrack(r)})
+	res, err := s.controller.AddContainerNumbersOnTrack(ctx, TrackByContainerNoReq{s.converter.convertAddOnTrack(r, "OTHER")})
 	if err != nil {
 		go func() {
 			for _, v := range res.result {
@@ -102,7 +102,7 @@ func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequ
 }
 
 func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddBillNumbersOnTrack(ctx, TrackByBillNoReq{s.converter.convertAddOnTrack(r)})
+	res, err := s.controller.AddBillNumbersOnTrack(ctx, TrackByBillNoReq{s.converter.convertAddOnTrack(r, "RU")})
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:

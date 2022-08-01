@@ -12,7 +12,7 @@ func TestSkluArrivedChecker(t *testing.T) {
 		infoAboutMoving []BaseInfoAboutMoving
 		isArrived       bool
 	}{
-		{infoAboutMoving: []BaseInfoAboutMoving{{Time: time.Now(), Location: "", OperationName: "Arrival (Scheduled)", Vessel: ""}}, isArrived: true},
+		{infoAboutMoving: []BaseInfoAboutMoving{{Time: time.Now(), Location: "", OperationName: "Arrival (Scheduled)", Vessel: ""}}, isArrived: false},
 		{infoAboutMoving: []BaseInfoAboutMoving{{Time: time.Now(), Location: "", OperationName: "Arrival", Vessel: ""}}, isArrived: true},
 		{infoAboutMoving: []BaseInfoAboutMoving{{Time: time.Now(), Location: "", OperationName: "Arrival (15/15)", Vessel: ""}}, isArrived: true},
 		{infoAboutMoving: []BaseInfoAboutMoving{{Time: time.Now(), Location: "", OperationName: "Pickup (1/1)", Vessel: ""}, {Time: time.Now(), Location: "", OperationName: "Return (1/1)", Vessel: ""}}, isArrived: false},
