@@ -12,6 +12,16 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+type IClient interface {
+	AddContainersOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error)
+	AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error)
+	UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeRequest) ([]BaseAddOnTrackResponse, error)
+	AddEmailsOnTracking(ctx context.Context, req AddEmailRequest) error
+	DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrackRequest) error
+	DeleteFromTracking(ctx context.Context, isContainer bool, userId int64, req DeleteFromTrackRequest) error
+	GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackRequest) (GetInfoAboutTrackResponse, error)
+	GetTimeZone(ctx context.Context) (*TimeZoneResponse, error)
+}
 type Client struct {
 	conn      *grpc.ClientConn
 	cli       pb.ScheduleTrackingClient
