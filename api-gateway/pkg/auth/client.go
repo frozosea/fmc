@@ -54,6 +54,13 @@ func (u *UnauthenticatedError) Error() string {
 	return "Unauthenticated, cannot validate or decode token"
 }
 
+type IClient interface {
+	Register(ctx context.Context, user User) error
+	Login(ctx context.Context, user User) (*LoginUserResponse, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*LoginUserResponse, error)
+	CheckAccess(ctx context.Context, token string) (bool, error)
+	GetUserIdByJwtToken(ctx context.Context, token string) (int64, error)
+}
 type Client struct {
 	cli       pb.AuthClient
 	converter converter

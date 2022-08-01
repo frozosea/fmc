@@ -7,7 +7,7 @@ import (
 )
 
 type HttpHandler struct {
-	client    *Client
+	client    IClient
 	validator *Validator
 	*utils.HttpUtils
 }

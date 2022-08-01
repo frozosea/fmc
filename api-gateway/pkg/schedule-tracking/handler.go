@@ -7,12 +7,12 @@ import (
 )
 
 type HttpHandler struct {
-	client    *Client
+	client    IClient
 	validator *Validator
 	utils     *utils.HttpUtils
 }
 
-func NewHttpHandler(client *Client, utils *utils.HttpUtils) *HttpHandler {
+func NewHttpHandler(client IClient, utils *utils.HttpUtils) *HttpHandler {
 	return &HttpHandler{client: client, utils: utils}
 }
 

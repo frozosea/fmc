@@ -33,6 +33,10 @@ func (c *converter) convertGrpcContainerNoResponse(response *TrackingByContainer
 	}
 }
 
+type IClient interface {
+	TrackByBillNumber(ctx context.Context, track *Track, _ string) (*BillNumberResponse, error)
+	TrackByContainerNumber(ctx context.Context, track Track, ip string) (ContainerNumberResponse, error)
+}
 type Client struct {
 	conn              *grpc.ClientConn
 	billNoClient      trackingByBillNumberClient

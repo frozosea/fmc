@@ -6,10 +6,10 @@ import (
 )
 
 type HttpHandler struct {
-	client *Client
+	client IClient
 }
 
-func NewHttpHandler(client *Client) *HttpHandler {
+func NewHttpHandler(client IClient) *HttpHandler {
 	return &HttpHandler{client: client}
 }
 
