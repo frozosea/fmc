@@ -83,7 +83,7 @@ func (w *Writer) WriteContainerNo(result tracking.ContainerNumberResponse, timeF
 	if saveErr := file.SaveAs(fmt.Sprintf(`%s.xlsx`, filePath)); saveErr != nil {
 		return "", saveErr
 	}
-	return filePath, nil
+	return fmt.Sprintf(`%s.xlsx`, filePath), nil
 }
 
 func (w *Writer) WriteBillNo(result tracking.BillNumberResponse, timeFormatter func(time.Time) string) (string, error) {
@@ -91,12 +91,15 @@ func (w *Writer) WriteBillNo(result tracking.BillNumberResponse, timeFormatter f
 	if baseWriteErr := w.writeUpColoumnsAndInfoAboutMoving(file, result.InfoAboutMoving, timeFormatter); baseWriteErr != nil {
 		return "", baseWriteErr
 	}
-	if err := file.SetCellStr("Sheet1", fmt.Sprintf(`A%d`, len(result.InfoAboutMoving)+2), timeFormatter(result.EtaFinalDelivery)); err != nil {
+	if err := file.SetCellStr("Sheet1", fmt.Sprintf(`A%d`, len(result.InfoAboutMoving)+5), "ETA"); err != nil {
+		return "", err
+	}
+	if err := file.SetCellStr("Sheet1", fmt.Sprintf(`B%d`, len(result.InfoAboutMoving)+5), timeFormatter(result.EtaFinalDelivery)); err != nil {
 		return "", err
 	}
 	filePath := w.reader.GetFileNameByDirNameAndFilename(w.dirName, result.BillNo)
 	if saveErr := file.SaveAs(fmt.Sprintf(`%s.xlsx`, filePath)); saveErr != nil {
 		return "", saveErr
 	}
-	return filePath, nil
+	return fmt.Sprintf(`%s.xlsx`, filePath), nil
 }

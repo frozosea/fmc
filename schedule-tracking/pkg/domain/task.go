@@ -66,13 +66,13 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 				mu.Lock()
 				defer mu.Unlock()
 				defer wg.Done()
-				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now())), fmt.Sprintf(`%s.xlsx`, pathToFile)); sendErr != nil {
+				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now())), pathToFile); sendErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, sendErr.Error()))
 				}
 			}()
 			wg.Wait()
 		}
-		if removeErr := os.Remove(fmt.Sprintf(`%s.xlsx`, pathToFile)); removeErr != nil {
+		if removeErr := os.Remove(pathToFile); removeErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
 		return false

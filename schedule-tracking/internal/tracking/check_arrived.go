@@ -24,7 +24,7 @@ func newSkluArrivedChecker() *skluArrivedChecker {
 
 func (s *skluArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, item := range result {
-		if strings.Contains(strings.ToLower(item.OperationName), "arrival") && !strings.Contains(strings.ToLower(item.OperationName), strings.ToLower("Arrival(T/S)")) {
+		if strings.Contains(strings.ToLower(item.OperationName), "arrival") && !strings.Contains(strings.ToLower(item.OperationName), strings.ToLower("Arrival(T/S)")) && !strings.Contains(strings.ToLower(item.OperationName), "scheduled") {
 			return true
 		}
 	}

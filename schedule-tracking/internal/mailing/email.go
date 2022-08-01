@@ -89,7 +89,6 @@ func (m *Mailing) sendEmail(form url.Values) (string, error) {
 		return "", readErr
 	}
 	go m.logger.InfoLog(fmt.Sprintf(`send email result: %s`, string(body)))
-
 	return "", nil
 }
 func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {

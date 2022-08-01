@@ -48,11 +48,9 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 		Scac:    Scac(Scac_value[track.Scac]),
 		Country: Country(Country_value["RU"]),
 	}
-	//}
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
-		fmt.Println(err)
-		//c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
+		c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
 		return new(BillNumberResponse), err
 	}
 	return c.convertGrpcBlNoResponse(response), nil
