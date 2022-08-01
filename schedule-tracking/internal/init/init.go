@@ -196,7 +196,7 @@ func GetScheduleTrackingService() *domain.Service {
 	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
 	controller := domain.NewController(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, controller); recoveryTaskErr != nil {
-		panic(recoveryTaskErr)
+		log.Println(err)
 	}
 	return domain.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
