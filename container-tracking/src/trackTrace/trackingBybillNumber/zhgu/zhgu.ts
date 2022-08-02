@@ -5,6 +5,7 @@ import {IDatetime} from "../../helpers/datetime";
 import {IBillNumberTracker} from "../base";
 import {BaseContainerConstructor} from "../../base";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
+import {NotThisShippingLineException} from "../../../exceptions";
 
 
 export class ZhguRequest {
@@ -129,13 +130,18 @@ export class ZhguBillNumber implements IBillNumberTracker {
     }
 
     public async trackByBillNumber(args: ITrackingArgs): Promise<ITrackingByBillNumberResponse> {
-        let resp = await this.request.getApiResponse(args)
-        let infoAboutMoving = this.infoAboutMovingParser.getInfoAboutMoving(resp)
         try {
-            let eta = this.etaParser.getEta(resp)
-            return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: eta}
+            let resp = await this.request.getApiResponse(args)
+            let infoAboutMoving = this.infoAboutMovingParser.getInfoAboutMoving(resp)
+            try {
+                let eta = this.etaParser.getEta(resp)
+                return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: eta}
+            } catch (e) {
+                return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: 1}
+            }
         } catch (e) {
-            return {billNo: args.number, scac: "ZHGU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: 1}
+            throw new NotThisShippingLineException()
         }
+
     }
 }
