@@ -1,5 +1,5 @@
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
-import ZhguApiResponseSchema from "./zhguApiResponseSchema";
+import ZhguApiResponseSchema, {ZhguCheckBookApiResp} from "./zhguApiResponseSchema";
 import {ITrackingArgs, ITrackingByBillNumberResponse, OneTrackingEvent} from "../../../types";
 import {IDatetime} from "../../helpers/datetime";
 import {IBillNumberTracker} from "../base";
@@ -20,6 +20,22 @@ export class ZhguRequest {
     public async getApiResponse(args: ITrackingArgs): Promise<ZhguApiResponseSchema> {
         return await this.request.sendRequestAndGetJson({
             url: `http://elines.zhonggu56.com/api/booking/getVoyageInfo`,
+            method: "POST",
+            headers: {
+                "accept": "application/json, text/plain, */*",
+                "accept-language": "en",
+                "content-type": "application/json;charset=UTF-8",
+                "Referer": "http://elines.zhonggu56.com/track",
+                "Referrer-Policy": "strict-origin-when-cross-origin",
+                "User-Agent": this.userAgentGenerator.generateUserAgent()
+            },
+            body: JSON.stringify({blNo: args.number})
+        })
+    }
+
+    public async getBookApiResponse(args: ITrackingArgs): Promise<ZhguCheckBookApiResp> {
+        return await this.request.sendRequestAndGetJson({
+            url: `http://elines.zhonggu56.com/api/booking/getBookingInfo?queryType=1`,
             method: "POST",
             headers: {
                 "accept": "application/json, text/plain, */*",
@@ -130,6 +146,10 @@ export class ZhguBillNumber implements IBillNumberTracker {
     }
 
     public async trackByBillNumber(args: ITrackingArgs): Promise<ITrackingByBillNumberResponse> {
+        let book = await this.request.getBookApiResponse(args)
+        if (!book.object.length) {
+            throw new NotThisShippingLineException()
+        }
         try {
             let resp = await this.request.getApiResponse(args)
             let infoAboutMoving = this.infoAboutMovingParser.getInfoAboutMoving(resp)

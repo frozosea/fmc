@@ -48,6 +48,9 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
 				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
 			}
+			if removeErr := m.executor.Remove(job.Id); removeErr != nil {
+				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
+			}
 			job.Ctx.Done()
 		}
 		job.NextRunTime = time.Now().Add(job.Interval)
@@ -86,6 +89,9 @@ func (m *Manager) RescheduleWithDuration(ctx context.Context, taskId string, new
 	return m.jobstore.Reschedule(ctx, taskId, newInterval)
 }
 func (m *Manager) Remove(ctx context.Context, taskId string) error {
+	if err := m.executor.Remove(taskId); err != nil {
+		return err
+	}
 	return m.jobstore.Remove(ctx, taskId)
 }
 func (m *Manager) RemoveAll(ctx context.Context) error {

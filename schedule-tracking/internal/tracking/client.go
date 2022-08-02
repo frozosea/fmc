@@ -25,7 +25,7 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumbe
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
-		return c.convertGrpcBlNoResponse(response), err
+		return BillNumberResponse{}, err
 	}
 	return c.convertGrpcBlNoResponse(response), nil
 }
@@ -39,7 +39,7 @@ func (c *Client) TrackByContainerNumber(ctx context.Context, track Track) (Conta
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
-		return c.convertGrpcContainerNoResponse(response), err
+		return ContainerNumberResponse{}, err
 	}
 	return c.convertGrpcContainerNoResponse(response), nil
 }
