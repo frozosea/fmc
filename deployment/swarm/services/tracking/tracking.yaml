@@ -5,7 +5,6 @@ services:
     environment:
       POSTGRES_USER: tracking_user
       POSTGRES_PASSWORD: tracking_password
-      POSTGRES_DB: tracking_database
       REQUEST_TIMEOUT_MS: 1000
       WAIT_SELECTOR_TIMEOUT: 6000
       POSTGRES_HOST: postgres
@@ -27,8 +26,8 @@ services:
     image: 'bitnami/redis:latest'
     restart: always
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-      - REDIS_PORT_NUMBER=6379
+      ALLOW_EMPTY_PASSWORD: yes
+      REDIS_PORT_NUMBER: 6379
     ports:
       - "6379:6379"
     networks:
@@ -44,6 +43,21 @@ services:
       POSTGRES_DB: tracking_database
     networks:
       - public
+  dump_database:
+    image: flyasea/postgres-dump:latest
+    environment:
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: tracking_password
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: tracking_database
+      S3_HOST: <YOUR_S3_HOST>
+      S3_BUCKET: <YOUR_S3_BUCKET>
+      S3_ACCESS_KEY: <YOUR_S3_ACCESS_KEY>
+      S3_SECRET_KEY: <YOUR_S3_SECRET_KEY>
+      DUMP_TIME: 8h
+      ENCRYPT_KEY: <YOUR_ENCRYPT_KEY>
+
 networks:
   public:
     name: public

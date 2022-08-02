@@ -97,12 +97,15 @@ export class SitcBillNumber extends SitcContainer implements IBillNumberTracker 
 
     public async trackByBillNumber(args: ITrackingArgs): Promise<ITrackingByBillNumberResponse> {
         let [solvedCaptcha, randomString] = await this.captchaSolver.getSolvedCaptchaAndRandomString();
+        console.log(solvedCaptcha,randomString)
         let response: SitcBillNumberApiResponseSchema = await this.billRequest.getBillNoResponse({
             billNo: args.number,
             solvedCaptcha: solvedCaptcha,
             randomString: randomString
         })
+        console.log(response)
         let eta: number = this.etaParser.getEta(response)
+        console.log(eta)
         let containerNumber: string = this.containerNumberParser.getNumber(response)
         let containerNumberTrackingResponse = await this.billRequest.getContainerInfo({
             billNo: args.number,
