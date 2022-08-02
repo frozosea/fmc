@@ -57,7 +57,6 @@ export class BrowserRequestSender implements IRequest<IBrowserArgs> {
             try {
                 await fn(page);
             } catch (e) {
-                console.log(e)
             } finally {
                 await context.close();
             }

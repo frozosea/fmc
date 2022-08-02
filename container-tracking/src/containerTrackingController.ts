@@ -46,9 +46,12 @@ export default class ContainerTrackingController {
         switch (args.country) {
             case "RU":
                 let result = await this.trackingForRussia.trackContainer(args)
-                await this.cacheHandler.addTrackingResultToCache(args.number, result, ttl)
-                await this.scacContainersRepository.addContainer(result.container, result.scac)
-                this.logger.containerSuccessLog(result)
+                try {
+                    await this.cacheHandler.addTrackingResultToCache(args.number, result, ttl)
+                    await this.scacContainersRepository.addContainer(result.container, result.scac)
+                    this.logger.containerSuccessLog(result)
+                } catch (e) {
+                }
                 return result
             case "OTHER":
                 let res = await this.trackingForOtherCountries.trackContainer(args)

@@ -32,3 +32,9 @@ export default interface ZhguApiResponseSchema {
     "backMessage": string,
     "object": zhguEventSchema[]
 }
+
+export interface ZhguCheckBookApiResp{
+    backCode: string
+    backMessage: string
+    object: any[]
+}

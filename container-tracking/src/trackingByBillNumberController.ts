@@ -26,9 +26,12 @@ export default class BillNumberTrackingController {
         switch (args.country) {
             case "RU":
                 let result = await this.trackingForRussia.trackByBillNumber(args)
-                await this.cacheHandler.addTrackingResultToCache(args.number, result, ttl)
-                await this.scacContainersRepository.addContainer(result.billNo, result.scac)
-                this.logger.containerSuccessLog(result)
+                try {
+                    await this.cacheHandler.addTrackingResultToCache(args.number, result, ttl)
+                    await this.scacContainersRepository.addContainer(result.billNo, result.scac)
+                    this.logger.containerSuccessLog(result)
+                } catch (e) {
+                }
                 return result
             default:
                 throw new Error("use only RU")

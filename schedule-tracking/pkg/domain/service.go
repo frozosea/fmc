@@ -106,11 +106,11 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
+			return &pb.AddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id")
 		case *NumberDoesntBelongThisUserError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.PermissionDenied, "cannot find number in your account")
+			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "cannot find number in your account")
 		default:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
+			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}
 	}
 	go func() {

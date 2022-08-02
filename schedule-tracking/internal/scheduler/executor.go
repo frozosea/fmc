@@ -8,15 +8,16 @@ import (
 
 type IJobExecutor interface {
 	Run(job *Job) ShouldBeCancelled
+	Remove(taskId string) error
 }
 type Executor struct {
-	wg            sync.WaitGroup
-	cancellations []context.CancelFunc
+	wg            *sync.WaitGroup
+	cancellations map[string]context.CancelFunc
 }
 
 func (e *Executor) Run(job *Job) ShouldBeCancelled {
 	ctx, cancel := context.WithCancel(job.Ctx)
-	e.cancellations = append(e.cancellations, cancel)
+	e.cancellations[job.Id] = cancel
 	e.wg.Add(1)
 	return e.process(ctx, job.Fn, job.Interval, job.Args...)
 }
@@ -35,10 +36,17 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 		}
 	}
 }
+func (e *Executor) Remove(taskId string) error {
+	for jobId, cancel := range e.cancellations {
+		if jobId == taskId {
+			cancel()
+		}
+	}
+	return nil
+}
 func NewExecutor() *Executor {
-	var cancellations []context.CancelFunc
 	return &Executor{
-		wg:            sync.WaitGroup{},
-		cancellations: cancellations,
+		wg:            &sync.WaitGroup{},
+		cancellations: make(map[string]context.CancelFunc),
 	}
 }
