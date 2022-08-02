@@ -226,10 +226,7 @@ func Run() {
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return true
-		},
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }
