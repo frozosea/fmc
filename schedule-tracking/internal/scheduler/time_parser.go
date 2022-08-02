@@ -68,10 +68,7 @@ func (t *TimeParser) ParseHourMinuteString(s string) (time.Duration, error) {
 		return time.Second, getMinutesToTickErr
 	}
 	outputDurationToTick := hourDuration + minuteDuration
-	if int64(outputDurationToTick/time.Millisecond) <= 0 {
-		return time.Hour*24 + outputDurationToTick, nil
-	}
-	return outputDurationToTick, nil
+	return time.Hour*24 + outputDurationToTick, nil
 }
 
 func NewTimeParser() ITimeParser {
