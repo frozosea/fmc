@@ -221,6 +221,7 @@ func Run() {
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
 	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"OPTIONS", "POST", "GET", "DELETE", "PUT", "PATCH"},
 		AllowHeaders:     []string{"Origin"},
 		ExposeHeaders:    []string{"Content-Length"},
