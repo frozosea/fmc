@@ -19,7 +19,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
-	"time"
 )
 
 type (
@@ -220,13 +219,8 @@ func Run() {
 	initDocsRoutes(router)
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
-	router.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
-		AllowMethods:     []string{"OPTIONS", "POST", "GET", "DELETE", "PUT", "PATCH"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	defaultCors := cors.DefaultConfig()
+	defaultCors.AllowAllOrigins = true
+	router.Use(cors.New(defaultCors))
 	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }
