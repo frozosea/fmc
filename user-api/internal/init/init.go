@@ -151,7 +151,7 @@ func GetAuthService(db *sql.DB) *auth.Service {
 	hash := auth.NewHash()
 	repository := auth.NewRepository(db, hash)
 
-	controller := auth.NewController(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
+	controller := auth.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
 	return auth.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {
@@ -176,6 +176,6 @@ func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
 		panic(err)
 	}
 	repository := user.NewRepository(db)
-	controller := user.NewController(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	controller := user.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
 	return user.NewService(controller)
 }

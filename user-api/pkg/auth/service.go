@@ -35,13 +35,13 @@ func (c *converter) loginResponseConvert(t *Token) *pb.LoginResponse {
 }
 
 type Service struct {
-	controller *Controller
+	controller *Provider
 	converter  converter
 	logger     logging.ILogger
 	pb.UnimplementedAuthServer
 }
 
-func NewService(controller *Controller, logger logging.ILogger) *Service {
+func NewService(controller *Provider, logger logging.ILogger) *Service {
 	return &Service{controller: controller, converter: converter{}, logger: logger, UnimplementedAuthServer: pb.UnimplementedAuthServer{}}
 }
 

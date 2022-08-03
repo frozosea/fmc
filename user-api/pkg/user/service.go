@@ -8,12 +8,12 @@ import (
 )
 
 type Service struct {
-	controller *Controller
+	controller *Provider
 	converter  converter
 	pb.UnimplementedUserServer
 }
 
-func NewService(controller *Controller) *Service {
+func NewService(controller *Provider) *Service {
 	return &Service{controller: controller, converter: converter{}, UnimplementedUserServer: pb.UnimplementedUserServer{}}
 }
 
