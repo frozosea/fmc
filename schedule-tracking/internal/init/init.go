@@ -194,14 +194,14 @@ func GetScheduleTrackingService() *domain.Service {
 	}
 	repository := domain.NewRepository(db)
 	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
-	controller := domain.NewController(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
+	controller := domain.NewProvider(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, controller); recoveryTaskErr != nil {
 		log.Println(err)
 	}
 	return domain.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 
-func RecoveryTasks(repo domain.IRepository, controller *domain.Controller) error {
+func RecoveryTasks(repo domain.IRepository, controller *domain.Provider) error {
 	tasks, err := repo.GetAll(context.Background())
 	if err != nil {
 		switch err.(type) {

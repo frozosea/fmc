@@ -65,13 +65,13 @@ func (c *converter) convertInterfaceArrayToStringArray(r []interface{}) []string
 }
 
 type Service struct {
-	controller *Controller
+	controller *Provider
 	logger     logging.ILogger
 	converter
 	pb.UnimplementedScheduleTrackingServer
 }
 
-func NewService(controller *Controller, logger logging.ILogger) *Service {
+func NewService(controller *Provider, logger logging.ILogger) *Service {
 	return &Service{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
 }
 func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
