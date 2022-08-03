@@ -28,10 +28,7 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 		select {
 		case <-ticker.C:
 			fmt.Println("ticker DONE")
-			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel {
-				return true
-			}
-			return false
+			return task(ctx, jobArgs...)
 		case <-ctx.Done():
 			fmt.Println("CTX DONE")
 			e.wg.Done()

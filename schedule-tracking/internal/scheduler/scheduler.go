@@ -44,6 +44,7 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 	}
 	go func() {
 		shouldBeCancel := m.executor.Run(job)
+		m.baseLogger.Printf("task with id: %s, result: %t", taskId, shouldBeCancel)
 		if shouldBeCancel {
 			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
 				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
