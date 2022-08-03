@@ -38,6 +38,7 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 		return &Job{}, err
 	}
 	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, taskArgs)
+	m.baseLogger.Printf("job with id %s and time %s was add", job.Id, timeStr)
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return &Job{}, err
