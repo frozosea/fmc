@@ -51,7 +51,6 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 			if removeErr := m.executor.Remove(job.Id); removeErr != nil {
 				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
 			}
-			job.Ctx.Done()
 		}
 		job.NextRunTime = time.Now().Add(job.Interval)
 	}()

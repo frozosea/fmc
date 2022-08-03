@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -24,6 +25,7 @@ func (e *Executor) Run(job *Job) ShouldBeCancelled {
 func (e *Executor) process(ctx context.Context, task ITask, interval time.Duration, jobArgs ...interface{}) ShouldBeCancelled {
 	ticker := time.NewTicker(interval)
 	for {
+		fmt.Println(jobArgs)
 		select {
 		case <-ticker.C:
 			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel {
