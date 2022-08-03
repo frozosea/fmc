@@ -25,14 +25,10 @@ func (e *Executor) Run(job *Job) ShouldBeCancelled {
 func (e *Executor) process(ctx context.Context, task ITask, interval time.Duration, jobArgs ...interface{}) ShouldBeCancelled {
 	ticker := time.NewTicker(interval)
 	for {
-		fmt.Println(jobArgs)
 		select {
 		case <-ticker.C:
 			fmt.Println("ticker DONE")
-			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel {
-				return true
-			}
-			return false
+			return task(ctx, jobArgs...)
 		case <-ctx.Done():
 			fmt.Println("CTX DONE")
 			e.wg.Done()
