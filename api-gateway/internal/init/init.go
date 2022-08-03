@@ -149,11 +149,11 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 	group := router.Group(`/user`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
-		group.POST(`/addContainers`, handler.AddContainersToAccount)
-		group.POST(`/addBillNumbers`, handler.AddBillNumbersToAccount)
-		group.DELETE(`/deleteContainers`, handler.DeleteContainersFromAccount)
-		group.DELETE(`/deleteBillNumbers`, handler.DeleteBillNumbersFromAccount)
-		group.GET(`/getAllBillsContainers`, handler.GetAll)
+		group.POST(`/containers`, handler.AddContainersToAccount)
+		group.POST(`/billNumbers`, handler.AddBillNumbersToAccount)
+		group.DELETE(`/containers`, handler.DeleteContainersFromAccount)
+		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromAccount)
+		group.GET(`/billsContainers`, handler.GetAll)
 	}
 }
 func initDocsRoutes(router *gin.Engine) {

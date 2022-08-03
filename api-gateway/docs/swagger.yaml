@@ -651,59 +651,7 @@ paths:
       summary: Track by container number
       tags:
       - Tracking
-  /user/addBillNumbers:
-    post:
-      consumes:
-      - application/json
-      description: Add bill numbers to account
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/user.AddContainers'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/user.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/user.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Add bill numbers to account
-      tags:
-      - User
-  /user/addContainers:
-    post:
-      consumes:
-      - application/json
-      description: Add containers to account
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/user.AddContainers'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/user.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/user.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Add containers to account
-      tags:
-      - User
-  /user/deleteBillNumbers:
+  /user/billNumbers:
     delete:
       consumes:
       - application/json
@@ -729,7 +677,51 @@ paths:
       summary: Delete bill numbers from account
       tags:
       - User
-  /user/deleteContainers:
+    post:
+      consumes:
+      - application/json
+      description: Add bill numbers to account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.AddContainers'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add bill numbers to account
+      tags:
+      - User
+  /user/billsContainers:
+    get:
+      consumes:
+      - application/json
+      description: Get all bill numbers and containers from account
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.AllContainersAndBillNumbers'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all bill numbers and containers from account
+      tags:
+      - User
+  /user/containers:
     delete:
       consumes:
       - application/json
@@ -755,23 +747,29 @@ paths:
       summary: Delete containers from account
       tags:
       - User
-  /user/getAllBillsContainers:
-    get:
+    post:
       consumes:
       - application/json
-      description: Get all bill numbers and containers from account
+      description: Add containers to account
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.AddContainers'
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.AllContainersAndBillNumbers'
+            $ref: '#/definitions/user.BaseResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/user.BaseResponse'
       security:
       - ApiKeyAuth: []
-      summary: Get all bill numbers and containers from account
+      summary: Add containers to account
       tags:
       - User
 securityDefinitions:
