@@ -48,10 +48,10 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 		m.baseLogger.Printf("task with id: %s, result: %t", taskId, shouldBeCancel)
 		if shouldBeCancel {
 			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
-				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s error: %s`, taskId, removeErr))
+				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s from jobstore error: %s`, taskId, removeErr))
 			}
 			if removeErr := m.executor.Remove(job.Id); removeErr != nil {
-				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s error: %s`, taskId, removeErr))
+				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s from executor error: %s`, taskId, removeErr))
 			}
 		}
 		job.NextRunTime = time.Now().Add(job.Interval)
