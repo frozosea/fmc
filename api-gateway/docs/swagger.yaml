@@ -307,7 +307,37 @@ paths:
       summary: Register user by username and password
       tags:
       - Auth
-  /schedule/addBillNo:
+  /schedule/addEmail:
+    put:
+      consumes:
+      - application/json
+      description: add new email to tracking, bill or container doesn't matter
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add new email to tracking
+      tags:
+      - Schedule Tracking
+  /schedule/billNo:
     post:
       consumes:
       - application/json
@@ -339,7 +369,37 @@ paths:
       summary: add bill numbers on track
       tags:
       - Schedule Tracking
-  /schedule/addContainer:
+  /schedule/billNumbers:
+    delete:
+      consumes:
+      - application/json
+      description: delete numbers from tracking
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.DeleteFromTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete bill numbers from tracking
+      tags:
+      - Schedule Tracking
+  /schedule/container:
     post:
       consumes:
       - application/json
@@ -371,67 +431,7 @@ paths:
       summary: add containers on track
       tags:
       - Schedule Tracking
-  /schedule/addEmail:
-    put:
-      consumes:
-      - application/json
-      description: add new email to tracking, bill or container doesn't matter
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.AddEmailRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-        "400":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: add new email to tracking
-      tags:
-      - Schedule Tracking
-  /schedule/deleteBillNumbers:
-    delete:
-      consumes:
-      - application/json
-      description: delete numbers from tracking
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.DeleteFromTrackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-        "400":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: delete bill numbers from tracking
-      tags:
-      - Schedule Tracking
-  /schedule/deleteContainers:
+  /schedule/containers:
     delete:
       consumes:
       - application/json
@@ -461,7 +461,7 @@ paths:
       summary: delete containers from tracking
       tags:
       - Schedule Tracking
-  /schedule/deleteEmail:
+  /schedule/email:
     delete:
       consumes:
       - application/json
@@ -491,8 +491,8 @@ paths:
       summary: delete email from tracking
       tags:
       - Schedule Tracking
-  /schedule/getInfo:
-    post:
+  /schedule/info:
+    get:
       consumes:
       - application/json
       description: get info about number on tracking
@@ -521,23 +521,7 @@ paths:
       summary: get info about number on tracking
       tags:
       - Schedule Tracking
-  /schedule/getTz:
-    get:
-      description: get timezone in format UTC+10, this route is for get time zone,
-        because users want to know in which tz will tracking works
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.TimeZoneResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      summary: get timezone information
-      tags:
-      - Schedule Tracking
-  /schedule/updateTime:
+  /schedule/time:
     put:
       consumes:
       - application/json
@@ -569,8 +553,24 @@ paths:
       summary: update time of tracking
       tags:
       - Schedule Tracking
-  /tracking/trackByBillNumber:
-    post:
+  /schedule/timezone:
+    get:
+      description: get timezone in format UTC+10, this route is for get time zone,
+        because users want to know in which tz will tracking works
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.TimeZoneResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      summary: get timezone information
+      tags:
+      - Schedule Tracking
+  /tracking/billNumber:
+    get:
       description: tracking by bill number, if eta not found will be 0
       parameters:
       - default: FESO
@@ -606,8 +606,8 @@ paths:
       summary: Track by bill number
       tags:
       - Tracking
-  /tracking/trackByContainerNumber:
-    post:
+  /tracking/container:
+    get:
       consumes:
       - application/json
       description: tracking by container number
