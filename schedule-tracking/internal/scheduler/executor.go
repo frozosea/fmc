@@ -38,6 +38,8 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 			e.wg.Done()
 			ticker.Stop()
 			return true
+		default:
+			continue
 		}
 	}
 }
