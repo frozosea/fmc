@@ -31,7 +31,9 @@ func (e *Executor) process(ctx context.Context, task ITask, interval time.Durati
 			if shouldBeCancel := task(ctx, jobArgs...); shouldBeCancel {
 				return true
 			}
+			return false
 		case <-ctx.Done():
+			fmt.Println("CTX DONE")
 			e.wg.Done()
 			ticker.Stop()
 			return true
