@@ -59,7 +59,7 @@ func (h *HttpHandler) addBillOrContainer(c *gin.Context, isContainer bool) {
 // @Tags        User
 // @Success 	200 	{object} BaseResponse
 // @Failure 	500 	{object} BaseResponse
-// @Router /user/addContainers [post]
+// @Router /user/containers [post]
 func (h *HttpHandler) AddContainersToAccount(c *gin.Context) {
 	h.addBillOrContainer(c, true)
 }
@@ -73,7 +73,7 @@ func (h *HttpHandler) AddContainersToAccount(c *gin.Context) {
 // @Tags        User
 // @Success 	200 	{object} BaseResponse
 // @Failure 	500 	{object} BaseResponse
-// @Router /user/addBillNumbers [post]
+// @Router /user/billNumbers [post]
 func (h *HttpHandler) AddBillNumbersToAccount(c *gin.Context) {
 	h.addBillOrContainer(c, false)
 }
@@ -113,7 +113,7 @@ func (h *HttpHandler) deleteContainersOrBillNumbers(c *gin.Context, isContainer 
 // @Tags        User
 // @Success 	200 	{object} BaseResponse
 // @Failure 	500 	{object} BaseResponse
-// @Router /user/deleteContainers [delete]
+// @Router /user/containers [delete]
 func (h *HttpHandler) DeleteContainersFromAccount(c *gin.Context) {
 	h.deleteContainersOrBillNumbers(c, true)
 }
@@ -127,7 +127,7 @@ func (h *HttpHandler) DeleteContainersFromAccount(c *gin.Context) {
 // @Tags         User
 // @Success 200 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /user/deleteBillNumbers [delete]
+// @Router /user/billNumbers [delete]
 func (h *HttpHandler) DeleteBillNumbersFromAccount(c *gin.Context) {
 	h.deleteContainersOrBillNumbers(c, false)
 }
@@ -140,7 +140,7 @@ func (h *HttpHandler) DeleteBillNumbersFromAccount(c *gin.Context) {
 // @Tags         User
 // @Success 200 {object} AllContainersAndBillNumbers
 // @Failure 500 {object} BaseResponse
-// @Router /user/getAllBillsContainers [get]
+// @Router /user/billsContainers [get]
 func (h *HttpHandler) GetAll(c *gin.Context) {
 	userId, err := h.DecodeToken(c)
 	if err != nil {

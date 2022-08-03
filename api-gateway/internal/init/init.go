@@ -84,8 +84,8 @@ func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler, middl
 	trackingGroup := router.Group(`/tracking`)
 	trackingGroup.Use(middleware.CheckAccessMiddleware)
 	{
-		trackingGroup.POST(`/trackByBillNumber`, handler.TrackByBillNumber)
-		trackingGroup.POST(`/trackByContainerNumber`, handler.TrackByContainerNumber)
+		trackingGroup.GET(`/billNumber`, handler.TrackByBillNumber)
+		trackingGroup.GET(`/container`, handler.TrackByContainerNumber)
 	}
 }
 func getScheduleTrackingClient(ip, port string, logger logging.ILogger) (*schedule_tracking.Client, error) {
@@ -102,16 +102,16 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 	group := router.Group(`/schedule`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
-		group.POST(`/addContainer`, handler.AddContainersOnTrack)
-		group.POST(`/addBillNo`, handler.AddBillNumbersOnTrack)
-		group.PUT(`/updateTime`, handler.UpdateTrackingTime)
+		group.POST(`/container`, handler.AddContainersOnTrack)
+		group.POST(`/billNo`, handler.AddBillNumbersOnTrack)
+		group.PUT(`/time`, handler.UpdateTrackingTime)
 		group.PUT(`/addEmail`, handler.AddEmailsOnTracking)
-		group.DELETE(`/deleteEmail`, handler.DeleteEmailFromTrack)
-		group.DELETE(`/deleteContainers`, handler.DeleteContainersFromTrack)
-		group.DELETE(`/deleteBillNumbers`, handler.DeleteBillNumbersFromTrack)
-		group.POST(`/getInfo`, handler.GetInfoAboutTracking)
+		group.DELETE(`/email`, handler.DeleteEmailFromTrack)
+		group.DELETE(`/containers`, handler.DeleteContainersFromTrack)
+		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromTrack)
+		group.POST(`/info`, handler.GetInfoAboutTracking)
 	}
-	router.GET(`/schedule/getTz`, handler.GetTimeZone)
+	router.GET(`/schedule/timezone`, handler.GetTimeZone)
 
 }
 
@@ -149,11 +149,11 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 	group := router.Group(`/user`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
-		group.POST(`/addContainers`, handler.AddContainersToAccount)
-		group.POST(`/addBillNumbers`, handler.AddBillNumbersToAccount)
-		group.DELETE(`/deleteContainers`, handler.DeleteContainersFromAccount)
-		group.DELETE(`/deleteBillNumbers`, handler.DeleteBillNumbersFromAccount)
-		group.GET(`/getAllBillsContainers`, handler.GetAll)
+		group.POST(`/containers`, handler.AddContainersToAccount)
+		group.POST(`/billNumbers`, handler.AddBillNumbersToAccount)
+		group.DELETE(`/containers`, handler.DeleteContainersFromAccount)
+		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromAccount)
+		group.GET(`/billsContainers`, handler.GetAll)
 	}
 }
 func initDocsRoutes(router *gin.Engine) {

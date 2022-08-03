@@ -27,7 +27,7 @@ func NewHttpHandler(client IClient, utils *utils.HttpUtils) *HttpHandler {
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
-// @Router       /schedule/addContainer [post]
+// @Router       /schedule/container [post]
 func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 	var s AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
@@ -59,7 +59,7 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
-// @Router       /schedule/addBillNo [post]
+// @Router       /schedule/billNo [post]
 func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 	var s AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
@@ -103,7 +103,7 @@ func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 // @Success      200  {object}  []BaseAddOnTrackResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/updateTime [put]
+// @Router       /schedule/time [put]
 func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
 	var s UpdateTrackingTimeRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -176,7 +176,7 @@ func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
 // @Success      200 {object} BaseResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/deleteEmail [delete]
+// @Router       /schedule/email [delete]
 func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 	var s DeleteEmailFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -212,7 +212,7 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 // @Success      200 {object} BaseResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/deleteContainers [delete]
+// @Router       /schedule/containers [delete]
 func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 	var s DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -248,7 +248,7 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 // @Success      200 {object} BaseResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/deleteBillNumbers [delete]
+// @Router       /schedule/billNumbers [delete]
 func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 	var s DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -284,7 +284,7 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 // @Success      200 {object} GetInfoAboutTrackResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/getInfo [post]
+// @Router       /schedule/info [get]
 func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 	var s GetInfoAboutTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -316,7 +316,7 @@ func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 // @Description  get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works
 // @Success      200 {object} TimeZoneResponse
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/getTz [get]
+// @Router       /schedule/timezone [get]
 func (h *HttpHandler) GetTimeZone(c *gin.Context) {
 	timeZone, err := h.client.GetTimeZone(c.Request.Context())
 	if err != nil {

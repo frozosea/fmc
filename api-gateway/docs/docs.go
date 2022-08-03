@@ -138,102 +138,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/addBillNo": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "add bill numbers on track",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/addContainer": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "add containers on track",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/addEmail": {
             "put": {
                 "security": [
@@ -282,7 +186,55 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/deleteBillNumbers": {
+        "/schedule/billNo": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "add bill numbers on track",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedule/billNumbers": {
             "delete": {
                 "security": [
                     {
@@ -330,7 +282,55 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/deleteContainers": {
+        "/schedule/container": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "add containers on track",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/schedule/containers": {
             "delete": {
                 "security": [
                     {
@@ -378,7 +378,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/deleteEmail": {
+        "/schedule/email": {
             "delete": {
                 "security": [
                     {
@@ -426,8 +426,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/getInfo": {
-            "post": {
+        "/schedule/info": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -474,30 +474,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/getTz": {
-            "get": {
-                "description": "get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works",
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "get timezone information",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.TimeZoneResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/updateTime": {
+        "/schedule/time": {
             "put": {
                 "security": [
                     {
@@ -548,8 +525,31 @@ const docTemplate = `{
                 }
             }
         },
-        "/tracking/trackByBillNumber": {
-            "post": {
+        "/schedule/timezone": {
+            "get": {
+                "description": "get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works",
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "get timezone information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.TimeZoneResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tracking/billNumber": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -602,8 +602,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/tracking/trackByContainerNumber": {
-            "post": {
+        "/tracking/container": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -666,7 +666,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/addBillNumbers": {
+        "/user/billNumbers": {
             "post": {
                 "security": [
                     {
@@ -706,51 +706,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/user/addContainers": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Add containers to account",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Add containers to account",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/user.AddContainers"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/deleteBillNumbers": {
+            },
             "delete": {
                 "security": [
                     {
@@ -792,7 +748,78 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/deleteContainers": {
+        "/user/billsContainers": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all bill numbers and containers from account",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all bill numbers and containers from account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.AllContainersAndBillNumbers"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/containers": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add containers to account",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Add containers to account",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.AddContainers"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.BaseResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -823,37 +850,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/getAllBillsContainers": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get all bill numbers and containers from account",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get all bill numbers and containers from account",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/user.AllContainersAndBillNumbers"
                         }
                     },
                     "500": {

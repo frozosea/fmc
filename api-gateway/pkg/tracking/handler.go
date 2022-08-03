@@ -28,7 +28,7 @@ func NewHttpHandler(client *Client, httpUtils *utils.HttpUtils) *HttpHandler {
 // @Success      200  {object}  ContainerNumberResponse
 // @Success      204
 // @Failure      400
-// @Router       /tracking/trackByContainerNumber [post]
+// @Router       /tracking/container [get]
 func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 	var schema Track
 	if err := c.ShouldBindQuery(&schema); err != nil {
@@ -62,7 +62,7 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 // @Success      200  {object}  BillNumberResponse
 // @Success      204
 // @Failure      400
-// @Router       /tracking/trackByBillNumber [post]
+// @Router       /tracking/billNumber [get]
 func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 	var schema *Track
 	if err := c.ShouldBindQuery(&schema); err != nil {
