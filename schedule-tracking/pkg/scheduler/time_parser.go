@@ -3,6 +3,7 @@ package scheduler
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -14,7 +15,7 @@ func (m *TimeParseError) Error() string {
 }
 
 type ITimeParser interface {
-	ParseHourMinuteString(s string) (time.Duration, error)
+	Parse(s string) (time.Duration, error)
 }
 
 type TimeParser struct{}
@@ -52,23 +53,29 @@ func (t *TimeParser) getMinutesToTick(strMinutes string) (time.Duration, error) 
 	return (time.Minute * time.Duration(minutes)) - (time.Duration(time.Now().Minute()) * time.Minute), nil
 }
 
-func (t *TimeParser) ParseHourMinuteString(s string) (time.Duration, error) {
+func (t *TimeParser) Parse(s string) (time.Duration, error) {
 	if validateErr := t.validate(s); validateErr != nil {
 		return time.Second, validateErr
 	}
+	now := time.Now()
 	splitTime := strings.Split(s, ":")
-	strHours := splitTime[0]
-	strMinutes := splitTime[1]
-	hourDuration, getHoursToTickErr := t.getHoursToTick(strHours)
-	if getHoursToTickErr != nil {
-		return time.Second, getHoursToTickErr
+	strHour, strMinute := splitTime[0], splitTime[1]
+	hour, err := strconv.Atoi(strHour)
+	if err != nil {
+		return time.Second, err
 	}
-	minuteDuration, getMinutesToTickErr := t.getMinutesToTick(strMinutes)
-	if getMinutesToTickErr != nil {
-		return time.Second, getMinutesToTickErr
+	minute, err := strconv.Atoi(strMinute)
+	if err != nil {
+		return time.Second, err
 	}
-	outputDurationToTick := hourDuration + minuteDuration
-	return time.Hour*24 + outputDurationToTick, nil
+	var day int
+	if hour >= now.Hour() && minute > now.Minute() {
+		day = now.Day()
+	} else {
+		day = now.Day() + 1
+	}
+	date := time.Date(now.Year(), now.Month(), day, hour, minute, 0, 0, time.Local)
+	return date.Sub(now), nil
 }
 
 func NewTimeParser() ITimeParser {

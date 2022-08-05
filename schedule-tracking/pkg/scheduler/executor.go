@@ -16,6 +16,7 @@ type Executor struct {
 	cancellations map[string]context.CancelFunc
 	jobStore      IJobStore
 	logger        *log.Logger
+	timeParser    ITimeParser
 }
 
 func (e *Executor) Run(job *Job) {
@@ -39,7 +40,12 @@ func (e *Executor) process(job *Job) ShouldBeCancelled {
 			if shouldBeCancelled := job.Fn(job.Ctx, job.Args...); shouldBeCancelled {
 				return shouldBeCancelled
 			}
-			job.NextRunTime = time.Now().Add(job.Interval)
+			nextInterval, err := e.timeParser.Parse(job.Time)
+			if err != nil {
+				continue
+			}
+			ticker.Reset(nextInterval)
+			job.NextRunTime = time.Now().Add(nextInterval)
 			continue
 		case <-job.Ctx.Done():
 			e.logger.Printf(`job with id:%s ctx done`, job.Id)
@@ -63,11 +69,12 @@ func (e *Executor) Remove(taskId string) error {
 	}
 	return nil
 }
-func NewExecutor(jobStore IJobStore, logger *log.Logger) *Executor {
+func NewExecutor(jobStore IJobStore, timeParser ITimeParser, logger *log.Logger) *Executor {
 	return &Executor{
 		wg:            &sync.WaitGroup{},
 		cancellations: make(map[string]context.CancelFunc),
 		jobStore:      jobStore,
 		logger:        logger,
+		timeParser:    timeParser,
 	}
 }

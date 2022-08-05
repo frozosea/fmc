@@ -109,6 +109,8 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 			return &pb.AddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id")
 		case *NumberDoesntBelongThisUserError:
 			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "cannot find number in your account")
+		case *scheduler.TimeParseError:
+			return &pb.AddOnTrackResponse{}, status.Error(codes.InvalidArgument, err.Error())
 		default:
 			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}
