@@ -64,12 +64,23 @@ func (m *Manager) Get(ctx context.Context, taskId string) (*Job, error) {
 	return m.jobstore.Get(ctx, taskId)
 }
 func (m *Manager) Reschedule(ctx context.Context, taskId string, timeStr string) (*Job, error) {
-	taskTime, err := m.timeParser.Parse(timeStr)
+	job, err := m.jobstore.Get(ctx, taskId)
 	if err != nil {
-		var job *Job
-		return job, err
+		m.baseLogger.Printf(`get job with id: %s err: %s`, job.Id, err.Error())
+		return nil, err
 	}
-	return m.jobstore.Reschedule(ctx, taskId, taskTime, timeStr)
+	newInterval, err := m.timeParser.Parse(timeStr)
+	if err != nil {
+		return nil, err
+	}
+	newCtx := context.Background()
+	newJob, err := m.jobstore.Reschedule(newCtx, taskId, newInterval, timeStr)
+	if err != nil {
+		return newJob, err
+	}
+	newJob.Ctx = newCtx
+	go m.executor.Run(newJob)
+	return newJob, nil
 }
 func (m *Manager) RescheduleWithDuration(ctx context.Context, taskId string, newInterval time.Duration) (*Job, error) {
 	return m.jobstore.Reschedule(ctx, taskId, newInterval, fmt.Sprintf(`%d:%d`, time.Now().Add(newInterval).Hour(), time.Now().Add(newInterval).Minute()))

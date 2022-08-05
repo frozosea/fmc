@@ -19,6 +19,9 @@ type Executor struct {
 	timeParser    ITimeParser
 }
 
+func (e *Executor) checkJobExist(id string) bool {
+	return e.cancellations[id] != nil
+}
 func (e *Executor) Run(job *Job) {
 	ctx, cancel := context.WithCancel(job.Ctx)
 	job.Ctx = ctx
@@ -36,7 +39,7 @@ func (e *Executor) process(job *Job) ShouldBeCancelled {
 	for {
 		select {
 		case <-ticker.C:
-			e.logger.Printf(`job with id : %s now run`, job.Id)
+			e.logger.Printf(`job with id: %s now run`, job.Id)
 			if shouldBeCancelled := job.Fn(job.Ctx, job.Args...); shouldBeCancelled {
 				return shouldBeCancelled
 			}
@@ -48,13 +51,9 @@ func (e *Executor) process(job *Job) ShouldBeCancelled {
 			job.NextRunTime = time.Now().Add(nextInterval)
 			continue
 		case <-job.Ctx.Done():
-			e.logger.Printf(`job with id:%s ctx done`, job.Id)
+			e.logger.Printf(`job with id: %s ctx done time: %s`, job.Id, job.Time)
 			e.wg.Done()
 			ticker.Stop()
-			if err := e.jobStore.Remove(job.Ctx, job.Id); err != nil {
-				e.logger.Printf(`remove task with id: %s from jobstore error: %s`, job.Id, err)
-				return true
-			}
 			return true
 		default:
 			continue
@@ -65,9 +64,10 @@ func (e *Executor) Remove(taskId string) error {
 	for jobId, cancel := range e.cancellations {
 		if jobId == taskId {
 			cancel()
+			delete(e.cancellations, taskId)
 		}
 	}
-	return nil
+	return &LookupJobError{}
 }
 func NewExecutor(jobStore IJobStore, timeParser ITimeParser, logger *log.Logger) *Executor {
 	return &Executor{
