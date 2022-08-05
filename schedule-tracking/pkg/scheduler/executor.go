@@ -51,6 +51,7 @@ func (e *Executor) process(job *Job) (ShouldBeCancelled, bool) {
 				e.logger.Printf(`job with id: %s should be cancelled`, job.Id)
 				return shouldBeCancelled, false
 			}
+			e.logger.Printf(`task with id: %s was completed`, job.Id)
 			nextInterval, err := e.timeParser.Parse(job.Time)
 			if err != nil {
 				continue
