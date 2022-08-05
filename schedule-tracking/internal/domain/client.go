@@ -3,8 +3,8 @@ package domain
 import (
 	"context"
 	"fmt"
-	"schedule-tracking/internal/logging"
-	user_pb "schedule-tracking/internal/user-pb"
+	"schedule-tracking/pkg/logging"
+	user_pb "schedule-tracking/pkg/user-pb"
 )
 
 type UserClient struct {

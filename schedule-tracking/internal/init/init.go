@@ -11,13 +11,13 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
-	excel_writer "schedule-tracking/internal/excel-writer"
-	"schedule-tracking/internal/logging"
-	"schedule-tracking/internal/mailing"
-	"schedule-tracking/internal/scheduler"
-	"schedule-tracking/internal/tracking"
-	user_pb "schedule-tracking/internal/user-pb"
-	"schedule-tracking/pkg/domain"
+	"schedule-tracking/internal/domain"
+	excel_writer "schedule-tracking/pkg/excel-writer"
+	"schedule-tracking/pkg/logging"
+	"schedule-tracking/pkg/mailing"
+	"schedule-tracking/pkg/scheduler"
+	"schedule-tracking/pkg/tracking"
+	user_pb "schedule-tracking/pkg/user-pb"
 )
 
 type (

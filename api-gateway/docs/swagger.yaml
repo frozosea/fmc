@@ -111,11 +111,6 @@ definitions:
           type: string
         type: array
     type: object
-  schedule_tracking.GetInfoAboutTrackRequest:
-    properties:
-      number:
-        type: string
-    type: object
   schedule_tracking.GetInfoAboutTrackResponse:
     properties:
       emails:
@@ -492,17 +487,15 @@ paths:
       tags:
       - Schedule Tracking
   /schedule/info:
-    post:
+    get:
       consumes:
       - application/json
       description: get info about number on tracking
       parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.GetInfoAboutTrackRequest'
+      - description: bill number or container number
+        in: query
+        name: number
+        type: string
       produces:
       - application/json
       responses:

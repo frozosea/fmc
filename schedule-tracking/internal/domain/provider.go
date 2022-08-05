@@ -3,9 +3,9 @@ package domain
 import (
 	"context"
 	"fmt"
-	"schedule-tracking/internal/logging"
-	"schedule-tracking/internal/scheduler"
-	"schedule-tracking/internal/util"
+	"schedule-tracking/pkg/logging"
+	"schedule-tracking/pkg/scheduler"
+	"schedule-tracking/pkg/util"
 )
 
 type CannotFindEmailError struct{}
