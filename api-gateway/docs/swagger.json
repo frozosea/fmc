@@ -419,7 +419,7 @@
             }
         },
         "/schedule/info": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []

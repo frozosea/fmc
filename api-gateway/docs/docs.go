@@ -427,7 +427,7 @@ const docTemplate = `{
             }
         },
         "/schedule/info": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
