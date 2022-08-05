@@ -44,6 +44,7 @@ func (e *Executor) process(job *Job) (ShouldBeCancelled, bool) {
 		case <-ticker.C:
 			e.logger.Printf(`job with id: %s now run`, job.Id)
 			if shouldBeCancelled := job.Fn(job.Ctx, job.Args...); shouldBeCancelled {
+				e.logger.Printf(`job with id: %s should be cancelled`, job.Id)
 				return shouldBeCancelled, false
 			}
 			nextInterval, err := e.timeParser.Parse(job.Time)
