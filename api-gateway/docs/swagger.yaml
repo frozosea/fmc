@@ -492,7 +492,7 @@ paths:
       tags:
       - Schedule Tracking
   /schedule/info:
-    get:
+    post:
       consumes:
       - application/json
       description: get info about number on tracking

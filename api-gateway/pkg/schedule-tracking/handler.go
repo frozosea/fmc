@@ -284,7 +284,7 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 // @Success      200 {object} GetInfoAboutTrackResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/info [get]
+// @Router       /schedule/info [post]
 func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 	var s GetInfoAboutTrackRequest
 	userId, err := h.utils.DecodeToken(c)
