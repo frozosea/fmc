@@ -29,7 +29,7 @@ func TestTimeParserValidator(t *testing.T) {
 	}
 	p := NewTimeParser()
 	for _, v := range testTable {
-		_, err := p.ParseHourMinuteString(v.timeStr)
+		_, err := p.Parse(v.timeStr)
 		if v.valid {
 			assert.NoError(t, err)
 		} else {
@@ -55,10 +55,10 @@ func TestTimeParser(t *testing.T) {
 		{TimeStr: "00:00", expectedDuration: time.Hour*24 + (time.Hour * time.Duration(00)) - (time.Duration(time.Now().Hour()) * time.Hour) + (time.Minute * time.Duration(00)) - (time.Duration(time.Now().Minute()) * time.Minute)},
 	}
 	p := NewTimeParser()
-	_, err := p.ParseHourMinuteString("asfasfasf")
+	_, err := p.Parse("asfasfasf")
 	assert.Error(t, err)
 	for _, v := range testTable {
-		d, err := p.ParseHourMinuteString(v.TimeStr)
+		d, err := p.Parse(v.TimeStr)
 		assert.NoError(t, err)
 		assert.Equal(t, v.expectedDuration, d)
 	}
@@ -73,7 +73,7 @@ func TestJobStores(t *testing.T) {
 	}
 	store := NewMemoryJobStore()
 	ctx := context.Background()
-	job, err := store.Save(ctx, TASK_ID, fn, time.Second*1, []interface{}{"asdasd", "asdasd", "asdadas"})
+	job, err := store.Save(ctx, TASK_ID, fn, time.Second*1, []interface{}{"asdasd", "asdasd", "asdadas"}, "14:20")
 	assert.NoError(t, err)
 	assert.Equal(t, job.Id, TASK_ID)
 	assert.Equal(t, job.Args, []interface{}{"asdasd", "asdasd", "asdadas"})

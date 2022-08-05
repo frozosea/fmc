@@ -40,6 +40,8 @@ func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddO
 		switch statusOfRequest.Code() {
 		case codes.PermissionDenied:
 			return &AddOnTrackResponse{}, errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return &AddOnTrackResponse{}, errors.New(err.Error())
 		}
 		return nil, err
 	}
@@ -53,6 +55,8 @@ func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTr
 		switch statusOfRequest.Code() {
 		case codes.PermissionDenied:
 			return &AddOnTrackResponse{}, errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return &AddOnTrackResponse{}, errors.New(err.Error())
 		}
 		return nil, err
 	}
@@ -68,6 +72,8 @@ func (c *Client) UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeR
 			return numbers, errors.New("cannot lookup job with this id")
 		case codes.PermissionDenied:
 			return numbers, errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return numbers, errors.New(err.Error())
 		}
 		go func() {
 			for _, v := range req.Numbers {
@@ -88,6 +94,8 @@ func (c *Client) AddEmailsOnTracking(ctx context.Context, req AddEmailRequest) e
 			return errors.New("cannot find job with this id")
 		case codes.PermissionDenied:
 			return errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return errors.New(err.Error())
 		default:
 			return err
 		}
@@ -107,7 +115,8 @@ func (c *Client) DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrac
 			return errors.New("cannot find job or email with this params")
 		case codes.PermissionDenied:
 			return errors.New("number does not belong to this user or cannot find job by your params")
-
+		case codes.InvalidArgument:
+			return errors.New(err.Error())
 		default:
 			return err
 		}
@@ -127,6 +136,8 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 			return errors.New("cannot find job with this id")
 		case codes.PermissionDenied:
 			return errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return errors.New(err.Error())
 		}
 		return err
 	} else {
@@ -140,6 +151,8 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 			return errors.New("cannot find job with this id")
 		case codes.PermissionDenied:
 			return errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return errors.New(err.Error())
 		}
 		return err
 	}
@@ -155,6 +168,8 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 			return s, errors.New("cannot find job with this id")
 		case codes.PermissionDenied:
 			return s, errors.New("number does not belong to this user or cannot find job by your params")
+		case codes.InvalidArgument:
+			return s, errors.New(err.Error())
 		default:
 			return s, err
 		}

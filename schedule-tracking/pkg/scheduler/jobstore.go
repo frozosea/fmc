@@ -24,9 +24,9 @@ func (l *LookupJobError) Error() string {
 }
 
 type IJobStore interface {
-	Save(ctx context.Context, taskId string, task ITask, interval time.Duration, args []interface{}) (*Job, error)
+	Save(ctx context.Context, taskId string, task ITask, interval time.Duration, args []interface{}, time string) (*Job, error)
 	Get(ctx context.Context, taskId string) (*Job, error)
-	Reschedule(ctx context.Context, taskId string, interval time.Duration) (*Job, error)
+	Reschedule(ctx context.Context, taskId string, interval time.Duration, newStrTime string) (*Job, error)
 	Remove(ctx context.Context, taskId string) error
 	RemoveAll(ctx context.Context) error
 }
@@ -34,7 +34,7 @@ type MemoryJobStore struct {
 	jobs map[string]*Job
 }
 
-func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, interval time.Duration, args []interface{}) (*Job, error) {
+func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, interval time.Duration, args []interface{}, strTime string) (*Job, error) {
 	job := Job{
 		Id:          taskId,
 		Fn:          task,
@@ -42,6 +42,7 @@ func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, in
 		Args:        args,
 		Interval:    interval,
 		Ctx:         ctx,
+		Time:        strTime,
 	}
 	getJob := m.jobs[taskId]
 	if getJob != nil {
@@ -64,7 +65,7 @@ func (m *MemoryJobStore) checkTask(taskId string) (*Job, error) {
 	}
 	return job, nil
 }
-func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval time.Duration) (*Job, error) {
+func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval time.Duration, newStrTime string) (*Job, error) {
 	job := m.jobs[taskId]
 	if job == nil {
 		return new(Job), &LookupJobError{}
@@ -76,6 +77,7 @@ func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval
 		Args:        job.Args,
 		Interval:    interval,
 		Ctx:         ctx,
+		Time:        newStrTime,
 	}
 	m.jobs[taskId] = &modifiedJob
 	return &modifiedJob, nil
