@@ -73,17 +73,33 @@ func (m *Manager) Reschedule(ctx context.Context, taskId string, timeStr string)
 	if err != nil {
 		return nil, err
 	}
-	newCtx := context.Background()
-	newJob, err := m.jobstore.Reschedule(newCtx, taskId, newInterval, timeStr)
+	newJob, err := m.jobstore.Reschedule(ctx, taskId, newInterval, timeStr)
 	if err != nil {
 		return newJob, err
 	}
-	newJob.Ctx = newCtx
+	if err := m.executor.Remove(taskId); err != nil {
+		return newJob, err
+	}
+	newJob.Ctx = context.Background()
 	go m.executor.Run(newJob)
 	return newJob, nil
 }
 func (m *Manager) RescheduleWithDuration(ctx context.Context, taskId string, newInterval time.Duration) (*Job, error) {
-	return m.jobstore.Reschedule(ctx, taskId, newInterval, fmt.Sprintf(`%d:%d`, time.Now().Add(newInterval).Hour(), time.Now().Add(newInterval).Minute()))
+	job, err := m.jobstore.Get(ctx, taskId)
+	if err != nil {
+		m.baseLogger.Printf(`get job with id: %s err: %s`, job.Id, err.Error())
+		return nil, err
+	}
+	newJob, err := m.jobstore.Reschedule(ctx, taskId, newInterval, fmt.Sprintf(`%d:%d`, time.Now().Add(newInterval).Hour(), time.Now().Add(newInterval).Minute()))
+	if err != nil {
+		return newJob, err
+	}
+	if err := m.executor.Remove(taskId); err != nil {
+		return newJob, err
+	}
+	newJob.Ctx = context.Background()
+	go m.executor.Run(newJob)
+	return newJob, nil
 }
 func (m *Manager) Remove(ctx context.Context, taskId string) error {
 	if err := m.executor.Remove(taskId); err != nil {
@@ -104,10 +120,15 @@ func (m *Manager) Modify(ctx context.Context, taskId string, task ITask, args ..
 	if err := m.jobstore.Remove(ctx, taskId); err != nil {
 		return err
 	}
-	_, err = m.jobstore.Save(job.Ctx, job.Id, job.Fn, job.Interval, job.Args, job.Time)
+	if err := m.executor.Remove(taskId); err != nil {
+		return err
+	}
+	newJob, err := m.jobstore.Save(job.Ctx, job.Id, job.Fn, job.Interval, job.Args, job.Time)
 	if err != nil {
 		return err
 	}
+	newJob.Ctx = context.Background()
+	go m.executor.Run(newJob)
 	return nil
 }
 
