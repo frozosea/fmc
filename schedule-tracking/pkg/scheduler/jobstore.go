@@ -35,7 +35,11 @@ type MemoryJobStore struct {
 }
 
 func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, interval time.Duration, args []interface{}, strTime string) (*Job, error) {
-	job := Job{
+	getJob := m.jobs[taskId]
+	if getJob != nil {
+		return getJob, &AddJobError{}
+	}
+	job := &Job{
 		Id:          taskId,
 		Fn:          task,
 		NextRunTime: time.Now().Add(interval),
@@ -44,12 +48,8 @@ func (m *MemoryJobStore) Save(ctx context.Context, taskId string, task ITask, in
 		Ctx:         ctx,
 		Time:        strTime,
 	}
-	getJob := m.jobs[taskId]
-	if getJob != nil {
-		return getJob, &AddJobError{}
-	}
-	m.jobs[taskId] = &job
-	return &job, nil
+	m.jobs[taskId] = job
+	return job, nil
 }
 func (m *MemoryJobStore) Get(_ context.Context, taskId string) (*Job, error) {
 	job := m.jobs[taskId]
@@ -70,7 +70,7 @@ func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval
 	if job == nil {
 		return new(Job), &LookupJobError{}
 	}
-	modifiedJob := Job{
+	modifiedJob := &Job{
 		Id:          taskId,
 		Fn:          job.Fn,
 		NextRunTime: time.Now().Add(interval),
@@ -79,8 +79,8 @@ func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval
 		Ctx:         ctx,
 		Time:        newStrTime,
 	}
-	m.jobs[taskId] = &modifiedJob
-	return &modifiedJob, nil
+	m.jobs[taskId] = modifiedJob
+	return modifiedJob, nil
 }
 func (m *MemoryJobStore) Remove(_ context.Context, taskId string) error {
 	job := m.jobs[taskId]
