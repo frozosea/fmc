@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
-	"schedule-tracking/internal/logging"
+	"schedule-tracking/pkg/logging"
 	"time"
 )
 

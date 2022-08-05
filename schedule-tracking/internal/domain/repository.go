@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/lib/pq"
-	"schedule-tracking/internal/util"
+	"schedule-tracking/pkg/util"
 )
 
 type NoTasksError struct{}

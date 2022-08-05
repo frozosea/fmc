@@ -43,19 +43,7 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return &Job{}, err
 	}
-	go func() {
-		shouldBeCancel := m.executor.Run(job)
-		m.baseLogger.Printf("task with id: %s, result: %t", taskId, shouldBeCancel)
-		if shouldBeCancel {
-			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
-				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s from jobstore error: %s`, taskId, removeErr))
-			}
-			if removeErr := m.executor.Remove(job.Id); removeErr != nil {
-				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s from executor error: %s`, taskId, removeErr))
-			}
-		}
-		job.NextRunTime = time.Now().Add(job.Interval)
-	}()
+	go m.executor.Run(job)
 	return job, err
 }
 func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask, interval time.Duration, taskArgs ...interface{}) (*Job, error) {
@@ -64,15 +52,7 @@ func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return job, err
 	}
-	go func() {
-		shouldBeCancel := m.executor.Run(job)
-		if shouldBeCancel {
-			if removeErr := m.jobstore.Remove(ctx, taskId); removeErr != nil {
-				m.baseLogger.Println(fmt.Sprintf(`remove task with id: %s`, taskId))
-			}
-		}
-		job.NextRunTime = time.Now().Add(job.Interval)
-	}()
+	go m.executor.Run(job)
 	return job, err
 }
 func (m *Manager) Get(ctx context.Context, taskId string) (*Job, error) {
@@ -116,6 +96,7 @@ func (m *Manager) Modify(ctx context.Context, taskId string, task ITask, args ..
 }
 
 func NewDefault() *Manager {
-	return &Manager{executor: NewExecutor(), jobstore: NewMemoryJobStore(), baseLogger: *log.New(os.Stdout, "log", 1), timeParser: NewTimeParser()}
+	jobStore := NewMemoryJobStore()
+	return &Manager{executor: NewExecutor(jobStore, log.New(os.Stdout, "log", 1)), jobstore: jobStore, baseLogger: *log.New(os.Stdout, "log", 1), timeParser: NewTimeParser()}
 
 }

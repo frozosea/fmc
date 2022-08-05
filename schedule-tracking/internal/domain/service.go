@@ -7,9 +7,9 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"schedule-tracking/internal/logging"
-	"schedule-tracking/internal/scheduler"
+	"schedule-tracking/pkg/logging"
 	pb "schedule-tracking/pkg/proto"
+	"schedule-tracking/pkg/scheduler"
 	"time"
 )
 

@@ -427,7 +427,7 @@ const docTemplate = `{
             }
         },
         "/schedule/info": {
-            "post": {
+            "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -446,13 +446,10 @@ const docTemplate = `{
                 "summary": "get info about number on tracking",
                 "parameters": [
                     {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.GetInfoAboutTrackRequest"
-                        }
+                        "type": "string",
+                        "description": "bill number or container number",
+                        "name": "number",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1029,14 +1026,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                }
-            }
-        },
-        "schedule_tracking.GetInfoAboutTrackRequest": {
-            "type": "object",
-            "properties": {
-                "number": {
-                    "type": "string"
                 }
             }
         },

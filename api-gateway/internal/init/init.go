@@ -109,7 +109,7 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 		group.DELETE(`/email`, handler.DeleteEmailFromTrack)
 		group.DELETE(`/containers`, handler.DeleteContainersFromTrack)
 		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromTrack)
-		group.POST(`/info`, handler.GetInfoAboutTracking)
+		group.GET(`/info`, handler.GetInfoAboutTracking)
 	}
 	router.GET(`/schedule/timezone`, handler.GetTimeZone)
 

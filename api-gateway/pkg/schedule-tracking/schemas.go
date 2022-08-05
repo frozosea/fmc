@@ -42,7 +42,7 @@ type DeleteFromTrackRequest struct {
 }
 
 type GetInfoAboutTrackRequest struct {
-	Number string `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	Number string `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}" form:"number"`
 	userId int64
 }
 type GetInfoAboutTrackResponse struct {

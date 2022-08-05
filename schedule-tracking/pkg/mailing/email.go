@@ -7,8 +7,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	file_reader "schedule-tracking/internal/file-reader"
-	"schedule-tracking/internal/logging"
+	file_reader "schedule-tracking/pkg/file-reader"
+	"schedule-tracking/pkg/logging"
 )
 
 type IMailing interface {

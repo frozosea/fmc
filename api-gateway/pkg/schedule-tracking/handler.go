@@ -279,12 +279,12 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 // @Description  get info about number on tracking
 // @accept json
 // @Produce      json
-// @Param input body GetInfoAboutTrackRequest true "info"
+// @Param 		 number 	query 	string false "bill number or container number"
 // @Tags         Schedule Tracking
 // @Success      200 {object} GetInfoAboutTrackResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/info [post]
+// @Router       /schedule/info [get]
 func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 	var s GetInfoAboutTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -292,11 +292,11 @@ func (h *HttpHandler) GetInfoAboutTracking(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
+	if err := c.ShouldBindQuery(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	s.userId = int64(userId)
 	if err := h.validator.ValidateBill(s.Number); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
