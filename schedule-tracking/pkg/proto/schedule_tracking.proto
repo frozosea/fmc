@@ -28,12 +28,17 @@ message UpdateTrackingTimeRequest{
   string time = 2;
   int64 user_id = 3;
 }
+message AddOneNumberOnTrackRequest{
+  int64 user_id = 1;
+  repeated string number = 2;
+  repeated string emails = 3;
+  string time = 5;
+}
 message AddOnTrackRequest{
   int64 user_id = 1;
   repeated string number = 2;
   repeated string emails = 3;
-  string time = 4;
-
+  string time = 5;
 }
 message BaseAddOnTrackResponse{
   bool success = 1;
