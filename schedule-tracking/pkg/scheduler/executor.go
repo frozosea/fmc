@@ -33,6 +33,10 @@ func (e *Executor) Run(job *Job) {
 				e.logger.Printf(`remove job with id: %s err: %s`, job.Id, err.Error())
 				return
 			}
+			if err := e.jobStore.Remove(job.Ctx, job.Id); err != nil {
+				e.logger.Printf(`remove job with id: %s err: %s`, job.Id, err.Error())
+				return
+			}
 			e.logger.Printf(`job with id %s was removed`, job.Id)
 		}
 	}
