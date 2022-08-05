@@ -43,13 +43,13 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 		return &Job{}, err
 	}
 	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, taskArgs, timeStr)
-	m.baseLogger.Printf("job with id %s and time %s was add next run time is %s", job.Id, timeStr, job.NextRunTime.Format("2006-01-02 15:04"))
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return &Job{}, err
 	}
+	m.baseLogger.Printf("job with id %s and time %s was add next run time is %s", job.Id, timeStr, job.NextRunTime.Format("2006-01-02 15:04"))
 	go m.executor.Run(job)
-	return job, err
+	return job, nil
 }
 func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask, interval time.Duration, taskArgs ...interface{}) (*Job, error) {
 	job, err := m.jobstore.Save(ctx, taskId, task, interval, taskArgs, fmt.Sprintf(`%d:%d`, time.Now().Add(interval).Hour(), time.Now().Add(interval).Minute()))
