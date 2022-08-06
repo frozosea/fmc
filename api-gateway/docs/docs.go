@@ -1088,9 +1088,6 @@ const docTemplate = `{
         "tracking.BillNumberResponse": {
             "type": "object",
             "properties": {
-                "Scac": {
-                    "type": "string"
-                },
                 "billNo": {
                     "type": "string"
                 },
@@ -1102,15 +1099,15 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "scac": {
+                    "type": "string"
                 }
             }
         },
         "tracking.ContainerNumberResponse": {
             "type": "object",
             "properties": {
-                "Scac": {
-                    "type": "string"
-                },
                 "container": {
                     "type": "string"
                 },
@@ -1122,6 +1119,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "scac": {
+                    "type": "string"
                 }
             }
         },
