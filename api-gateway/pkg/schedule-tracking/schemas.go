@@ -5,9 +5,10 @@ import (
 )
 
 type AddOnTrackRequest struct {
-	Numbers []string `json:"numbers" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
-	Emails  []string `json:"emails" validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
-	Time    string   `json:"time" validate:"min=4,max=5,regexp=\d{1,2}:\d{2}"`
+	Number       string   `json:"number" binding:"required" "min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	Emails       []string `json:"emails" binding:"required"  validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
+	Time         string   `json:"time" binding:"required"  validate:"min=4,max=5,regexp=\d{1,2}:\d{2}"`
+	EmailMessage string   `json:"email_subject" binding:"required"  validate:""`
 }
 type BaseAddOnTrackResponse struct {
 	Success     bool   `json:"success"`

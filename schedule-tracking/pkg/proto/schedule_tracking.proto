@@ -30,15 +30,13 @@ message UpdateTrackingTimeRequest{
 }
 message AddOneNumberOnTrackRequest{
   int64 user_id = 1;
-  repeated string number = 2;
+  string number = 2;
   repeated string emails = 3;
+  string email_message_subject = 4;
   string time = 5;
 }
 message AddOnTrackRequest{
-  int64 user_id = 1;
-  repeated string number = 2;
-  repeated string emails = 3;
-  string time = 5;
+  repeated AddOneNumberOnTrackRequest add_on_track_request = 1;
 }
 message BaseAddOnTrackResponse{
   bool success = 1;

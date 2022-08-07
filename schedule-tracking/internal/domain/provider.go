@@ -42,11 +42,11 @@ func (p *Provider) checkNumberInTaskTable(ctx context.Context, number string, us
 	}
 	return true
 }
-func (p *Provider) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
+func (p *Provider) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
 	if !p.cli.CheckNumberBelongUser(ctx, number, userId, true) {
 		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
 	}
-	task := p.GetTrackByContainerNumberTask(number, country, userId)
+	task := p.GetTrackByContainerNumberTask(number, country, userId, emailSubject)
 	job, err := p.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
 		go p.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
@@ -59,15 +59,15 @@ func (p *Provider) addOneContainer(ctx context.Context, number, country, time st
 	go p.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
 	return job, nil
 }
-func (p *Provider) AddContainerNumbersOnTrack(ctx context.Context, req TrackByContainerNoReq) (*AddOnTrackResponse, error) {
+func (p *Provider) AddContainerNumbersOnTrack(ctx context.Context, req []*BaseTrackReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
-	for _, v := range req.Numbers {
-		job, err := p.addOneContainer(ctx, v, req.Country, req.Time, req.UserId, req.Emails)
+	for _, v := range req {
+		job, err := p.addOneContainer(ctx, v.Number, v.Number, v.Time, v.UserId, v.Emails, v.EmailMessageSubject)
 		if err != nil {
 			switch err.(type) {
 			case *scheduler.AddJobError:
-				alreadyOnTrack = append(alreadyOnTrack, v)
+				alreadyOnTrack = append(alreadyOnTrack, v.Number)
 				continue
 			default:
 				return &AddOnTrackResponse{
@@ -82,20 +82,23 @@ func (p *Provider) AddContainerNumbersOnTrack(ctx context.Context, req TrackByCo
 			nextRunTime: job.NextRunTime,
 		})
 	}
-	addErr := p.repository.Add(ctx, &req.BaseTrackReq, true)
-	if addErr != nil {
-		go p.logger.ExceptionLog(fmt.Sprintf(`add containers with Numbers: %v error: %s`, req.Numbers, addErr.Error()))
+	if addErr := p.repository.Add(ctx, req, true); addErr != nil {
+		go func() {
+			for _, v := range req {
+				p.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %v error: %s`, v.Number, addErr.Error()))
+			}
+		}()
 	}
 	return &AddOnTrackResponse{
 		result:         result,
 		alreadyOnTrack: alreadyOnTrack,
-	}, addErr
+	}, nil
 }
-func (p *Provider) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string) (*scheduler.Job, error) {
+func (p *Provider) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
 	if !p.cli.CheckNumberBelongUser(ctx, number, userId, false) {
 		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
 	}
-	task := p.GetTrackByBillNumberTask(number, country, userId)
+	task := p.GetTrackByBillNumberTask(number, country, userId, emailSubject)
 	job, err := p.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
 		go p.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
@@ -105,18 +108,18 @@ func (p *Provider) addOneBillOnTrack(ctx context.Context, number, country, time 
 		p.logger.ExceptionLog(fmt.Sprintf(`mark bill on track with Number %s failed: %s`, number, addCntrErr.Error()))
 		return job, addCntrErr
 	}
-	go p.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: false`, job.Id, time, emails, userId))
+	go p.logger.InfoLog(fmt.Sprintf(`number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: false`, job.Id, time, emails, userId))
 	return job, nil
 }
-func (p *Provider) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoReq) (*AddOnTrackResponse, error) {
+func (p *Provider) AddBillNumbersOnTrack(ctx context.Context, req []*BaseTrackReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
-	for _, v := range req.Numbers {
-		job, err := p.addOneBillOnTrack(ctx, v, req.Country, req.Time, req.UserId, req.Emails)
+	for _, v := range req {
+		job, err := p.addOneBillOnTrack(ctx, v.Number, v.Country, v.Time, v.UserId, v.Emails, v.EmailMessageSubject)
 		if err != nil {
 			switch err.(type) {
 			case *scheduler.AddJobError:
-				alreadyOnTrack = append(alreadyOnTrack, v)
+				alreadyOnTrack = append(alreadyOnTrack, v.Number)
 				continue
 			default:
 				return &AddOnTrackResponse{
@@ -131,9 +134,13 @@ func (p *Provider) AddBillNumbersOnTrack(ctx context.Context, req TrackByBillNoR
 			nextRunTime: job.NextRunTime,
 		})
 	}
-	addErr := p.repository.Add(ctx, &req.BaseTrackReq, false)
+	addErr := p.repository.Add(ctx, req, false)
 	if addErr != nil {
-		go p.logger.ExceptionLog(fmt.Sprintf(`add containers with Numbers: %v error: %s`, req.Numbers, addErr.Error()))
+		go func() {
+			for _, v := range req {
+				p.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %s error: %s`, v.Number, addErr.Error()))
+			}
+		}()
 	}
 	return &AddOnTrackResponse{
 		result:         result,

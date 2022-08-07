@@ -29,7 +29,7 @@ func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arr
 	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter, repository: repository}
 }
 
-func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, userId int64) scheduler.ITask {
+func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, userId int64, emailSubject string) scheduler.ITask {
 	fn := func(ctx context.Context, emails ...interface{}) scheduler.ShouldBeCancelled {
 		result, err := c.trackingClient.TrackByContainerNumber(ctx, tracking.Track{
 			Number:  number,
@@ -66,7 +66,13 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 				mu.Lock()
 				defer mu.Unlock()
 				defer wg.Done()
-				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now())), pathToFile); sendErr != nil {
+				var subject string
+				if emailSubject == " " || emailSubject == "" {
+					subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now()))
+				} else {
+					subject = emailSubject
+				}
+				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), subject, pathToFile); sendErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, sendErr.Error()))
 				}
 			}()
@@ -80,7 +86,7 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 	return fn
 
 }
-func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId int64) scheduler.ITask {
+func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId int64, emailSubject string) scheduler.ITask {
 	return func(ctx context.Context, emails ...interface{}) scheduler.ShouldBeCancelled {
 		result, err := c.trackingClient.TrackByBillNumber(ctx, &tracking.Track{
 			Number:  number,
@@ -117,8 +123,14 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 				mu.Lock()
 				defer wg.Done()
 				defer mu.Unlock()
-				if err := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.BillNo), c.timeFormatter.Convert(time.Now())), pathToFile); err != nil {
-					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, err.Error()))
+				var subject string
+				if emailSubject == " " || emailSubject == "" {
+					subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.BillNo), c.timeFormatter.Convert(time.Now()))
+				} else {
+					subject = emailSubject
+				}
+				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), subject, pathToFile); sendErr != nil {
+					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, sendErr.Error()))
 				}
 			}()
 			wg.Wait()

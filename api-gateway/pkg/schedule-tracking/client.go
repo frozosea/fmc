@@ -13,8 +13,8 @@ import (
 )
 
 type IClient interface {
-	AddContainersOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error)
-	AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error)
+	AddContainersOnTrack(ctx context.Context, userId int, req []*AddOnTrackRequest) (*AddOnTrackResponse, error)
+	AddBillNosOnTrack(ctx context.Context, userId int, req []*AddOnTrackRequest) (*AddOnTrackResponse, error)
 	UpdateTrackingTime(ctx context.Context, req UpdateTrackingTimeRequest) ([]BaseAddOnTrackResponse, error)
 	AddEmailsOnTracking(ctx context.Context, req AddEmailRequest) error
 	DeleteEmailFromTrack(ctx context.Context, r DeleteEmailFromTrackRequest) error
@@ -33,7 +33,7 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 	return &Client{conn: conn, cli: pb.NewScheduleTrackingClient(conn), logger: logger, converter: converter{}}
 }
 
-func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
+func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req []*AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddContainersOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
 		statusOfRequest := status.Convert(err)
@@ -48,7 +48,7 @@ func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddO
 	return c.converter.addOnTrackResponseConvert(response), nil
 }
 
-func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTrackRequest) (*AddOnTrackResponse, error) {
+func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req []*AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	response, err := c.cli.AddBillNosOnTrack(ctx, c.converter.addOnTrackRequestConvert(userId, req))
 	if err != nil {
 		statusOfRequest := status.Convert(err)
@@ -192,12 +192,19 @@ func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {
 type converter struct {
 }
 
-func (c *converter) addOnTrackRequestConvert(userId int, r *AddOnTrackRequest) *pb.AddOnTrackRequest {
+func (c *converter) addOnTrackRequestConvert(userId int, r []*AddOnTrackRequest) *pb.AddOnTrackRequest {
+	var arrayWithRequest []*pb.AddOneNumberOnTrackRequest
+	for _, v := range r {
+		arrayWithRequest = append(arrayWithRequest, &pb.AddOneNumberOnTrackRequest{
+			UserId:              int64(userId),
+			Number:              v.Number,
+			Emails:              v.Emails,
+			EmailMessageSubject: v.EmailMessage,
+			Time:                v.Time,
+		})
+	}
 	return &pb.AddOnTrackRequest{
-		UserId: int64(userId),
-		Number: r.Numbers,
-		Emails: r.Emails,
-		Time:   r.Time,
+		AddOnTrackRequest: arrayWithRequest,
 	}
 }
 func (c *converter) baseAddOnTrackResponseConver(r []*pb.BaseAddOnTrackResponse) []BaseAddOnTrackResponse {

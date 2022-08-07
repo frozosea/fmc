@@ -5,18 +5,12 @@ import (
 )
 
 type BaseTrackReq struct {
-	Numbers []string
-	UserId  int64
-	Country string
-	Time    string
-	Emails  []string
-}
-
-type TrackByBillNoReq struct {
-	BaseTrackReq
-}
-type TrackByContainerNoReq struct {
-	BaseTrackReq
+	Number              string
+	UserId              int64
+	Country             string
+	Time                string
+	Emails              []string
+	EmailMessageSubject string
 }
 type BaseAddOnTrackResponse struct {
 	success     bool
@@ -44,10 +38,11 @@ type GetInfoAboutTrackResponse struct {
 }
 
 type TrackingTask struct {
-	Number      string
-	UserId      int64
-	Country     string
-	Time        string
-	Emails      []string
-	IsContainer bool
+	Number              string
+	UserId              int64
+	Country             string
+	Time                string
+	Emails              []string
+	IsContainer         bool
+	EmailMessageSubject string
 }

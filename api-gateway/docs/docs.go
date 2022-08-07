@@ -211,7 +211,10 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                            }
                         }
                     }
                 ],
@@ -307,7 +310,10 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                            }
                         }
                     }
                 ],
@@ -948,17 +954,17 @@ const docTemplate = `{
         "schedule_tracking.AddOnTrackRequest": {
             "type": "object",
             "properties": {
+                "email_subject": {
+                    "type": "string"
+                },
                 "emails": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "numbers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "number": {
+                    "type": "string"
                 },
                 "time": {
                     "type": "string"
@@ -1088,9 +1094,6 @@ const docTemplate = `{
         "tracking.BillNumberResponse": {
             "type": "object",
             "properties": {
-                "Scac": {
-                    "type": "string"
-                },
                 "billNo": {
                     "type": "string"
                 },
@@ -1102,15 +1105,15 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "scac": {
+                    "type": "string"
                 }
             }
         },
         "tracking.ContainerNumberResponse": {
             "type": "object",
             "properties": {
-                "Scac": {
-                    "type": "string"
-                },
                 "container": {
                     "type": "string"
                 },
@@ -1122,6 +1125,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "scac": {
+                    "type": "string"
                 }
             }
         },
