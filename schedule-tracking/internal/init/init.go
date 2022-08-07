@@ -213,22 +213,24 @@ func RecoveryTasks(repo domain.IRepository, controller *domain.Provider) error {
 	}
 	for _, task := range tasks {
 		if !task.IsContainer {
-			if _, addErr := controller.AddBillNumbersOnTrack(context.Background(), domain.TrackByBillNoReq{BaseTrackReq: domain.BaseTrackReq{
-				Numbers: []string{task.Number},
-				UserId:  task.UserId,
-				Country: task.Country,
-				Time:    task.Time,
-				Emails:  task.Emails,
+			if _, addErr := controller.AddBillNumbersOnTrack(context.Background(), []*domain.BaseTrackReq{{
+				Number:              task.Number,
+				UserId:              task.UserId,
+				Country:             task.Country,
+				Time:                task.Time,
+				Emails:              task.Emails,
+				EmailMessageSubject: task.EmailMessageSubject,
 			}}); addErr != nil {
 				return addErr
 			}
 		} else {
-			if _, addErr := controller.AddContainerNumbersOnTrack(context.Background(), domain.TrackByContainerNoReq{BaseTrackReq: domain.BaseTrackReq{
-				Numbers: []string{task.Number},
-				UserId:  task.UserId,
-				Country: task.Country,
-				Time:    task.Time,
-				Emails:  task.Emails,
+			if _, addErr := controller.AddContainerNumbersOnTrack(context.Background(), []*domain.BaseTrackReq{{
+				Number:              task.Number,
+				UserId:              task.UserId,
+				Country:             task.Country,
+				Time:                task.Time,
+				Emails:              task.Emails,
+				EmailMessageSubject: task.EmailMessageSubject,
 			}}); addErr != nil {
 				return addErr
 			}

@@ -16,14 +16,19 @@ import (
 type converter struct {
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) BaseTrackReq {
-	return BaseTrackReq{
-		Numbers: r.GetNumber(),
-		UserId:  r.GetUserId(),
-		Country: country,
-		Time:    r.GetTime(),
-		Emails:  r.GetEmails(),
+func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) []*BaseTrackReq {
+	var outputArr []*BaseTrackReq
+	for _, track := range r.GetAddOnTrackRequest() {
+		outputArr = append(outputArr, &BaseTrackReq{
+			Number:              track.GetNumber(),
+			UserId:              track.GetUserId(),
+			Country:             country,
+			Time:                track.GetTime(),
+			Emails:              track.GetEmails(),
+			EmailMessageSubject: track.GetEmailMessageSubject(),
+		})
 	}
+	return outputArr
 }
 func (c *converter) convertBaseAddOnTrackResponse(r []*BaseAddOnTrackResponse) []*pb.BaseAddOnTrackResponse {
 	var res []*pb.BaseAddOnTrackResponse
@@ -75,13 +80,13 @@ func NewService(controller *Provider, logger logging.ILogger) *Service {
 	return &Service{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
 }
 func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddContainerNumbersOnTrack(ctx, TrackByContainerNoReq{s.converter.convertAddOnTrack(r, "OTHER")})
+	res, err := s.controller.AddContainerNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "OTHER"))
 	if err != nil {
-		go func() {
-			for _, v := range res.result {
-				s.logger.FatalLog(fmt.Sprintf(`add container Numbers: %s for user-pb: %d failed: %s`, v.number, r.UserId, err.Error()))
-			}
-		}()
+		//go func() {
+		//	for _, v := range res.result {
+		//		s.logger.FatalLog(fmt.Sprintf(`add container Numbers: %s for user-pb: %d failed: %s`, v.number, r.GetAddOnTrackRequest(), err.Error()))
+		//	}
+		//}()
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
@@ -96,13 +101,15 @@ func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequ
 		if reprErr != nil {
 			return
 		}
-		s.logger.InfoLog(fmt.Sprintf(`add container Numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
+		for _, v := range r.GetAddOnTrackRequest() {
+			s.logger.InfoLog(fmt.Sprintf(`add container number on track request: %v to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
+		}
 	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
 
 func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddBillNumbersOnTrack(ctx, TrackByBillNoReq{s.converter.convertAddOnTrack(r, "RU")})
+	res, err := s.controller.AddBillNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "RU"))
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
@@ -116,11 +123,13 @@ func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 		}
 	}
 	go func() {
-		jsonRepr, err := json.Marshal(res)
-		if err != nil {
+		jsonRepr, reprErr := json.Marshal(res)
+		if reprErr != nil {
 			return
 		}
-		s.logger.InfoLog(fmt.Sprintf(`add container Numbers on track request: %v to user-pb: %v, with result: %v`, r.Number, r.UserId, jsonRepr))
+		for _, v := range r.GetAddOnTrackRequest() {
+			s.logger.InfoLog(fmt.Sprintf(`add bill number on track request: %s to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
+		}
 	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }

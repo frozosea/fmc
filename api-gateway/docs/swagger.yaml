@@ -59,14 +59,14 @@ definitions:
     type: object
   schedule_tracking.AddOnTrackRequest:
     properties:
+      email_subject:
+        type: string
       emails:
         items:
           type: string
         type: array
-      numbers:
-        items:
-          type: string
-        type: array
+      number:
+        type: string
       time:
         type: string
     type: object
@@ -345,7 +345,9 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+          items:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+          type: array
       produces:
       - application/json
       responses:
@@ -407,7 +409,9 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+          items:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+          type: array
       produces:
       - application/json
       responses:

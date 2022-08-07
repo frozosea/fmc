@@ -22,24 +22,38 @@ func NewHttpHandler(client IClient, utils *utils.HttpUtils) *HttpHandler {
 // @Description  add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
-// @Param input body AddOnTrackRequest true "info"
+// @Param input body []AddOnTrackRequest true "info"
 // @Tags         Schedule Tracking
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
 // @Router       /schedule/container [post]
 func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
-	var s AddOnTrackRequest
+	var s []*AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
+	}
+	for _, t := range s {
+		if err := h.validator.ValidateContainer(t.Number); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+		if err := h.validator.ValidateEmails(t.Emails); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+		if err := h.validator.ValidateTime(t.Time); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
 	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.JSON(401, gin.H{"message": "cannot decode token"})
 		return
 	}
-	resp, err := h.client.AddContainersOnTrack(c.Request.Context(), int(userId), &s)
+	resp, err := h.client.AddContainersOnTrack(c.Request.Context(), int(userId), s)
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
 		return
@@ -54,36 +68,38 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // @Description  add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
-// @Param input body AddOnTrackRequest true "info"
+// @Param input body []AddOnTrackRequest true "info"
 // @Tags         Schedule Tracking
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
 // @Router       /schedule/billNo [post]
 func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
-	var s AddOnTrackRequest
+	var s []*AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	if err := h.validator.ValidateBills(s.Numbers); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.validator.ValidateEmails(s.Emails); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.validator.ValidateTime(s.Time); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
+	for _, t := range s {
+		if err := h.validator.ValidateBill(t.Number); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+		if err := h.validator.ValidateEmails(t.Emails); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+		if err := h.validator.ValidateTime(t.Time); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
 	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.JSON(401, gin.H{"message": "cannot decode token"})
 		return
 	}
-	resp, err := h.client.AddBillNosOnTrack(c.Request.Context(), int(userId), &s)
+	resp, err := h.client.AddBillNosOnTrack(c.Request.Context(), int(userId), s)
 	if err != nil {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
 		return
