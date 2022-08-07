@@ -51,6 +51,14 @@ func (f *fesoArrivedChecker) getIndex(item interface{}, s []BaseInfoAboutMoving)
 	}
 	return -1
 }
+func (f *fesoArrivedChecker) contains(s []BaseInfoAboutMoving, operation string) bool {
+	for _, a := range s {
+		if strings.ToLower(a.OperationName) == strings.ToLower(operation) {
+			return true
+		}
+	}
+	return false
+}
 func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
 		if strings.ToUpper(v.OperationName) == "ETA" {
@@ -62,6 +70,9 @@ func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAbou
 		if strings.ToUpper(v.Location) == "MAGISTRAL" {
 			return true
 		}
+	}
+	if f.contains(result, "ETS") && !f.contains(result, "ETA") {
+		return true
 	}
 	return false
 }
