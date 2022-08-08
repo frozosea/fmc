@@ -2,6 +2,7 @@ package schedule_tracking
 
 import (
 	"fmc-gateway/internal/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -340,5 +341,39 @@ func (h *HttpHandler) GetTimeZone(c *gin.Context) {
 		return
 	}
 	c.JSON(200, timeZone)
+	return
+}
+
+//ChangeEmailMessageSubject
+// @Summary change email message subject
+// @Security ApiKeyAuth
+// @Tags Schedule Tracking
+// @Description change email message subject
+// @Param input body ChangeEmailMessageSubjectRequest true "info"
+// @Success 	200 	{object} 	BaseResponse
+// @Failure 	500  	{object} 	BaseResponse
+// @Router       /schedule/emailSubject [put]
+func (h *HttpHandler) ChangeEmailMessageSubject(c *gin.Context) {
+	var s ChangeEmailMessageSubjectRequest
+	userId, err := h.utils.DecodeToken(c)
+	fmt.Println(userId)
+	if err != nil {
+		c.AbortWithStatus(401)
+		return
+	}
+	if err := c.ShouldBindJSON(&s); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	s.userId = int64(userId)
+	if err := h.validator.ValidateBill(s.Number); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.client.ChangeEmailMessageSubject(c.Request.Context(), s); err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "error": nil})
 	return
 }

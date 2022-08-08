@@ -243,3 +243,9 @@ func (s *Service) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneR
 	zone, _ := t.Zone()
 	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
 }
+func (s *Service) ChangeEmailMessageSubject(ctx context.Context, r *pb.ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
+	if err := s.controller.ChangeEmailMessageSubject(ctx, r.GetUserId(), r.GetNumber(), r.GetNewSubject()); err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}

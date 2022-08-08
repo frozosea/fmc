@@ -60,3 +60,9 @@ type BaseResponse struct {
 type TimeZoneResponse struct {
 	TimeZone string `json:"timeZone"`
 }
+
+type ChangeEmailMessageSubjectRequest struct {
+	Number     string
+	userId     int64
+	NewSubject string
+}

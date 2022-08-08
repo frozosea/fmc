@@ -21,6 +21,7 @@ type IRepository interface {
 	DeleteEmail(ctx context.Context, number string, email string) error
 	UpdateTime(ctx context.Context, numbers []string, newTime string) error
 	Delete(ctx context.Context, numbers []string) error
+	ChangeEmailMessageSubject(ctx context.Context, number, newSubject string) error
 }
 
 type Repository struct {
@@ -122,4 +123,8 @@ func (r *Repository) Delete(ctx context.Context, numbers []string) error {
 		}
 	}
 	return nil
+}
+func (r *Repository) ChangeEmailMessageSubject(ctx context.Context, number, newSubject string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE "tasks" AS t SET email_subject = $1 WHERE t.number = $2`, newSubject, number)
+	return err
 }

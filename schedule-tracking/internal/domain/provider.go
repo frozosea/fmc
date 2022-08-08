@@ -252,3 +252,22 @@ func (p *Provider) GetInfoAboutTracking(ctx context.Context, number string, user
 		nextRunTime: job.NextRunTime,
 	}, nil
 }
+
+func (p *Provider) ChangeEmailMessageSubject(ctx context.Context, userId int64, number, newSubject string) error {
+	job, err := p.taskManager.Get(ctx, number)
+	if err != nil {
+		return err
+	}
+	repoTask, err := p.repository.GetByNumber(ctx, number)
+	if err != nil {
+		return err
+	}
+	task := p.GetTrackByBillNumberTask(number, repoTask.Country, userId, newSubject)
+	if err := p.taskManager.Remove(ctx, number); err != nil {
+		return err
+	}
+	if _, err := p.taskManager.Add(ctx, number, task, repoTask.Time, job.Args...); err != nil {
+		return err
+	}
+	return nil
+}
