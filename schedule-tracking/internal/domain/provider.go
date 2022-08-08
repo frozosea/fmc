@@ -268,10 +268,8 @@ func (p *Provider) ChangeEmailMessageSubject(ctx context.Context, userId int64, 
 		return err
 	}
 	task := p.GetTrackByBillNumberTask(number, repoTask.Country, userId, newSubject)
-	if err := p.taskManager.Remove(ctx, number); err != nil {
-		return err
-	}
-	if _, err := p.taskManager.Add(ctx, number, task, repoTask.Time, job.Args...); err != nil {
+	err = p.taskManager.Modify(context.Background(), number, task, job.Args...)
+	if err != nil {
 		return err
 	}
 	if err := p.repository.ChangeEmailMessageSubject(ctx, number, newSubject); err != nil {
