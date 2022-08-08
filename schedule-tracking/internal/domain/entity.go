@@ -32,9 +32,10 @@ type DeleteEmailFromTrack struct {
 	userId int64
 }
 type GetInfoAboutTrackResponse struct {
-	number      string
-	emails      []interface{}
-	nextRunTime time.Time
+	number              string
+	emails              []interface{}
+	nextRunTime         time.Time
+	emailMessageSubject string
 }
 
 type TrackingTask struct {

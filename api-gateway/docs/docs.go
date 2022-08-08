@@ -432,6 +432,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/schedule/emailSubject": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "change email message subject",
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "change email message subject",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.ChangeEmailMessageSubjectRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/info": {
             "get": {
                 "security": [
@@ -953,6 +992,12 @@ const docTemplate = `{
         },
         "schedule_tracking.AddOnTrackRequest": {
             "type": "object",
+            "required": [
+                "email_subject",
+                "emails",
+                "number",
+                "time"
+            ],
             "properties": {
                 "email_subject": {
                     "type": "string"
@@ -1010,6 +1055,17 @@ const docTemplate = `{
                 },
                 "success": {
                     "type": "boolean"
+                }
+            }
+        },
+        "schedule_tracking.ChangeEmailMessageSubjectRequest": {
+            "type": "object",
+            "properties": {
+                "newSubject": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "string"
                 }
             }
         },

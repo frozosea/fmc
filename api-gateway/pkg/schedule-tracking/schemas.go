@@ -47,9 +47,10 @@ type GetInfoAboutTrackRequest struct {
 	userId int64
 }
 type GetInfoAboutTrackResponse struct {
-	Number      string   `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
-	Emails      []string `json:"emails" validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
-	NextRunTime int64    `json:"nextRunTime"`
+	Number       string   `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	Emails       []string `json:"emails" validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
+	NextRunTime  int64    `json:"nextRunTime"`
+	EmailSubject string   `json:"emailSubject"`
 }
 
 type BaseResponse struct {
@@ -59,4 +60,10 @@ type BaseResponse struct {
 
 type TimeZoneResponse struct {
 	TimeZone string `json:"timeZone"`
+}
+
+type ChangeEmailMessageSubjectRequest struct {
+	Number     string
+	userId     int64
+	NewSubject string
 }

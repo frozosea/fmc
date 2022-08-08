@@ -21,6 +21,7 @@ type IClient interface {
 	DeleteFromTracking(ctx context.Context, isContainer bool, userId int64, req DeleteFromTrackRequest) error
 	GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackRequest) (GetInfoAboutTrackResponse, error)
 	GetTimeZone(ctx context.Context) (*TimeZoneResponse, error)
+	ChangeEmailMessageSubject(ctx context.Context, req ChangeEmailMessageSubjectRequest) error
 }
 type Client struct {
 	conn      *grpc.ClientConn
@@ -175,9 +176,10 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 		}
 	}
 	return GetInfoAboutTrackResponse{
-		Number:      resp.GetNumber(),
-		Emails:      resp.GetEmails(),
-		NextRunTime: resp.GetNextRunTime(),
+		Number:       resp.GetNumber(),
+		Emails:       resp.GetEmails(),
+		NextRunTime:  resp.GetNextRunTime(),
+		EmailSubject: resp.GetEmailMessageSubject(),
 	}, nil
 }
 func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {
@@ -187,6 +189,14 @@ func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {
 	}
 	return &TimeZoneResponse{TimeZone: timeZone.GetTimeZone()}, nil
 
+}
+func (c *Client) ChangeEmailMessageSubject(ctx context.Context, req ChangeEmailMessageSubjectRequest) error {
+	_, err := c.cli.ChangeEmailMessageSubject(ctx, &pb.ChangeEmailMessageSubjectRequest{
+		Number:     req.Number,
+		NewSubject: req.NewSubject,
+		UserId:     req.userId,
+	})
+	return err
 }
 
 type converter struct {

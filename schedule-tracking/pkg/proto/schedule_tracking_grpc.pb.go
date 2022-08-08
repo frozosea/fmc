@@ -39,8 +39,10 @@ type ScheduleTrackingClient interface {
 	DeleteBillNosFromTrack(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	//yes
 	GetInfoAboutTrack(ctx context.Context, in *GetInfoAboutTrackRequest, opts ...grpc.CallOption) (*GetInfoAboutTrackResponse, error)
-	//no
+	//yes
 	GetTimeZone(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTimeZoneResponse, error)
+	//yes
+	ChangeEmailMessageSubject(ctx context.Context, in *ChangeEmailMessageSubjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type scheduleTrackingClient struct {
@@ -132,6 +134,15 @@ func (c *scheduleTrackingClient) GetTimeZone(ctx context.Context, in *emptypb.Em
 	return out, nil
 }
 
+func (c *scheduleTrackingClient) ChangeEmailMessageSubject(ctx context.Context, in *ChangeEmailMessageSubjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/ChangeEmailMessageSubject", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ScheduleTrackingServer is the server API for ScheduleTracking service.
 // All implementations must embed UnimplementedScheduleTrackingServer
 // for forward compatibility
@@ -152,8 +163,10 @@ type ScheduleTrackingServer interface {
 	DeleteBillNosFromTrack(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error)
 	//yes
 	GetInfoAboutTrack(context.Context, *GetInfoAboutTrackRequest) (*GetInfoAboutTrackResponse, error)
-	//no
+	//yes
 	GetTimeZone(context.Context, *emptypb.Empty) (*GetTimeZoneResponse, error)
+	//yes
+	ChangeEmailMessageSubject(context.Context, *ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedScheduleTrackingServer()
 }
 
@@ -187,6 +200,9 @@ func (UnimplementedScheduleTrackingServer) GetInfoAboutTrack(context.Context, *G
 }
 func (UnimplementedScheduleTrackingServer) GetTimeZone(context.Context, *emptypb.Empty) (*GetTimeZoneResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTimeZone not implemented")
+}
+func (UnimplementedScheduleTrackingServer) ChangeEmailMessageSubject(context.Context, *ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeEmailMessageSubject not implemented")
 }
 func (UnimplementedScheduleTrackingServer) mustEmbedUnimplementedScheduleTrackingServer() {}
 
@@ -363,6 +379,24 @@ func _ScheduleTracking_GetTimeZone_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ScheduleTracking_ChangeEmailMessageSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeEmailMessageSubjectRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ScheduleTrackingServer).ChangeEmailMessageSubject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/schedule_tacking.ScheduleTracking/ChangeEmailMessageSubject",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ScheduleTrackingServer).ChangeEmailMessageSubject(ctx, req.(*ChangeEmailMessageSubjectRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ScheduleTracking_ServiceDesc is the grpc.ServiceDesc for ScheduleTracking service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -405,6 +439,10 @@ var ScheduleTracking_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTimeZone",
 			Handler:    _ScheduleTracking_GetTimeZone_Handler,
+		},
+		{
+			MethodName: "ChangeEmailMessageSubject",
+			Handler:    _ScheduleTracking_ChangeEmailMessageSubject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

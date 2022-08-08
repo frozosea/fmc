@@ -103,9 +103,7 @@ export class SitcBillNumber extends SitcContainer implements IBillNumberTracker 
             solvedCaptcha: solvedCaptcha,
             randomString: randomString
         })
-        console.log(response)
         let eta: number = this.etaParser.getEta(response)
-        console.log(eta)
         let containerNumber: string = this.containerNumberParser.getNumber(response)
         let containerNumberTrackingResponse = await this.billRequest.getContainerInfo({
             billNo: args.number,

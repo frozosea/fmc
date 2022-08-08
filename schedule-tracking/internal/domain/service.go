@@ -233,13 +233,20 @@ func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrack
 		}
 	}
 	return &pb.GetInfoAboutTrackResponse{
-		Number:      resp.number,
-		Emails:      s.converter.convertInterfaceArrayToStringArray(resp.emails),
-		NextRunTime: resp.nextRunTime.Unix(),
+		Number:              resp.number,
+		Emails:              s.converter.convertInterfaceArrayToStringArray(resp.emails),
+		NextRunTime:         resp.nextRunTime.Unix(),
+		EmailMessageSubject: resp.emailMessageSubject,
 	}, nil
 }
 func (s *Service) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {
 	t := time.Now()
 	zone, _ := t.Zone()
 	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
+}
+func (s *Service) ChangeEmailMessageSubject(ctx context.Context, r *pb.ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
+	if err := s.controller.ChangeEmailMessageSubject(ctx, r.GetUserId(), r.GetNumber(), r.GetNewSubject()); err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }

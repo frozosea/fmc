@@ -69,6 +69,11 @@ definitions:
         type: string
       time:
         type: string
+    required:
+    - email_subject
+    - emails
+    - number
+    - time
     type: object
   schedule_tracking.AddOnTrackResponse:
     properties:
@@ -96,6 +101,13 @@ definitions:
         type: string
       success:
         type: boolean
+    type: object
+  schedule_tracking.ChangeEmailMessageSubjectRequest:
+    properties:
+      newSubject:
+        type: string
+      number:
+        type: string
     type: object
   schedule_tracking.DeleteEmailFromTrackRequest:
     properties:
@@ -488,6 +500,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: delete email from tracking
+      tags:
+      - Schedule Tracking
+  /schedule/emailSubject:
+    put:
+      description: change email message subject
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.ChangeEmailMessageSubjectRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: change email message subject
       tags:
       - Schedule Tracking
   /schedule/info:
