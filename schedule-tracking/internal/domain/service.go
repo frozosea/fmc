@@ -233,9 +233,10 @@ func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrack
 		}
 	}
 	return &pb.GetInfoAboutTrackResponse{
-		Number:      resp.number,
-		Emails:      s.converter.convertInterfaceArrayToStringArray(resp.emails),
-		NextRunTime: resp.nextRunTime.Unix(),
+		Number:              resp.number,
+		Emails:              s.converter.convertInterfaceArrayToStringArray(resp.emails),
+		NextRunTime:         resp.nextRunTime.Unix(),
+		EmailMessageSubject: resp.emailMessageSubject,
 	}, nil
 }
 func (s *Service) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {

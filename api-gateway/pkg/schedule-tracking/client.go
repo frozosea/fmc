@@ -176,9 +176,10 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 		}
 	}
 	return GetInfoAboutTrackResponse{
-		Number:      resp.GetNumber(),
-		Emails:      resp.GetEmails(),
-		NextRunTime: resp.GetNextRunTime(),
+		Number:       resp.GetNumber(),
+		Emails:       resp.GetEmails(),
+		NextRunTime:  resp.GetNextRunTime(),
+		EmailSubject: resp.GetEmailMessageSubject(),
 	}, nil
 }
 func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {

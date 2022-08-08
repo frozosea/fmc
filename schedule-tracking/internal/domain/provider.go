@@ -246,10 +246,15 @@ func (p *Provider) GetInfoAboutTracking(ctx context.Context, number string, user
 	if err != nil {
 		return &GetInfoAboutTrackResponse{}, err
 	}
+	repoJob, err := p.repository.GetByNumber(ctx, number)
+	if err != nil {
+		return &GetInfoAboutTrackResponse{}, err
+	}
 	return &GetInfoAboutTrackResponse{
-		number:      number,
-		emails:      job.Args,
-		nextRunTime: job.NextRunTime,
+		number:              number,
+		emails:              job.Args,
+		nextRunTime:         job.NextRunTime,
+		emailMessageSubject: repoJob.EmailMessageSubject,
 	}, nil
 }
 
@@ -267,6 +272,9 @@ func (p *Provider) ChangeEmailMessageSubject(ctx context.Context, userId int64, 
 		return err
 	}
 	if _, err := p.taskManager.Add(ctx, number, task, repoTask.Time, job.Args...); err != nil {
+		return err
+	}
+	if err := p.repository.ChangeEmailMessageSubject(ctx, number, newSubject); err != nil {
 		return err
 	}
 	return nil
