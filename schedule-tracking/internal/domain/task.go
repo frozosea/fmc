@@ -38,7 +38,7 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 		})
 		if err != nil {
 			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-			return true
+			return false
 		}
 		if c.arrivedChecker.CheckContainerArrived(result) {
 			go func() {
@@ -95,7 +95,7 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 		})
 		if err != nil {
 			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-			return true
+			return false
 		}
 		if c.arrivedChecker.CheckBillNoArrived(result) {
 			go func() {
