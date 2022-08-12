@@ -45,10 +45,11 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 				if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, result.Container, markErr.Error()))
 				}
-			}()
-			go func() {
 				if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
+				}
+				if err := c.userClient.MarkContainerWasRemovedFromTrack(ctx, userId, number); err != nil {
+					c.logger.ExceptionLog(fmt.Sprintf(`mark container is removed from tracking containers with number: %s err: %s`, number, err.Error()))
 				}
 			}()
 			return true
@@ -102,10 +103,11 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 				if markErr := c.userClient.MarkBillNoWasArrived(ctx, userId, number); markErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`mark bill no is arrived  with: %s err: %s `, result.BillNo, markErr.Error()))
 				}
-			}()
-			go func() {
 				if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
 					c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
+				}
+				if err := c.userClient.MarkBillNoWasRemovedFromTrack(ctx, userId, number); err != nil {
+					c.logger.ExceptionLog(fmt.Sprintf(`mark bill number is removed from tracking containers with number: %s err: %s`, number, err.Error()))
 				}
 			}()
 			return true
