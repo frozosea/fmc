@@ -31,14 +31,19 @@ func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arr
 
 func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, userId int64, emailSubject string) scheduler.ITask {
 	fn := func(ctx context.Context, emails ...interface{}) scheduler.ShouldBeCancelled {
-		result, err := c.trackingClient.TrackByContainerNumber(ctx, tracking.Track{
-			Number:  number,
-			Scac:    "AUTO",
-			Country: country,
-		})
-		if err != nil {
-			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-			return false
+		var result tracking.ContainerNumberResponse
+		var err error
+		for i := 0; i < 3; i++ {
+			result, err = c.trackingClient.TrackByContainerNumber(ctx, tracking.Track{
+				Number:  number,
+				Scac:    "AUTO",
+				Country: country,
+			})
+			if err == nil {
+				break
+			} else {
+				go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
+			}
 		}
 		if c.arrivedChecker.CheckContainerArrived(result) {
 			go func() {
@@ -89,14 +94,19 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 }
 func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId int64, emailSubject string) scheduler.ITask {
 	return func(ctx context.Context, emails ...interface{}) scheduler.ShouldBeCancelled {
-		result, err := c.trackingClient.TrackByBillNumber(ctx, &tracking.Track{
-			Number:  number,
-			Scac:    "AUTO",
-			Country: country,
-		})
-		if err != nil {
-			go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-			return false
+		var result tracking.BillNumberResponse
+		var err error
+		for i := 0; i < 3; i++ {
+			result, err = c.trackingClient.TrackByBillNumber(ctx, &tracking.Track{
+				Number:  number,
+				Scac:    "AUTO",
+				Country: country,
+			})
+			if err == nil {
+				break
+			} else {
+				go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
+			}
 		}
 		if c.arrivedChecker.CheckBillNoArrived(result) {
 			go func() {
