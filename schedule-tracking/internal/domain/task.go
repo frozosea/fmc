@@ -43,7 +43,7 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 				break
 			} else {
 				go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-				if i == 3 {
+				if i == 2 {
 					return false
 				}
 			}
@@ -109,7 +109,7 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 				break
 			} else {
 				go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
-				if i == 3 {
+				if i == 2 {
 					return false
 				}
 			}
