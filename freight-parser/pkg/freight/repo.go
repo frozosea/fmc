@@ -25,7 +25,7 @@ func (r *repository) Get(ctx context.Context, freight GetFreight) ([]BaseFreight
 	   to_city.id as to_city_id,
        to_city.unlocode as to_city_unlocode,
        container.full_name as container_type,
-       container.id as containert_type_id,
+       container.id as container_type_id,
        freight.usd_price,
        lines.full_name as line_full_name,
        lines.id as line_id,
