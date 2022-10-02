@@ -132,11 +132,6 @@
         },
         "/cities": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "get all cities",
                 "consumes": [
                     "application/json"
@@ -166,14 +161,6 @@
         },
         "/companies": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
                 "tags": [
                     "Freights"
                 ],
@@ -199,11 +186,6 @@
         },
         "/containers": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "Freights"
                 ],
@@ -229,11 +211,6 @@
         },
         "/freights": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1427,6 +1404,9 @@
                     "type": "integer"
                 },
                 "number": {
+                    "type": "string"
+                },
+                "runningTime": {
                     "type": "string"
                 }
             }

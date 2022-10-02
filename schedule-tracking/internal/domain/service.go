@@ -255,6 +255,7 @@ func (p *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 		emails:              job.Args,
 		nextRunTime:         job.NextRunTime,
 		emailMessageSubject: repoJob.EmailMessageSubject,
+		time:                repoJob.Time,
 	}, nil
 }
 

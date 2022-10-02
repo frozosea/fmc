@@ -15,7 +15,6 @@ func NewHttp(cli IClient) *Http {
 
 // GetFreights
 // @Summary get all freights
-// @Security ApiKeyAuth
 // @accept json
 // @Tags         Freights
 // @Param input body GetFreight true "body"
@@ -38,7 +37,6 @@ func (h *Http) GetFreights(c *gin.Context) {
 
 // GetAllCities
 // @Summary get all cities
-// @Security ApiKeyAuth
 // @Description get all cities
 // @accept json
 // @Tags         Freights
@@ -57,8 +55,6 @@ func (h *Http) GetAllCities(c *gin.Context) {
 
 // GetAllCompanies
 // @Summary get all contacts
-// @Security ApiKeyAuth
-// @accept json
 // @Tags         Freights
 // @Success 200 {object} []Company
 // @Failure 500 {object} BaseResponse
@@ -75,7 +71,6 @@ func (h *Http) GetAllCompanies(c *gin.Context) {
 
 // GetAllContainers
 // @Summary get all containers
-// @Security ApiKeyAuth
 // @Tags         Freights
 // @Success 200 {object} []Container
 // @Failure 500 {object} BaseResponse

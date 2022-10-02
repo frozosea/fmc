@@ -232,6 +232,7 @@ func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackReq
 		Emails:              s.converter.convertInterfaceArrayToStringArray(resp.emails),
 		NextRunTime:         resp.nextRunTime.Unix(),
 		EmailMessageSubject: resp.emailMessageSubject,
+		Time:                resp.time,
 	}, nil
 }
 func (s *Grpc) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {

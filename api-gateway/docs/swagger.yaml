@@ -239,6 +239,8 @@ definitions:
         type: integer
       number:
         type: string
+      runningTime:
+        type: string
     type: object
   schedule_tracking.TimeZoneResponse:
     properties:
@@ -436,15 +438,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/freight_service.BaseResponse'
-      security:
-      - ApiKeyAuth: []
       summary: get all cities
       tags:
       - Freights
   /companies:
     get:
-      consumes:
-      - application/json
       responses:
         "200":
           description: OK
@@ -456,8 +454,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/freight_service.BaseResponse'
-      security:
-      - ApiKeyAuth: []
       summary: get all contacts
       tags:
       - Freights
@@ -474,8 +470,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/freight_service.BaseResponse'
-      security:
-      - ApiKeyAuth: []
       summary: get all containers
       tags:
       - Freights
@@ -501,8 +495,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/freight_service.BaseResponse'
-      security:
-      - ApiKeyAuth: []
       summary: get all freights
       tags:
       - Freights

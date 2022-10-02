@@ -140,11 +140,6 @@ const docTemplate = `{
         },
         "/cities": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "get all cities",
                 "consumes": [
                     "application/json"
@@ -174,14 +169,6 @@ const docTemplate = `{
         },
         "/companies": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
                 "tags": [
                     "Freights"
                 ],
@@ -207,11 +194,6 @@ const docTemplate = `{
         },
         "/containers": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "tags": [
                     "Freights"
                 ],
@@ -237,11 +219,6 @@ const docTemplate = `{
         },
         "/freights": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1435,6 +1412,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "number": {
+                    "type": "string"
+                },
+                "runningTime": {
                     "type": "string"
                 }
             }

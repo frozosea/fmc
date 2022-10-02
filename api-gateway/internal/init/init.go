@@ -203,9 +203,8 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 		group.GET(`/billsContainers`, handler.GetAll)
 	}
 }
-func initFreightsRouter(router *gin.Engine, handler *freight_service.Http, middleware *middleware.Middleware) {
+func initFreightsRouter(router *gin.Engine, handler *freight_service.Http) {
 	group := router.Group("/freight")
-	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.GET("/freights", handler.GetFreights)
 		group.GET("/cities", handler.GetAllCities)
@@ -291,7 +290,7 @@ func Run() {
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
 	initHistoryRoutes(router, history.NewHttpHandler(scheduleTrackingHistoryClient, httpUtils), Middleware)
-	initFreightsRouter(router, freight_service.NewHttp(freightClient), Middleware)
+	initFreightsRouter(router, freight_service.NewHttp(freightClient))
 	defaultCors := cors.DefaultConfig()
 	defaultCors.AllowAllOrigins = true
 	router.Use(cors.New(defaultCors))

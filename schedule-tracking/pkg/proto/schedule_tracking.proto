@@ -73,7 +73,8 @@ message GetInfoAboutTrackResponse{
   string number = 2;
   repeated string emails = 3;
   int64 next_run_time = 4;
-  string email_message_subject = 5;
+  string time = 5;
+  string email_message_subject = 6;
 }
 message DeleteFromTrackRequest{
   int64 user_id = 1;

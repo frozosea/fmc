@@ -35,6 +35,7 @@ type GetInfoAboutTrackResponse struct {
 	number              string
 	emails              []interface{}
 	nextRunTime         time.Time
+	time                string
 	emailMessageSubject string
 }
 

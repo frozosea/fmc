@@ -466,7 +466,7 @@ func NewArchiveClient(cc grpc.ClientConnInterface) ArchiveClient {
 
 func (c *archiveClient) GetArchive(ctx context.Context, in *GetArchiveRequest, opts ...grpc.CallOption) (*GetAllBillsContainerResponse, error) {
 	out := new(GetAllBillsContainerResponse)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.Archive/GetTasksArchive", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/schedule_tacking.Archive/GetArchive", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -486,7 +486,7 @@ type UnimplementedArchiveServer struct {
 }
 
 func (UnimplementedArchiveServer) GetArchive(context.Context, *GetArchiveRequest) (*GetAllBillsContainerResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTasksArchive not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetArchive not implemented")
 }
 func (UnimplementedArchiveServer) mustEmbedUnimplementedArchiveServer() {}
 
@@ -511,7 +511,7 @@ func _Archive_GetArchive_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/schedule_tacking.Archive/GetTasksArchive",
+		FullMethod: "/schedule_tacking.Archive/GetArchive",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArchiveServer).GetArchive(ctx, req.(*GetArchiveRequest))
@@ -527,7 +527,7 @@ var Archive_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ArchiveServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetTasksArchive",
+			MethodName: "GetArchive",
 			Handler:    _Archive_GetArchive_Handler,
 		},
 	},
