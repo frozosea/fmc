@@ -13,15 +13,16 @@ import (
 
 type converter struct{}
 
-func (c *converter) registerUserConvert(r *pb.RegisterUserRequest) domain.User {
-	return domain.User{
+func (c *converter) registerUserConvert(r *pb.RegisterUserRequest) *domain.RegisterUser {
+	return &domain.RegisterUser{
+		Email:    r.GetEmail(),
 		Username: r.GetUsername(),
 		Password: r.GetPassword(),
 	}
 }
-func (c *converter) loginUserConvert(r *pb.LoginUserRequest) domain.User {
-	return domain.User{
-		Username: r.GetUsername(),
+func (c *converter) loginUserConvert(r *pb.LoginUserRequest) *domain.User {
+	return &domain.User{
+		Email:    r.GetEmail(),
 		Password: r.GetPassword(),
 	}
 }

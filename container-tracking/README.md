@@ -64,11 +64,7 @@ go to the directory(by bill number or by container number) and create directory 
 - write unit test on your class
 - go to `container-tracking/src/types.d.ts` and create new scac type and add it to `SCAC_TYPE`
 - go to the main tracker for your country and update main tracker(add your class)
-- go to the `container-tracking/src/server/proto/server.proto` and add this scac into enum
-- regenerate pb files (run sh script in `container-tracking/src/server/proto/`)
 ### How to add tracker by bill number 
 - create class which implements by base tracker interface (path: `container-tracking/src/trackTrace/trackingBybillNumber/base.ts`)
 - go to `container-tracking/src/types.d.ts` and create new scac type and add it to `SCAC_TYPE`
 - go to the main tracker for your country and update main tracker(add your class)
-- go to the `container-tracking/src/server/proto/server.proto` and add this scac into enum
-- regenerate pb files (run sh script in `container-tracking/src/server/proto/`)

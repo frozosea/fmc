@@ -1,27 +1,12 @@
 import {sendUnaryData, ServerUnaryCall} from '@grpc/grpc-js';
 import ContainerTrackingController from "../../containerTrackingController";
 import {ITrackingByContainerNumberServer} from "../proto/tracking_grpc_pb";
-import {Country, InfoAboutMoving, Request, Scac, TrackingByContainerNumberResponse} from "../proto/tracking_pb";
+import {Country, InfoAboutMoving, Request, TrackingByContainerNumberResponse} from "../proto/tracking_pb";
 import {COUNTRY_TYPE, OneTrackingEvent, SCAC_TYPE, TrackingContainerResponse} from "../../types";
 import {ILogger} from "../../logging";
 
 
 export class TrackingServiceConverter {
-    public static convertEnumIntoScacType(scac: Scac): SCAC_TYPE {
-        let obj = {}
-        for (let key in Object.keys(Scac)) {
-            obj[key] = Object.keys(Scac)[key]
-        }
-        return obj[scac]
-    }
-
-    public static convertScacIntoEnum(scac: SCAC_TYPE): Scac {
-        let obj = {}
-        for (let key in Object.keys(Scac)) {
-            obj[Object.keys(Scac)[key]] = Object.values(Scac)[key]
-        }
-        return obj[scac]
-    }
 
     public static convertEnumCountryIntoCountryType(cntry: Country): COUNTRY_TYPE {
         let obj = {}
@@ -60,7 +45,7 @@ export class ServiceSerializer {
         grpcEmptyResp.setInfoAboutMovingList(this.serializeInfoAboutMoving(response.infoAboutMoving))
         grpcEmptyResp.setContainerSize(response.containerSize)
         grpcEmptyResp.setContainer(response.container)
-        grpcEmptyResp.setScac(TrackingServiceConverter.convertScacIntoEnum(response.scac))
+        grpcEmptyResp.setScac(response.scac)
         return grpcEmptyResp
     }
 }
@@ -78,7 +63,7 @@ export class TrackingByContainerNumberService implements ITrackingByContainerNum
 
     public trackByContainerNumber(call: ServerUnaryCall<Request, TrackingByContainerNumberResponse>, callback: sendUnaryData<TrackingByContainerNumberResponse>): void {
         let container: string = call.request.getNumber()
-        let scac: SCAC_TYPE = TrackingServiceConverter.convertEnumIntoScacType(call.request.getScac())
+        let scac: SCAC_TYPE = call.request.getScac()
         let country = TrackingServiceConverter.convertEnumCountryIntoCountryType(call.request.getCountry())
         this.logger.InfoLog(`${container}: ${scac}`)
         this.trackingController.trackContainer({

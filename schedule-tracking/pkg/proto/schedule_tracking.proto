@@ -25,6 +25,9 @@ service ScheduleTracking{
   //yes
   rpc ChangeEmailMessageSubject(ChangeEmailMessageSubjectRequest) returns (google.protobuf.Empty) {};
 }
+service Archive{
+  rpc GetArchive(GetArchiveRequest) returns (GetAllBillsContainerResponse) {};
+}
 message UpdateTrackingTimeRequest{
   repeated string numbers = 1;
   string time = 2;
@@ -83,4 +86,31 @@ message ChangeEmailMessageSubjectRequest{
   string number = 1;
   string new_subject = 2;
   int64 user_id = 3;
+}
+message GetArchiveRequest{
+  int64 user_id = 1;
+}
+message InfoAboutMoving{
+  int64 time = 1;
+  string operation_name = 2;
+  string location = 3;
+  string vessel = 4;
+}
+
+message TrackingByContainerNumberResponse{
+  string container = 1 ;
+  string container_size = 2;
+  string scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+}
+
+message TrackingByBillNumberResponse{
+  string billNo = 1;
+  string scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+  int64 eta_final_delivery = 5;
+}
+message GetAllBillsContainerResponse{
+  repeated TrackingByBillNumberResponse bills = 1;
+  repeated TrackingByContainerNumberResponse containers = 2;
 }

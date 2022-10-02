@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
+	"schedule-tracking/internal/archive"
 	"schedule-tracking/internal/domain"
 	excel_writer "schedule-tracking/pkg/excel-writer"
 	"schedule-tracking/pkg/logging"
@@ -53,6 +54,9 @@ type (
 	}
 	EmailSignatureSettings struct {
 		EmailSignature string
+	}
+	ArchiveLoggerSettings struct {
+		SaveDir string
 	}
 )
 
@@ -151,6 +155,10 @@ func GetTimeFormatterSettings() (*TimeFormatterSettings, error) {
 	config := new(TimeFormatterSettings)
 	return readIni("TIME_FORMAT", config)
 }
+func GetArchiveLoggerSettings() (*ArchiveLoggerSettings, error) {
+	config := new(ArchiveLoggerSettings)
+	return readIni("ARCHIVE_LOGS", config)
+}
 
 var TaskManager = scheduler.NewDefault()
 
@@ -164,7 +172,7 @@ func GetUserClientSettings() (*UserClientSettings, error) {
 	return settings, nil
 }
 
-func GetScheduleTrackingService() *domain.Service {
+func GetScheduleTrackingAndArchiveGrpcService() (*domain.Grpc, *archive.Grpc) {
 	trackerConf, getSettingsErr := GetTrackingSettings()
 	if getSettingsErr != nil {
 		panic(getSettingsErr)
@@ -193,15 +201,22 @@ func GetScheduleTrackingService() *domain.Service {
 		panic(getDbErr)
 	}
 	repository := domain.NewRepository(db)
-	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository)
-	controller := domain.NewProvider(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
-	if recoveryTaskErr := RecoveryTasks(repository, controller); recoveryTaskErr != nil {
+	archiveRepository := archive.NewRepository(db)
+	archiveLoggerSettings, err := GetArchiveLoggerSettings()
+	if err != nil {
+		return nil, nil
+	}
+	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
+	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService)
+	scheduleTrackingService := domain.NewService(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
+	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
-	return domain.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+	archiveGrpc := archive.NewGrpc(archiveService)
+	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir)), archiveGrpc
 }
 
-func RecoveryTasks(repo domain.IRepository, controller *domain.Provider) error {
+func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {
 	tasks, err := repo.GetAll(context.Background())
 	if err != nil {
 		switch err.(type) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"schedule-tracking/internal/archive"
 	excelwriter "schedule-tracking/pkg/excel-writer"
 	"schedule-tracking/pkg/logging"
 	"schedule-tracking/pkg/mailing"
@@ -23,10 +24,11 @@ type CustomTasks struct {
 	mailing        mailing.IMailing
 	timeFormatter  ITimeFormatter
 	repository     IRepository
+	archiveService *archive.Service
 }
 
-func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter, repository IRepository) *CustomTasks {
-	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter, repository: repository}
+func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arrivedChecker tracking.IArrivedChecker, logger logging.ILogger, writer excelwriter.IWriter, mailing mailing.IMailing, timeFormatter ITimeFormatter, repository IRepository, archiveService *archive.Service) *CustomTasks {
+	return &CustomTasks{trackingClient: trackingClient, userClient: userClient, arrivedChecker: arrivedChecker, logger: logger, writer: writer, mailing: mailing, timeFormatter: timeFormatter, repository: repository, archiveService: archiveService}
 }
 
 func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, userId int64, emailSubject string) scheduler.ITask {
@@ -57,6 +59,9 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 			}
 			if err := c.userClient.MarkContainerWasRemovedFromTrack(ctx, userId, number); err != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark container is removed from tracking containers with number: %s err: %s`, number, err.Error()))
+			}
+			if err := c.archiveService.AddByContainer(ctx, int(userId), &result); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`add container to archive with number: %s err: %s`, number, err.Error()))
 			}
 			return true
 		}
@@ -121,6 +126,9 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 			}
 			if err := c.userClient.MarkBillNoWasRemovedFromTrack(ctx, userId, number); err != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark bill number is removed from tracking containers with number: %s err: %s`, number, err.Error()))
+			}
+			if err := c.archiveService.AddByBill(ctx, int(userId), &result); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`add bill to archive with number: %s err: %s`, number, err.Error()))
 			}
 			return true
 		}

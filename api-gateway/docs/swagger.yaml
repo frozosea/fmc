@@ -36,15 +36,119 @@ definitions:
     required:
     - refreshToken
     type: object
-  auth.User:
+  auth.RegisterUser:
     properties:
+      email:
+        type: string
       password:
         type: string
       username:
         type: string
     required:
+    - email
     - password
     - username
+    type: object
+  auth.User:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  freight_service.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  freight_service.City:
+    properties:
+      country:
+        $ref: '#/definitions/freight_service.Country'
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  freight_service.Company:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    type: object
+  freight_service.Container:
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+    type: object
+  freight_service.Country:
+    properties:
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  freight_service.Freight:
+    properties:
+      company:
+        $ref: '#/definitions/freight_service.Company'
+      container:
+        $ref: '#/definitions/freight_service.Container'
+      fromCity:
+        $ref: '#/definitions/freight_service.City'
+      id:
+        type: integer
+      toCity:
+        $ref: '#/definitions/freight_service.City'
+      usdPrice:
+        type: integer
+    type: object
+  freight_service.GetFreight:
+    properties:
+      containerTypeId:
+        type: integer
+      fromCityId:
+        type: integer
+      limit:
+        type: integer
+      toCityId:
+        type: integer
+    type: object
+  history.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  history.TasksArchive:
+    properties:
+      bills:
+        items:
+          $ref: '#/definitions/tracking.BillNumberResponse'
+        type: array
+      containers:
+        items:
+          $ref: '#/definitions/tracking.ContainerNumberResponse'
+        type: array
     type: object
   schedule_tracking.AddEmailRequest:
     properties:
@@ -125,6 +229,8 @@ definitions:
     type: object
   schedule_tracking.GetInfoAboutTrackResponse:
     properties:
+      emailSubject:
+        type: string
       emails:
         items:
           type: string
@@ -301,7 +407,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/auth.RegisterUser'
       responses:
         "200":
           description: OK
@@ -314,6 +420,92 @@ paths:
       summary: Register user by username and password
       tags:
       - Auth
+  /cities:
+    get:
+      consumes:
+      - application/json
+      description: get all cities
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.City'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all cities
+      tags:
+      - Freights
+  /companies:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Company'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all contacts
+      tags:
+      - Freights
+  /containers:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Container'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all containers
+      tags:
+      - Freights
+  /freights:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/freight_service.GetFreight'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Freight'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all freights
+      tags:
+      - Freights
   /schedule/addEmail:
     put:
       consumes:
@@ -602,6 +794,29 @@ paths:
       summary: get timezone information
       tags:
       - Schedule Tracking
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: get user's tasks archive with all info about containers and bills
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/history.TasksArchive'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/history.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get user's tasks archive with all info about containers and bills
+      tags:
+      - History
   /tracking/billNumber:
     get:
       description: tracking by bill number, if eta not found will be 0
@@ -634,8 +849,6 @@ paths:
           description: ""
         "400":
           description: ""
-      security:
-      - ApiKeyAuth: []
       summary: Track by bill number
       tags:
       - Tracking
@@ -679,8 +892,6 @@ paths:
           description: ""
         "400":
           description: ""
-      security:
-      - ApiKeyAuth: []
       summary: Track by container number
       tags:
       - Tracking

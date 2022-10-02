@@ -9,8 +9,8 @@ import * as jspb from "google-protobuf";
 export class Request extends jspb.Message { 
     getNumber(): string;
     setNumber(value: string): Request;
-    getScac(): Scac;
-    setScac(value: Scac): Request;
+    getScac(): string;
+    setScac(value: string): Request;
     getCountry(): Country;
     setCountry(value: Country): Request;
 
@@ -27,7 +27,7 @@ export class Request extends jspb.Message {
 export namespace Request {
     export type AsObject = {
         number: string,
-        scac: Scac,
+        scac: string,
         country: Country,
     }
 }
@@ -66,8 +66,8 @@ export class TrackingByContainerNumberResponse extends jspb.Message {
     setContainer(value: string): TrackingByContainerNumberResponse;
     getContainerSize(): string;
     setContainerSize(value: string): TrackingByContainerNumberResponse;
-    getScac(): Scac;
-    setScac(value: Scac): TrackingByContainerNumberResponse;
+    getScac(): string;
+    setScac(value: string): TrackingByContainerNumberResponse;
     clearInfoAboutMovingList(): void;
     getInfoAboutMovingList(): Array<InfoAboutMoving>;
     setInfoAboutMovingList(value: Array<InfoAboutMoving>): TrackingByContainerNumberResponse;
@@ -87,7 +87,7 @@ export namespace TrackingByContainerNumberResponse {
     export type AsObject = {
         container: string,
         containerSize: string,
-        scac: Scac,
+        scac: string,
         infoAboutMovingList: Array<InfoAboutMoving.AsObject>,
     }
 }
@@ -95,8 +95,8 @@ export namespace TrackingByContainerNumberResponse {
 export class TrackingByBillNumberResponse extends jspb.Message { 
     getBillno(): string;
     setBillno(value: string): TrackingByBillNumberResponse;
-    getScac(): Scac;
-    setScac(value: Scac): TrackingByBillNumberResponse;
+    getScac(): string;
+    setScac(value: string): TrackingByBillNumberResponse;
     clearInfoAboutMovingList(): void;
     getInfoAboutMovingList(): Array<InfoAboutMoving>;
     setInfoAboutMovingList(value: Array<InfoAboutMoving>): TrackingByBillNumberResponse;
@@ -117,24 +117,10 @@ export class TrackingByBillNumberResponse extends jspb.Message {
 export namespace TrackingByBillNumberResponse {
     export type AsObject = {
         billno: string,
-        scac: Scac,
+        scac: string,
         infoAboutMovingList: Array<InfoAboutMoving.AsObject>,
         etaFinalDelivery: number,
     }
-}
-
-export enum Scac {
-    FESO = 0,
-    SKLU = 1,
-    MAEU = 2,
-    COSU = 3,
-    KMTU = 4,
-    ONEY = 5,
-    SITC = 6,
-    MSCU = 7,
-    HALU = 8,
-    ZHGU = 9,
-    AUTO = 10,
 }
 
 export enum Country {

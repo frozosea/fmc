@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  freight_api:
+    image: flyasea/fmc-freight-service:latest
+    ports:
+      - "8090:8090"
+      - "51839:51839"
+    networks:
+      - public
+    environment:
+      POSTGRES_USER: freight_service
+      POSTGRES_PASSWORD: freight_service_password
+      POSTGRES_DATABASE: freight_service_db
+      POSTGRES_HOST: freight_postgres_db
+      POSTGRES_PORT: 5435
+      REDIS_URL: redis://freight_redis:6379
+      ACCESS_PASSWORD: <YOUR_PASSWORD_FOR_ADMIN_PANEL>
+    depends_on:
+      - freight_postgres_db
+  freight_postgres_db:
+    image: postgres:13.3
+    restart: unless-stopped
+    expose:
+      - "5436"
+    ports:
+      - "5436:5436"
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: freight_service
+      POSTGRES_PASSWORD: freight_service_password
+      POSTGRES_DB: freight_service_db
+    command: -p 5436
+    networks:
+      - public
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./schema/:/schema
+    command:
+      [ "-path", "./schema" ,"-database",  "postgres://freight_service:freight_service_password@freight_postgres_db:5436/freight_service_db?sslmode=disable", "up" ]
+    depends_on:
+      - postgres_db
+    networks:
+      - public
+  freight_redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PORT_NUMBER=6379
+    ports:
+      - "6379:6379"
+    networks:
+      - public
+networks:
+  public:
+    name: public
+    external: true

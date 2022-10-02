@@ -2,251 +2,278 @@ package domain
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"schedule-tracking/pkg/logging"
-	pb "schedule-tracking/pkg/proto"
 	"schedule-tracking/pkg/scheduler"
-	"time"
+	"schedule-tracking/pkg/util"
 )
 
-type converter struct {
+type CannotFindEmailError struct{}
+
+func (c *CannotFindEmailError) Error() string {
+	return "cannot find email in job"
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) []*BaseTrackReq {
-	var outputArr []*BaseTrackReq
-	for _, track := range r.GetAddOnTrackRequest() {
-		outputArr = append(outputArr, &BaseTrackReq{
-			Number:              track.GetNumber(),
-			UserId:              track.GetUserId(),
-			Country:             country,
-			Time:                track.GetTime(),
-			Emails:              track.GetEmails(),
-			EmailMessageSubject: track.GetEmailMessageSubject(),
-		})
-	}
-	return outputArr
-}
-func (c *converter) convertBaseAddOnTrackResponse(r []*BaseAddOnTrackResponse) []*pb.BaseAddOnTrackResponse {
-	var res []*pb.BaseAddOnTrackResponse
-	for _, v := range r {
-		res = append(res, &pb.BaseAddOnTrackResponse{
-			Success:     v.success,
-			Number:      v.number,
-			NextRunTime: v.nextRunTime.Unix(),
-		})
-	}
-	return res
-}
-func (c *converter) convertAddOnTrackResponse(r *AddOnTrackResponse) *pb.AddOnTrackResponse {
-	return &pb.AddOnTrackResponse{
-		BaseResponse:   c.convertBaseAddOnTrackResponse(r.result),
-		AlreadyOnTrack: r.alreadyOnTrack,
-	}
-}
-func (c *converter) convertAddEmails(r *pb.AddEmailRequest) AddEmailRequest {
-	return AddEmailRequest{
-		numbers: r.GetNumbers(),
-		emails:  r.GetEmails(),
-		userId:  r.GetUserId(),
-	}
-}
-func (c *converter) convertDeleteEmails(r *pb.DeleteEmailFromTrackRequest) DeleteEmailFromTrack {
-	return DeleteEmailFromTrack{
-		number: r.GetNumber(),
-		email:  r.GetEmail(),
-		userId: r.GetUserId(),
-	}
-}
-func (c *converter) convertInterfaceArrayToStringArray(r []interface{}) []string {
-	var outputArr []string
-	for _, v := range r {
-		outputArr = append(outputArr, fmt.Sprintf(`%v`, v))
-	}
-	return outputArr
+type NumberDoesntBelongThisUserError struct{}
+
+func (n *NumberDoesntBelongThisUserError) Error() string {
+	return "number does not belong to this user or cannot find job by your params"
 }
 
 type Service struct {
-	controller *Provider
-	logger     logging.ILogger
-	converter
-	pb.UnimplementedScheduleTrackingServer
+	logger            logging.ILogger
+	cli               *UserClient
+	taskManager       *scheduler.Manager
+	saveResultDirPath string
+	repository        IRepository
+	*CustomTasks
 }
 
-func NewService(controller *Provider, logger logging.ILogger) *Service {
-	return &Service{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
+func NewService(logger logging.ILogger, cli *UserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Service {
+	return &Service{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, repository: repository, CustomTasks: customTasks}
 }
-func (s *Service) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddContainerNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "OTHER"))
+func (p *Service) checkNumberInTaskTable(ctx context.Context, number string, userId int64) bool {
+	task, err := p.repository.GetByNumber(ctx, number)
+	if task.UserId != userId {
+		return false
+	}
 	if err != nil {
-		//go func() {
-		//	for _, v := range res.result {
-		//		s.logger.FatalLog(fmt.Sprintf(`add container Numbers: %s for user-pb: %d failed: %s`, v.number, r.GetAddOnTrackRequest(), err.Error()))
-		//	}
-		//}()
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
-		case *NumberDoesntBelongThisUserError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.PermissionDenied, "cannot find number in your account")
-		default:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
-		}
+		return false
 	}
-	go func() {
-		jsonRepr, reprErr := json.Marshal(res)
-		if reprErr != nil {
-			return
-		}
-		for _, v := range r.GetAddOnTrackRequest() {
-			s.logger.InfoLog(fmt.Sprintf(`add container number on track request: %v to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
-		}
-	}()
-	return s.converter.convertAddOnTrackResponse(res), nil
+	return true
 }
-
-func (s *Service) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddBillNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "RU"))
+func (p *Service) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
+	if !p.cli.CheckNumberBelongUser(ctx, number, userId, true) {
+		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
+	}
+	task := p.GetTrackByContainerNumberTask(number, country, userId, emailSubject)
+	job, err := p.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
 	if err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &pb.AddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id")
-		case *NumberDoesntBelongThisUserError:
-			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "cannot find number in your account")
-		case *scheduler.TimeParseError:
-			return &pb.AddOnTrackResponse{}, status.Error(codes.InvalidArgument, err.Error())
-		default:
-			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
-		}
+		go p.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		return job, err
 	}
-	go func() {
-		jsonRepr, reprErr := json.Marshal(res)
-		if reprErr != nil {
-			return
-		}
-		for _, v := range r.GetAddOnTrackRequest() {
-			s.logger.InfoLog(fmt.Sprintf(`add bill number on track request: %s to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
-		}
-	}()
-	return s.converter.convertAddOnTrackResponse(res), nil
-}
-func (s *Service) UpdateTrackingTime(ctx context.Context, r *pb.UpdateTrackingTimeRequest) (*pb.RepeatedBaseAddOnTrackResponse, error) {
-	resp, err := s.controller.UpdateTrackingTime(ctx, r.GetNumbers(), r.GetTime(), r.GetUserId())
-	if err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id ")
-		case *NumberDoesntBelongThisUserError:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
-		}
+	if markErr := p.cli.MarkContainerOnTrack(ctx, userId, number); markErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
+		return job, markErr
 	}
-	go func() {
-		for _, v := range resp {
-			s.logger.InfoLog(fmt.Sprintf(`task with id: %s new Time: %s`, v.number, r.Time))
-		}
-	}()
-	return &pb.RepeatedBaseAddOnTrackResponse{Response: s.convertBaseAddOnTrackResponse(resp)}, nil
-
+	go p.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
+	return job, nil
 }
-func (s *Service) AddEmailsOnTracking(ctx context.Context, r *pb.AddEmailRequest) (*emptypb.Empty, error) {
-	if err := s.controller.AddEmailToTracking(ctx, s.converter.convertAddEmails(r)); err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
-		case *NumberDoesntBelongThisUserError:
-			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go func() {
-				s.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v for Numbers: %v err: %s`, r.GetEmails(), r.GetNumbers(), err.Error()))
-			}()
-			return &emptypb.Empty{}, err
+func (p *Service) AddContainerNumbersOnTrack(ctx context.Context, req []*BaseTrackReq) (*AddOnTrackResponse, error) {
+	var alreadyOnTrack []string
+	var result []*BaseAddOnTrackResponse
+	for _, v := range req {
+		job, err := p.addOneContainer(ctx, v.Number, v.Number, v.Time, v.UserId, v.Emails, v.EmailMessageSubject)
+		if err != nil {
+			switch err.(type) {
+			case *scheduler.AddJobError:
+				alreadyOnTrack = append(alreadyOnTrack, v.Number)
+				continue
+			default:
+				return &AddOnTrackResponse{
+					result:         result,
+					alreadyOnTrack: alreadyOnTrack,
+				}, err
+			}
 		}
+		result = append(result, &BaseAddOnTrackResponse{
+			success:     true,
+			number:      job.Id,
+			nextRunTime: job.NextRunTime,
+		})
 	}
-	return &emptypb.Empty{}, nil
-}
-func (s *Service) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFromTrackRequest) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteEmailFromTrack(ctx, s.converter.convertDeleteEmails(r)); err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
-		case *CannotFindEmailError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find email in job args")
-		case *NumberDoesntBelongThisUserError:
-			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for Number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
-			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
-
-		}
+	if addErr := p.repository.Add(ctx, req, true); addErr != nil {
+		go func() {
+			for _, v := range req {
+				p.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %v error: %s`, v.Number, addErr.Error()))
+			}
+		}()
 	}
-	return &emptypb.Empty{}, nil
-
-}
-func (s *Service) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackRequest, isContainer bool) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumber()...); err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
-		case *NumberDoesntBelongThisUserError:
-			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go func() {
-				for _, v := range r.GetNumber() {
-					s.logger.ExceptionLog(fmt.Sprintf(`delete Number: %s for user-pb %d from tracking err: %s`, v, r.GetUserId(), err.Error()))
-				}
-			}()
-			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
-		}
-	}
-	return &emptypb.Empty{}, nil
-}
-func (s *Service) DeleteContainersFromTrack(ctx context.Context, r *pb.DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return s.deleteFromTracking(ctx, r, true)
-}
-func (s *Service) DeleteBillNosFromTrack(ctx context.Context, r *pb.DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return s.deleteFromTracking(ctx, r, false)
-}
-func (s *Service) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
-	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber(), r.GetUserId())
-	if err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &pb.GetInfoAboutTrackResponse{
-				Number:      resp.number,
-				Emails:      []string{},
-				NextRunTime: 0,
-			}, status.Error(codes.NotFound, "task with this id was not found")
-		case *NumberDoesntBelongThisUserError:
-			return &pb.GetInfoAboutTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go s.logger.ExceptionLog(fmt.Sprintf(`get info about tracking err: %s`, err.Error()))
-			return &pb.GetInfoAboutTrackResponse{
-				Number:      resp.number,
-				Emails:      []string{},
-				NextRunTime: 0,
-			}, status.Error(codes.Internal, err.Error())
-		}
-	}
-	return &pb.GetInfoAboutTrackResponse{
-		Number:              resp.number,
-		Emails:              s.converter.convertInterfaceArrayToStringArray(resp.emails),
-		NextRunTime:         resp.nextRunTime.Unix(),
-		EmailMessageSubject: resp.emailMessageSubject,
+	return &AddOnTrackResponse{
+		result:         result,
+		alreadyOnTrack: alreadyOnTrack,
 	}, nil
 }
-func (s *Service) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {
-	t := time.Now()
-	zone, _ := t.Zone()
-	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
-}
-func (s *Service) ChangeEmailMessageSubject(ctx context.Context, r *pb.ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
-	if err := s.controller.ChangeEmailMessageSubject(ctx, r.GetUserId(), r.GetNumber(), r.GetNewSubject()); err != nil {
-		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+func (p *Service) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
+	if !p.cli.CheckNumberBelongUser(ctx, number, userId, false) {
+		return &scheduler.Job{}, &NumberDoesntBelongThisUserError{}
 	}
-	return &emptypb.Empty{}, nil
+	task := p.GetTrackByBillNumberTask(number, country, userId, emailSubject)
+	job, err := p.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
+	if err != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
+		return job, err
+	}
+	if addCntrErr := p.cli.MarkBillNoOnTrack(ctx, userId, number); addCntrErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`mark bill on track with Number %s failed: %s`, number, addCntrErr.Error()))
+		return job, addCntrErr
+	}
+	go p.logger.InfoLog(fmt.Sprintf(`number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: false`, job.Id, time, emails, userId))
+	return job, nil
+}
+func (p *Service) AddBillNumbersOnTrack(ctx context.Context, req []*BaseTrackReq) (*AddOnTrackResponse, error) {
+	var alreadyOnTrack []string
+	var result []*BaseAddOnTrackResponse
+	for _, v := range req {
+		job, err := p.addOneBillOnTrack(ctx, v.Number, v.Country, v.Time, v.UserId, v.Emails, v.EmailMessageSubject)
+		if err != nil {
+			switch err.(type) {
+			case *scheduler.AddJobError:
+				alreadyOnTrack = append(alreadyOnTrack, v.Number)
+				continue
+			default:
+				return &AddOnTrackResponse{
+					result:         result,
+					alreadyOnTrack: alreadyOnTrack,
+				}, err
+			}
+		}
+		result = append(result, &BaseAddOnTrackResponse{
+			success:     true,
+			number:      job.Id,
+			nextRunTime: job.NextRunTime,
+		})
+	}
+	addErr := p.repository.Add(ctx, req, false)
+	if addErr != nil {
+		go func() {
+			for _, v := range req {
+				p.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %s error: %s`, v.Number, addErr.Error()))
+			}
+		}()
+	}
+	return &AddOnTrackResponse{
+		result:         result,
+		alreadyOnTrack: alreadyOnTrack,
+	}, nil
+}
+func (p *Service) UpdateTrackingTime(ctx context.Context, numbers []string, newTime string, userId int64) ([]*BaseAddOnTrackResponse, error) {
+	var response []*BaseAddOnTrackResponse
+	for _, v := range numbers {
+		if !p.checkNumberInTaskTable(ctx, v, userId) {
+			return response, &NumberDoesntBelongThisUserError{}
+		}
+		job, err := p.taskManager.Reschedule(ctx, v, newTime)
+		if err != nil {
+			return response, err
+		}
+		oneStruct := &BaseAddOnTrackResponse{
+			success:     true,
+			number:      v,
+			nextRunTime: job.NextRunTime,
+		}
+		response = append(response, oneStruct)
+	}
+	updErr := p.repository.UpdateTime(ctx, numbers, newTime)
+	if updErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`update tracking Time with Numbers: %v error: %s`, numbers, updErr.Error()))
+	}
+	return response, updErr
+}
+func (p *Service) AddEmailToTracking(ctx context.Context, req AddEmailRequest) error {
+	for _, number := range req.numbers {
+		if !p.checkNumberInTaskTable(ctx, number, req.userId) {
+			return &NumberDoesntBelongThisUserError{}
+		}
+		job, err := p.taskManager.Get(ctx, number)
+		if err != nil {
+			return err
+		}
+		for _, email := range req.emails {
+			job.Args = append(job.Args, email)
+		}
+		if err := p.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...); err != nil {
+			return err
+		}
+	}
+	if addErr := p.repository.AddEmails(ctx, req.numbers, req.emails); addErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v to Numbers: %v error: %s`, req.emails, req.numbers, addErr.Error()))
+		return addErr
+	}
+	return nil
+}
+func (p *Service) DeleteEmailFromTrack(ctx context.Context, req DeleteEmailFromTrack) error {
+	if !p.checkNumberInTaskTable(ctx, req.number, req.userId) {
+		return &NumberDoesntBelongThisUserError{}
+	}
+	job, err := p.taskManager.Get(ctx, req.number)
+	if err != nil {
+		return err
+	}
+	indexOfEmail := util.GetIndex(req.email, job.Args...)
+	if indexOfEmail == -1 {
+		return &CannotFindEmailError{}
+	}
+	job.Args = util.PopForInterfaces(job.Args, indexOfEmail)
+	if delErr := p.repository.DeleteEmail(ctx, req.number, req.email); delErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`delete email: %s from Number: %s error: %s`, req.email, req.number, delErr.Error()))
+	}
+	return p.taskManager.Modify(ctx, job.Id, job.Fn, job.Args...)
+}
+func (p *Service) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, numbers ...string) error {
+	for _, v := range numbers {
+		if !p.checkNumberInTaskTable(ctx, v, userId) {
+			return &NumberDoesntBelongThisUserError{}
+		}
+		if err := p.taskManager.Remove(ctx, v); err != nil {
+			return err
+		}
+		if isContainer {
+			if markErr := p.cli.MarkContainerWasRemovedFromTrack(ctx, userId, v); markErr != nil {
+				return markErr
+			}
+		} else {
+			if markErr := p.cli.MarkBillNoWasRemovedFromTrack(ctx, userId, v); markErr != nil {
+				return markErr
+			}
+		}
+	}
+	if delErr := p.repository.Delete(ctx, numbers); delErr != nil {
+		if isContainer {
+			p.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %v error: %s`, numbers, delErr.Error()))
+		} else {
+			p.logger.ExceptionLog(fmt.Sprintf(`delete from tracking bills with Numbers: %v error: %s`, numbers, delErr.Error()))
+		}
+		return delErr
+	}
+	return nil
+}
+func (p *Service) GetInfoAboutTracking(ctx context.Context, number string, userId int64) (*GetInfoAboutTrackResponse, error) {
+	if !p.checkNumberInTaskTable(ctx, number, userId) {
+		return &GetInfoAboutTrackResponse{}, &NumberDoesntBelongThisUserError{}
+	}
+	job, err := p.taskManager.Get(ctx, number)
+	if err != nil {
+		return &GetInfoAboutTrackResponse{}, err
+	}
+	repoJob, err := p.repository.GetByNumber(ctx, number)
+	if err != nil {
+		return &GetInfoAboutTrackResponse{}, err
+	}
+	return &GetInfoAboutTrackResponse{
+		number:              number,
+		emails:              job.Args,
+		nextRunTime:         job.NextRunTime,
+		emailMessageSubject: repoJob.EmailMessageSubject,
+	}, nil
+}
+
+func (p *Service) ChangeEmailMessageSubject(ctx context.Context, userId int64, number, newSubject string) error {
+	job, err := p.taskManager.Get(ctx, number)
+	if err != nil {
+		return err
+	}
+	repoTask, err := p.repository.GetByNumber(ctx, number)
+	if err != nil {
+		return err
+	}
+	task := p.GetTrackByBillNumberTask(number, repoTask.Country, userId, newSubject)
+	err = p.taskManager.Modify(context.Background(), number, task, job.Args...)
+	if err != nil {
+		return err
+	}
+	if err := p.repository.ChangeEmailMessageSubject(ctx, number, newSubject); err != nil {
+		return err
+	}
+	return nil
 }

@@ -1223,7 +1223,7 @@ var file_user_proto_depIdxs = []int32{
 	1,  // 5: user.User.AddBillNumberToAccount:input_type -> user.AddContainerToAccountRequest
 	2,  // 6: user.User.DeleteContainersFromAccount:input_type -> user.DeleteContainersFromAccountRequest
 	2,  // 7: user.User.DeleteBillNumbersFromAccount:input_type -> user.DeleteContainersFromAccountRequest
-	3,  // 8: user.User.GetAll:input_type -> user.GetAllContainersFromAccountRequest
+	3,  // 8: user.User.GetAllCities:input_type -> user.GetAllContainersFromAccountRequest
 	7,  // 9: user.Auth.RegisterUser:input_type -> user.RegisterUserRequest
 	8,  // 10: user.Auth.LoginUser:input_type -> user.LoginUserRequest
 	10, // 11: user.Auth.RefreshToken:input_type -> user.RefreshTokenRequest
@@ -1240,7 +1240,7 @@ var file_user_proto_depIdxs = []int32{
 	18, // 22: user.User.AddBillNumberToAccount:output_type -> google.protobuf.Empty
 	18, // 23: user.User.DeleteContainersFromAccount:output_type -> google.protobuf.Empty
 	18, // 24: user.User.DeleteBillNumbersFromAccount:output_type -> google.protobuf.Empty
-	5,  // 25: user.User.GetAll:output_type -> user.GetAllContainersResponse
+	5,  // 25: user.User.GetAllCities:output_type -> user.GetAllContainersResponse
 	18, // 26: user.Auth.RegisterUser:output_type -> google.protobuf.Empty
 	9,  // 27: user.Auth.LoginUser:output_type -> user.LoginResponse
 	9,  // 28: user.Auth.RefreshToken:output_type -> user.LoginResponse

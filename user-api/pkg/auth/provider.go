@@ -17,15 +17,15 @@ func NewProvider(repository IRepository, tokenManager ITokenManager, logger logg
 	return &Provider{repository: repository, tokenManager: tokenManager, logger: logger}
 }
 
-func (p *Provider) RegisterUser(ctx context.Context, user domain.User) error {
+func (p *Provider) RegisterUser(ctx context.Context, user *domain.RegisterUser) error {
 	if regUserErr := p.repository.Register(ctx, user); regUserErr != nil {
-		go p.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Username, regUserErr.Error()))
+		go p.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Email, regUserErr.Error()))
 		return regUserErr
 	}
-	go p.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Username))
+	go p.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Email))
 	return nil
 }
-func (p *Provider) Login(ctx context.Context, user domain.User) (*Token, error) {
+func (p *Provider) Login(ctx context.Context, user *domain.User) (*Token, error) {
 	userId, err := p.repository.Login(ctx, user)
 	p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
 	switch err.(type) {

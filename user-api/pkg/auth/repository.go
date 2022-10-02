@@ -9,8 +9,8 @@ import (
 )
 
 type IRepository interface {
-	Register(ctx context.Context, user domain.User) error
-	Login(ctx context.Context, user domain.User) (int, error)
+	Register(ctx context.Context, user *domain.RegisterUser) error
+	Login(ctx context.Context, user *domain.User) (int, error)
 	CheckAccess(ctx context.Context, userId int) (bool, error)
 }
 type AlreadyRegisterError struct{}
@@ -37,21 +37,21 @@ func NewRepository(db *sql.DB, hash IHash) *Repository {
 	return &Repository{db: db, hash: hash}
 }
 
-func (r *Repository) Register(ctx context.Context, user domain.User) error {
+func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) error {
 	hashPassword, hashErr := r.hash.Hash(user.Password)
 	if hashErr != nil {
 		return hashErr
 	}
-	_, err := r.db.ExecContext(ctx, `INSERT INTO "user"(username, password) VALUES ($1,$2)`, user.Username, hashPassword)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO "user" (email, username, password) VALUES ($1,$2,$3)`, user.Email, user.Username, hashPassword)
 	if err != nil {
 		return NewAlreadyRegisterError()
 	}
 	return nil
 }
-func (r *Repository) Login(ctx context.Context, user domain.User) (int, error) {
+func (r *Repository) Login(ctx context.Context, user *domain.User) (int, error) {
 	var id int
 	var userPassword string
-	row := r.db.QueryRowContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.username = $1`, user.Username)
+	row := r.db.QueryRowContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.username = $1`, user.Email)
 	if row.Err() != nil {
 		return id, row.Err()
 	}

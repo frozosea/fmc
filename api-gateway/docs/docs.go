@@ -118,7 +118,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/auth.RegisterUser"
                         }
                     }
                 ],
@@ -133,6 +133,147 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/auth.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cities": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get all cities",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all cities",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.City"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all contacts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Company"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/containers": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all containers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Container"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/freights": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all freights",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.GetFreight"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Freight"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
                         }
                     }
                 }
@@ -590,13 +731,45 @@ const docTemplate = `{
                 }
             }
         },
-        "/tracking/billNumber": {
+        "/tasks": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "get user's tasks archive with all info about containers and bills",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "get user's tasks archive with all info about containers and bills",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/history.TasksArchive"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/history.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tracking/billNumber": {
+            "get": {
                 "description": "tracking by bill number, if eta not found will be 0",
                 "tags": [
                     "Tracking"
@@ -646,11 +819,6 @@ const docTemplate = `{
         },
         "/tracking/container": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "tracking by container number",
                 "consumes": [
                     "application/json"
@@ -958,18 +1126,178 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.User": {
+        "auth.RegisterUser": {
             "type": "object",
             "required": [
+                "email",
                 "password",
                 "username"
             ],
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "auth.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.BaseResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "freight_service.City": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "$ref": "#/definitions/freight_service.Country"
+                },
+                "enFullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ruFullName": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Company": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Container": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Country": {
+            "type": "object",
+            "properties": {
+                "enFullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ruFullName": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Freight": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "$ref": "#/definitions/freight_service.Company"
+                },
+                "container": {
+                    "$ref": "#/definitions/freight_service.Container"
+                },
+                "fromCity": {
+                    "$ref": "#/definitions/freight_service.City"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "toCity": {
+                    "$ref": "#/definitions/freight_service.City"
+                },
+                "usdPrice": {
+                    "type": "integer"
+                }
+            }
+        },
+        "freight_service.GetFreight": {
+            "type": "object",
+            "properties": {
+                "containerTypeId": {
+                    "type": "integer"
+                },
+                "fromCityId": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "toCityId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "history.BaseResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "history.TasksArchive": {
+            "type": "object",
+            "properties": {
+                "bills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tracking.BillNumberResponse"
+                    }
+                },
+                "containers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/tracking.ContainerNumberResponse"
+                    }
                 }
             }
         },
@@ -1094,6 +1422,9 @@ const docTemplate = `{
         "schedule_tracking.GetInfoAboutTrackResponse": {
             "type": "object",
             "properties": {
+                "emailSubject": {
+                    "type": "string"
+                },
                 "emails": {
                     "type": "array",
                     "items": {

@@ -11,27 +11,13 @@ service TrackingByBillNumber{
   rpc TrackByBillNumber(Request) returns (TrackingByBillNumberResponse) {};
 
 }
-enum Scac{
-  FESO = 0;
-  SKLU = 1;
-  MAEU = 2;
-  COSU = 3;
-  KMTU = 4;
-  ONEY = 5;
-  SITC = 6;
-  MSCU = 7;
-  HALU = 8;
-  ZHGU = 9;
-  AUTO = 10;
-
-}
 enum Country{
   RU = 0;
   OTHER = 1;
 }
 message Request{
   string number = 1;
-  Scac scac = 2;
+  string scac = 2;
   Country country = 3;
 }
 message InfoAboutMoving{
@@ -44,13 +30,13 @@ message InfoAboutMoving{
 message TrackingByContainerNumberResponse{
   string container = 1 ;
   string container_size = 2;
-  Scac scac = 3;
+  string scac = 3;
   repeated InfoAboutMoving info_about_moving = 4;
 }
 
 message TrackingByBillNumberResponse{
   string billNo = 1;
-  Scac scac = 3;
+  string scac = 3;
   repeated InfoAboutMoving info_about_moving = 4;
   int64 eta_final_delivery = 5;
 }
