@@ -6,10 +6,10 @@ import (
 )
 
 type AddOnTrackRequest struct {
-	Numbers             []string `json:"number" binding:"required" "min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	Numbers             []string `json:"numbers" binding:"required"`
 	Emails              []string `json:"emails" binding:"required"  validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
 	Time                string   `json:"time" binding:"required"  validate:"min=4,max=5,regexp=\d{1,2}:\d{2}"`
-	EmailMessageSubject string   `json:"email_subject" binding:"required"  validate:""`
+	EmailMessageSubject string   `json:"emailSubject" binding:"required"  validate:""`
 }
 
 func (a *AddOnTrackRequest) ToGrpc(userId int) *pb.AddOnTrackRequest {
