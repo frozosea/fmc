@@ -237,7 +237,7 @@ definitions:
     type: object
   tracking.BillNumberResponse:
     properties:
-      etaFinalDelivery:
+      eta:
         type: integer
       infoAboutMoving:
         items:

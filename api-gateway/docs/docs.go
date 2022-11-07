@@ -1297,7 +1297,7 @@ const docTemplate = `{
         "tracking.BillNumberResponse": {
             "type": "object",
             "properties": {
-                "etaFinalDelivery": {
+                "eta": {
                     "type": "integer"
                 },
                 "infoAboutMoving": {
