@@ -8,37 +8,34 @@ service ScheduleTracking{
   rpc AddContainersOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
   //yes
   rpc AddBillNosOnTrack(AddOnTrackRequest) returns (AddOnTrackResponse) {};
-  //yes
-  rpc UpdateTrackingTime(UpdateTrackingTimeRequest) returns (RepeatedBaseAddOnTrackResponse) {};
-  //yes
-  rpc AddEmailsOnTracking(AddEmailRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteEmailFromTrack(DeleteEmailFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteContainersFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
-  rpc DeleteBillNosFromTrack(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
-  //yes
+
+  rpc Update(UpdateTaskRequest) returns (google.protobuf.Empty) {};
+
+  rpc DeleteFromTracking(DeleteFromTrackRequest) returns (google.protobuf.Empty) {};
+
   rpc GetInfoAboutTrack(GetInfoAboutTrackRequest) returns (GetInfoAboutTrackResponse) {};
   //yes
   rpc GetTimeZone(google.protobuf.Empty) returns (GetTimeZoneResponse) {};
   //yes
-  rpc ChangeEmailMessageSubject(ChangeEmailMessageSubjectRequest) returns (google.protobuf.Empty) {};
+}
+service Archive{
+  rpc GetArchive(GetArchiveRequest) returns (GetAllBillsContainerResponse) {};
 }
 message UpdateTrackingTimeRequest{
   repeated string numbers = 1;
   string time = 2;
   int64 user_id = 3;
 }
-message AddOneNumberOnTrackRequest{
+message AddOnTrackRequest{
   int64 user_id = 1;
-  string number = 2;
+  repeated string numbers = 2;
   repeated string emails = 3;
   string email_message_subject = 4;
   string time = 5;
 }
-message AddOnTrackRequest{
-  repeated AddOneNumberOnTrackRequest add_on_track_request = 1;
+message UpdateTaskRequest{
+    AddOnTrackRequest req = 1;
+    bool is_containers = 2;
 }
 message BaseAddOnTrackResponse{
   bool success = 1;
@@ -52,16 +49,6 @@ message AddOnTrackResponse{
   repeated BaseAddOnTrackResponse base_response = 1;
   repeated string already_on_track = 3;
 }
-message AddEmailRequest{
-  repeated string numbers = 1;
-  repeated string emails = 2;
-  int64 user_id = 3;
-}
-message DeleteEmailFromTrackRequest{
-  string number = 1;
-  string email = 2;
-  int64 user_id = 3;
-}
 message GetInfoAboutTrackRequest{
   string number = 1;
   int64 user_id = 3;
@@ -70,7 +57,8 @@ message GetInfoAboutTrackResponse{
   string number = 2;
   repeated string emails = 3;
   int64 next_run_time = 4;
-  string email_message_subject = 5;
+  string time = 5;
+  string email_message_subject = 6;
 }
 message DeleteFromTrackRequest{
   int64 user_id = 1;
@@ -79,8 +67,30 @@ message DeleteFromTrackRequest{
 message GetTimeZoneResponse{
   string time_zone = 1;
 }
-message ChangeEmailMessageSubjectRequest{
-  string number = 1;
-  string new_subject = 2;
-  int64 user_id = 3;
+message GetArchiveRequest{
+  int64 user_id = 1;
+}
+message InfoAboutMoving{
+  int64 time = 1;
+  string operation_name = 2;
+  string location = 3;
+  string vessel = 4;
+}
+
+message TrackingByContainerNumberResponse{
+  string container = 1 ;
+  string container_size = 2;
+  string scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+}
+
+message TrackingByBillNumberResponse{
+  string billNo = 1;
+  string scac = 3;
+  repeated InfoAboutMoving info_about_moving = 4;
+  int64 eta_final_delivery = 5;
+}
+message GetAllBillsContainerResponse{
+  repeated TrackingByBillNumberResponse bills = 1;
+  repeated TrackingByContainerNumberResponse containers = 2;
 }

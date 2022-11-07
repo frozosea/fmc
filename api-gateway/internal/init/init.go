@@ -3,13 +3,15 @@ package init_package
 import (
 	"errors"
 	"fmc-gateway/docs"
-	"fmc-gateway/internal/logging"
-	"fmc-gateway/internal/middleware"
-	"fmc-gateway/internal/utils"
-	"fmc-gateway/pkg/auth"
-	schedule_tracking "fmc-gateway/pkg/schedule-tracking"
-	"fmc-gateway/pkg/tracking"
-	"fmc-gateway/pkg/user"
+	"fmc-gateway/internal/auth"
+	freight_service "fmc-gateway/internal/freight-service"
+	"fmc-gateway/internal/history"
+	"fmc-gateway/internal/schedule-tracking"
+	tracking "fmc-gateway/internal/tracking"
+	"fmc-gateway/internal/user"
+	"fmc-gateway/pkg/logging"
+	"fmc-gateway/pkg/middleware"
+	"fmc-gateway/pkg/utils"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -38,6 +40,10 @@ type (
 		Ip   string
 		Port string
 	}
+	FreightClientSettings struct {
+		Ip   string
+		Port string
+	}
 )
 
 func getAuthSettings() (*AuthSettings, error) {
@@ -62,6 +68,16 @@ func getScheduleTrackingSettings() (*ScheduleTrackingSettings, error) {
 	settings.Ip, settings.Port = ip, port
 	return settings, nil
 }
+func getFreightClientSettings() (*FreightClientSettings, error) {
+	settings := new(FreightClientSettings)
+	//TODO add these env variables
+	ip, port := os.Getenv("FREIGHT_HOST"), os.Getenv("FREIGHT_PORT")
+	if ip == "" || port == "" {
+		return nil, errors.New("no env variables")
+	}
+	settings.Ip, settings.Port = ip, port
+	return settings, nil
+}
 func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Client, error) {
 	var url string
 	if ip == "" {
@@ -75,14 +91,38 @@ func GetTrackingClient(ip, port string, logger logging.ILogger) (*tracking.Clien
 	}
 	return tracking.NewClient(trackingConnection, logger), nil
 }
-
+func GetScheduleTrackingHistoryClient(ip, port string) (*history.ScheduleTrackingTasksClient, error) {
+	var url string
+	if ip == "" {
+		url = fmt.Sprintf(`localhost:%s`, port)
+	}
+	url = fmt.Sprintf(`%s:%s`, ip, port)
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil, err
+	}
+	return history.NewScheduleTrackingTasksClient(conn), nil
+}
+func getFreightClient(ip, port string) (freight_service.IClient, error) {
+	var url string
+	if ip == "" {
+		url = fmt.Sprintf(`localhost:%s`, port)
+	}
+	url = fmt.Sprintf(`%s:%s`, ip, port)
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal(err.Error())
+		return nil, err
+	}
+	return freight_service.NewClient(conn), nil
+}
 func getTrackingHttpHandler(client *tracking.Client, utils *utils.HttpUtils) *tracking.HttpHandler {
 	return tracking.NewHttpHandler(client, utils)
 }
 
-func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler, middleware *middleware.Middleware) {
+func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler) {
 	trackingGroup := router.Group(`/tracking`)
-	trackingGroup.Use(middleware.CheckAccessMiddleware)
 	{
 		trackingGroup.GET(`/billNumber`, handler.TrackByBillNumber)
 		trackingGroup.GET(`/container`, handler.TrackByContainerNumber)
@@ -103,19 +143,23 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.POST(`/container`, handler.AddContainersOnTrack)
-		group.POST(`/billNo`, handler.AddBillNumbersOnTrack)
-		group.PUT(`/time`, handler.UpdateTrackingTime)
-		group.PUT(`/addEmail`, handler.AddEmailsOnTracking)
-		group.DELETE(`/email`, handler.DeleteEmailFromTrack)
+		group.POST(`/bill`, handler.AddBillNumbersOnTrack)
+		group.PUT(`/bills`, handler.UpdateBills)
+		group.PUT(`/containers`, handler.UpdateContainers)
 		group.DELETE(`/containers`, handler.DeleteContainersFromTrack)
-		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromTrack)
+		group.DELETE(`/bills`, handler.DeleteBillNumbersFromTrack)
 		group.GET(`/info`, handler.GetInfoAboutTracking)
-		group.PUT(`/emailSubject`, handler.ChangeEmailMessageSubject)
 	}
 	router.GET(`/schedule/timezone`, handler.GetTimeZone)
 
 }
-
+func initHistoryRoutes(router *gin.Engine, handler *history.HttpHandler, middleware *middleware.Middleware) {
+	group := router.Group(`/history`)
+	group.Use(middleware.CheckAccessMiddleware)
+	{
+		group.GET("/tasks", handler.GetTasksArchive)
+	}
+}
 func getAuthClient(ip, port string, logger logging.ILogger) (*auth.Client, error) {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, ip, port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -124,7 +168,7 @@ func getAuthClient(ip, port string, logger logging.ILogger) (*auth.Client, error
 	}
 	return auth.NewClient(conn, logger), nil
 }
-func getAuthHttpHandler(client *auth.Client) *auth.HttpHandler {
+func getAuthHttpHandler(client auth.IClient) *auth.HttpHandler {
 	return auth.NewHttpHandler(client)
 }
 func initAuthRoutes(router *gin.Engine, AuthHttpHandler *auth.HttpHandler) {
@@ -155,6 +199,15 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 		group.DELETE(`/containers`, handler.DeleteContainersFromAccount)
 		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromAccount)
 		group.GET(`/billsContainers`, handler.GetAll)
+	}
+}
+func initFreightsRouter(router *gin.Engine, handler *freight_service.Http) {
+	group := router.Group("/freight")
+	{
+		group.GET("/freights", handler.GetFreights)
+		group.GET("/cities", handler.GetAllCities)
+		group.GET("/companies", handler.GetAllCompanies)
+		group.GET("/containers", handler.GetAllContainers)
 	}
 }
 func initDocsRoutes(router *gin.Engine) {
@@ -213,13 +266,29 @@ func Run() {
 	var ScheduleTrackingHttpHandler = getScheduleTrackingHttpHandler(ScheduleTrackingClient, httpUtils)
 
 	var Middleware = middleware.NewMiddleware(httpUtils, AuthClient)
-
+	scheduleTrackingHistoryClient, err := GetScheduleTrackingHistoryClient(scheduleTrackingSettings.Ip, scheduleTrackingSettings.Port)
+	if err != nil {
+		panic(getSettingsErr)
+		return
+	}
+	freightClientSettings, err := getFreightClientSettings()
+	if err != nil {
+		panic(getSettingsErr)
+		return
+	}
+	freightClient, err := getFreightClient(freightClientSettings.Ip, freightClientSettings.Port)
+	if err != nil {
+		panic(getSettingsErr)
+		return
+	}
 	router := gin.Default()
 	initAuthRoutes(router, AuthHttpHandler)
-	initTrackingRoutes(router, TrackingHttpHandler, Middleware)
+	initTrackingRoutes(router, TrackingHttpHandler)
 	initDocsRoutes(router)
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
+	initHistoryRoutes(router, history.NewHttpHandler(scheduleTrackingHistoryClient, httpUtils), Middleware)
+	initFreightsRouter(router, freight_service.NewHttp(freightClient))
 	defaultCors := cors.DefaultConfig()
 	defaultCors.AllowAllOrigins = true
 	router.Use(cors.New(defaultCors))

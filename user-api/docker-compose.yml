@@ -14,7 +14,7 @@ services:
     env_file:
       - .env
     command:
-      - "/app/main"
+      - "/init/main"
   db:
     image: postgres:13.3
     restart: unless-stopped

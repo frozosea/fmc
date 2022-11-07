@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS "price";
+DROP TABLE IF EXISTS "cities";
+DROP TABLE IF EXISTS "countries";
+DROP TABLE IF EXISTS "containers";
+DROP TABLE IF EXISTS "company";

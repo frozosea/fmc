@@ -35,7 +35,8 @@ export class SkluBillNumber extends SkluContainer implements IBillNumberTracker 
         let containerNumber = this.containerNumberParser.getContainerNumberByStringHtml(stringInfoAboutMovingHtml)
         let apiResp = await this.skluRequest.sendRequestToApi({number: containerNumber})
         let eta: OneTrackingEvent = await this.etaParser.getEtaObject(this.apiParser.parseSinokorApiJson(apiResp))
-        let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(args.number, containerNumber), containerNumber)
+        const infoAboutMovingHtml = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(args.number, containerNumber)
+        let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingHtml, containerNumber)
         return {billNo: args.number, scac: "SKLU", infoAboutMoving: infoAboutMoving, etaFinalDelivery: eta.time}
     }
 }

@@ -13,7 +13,7 @@ type Client struct {
 	billNoClient      trackingByBillNumberClient
 	containerNoClient trackingByContainerNumberClient
 	logger            logging.ILogger
-	converter
+	Сonverter
 }
 
 func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumberResponse, error) {
@@ -52,20 +52,24 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 	}
 }
 
-type converter struct{}
+type Сonverter struct{}
+
+func NewСonverter() *Сonverter {
+	return &Сonverter{}
+}
 
 //tracking written on node js so nodejs timestamp is +3 zero on end of timestamp
-func (c *converter) convertNodeTimeStampToTime(t int64) time.Time {
+func (c *Сonverter) convertNodeTimeStampToTime(t int64) time.Time {
 	return time.Unix(t/1000, 0)
 }
-func (c *converter) convertGrpcInfoAboutMoving(resp []*InfoAboutMoving) []BaseInfoAboutMoving {
+func (c *Сonverter) convertGrpcInfoAboutMoving(resp []*InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
 		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.convertNodeTimeStampToTime(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
-func (c *converter) convertGrpcBlNoResponse(response *TrackingByBillNumberResponse) BillNumberResponse {
+func (c *Сonverter) convertGrpcBlNoResponse(response *TrackingByBillNumberResponse) BillNumberResponse {
 	return BillNumberResponse{
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac().String(),
@@ -73,7 +77,7 @@ func (c *converter) convertGrpcBlNoResponse(response *TrackingByBillNumberRespon
 		EtaFinalDelivery: c.convertNodeTimeStampToTime(response.GetEtaFinalDelivery()),
 	}
 }
-func (c *converter) convertGrpcContainerNoResponse(response *TrackingByContainerNumberResponse) ContainerNumberResponse {
+func (c *Сonverter) convertGrpcContainerNoResponse(response *TrackingByContainerNumberResponse) ContainerNumberResponse {
 	return ContainerNumberResponse{
 		Container:       response.GetContainer(),
 		ContainerSize:   response.GetContainerSize(),

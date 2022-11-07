@@ -11,6 +11,8 @@ services:
       TRACKING_PORT: 51372
       SCHEDULE_TRACKING_HOST: schedule_tracking_api
       SCHEDULE_TRACKING_PORT: 8005
+      FREIGHT_HOST: freight_api
+      FREIGHT_PORT: 51839
     networks:
       - public
   nginx:

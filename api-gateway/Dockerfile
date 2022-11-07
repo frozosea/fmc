@@ -1,6 +1,6 @@
 FROM golang
 MAINTAINER User="i20072004@gmail.com"
-RUN mkdir /app
+RUN mkdir /init
 WORKDIR /app/
 COPY  cmd/ /app/
 ADD . /app/

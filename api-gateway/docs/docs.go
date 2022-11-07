@@ -118,7 +118,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/auth.RegisterUser"
                         }
                     }
                 ],
@@ -138,32 +138,102 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/addEmail": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "add new email to tracking, bill or container doesn't matter",
+        "/cities": {
+            "get": {
+                "description": "get all cities",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all cities",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.City"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/companies": {
+            "get": {
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all contacts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Company"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/containers": {
+            "get": {
+                "tags": [
+                    "Freights"
+                ],
+                "summary": "get all containers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Container"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/freight_service.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/freights": {
+            "get": {
+                "consumes": [
                     "application/json"
                 ],
                 "tags": [
-                    "Schedule Tracking"
+                    "Freights"
                 ],
-                "summary": "add new email to tracking",
+                "summary": "get all freights",
                 "parameters": [
                     {
-                        "description": "info",
+                        "description": "body",
                         "name": "input",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddEmailRequest"
+                            "$ref": "#/definitions/freight_service.GetFreight"
                         }
                     }
                 ],
@@ -171,16 +241,16 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/freight_service.Freight"
+                            }
                         }
-                    },
-                    "400": {
-                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                            "$ref": "#/definitions/freight_service.BaseResponse"
                         }
                     }
                 }
@@ -211,10 +281,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                            }
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
                         }
                     }
                 ],
@@ -285,6 +352,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/schedule/bills": {
+            "put": {
+                "description": "update tracking tasks by input params",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "update container tracking task",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/container": {
             "post": {
                 "security": [
@@ -310,10 +417,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                            }
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
                         }
                     }
                 ],
@@ -337,6 +441,44 @@ const docTemplate = `{
             }
         },
         "/schedule/containers": {
+            "put": {
+                "description": "update tracking tasks by input params",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "update container tracking task",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -374,93 +516,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/email": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete email from tracking, bill or container doesn't matter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "delete email from tracking",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.DeleteEmailFromTrackRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/emailSubject": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "change email message subject",
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "change email message subject",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.ChangeEmailMessageSubjectRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -516,57 +571,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/time": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "update time of tracking, bill or container doesn't matter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "update time of tracking",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.UpdateTrackingTimeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.BaseAddOnTrackResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/timezone": {
             "get": {
                 "description": "get timezone in format UTC+10, this route is for get time zone, because users want to know in which tz will tracking works",
@@ -590,13 +594,45 @@ const docTemplate = `{
                 }
             }
         },
-        "/tracking/billNumber": {
+        "/tasks": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "get user's tasks archive with all info about containers and bills",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "History"
+                ],
+                "summary": "get user's tasks archive with all info about containers and bills",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/history.TasksArchive"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/history.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tracking/billNumber": {
+            "get": {
                 "description": "tracking by bill number, if eta not found will be 0",
                 "tags": [
                     "Tracking"
@@ -646,11 +682,6 @@ const docTemplate = `{
         },
         "/tracking/container": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "tracking by container number",
                 "consumes": [
                     "application/json"
@@ -958,13 +989,17 @@ const docTemplate = `{
                 }
             }
         },
-        "auth.User": {
+        "auth.RegisterUser": {
             "type": "object",
             "required": [
+                "email",
                 "password",
                 "username"
             ],
             "properties": {
+                "email": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
@@ -973,19 +1008,158 @@ const docTemplate = `{
                 }
             }
         },
-        "schedule_tracking.AddEmailRequest": {
+        "auth.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.BaseResponse": {
             "type": "object",
             "properties": {
-                "emails": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "freight_service.City": {
+            "type": "object",
+            "properties": {
+                "country": {
+                    "$ref": "#/definitions/freight_service.Country"
+                },
+                "enFullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ruFullName": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Company": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Container": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Country": {
+            "type": "object",
+            "properties": {
+                "enFullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ruFullName": {
+                    "type": "string"
+                }
+            }
+        },
+        "freight_service.Freight": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "$ref": "#/definitions/freight_service.Company"
+                },
+                "container": {
+                    "$ref": "#/definitions/freight_service.Container"
+                },
+                "fromCity": {
+                    "$ref": "#/definitions/freight_service.City"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "toCity": {
+                    "$ref": "#/definitions/freight_service.City"
+                },
+                "usdPrice": {
+                    "type": "integer"
+                }
+            }
+        },
+        "freight_service.GetFreight": {
+            "type": "object",
+            "properties": {
+                "containerTypeId": {
+                    "type": "integer"
+                },
+                "fromCityId": {
+                    "type": "integer"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "toCityId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "history.BaseResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "history.TasksArchive": {
+            "type": "object",
+            "properties": {
+                "bills": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/tracking.BillNumberResponse"
                     }
                 },
-                "numbers": {
+                "containers": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/tracking.ContainerNumberResponse"
                     }
                 }
             }
@@ -1009,7 +1183,10 @@ const docTemplate = `{
                     }
                 },
                 "number": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "time": {
                     "type": "string"
@@ -1058,28 +1235,6 @@ const docTemplate = `{
                 }
             }
         },
-        "schedule_tracking.ChangeEmailMessageSubjectRequest": {
-            "type": "object",
-            "properties": {
-                "newSubject": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
-        "schedule_tracking.DeleteEmailFromTrackRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
         "schedule_tracking.DeleteFromTrackRequest": {
             "type": "object",
             "properties": {
@@ -1094,6 +1249,9 @@ const docTemplate = `{
         "schedule_tracking.GetInfoAboutTrackResponse": {
             "type": "object",
             "properties": {
+                "emailSubject": {
+                    "type": "string"
+                },
                 "emails": {
                     "type": "array",
                     "items": {
@@ -1105,6 +1263,9 @@ const docTemplate = `{
                 },
                 "number": {
                     "type": "string"
+                },
+                "runningTime": {
+                    "type": "string"
                 }
             }
         },
@@ -1113,20 +1274,6 @@ const docTemplate = `{
             "properties": {
                 "timeZone": {
                     "type": "string"
-                }
-            }
-        },
-        "schedule_tracking.UpdateTrackingTimeRequest": {
-            "type": "object",
-            "properties": {
-                "newTime": {
-                    "type": "string"
-                },
-                "numbers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

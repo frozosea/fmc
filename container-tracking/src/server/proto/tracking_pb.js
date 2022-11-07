@@ -18,7 +18,6 @@ var global = Function('return this')();
 goog.exportSymbol('proto.tracking.Country', null, global);
 goog.exportSymbol('proto.tracking.InfoAboutMoving', null, global);
 goog.exportSymbol('proto.tracking.Request', null, global);
-goog.exportSymbol('proto.tracking.Scac', null, global);
 goog.exportSymbol('proto.tracking.TrackingByBillNumberResponse', null, global);
 goog.exportSymbol('proto.tracking.TrackingByContainerNumberResponse', null, global);
 /**
@@ -138,7 +137,7 @@ proto.tracking.Request.prototype.toObject = function(opt_includeInstance) {
 proto.tracking.Request.toObject = function(includeInstance, msg) {
   var f, obj = {
     number: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    scac: jspb.Message.getFieldWithDefault(msg, 2, 0),
+    scac: jspb.Message.getFieldWithDefault(msg, 2, ""),
     country: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
@@ -181,7 +180,7 @@ proto.tracking.Request.deserializeBinaryFromReader = function(msg, reader) {
       msg.setNumber(value);
       break;
     case 2:
-      var value = /** @type {!proto.tracking.Scac} */ (reader.readEnum());
+      var value = /** @type {string} */ (reader.readString());
       msg.setScac(value);
       break;
     case 3:
@@ -225,8 +224,8 @@ proto.tracking.Request.serializeBinaryToWriter = function(message, writer) {
     );
   }
   f = message.getScac();
-  if (f !== 0.0) {
-    writer.writeEnum(
+  if (f.length > 0) {
+    writer.writeString(
       2,
       f
     );
@@ -260,20 +259,20 @@ proto.tracking.Request.prototype.setNumber = function(value) {
 
 
 /**
- * optional Scac scac = 2;
- * @return {!proto.tracking.Scac}
+ * optional string scac = 2;
+ * @return {string}
  */
 proto.tracking.Request.prototype.getScac = function() {
-  return /** @type {!proto.tracking.Scac} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
 
 /**
- * @param {!proto.tracking.Scac} value
+ * @param {string} value
  * @return {!proto.tracking.Request} returns this
  */
 proto.tracking.Request.prototype.setScac = function(value) {
-  return jspb.Message.setProto3EnumField(this, 2, value);
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -556,7 +555,7 @@ proto.tracking.TrackingByContainerNumberResponse.toObject = function(includeInst
   var f, obj = {
     container: jspb.Message.getFieldWithDefault(msg, 1, ""),
     containerSize: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    scac: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    scac: jspb.Message.getFieldWithDefault(msg, 3, ""),
     infoAboutMovingList: jspb.Message.toObjectList(msg.getInfoAboutMovingList(),
     proto.tracking.InfoAboutMoving.toObject, includeInstance)
   };
@@ -604,7 +603,7 @@ proto.tracking.TrackingByContainerNumberResponse.deserializeBinaryFromReader = f
       msg.setContainerSize(value);
       break;
     case 3:
-      var value = /** @type {!proto.tracking.Scac} */ (reader.readEnum());
+      var value = /** @type {string} */ (reader.readString());
       msg.setScac(value);
       break;
     case 4:
@@ -656,8 +655,8 @@ proto.tracking.TrackingByContainerNumberResponse.serializeBinaryToWriter = funct
     );
   }
   f = message.getScac();
-  if (f !== 0.0) {
-    writer.writeEnum(
+  if (f.length > 0) {
+    writer.writeString(
       3,
       f
     );
@@ -710,20 +709,20 @@ proto.tracking.TrackingByContainerNumberResponse.prototype.setContainerSize = fu
 
 
 /**
- * optional Scac scac = 3;
- * @return {!proto.tracking.Scac}
+ * optional string scac = 3;
+ * @return {string}
  */
 proto.tracking.TrackingByContainerNumberResponse.prototype.getScac = function() {
-  return /** @type {!proto.tracking.Scac} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /**
- * @param {!proto.tracking.Scac} value
+ * @param {string} value
  * @return {!proto.tracking.TrackingByContainerNumberResponse} returns this
  */
 proto.tracking.TrackingByContainerNumberResponse.prototype.setScac = function(value) {
-  return jspb.Message.setProto3EnumField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -805,7 +804,7 @@ proto.tracking.TrackingByBillNumberResponse.prototype.toObject = function(opt_in
 proto.tracking.TrackingByBillNumberResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     billno: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    scac: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    scac: jspb.Message.getFieldWithDefault(msg, 3, ""),
     infoAboutMovingList: jspb.Message.toObjectList(msg.getInfoAboutMovingList(),
     proto.tracking.InfoAboutMoving.toObject, includeInstance),
     etaFinalDelivery: jspb.Message.getFieldWithDefault(msg, 5, 0)
@@ -850,7 +849,7 @@ proto.tracking.TrackingByBillNumberResponse.deserializeBinaryFromReader = functi
       msg.setBillno(value);
       break;
     case 3:
-      var value = /** @type {!proto.tracking.Scac} */ (reader.readEnum());
+      var value = /** @type {string} */ (reader.readString());
       msg.setScac(value);
       break;
     case 4:
@@ -899,8 +898,8 @@ proto.tracking.TrackingByBillNumberResponse.serializeBinaryToWriter = function(m
     );
   }
   f = message.getScac();
-  if (f !== 0.0) {
-    writer.writeEnum(
+  if (f.length > 0) {
+    writer.writeString(
       3,
       f
     );
@@ -942,20 +941,20 @@ proto.tracking.TrackingByBillNumberResponse.prototype.setBillno = function(value
 
 
 /**
- * optional Scac scac = 3;
- * @return {!proto.tracking.Scac}
+ * optional string scac = 3;
+ * @return {string}
  */
 proto.tracking.TrackingByBillNumberResponse.prototype.getScac = function() {
-  return /** @type {!proto.tracking.Scac} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
 
 /**
- * @param {!proto.tracking.Scac} value
+ * @param {string} value
  * @return {!proto.tracking.TrackingByBillNumberResponse} returns this
  */
 proto.tracking.TrackingByBillNumberResponse.prototype.setScac = function(value) {
-  return jspb.Message.setProto3EnumField(this, 3, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -1014,23 +1013,6 @@ proto.tracking.TrackingByBillNumberResponse.prototype.setEtaFinalDelivery = func
   return jspb.Message.setProto3IntField(this, 5, value);
 };
 
-
-/**
- * @enum {number}
- */
-proto.tracking.Scac = {
-  FESO: 0,
-  SKLU: 1,
-  MAEU: 2,
-  COSU: 3,
-  KMTU: 4,
-  ONEY: 5,
-  SITC: 6,
-  MSCU: 7,
-  HALU: 8,
-  ZHGU: 9,
-  AUTO: 10
-};
 
 /**
  * @enum {number}

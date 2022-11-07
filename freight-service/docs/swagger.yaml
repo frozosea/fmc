@@ -1,0 +1,649 @@
+basePath: /
+definitions:
+  city.BaseEntity:
+    properties:
+      enFullName:
+        type: string
+      ruFullName:
+        type: string
+    type: object
+  city.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  city.City:
+    properties:
+      country:
+        $ref: '#/definitions/city.Country'
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  city.Country:
+    properties:
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  city.CountryWithId:
+    properties:
+      countryId:
+        type: integer
+      enFullName:
+        type: string
+      ruFullName:
+        type: string
+    type: object
+  city.UpdateCity:
+    properties:
+      countryId:
+        type: integer
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  company.BaseCompany:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    type: object
+  company.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  company.Company:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    type: object
+  company.UpdateCompany:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    type: object
+  container.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  container.Container:
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+    type: object
+  freight.AddFreight:
+    properties:
+      contactId:
+        type: integer
+      containerTypeId:
+        type: integer
+      expiresDate:
+        type: string
+      fromCityId:
+        type: integer
+      fromDate:
+        type: string
+      toCityId:
+        type: integer
+      usdPrice:
+        type: integer
+    type: object
+  freight.BaseFreight:
+    properties:
+      company:
+        $ref: '#/definitions/company.Company'
+      container:
+        $ref: '#/definitions/container.Container'
+      expiresDate:
+        type: string
+      fromCity:
+        $ref: '#/definitions/city.City'
+      fromDate:
+        type: string
+      id:
+        type: integer
+      toCity:
+        $ref: '#/definitions/city.City'
+      usdPrice:
+        type: integer
+    type: object
+  freight.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  freight.UpdateFreight:
+    properties:
+      contactId:
+        type: integer
+      containerTypeId:
+        type: integer
+      expiresDate:
+        type: string
+      fromCityId:
+        type: integer
+      fromDate:
+        type: string
+      id:
+        type: integer
+      toCityId:
+        type: integer
+      usdPrice:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: API server for admin panel on freight service
+  title: Freight service API
+  version: 1.0.0
+paths:
+  /cities:
+    get:
+      consumes:
+      - application/json
+      description: get all cities
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/city.City'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all cities
+      tags:
+      - City
+  /city:
+    delete:
+      consumes:
+      - application/json
+      description: Add country by params
+      parameters:
+      - description: body
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add country by params
+      tags:
+      - Country
+    post:
+      consumes:
+      - application/json
+      description: Add city by params
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/city.CountryWithId'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add city by params
+      tags:
+      - City
+    put:
+      consumes:
+      - application/json
+      description: Add city by params
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/city.UpdateCity'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add city by params
+      tags:
+      - City
+  /companies:
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/company.Company'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all contacts
+      tags:
+      - Company
+  /company:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete company by id
+      tags:
+      - Company
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/company.BaseCompany'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add new company
+      tags:
+      - Company
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/company.UpdateCompany'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/company.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update company
+      tags:
+      - Company
+  /container:
+    delete:
+      parameters:
+      - description: id
+        in: query
+        name: id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update
+      tags:
+      - Containers
+    post:
+      parameters:
+      - description: containerType
+        in: query
+        name: containerType
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add new container
+      tags:
+      - Containers
+    put:
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/container.Container'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update
+      tags:
+      - Containers
+  /containers:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/container.Container'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/container.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all containers
+      tags:
+      - Containers
+  /countries:
+    get:
+      consumes:
+      - application/json
+      description: get all countries
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/city.Country'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all countries
+      tags:
+      - Country
+  /country:
+    delete:
+      consumes:
+      - application/json
+      description: Add country by params
+      parameters:
+      - description: body
+        in: query
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add country by params
+      tags:
+      - Country
+    post:
+      consumes:
+      - application/json
+      description: Add country by params
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/city.BaseEntity'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add country by params
+      tags:
+      - City
+    put:
+      consumes:
+      - application/json
+      description: Add city by params
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/city.Country'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/city.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add city by params
+      tags:
+      - Country
+  /freight:
+    delete:
+      parameters:
+      - description: id
+        in: query
+        name: id
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: delete freight
+      tags:
+      - Freight
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/freight.AddFreight'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add new freight
+      tags:
+      - Freight
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/freight.UpdateFreight'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: update freight
+      tags:
+      - Freight
+  /freights:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/freight.AddFreight'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight.BaseFreight'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get all freights
+      tags:
+      - Freight
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -31,7 +31,7 @@ declare type MSCU = "MSCU"
 declare type AUTO = "AUTO"
 declare type HALU = "HALU"
 declare type ZHGU = "ZHGU"
-declare type SCAC_TYPE = FESO | SKLU | MAEU | COSU | KMTU | ONEY | SITC | MSCU | HALU | ZHGU | AUTO
+declare type SCAC_TYPE = FESO | SKLU | MAEU | COSU | KMTU | ONEY | SITC | MSCU | HALU | ZHGU | AUTO | string
 
 export interface TrackingArgsWithScac extends ITrackingArgs {
     scac: SCAC_TYPE,

@@ -2,8 +2,8 @@ package excel_writer
 
 import (
 	"fmt"
+	file_reader "github.com/frozosea/file-reader"
 	"github.com/xuri/excelize/v2"
-	file_reader "schedule-tracking/pkg/file-reader"
 	"schedule-tracking/pkg/tracking"
 	"time"
 )

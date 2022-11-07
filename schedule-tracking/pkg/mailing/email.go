@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	file_reader "github.com/frozosea/file-reader"
 	"io"
 	"net/http"
 	"net/url"
-	file_reader "schedule-tracking/pkg/file-reader"
 	"schedule-tracking/pkg/logging"
 )
 

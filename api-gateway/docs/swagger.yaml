@@ -36,25 +36,118 @@ definitions:
     required:
     - refreshToken
     type: object
-  auth.User:
+  auth.RegisterUser:
     properties:
+      email:
+        type: string
       password:
         type: string
       username:
         type: string
     required:
+    - email
     - password
     - username
     type: object
-  schedule_tracking.AddEmailRequest:
+  auth.User:
     properties:
-      emails:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  freight_service.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  freight_service.City:
+    properties:
+      country:
+        $ref: '#/definitions/freight_service.Country'
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  freight_service.Company:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      phoneNumber:
+        type: string
+      url:
+        type: string
+    type: object
+  freight_service.Container:
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+    type: object
+  freight_service.Country:
+    properties:
+      enFullName:
+        type: string
+      id:
+        type: integer
+      ruFullName:
+        type: string
+    type: object
+  freight_service.Freight:
+    properties:
+      company:
+        $ref: '#/definitions/freight_service.Company'
+      container:
+        $ref: '#/definitions/freight_service.Container'
+      fromCity:
+        $ref: '#/definitions/freight_service.City'
+      id:
+        type: integer
+      toCity:
+        $ref: '#/definitions/freight_service.City'
+      usdPrice:
+        type: integer
+    type: object
+  freight_service.GetFreight:
+    properties:
+      containerTypeId:
+        type: integer
+      fromCityId:
+        type: integer
+      limit:
+        type: integer
+      toCityId:
+        type: integer
+    type: object
+  history.BaseResponse:
+    properties:
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+  history.TasksArchive:
+    properties:
+      bills:
         items:
-          type: string
+          $ref: '#/definitions/tracking.BillNumberResponse'
         type: array
-      numbers:
+      containers:
         items:
-          type: string
+          $ref: '#/definitions/tracking.ContainerNumberResponse'
         type: array
     type: object
   schedule_tracking.AddOnTrackRequest:
@@ -66,7 +159,9 @@ definitions:
           type: string
         type: array
       number:
-        type: string
+        items:
+          type: string
+        type: array
       time:
         type: string
     required:
@@ -102,20 +197,6 @@ definitions:
       success:
         type: boolean
     type: object
-  schedule_tracking.ChangeEmailMessageSubjectRequest:
-    properties:
-      newSubject:
-        type: string
-      number:
-        type: string
-    type: object
-  schedule_tracking.DeleteEmailFromTrackRequest:
-    properties:
-      email:
-        type: string
-      number:
-        type: string
-    type: object
   schedule_tracking.DeleteFromTrackRequest:
     properties:
       numbers:
@@ -125,6 +206,8 @@ definitions:
     type: object
   schedule_tracking.GetInfoAboutTrackResponse:
     properties:
+      emailSubject:
+        type: string
       emails:
         items:
           type: string
@@ -133,20 +216,13 @@ definitions:
         type: integer
       number:
         type: string
+      runningTime:
+        type: string
     type: object
   schedule_tracking.TimeZoneResponse:
     properties:
       timeZone:
         type: string
-    type: object
-  schedule_tracking.UpdateTrackingTimeRequest:
-    properties:
-      newTime:
-        type: string
-      numbers:
-        items:
-          type: string
-        type: array
     type: object
   tracking.BaseInfoAboutMoving:
     properties:
@@ -301,7 +377,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/auth.RegisterUser'
       responses:
         "200":
           description: OK
@@ -314,36 +390,82 @@ paths:
       summary: Register user by username and password
       tags:
       - Auth
-  /schedule/addEmail:
-    put:
+  /cities:
+    get:
       consumes:
       - application/json
-      description: add new email to tracking, bill or container doesn't matter
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.AddEmailRequest'
-      produces:
-      - application/json
+      description: get all cities
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-        "400":
-          description: ""
+            items:
+              $ref: '#/definitions/freight_service.City'
+            type: array
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: add new email to tracking
+            $ref: '#/definitions/freight_service.BaseResponse'
+      summary: get all cities
       tags:
-      - Schedule Tracking
+      - Freights
+  /companies:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Company'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      summary: get all contacts
+      tags:
+      - Freights
+  /containers:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Container'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      summary: get all containers
+      tags:
+      - Freights
+  /freights:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/freight_service.GetFreight'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/freight_service.Freight'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/freight_service.BaseResponse'
+      summary: get all freights
+      tags:
+      - Freights
   /schedule/billNo:
     post:
       consumes:
@@ -357,9 +479,7 @@ paths:
         name: input
         required: true
         schema:
-          items:
-            $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
-          type: array
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
       produces:
       - application/json
       responses:
@@ -408,6 +528,32 @@ paths:
       summary: delete bill numbers from tracking
       tags:
       - Schedule Tracking
+  /schedule/bills:
+    put:
+      consumes:
+      - application/json
+      description: update tracking tasks by input params
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      summary: update container tracking task
+      tags:
+      - Schedule Tracking
   /schedule/container:
     post:
       consumes:
@@ -421,9 +567,7 @@ paths:
         name: input
         required: true
         schema:
-          items:
-            $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
-          type: array
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
       produces:
       - application/json
       responses:
@@ -472,18 +616,17 @@ paths:
       summary: delete containers from tracking
       tags:
       - Schedule Tracking
-  /schedule/email:
-    delete:
+    put:
       consumes:
       - application/json
-      description: delete email from tracking, bill or container doesn't matter
+      description: update tracking tasks by input params
       parameters:
       - description: info
         in: body
         name: input
         required: true
         schema:
-          $ref: '#/definitions/schedule_tracking.DeleteEmailFromTrackRequest'
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
       produces:
       - application/json
       responses:
@@ -491,39 +634,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/schedule_tracking.BaseResponse'
-        "400":
-          description: ""
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: delete email from tracking
-      tags:
-      - Schedule Tracking
-  /schedule/emailSubject:
-    put:
-      description: change email message subject
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.ChangeEmailMessageSubjectRequest'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: change email message subject
+      summary: update container tracking task
       tags:
       - Schedule Tracking
   /schedule/info:
@@ -554,38 +669,6 @@ paths:
       summary: get info about number on tracking
       tags:
       - Schedule Tracking
-  /schedule/time:
-    put:
-      consumes:
-      - application/json
-      description: update time of tracking, bill or container doesn't matter
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.UpdateTrackingTimeRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/schedule_tracking.BaseAddOnTrackResponse'
-            type: array
-        "400":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: update time of tracking
-      tags:
-      - Schedule Tracking
   /schedule/timezone:
     get:
       description: get timezone in format UTC+10, this route is for get time zone,
@@ -602,6 +685,29 @@ paths:
       summary: get timezone information
       tags:
       - Schedule Tracking
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: get user's tasks archive with all info about containers and bills
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/history.TasksArchive'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/history.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: get user's tasks archive with all info about containers and bills
+      tags:
+      - History
   /tracking/billNumber:
     get:
       description: tracking by bill number, if eta not found will be 0
@@ -634,8 +740,6 @@ paths:
           description: ""
         "400":
           description: ""
-      security:
-      - ApiKeyAuth: []
       summary: Track by bill number
       tags:
       - Tracking
@@ -679,8 +783,6 @@ paths:
           description: ""
         "400":
           description: ""
-      security:
-      - ApiKeyAuth: []
       summary: Track by container number
       tags:
       - Tracking

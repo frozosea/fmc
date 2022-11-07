@@ -8,7 +8,7 @@ export const mscuResponseExample: MscuApiResponseSchema = {
         "TrackingTitle": "CONTAINER NUMBER:",
         "TrackingNumber": "MEDU3170580",
         "CurrentDate": "12/06/2022",
-        "PriceCalculationLabel": "* Price calculation date is indicative. Please contact your local MSC office to verify this information.",
+        "PriceCalculationLabel": "* Price calculation date is indicative. Please company your local MSC office to verify this information.",
         "TrackingResultsLabel": "Tracking results provided by MSC on 12.06.2022 at 10:00 Central Europe Standard Time",
         "BillOfLadings": [
             {

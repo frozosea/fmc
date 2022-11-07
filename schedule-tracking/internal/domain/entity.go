@@ -5,7 +5,7 @@ import (
 )
 
 type BaseTrackReq struct {
-	Number              string
+	Numbers             []string
 	UserId              int64
 	Country             string
 	Time                string
@@ -35,6 +35,7 @@ type GetInfoAboutTrackResponse struct {
 	number              string
 	emails              []interface{}
 	nextRunTime         time.Time
+	time                string
 	emailMessageSubject string
 }
 

@@ -81,7 +81,7 @@ func (c *userClient) DeleteBillNumbersFromAccount(ctx context.Context, in *Delet
 
 func (c *userClient) GetAll(ctx context.Context, in *GetAllContainersFromAccountRequest, opts ...grpc.CallOption) (*GetAllContainersResponse, error) {
 	out := new(GetAllContainersResponse)
-	err := c.cc.Invoke(ctx, "/user.User/GetAll", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.User/GetAllCities", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (UnimplementedUserServer) DeleteBillNumbersFromAccount(context.Context, *De
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteBillNumbersFromAccount not implemented")
 }
 func (UnimplementedUserServer) GetAll(context.Context, *GetAllContainersFromAccountRequest) (*GetAllContainersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllCities not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -219,7 +219,7 @@ func _User_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.User/GetAll",
+		FullMethod: "/user.User/GetAllCities",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).GetAll(ctx, req.(*GetAllContainersFromAccountRequest))
@@ -251,7 +251,7 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_DeleteBillNumbersFromAccount_Handler,
 		},
 		{
-			MethodName: "GetAll",
+			MethodName: "GetAllCities",
 			Handler:    _User_GetAll_Handler,
 		},
 	},
