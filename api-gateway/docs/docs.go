@@ -1283,7 +1283,7 @@ const docTemplate = `{
                 "location": {
                     "type": "string"
                 },
-                "operation_name": {
+                "operationName": {
                     "type": "string"
                 },
                 "time": {

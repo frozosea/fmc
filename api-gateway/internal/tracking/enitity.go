@@ -6,7 +6,7 @@ type Track struct {
 }
 type BaseInfoAboutMoving struct {
 	Time          int64  `protobuf:"varint,1,opt,name=time,proto3" json:"time,omitempty"`
-	OperationName string `protobuf:"bytes,2,opt,name=operation_name,json=operationName,proto3" json:"operation_name"`
+	OperationName string `protobuf:"bytes,2,opt,name=operation_name,json=operationName,proto3" json:"operationName"`
 	Location      string `protobuf:"bytes,3,opt,name=location,proto3" json:"location,omitempty"`
 	Vessel        string `protobuf:"bytes,4,opt,name=vessel,proto3" json:"vessel,omitempty"`
 }
