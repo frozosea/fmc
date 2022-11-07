@@ -52,17 +52,6 @@ type (
 	}
 )
 
-//func readIni[T comparable](section string, settingsModel *T) *T {
-//	cfg, err := ini.Load(`conf/config.ini`)
-//	sectionRead := cfg.Section(section)
-//	if err != nil {
-//		log.Fatalf(`read config from ini file err:%s`, err)
-//	}
-//	if err := sectionRead.MapTo(&settingsModel); err != nil {
-//		return settingsModel
-//	}
-//	return settingsModel
-//}
 func SetupDatabaseConfig() *DataBaseSettings {
 	DbSettings := new(DataBaseSettings)
 	DbSettings.DatabaseUser = os.Getenv(`POSTGRES_USER`)

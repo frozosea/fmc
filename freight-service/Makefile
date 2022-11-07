@@ -1,4 +1,3 @@
-include .env
 
 migrate-up:
 	migrate -path ./schema -database 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DATABASE}?sslmode=disable' up
@@ -10,3 +9,5 @@ proto:
 	protoc --proto_path=${PWD}/pkg/proto/  --go_out=${PWD}/pkg/proto/  --go-grpc_out=${PWD}/pkg/proto/   -I ${PWD}/pkg/proto/ freight.proto
 swag:
 	swag init -g cmd/main.go
+test-unit:
+	go test -v --short ./...
