@@ -236,6 +236,7 @@ func (h *HttpHandler) GetTimeZone(c *gin.Context) {
 
 //UpdateContainers
 // @Summary      update container tracking task
+// @Security ApiKeyAuth
 // @Tags         Schedule Tracking
 // @Description  update tracking tasks by input params
 // @accept json
@@ -279,6 +280,7 @@ func (h *HttpHandler) UpdateContainers(c *gin.Context) {
 
 //UpdateBills
 // @Summary      update container tracking task
+// @Security ApiKeyAuth
 // @Tags         Schedule Tracking
 // @Description  update tracking tasks by input params
 // @accept json

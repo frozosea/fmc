@@ -354,6 +354,11 @@ const docTemplate = `{
         },
         "/schedule/bills": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update tracking tasks by input params",
                 "consumes": [
                     "application/json"
@@ -442,6 +447,11 @@ const docTemplate = `{
         },
         "/schedule/containers": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update tracking tasks by input params",
                 "consumes": [
                     "application/json"

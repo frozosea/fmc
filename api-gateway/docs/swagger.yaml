@@ -551,6 +551,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
       summary: update container tracking task
       tags:
       - Schedule Tracking
@@ -638,6 +640,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
       summary: update container tracking task
       tags:
       - Schedule Tracking

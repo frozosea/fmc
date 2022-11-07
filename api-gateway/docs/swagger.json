@@ -346,6 +346,11 @@
         },
         "/schedule/bills": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update tracking tasks by input params",
                 "consumes": [
                     "application/json"
@@ -434,6 +439,11 @@
         },
         "/schedule/containers": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "update tracking tasks by input params",
                 "consumes": [
                     "application/json"
