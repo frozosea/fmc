@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"user-api/internal/cache"
-	"user-api/internal/logging"
 	"user-api/pkg/domain"
+	"user-api/pkg/logging"
 )
 
 type Provider struct {

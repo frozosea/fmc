@@ -22,31 +22,31 @@ func NewHttpHandler(client IClient, utils *utils.HttpUtils) *HttpHandler {
 // @Description  add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
-// @Param input body []AddOnTrackRequest true "info"
+// @Param input body AddOnTrackRequest true "info"
 // @Tags         Schedule Tracking
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
 // @Router       /schedule/container [post]
 func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
-	var s []*AddOnTrackRequest
+	var s *AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	for _, t := range s {
-		if err := h.validator.ValidateContainer(t.Number); err != nil {
+	for _, b := range s.Numbers {
+		if err := h.validator.ValidateContainer(b); err != nil {
 			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 			return
 		}
-		if err := h.validator.ValidateEmails(t.Emails); err != nil {
-			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-			return
-		}
-		if err := h.validator.ValidateTime(t.Time); err != nil {
-			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-			return
-		}
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateTime(s.Time); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
 	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
@@ -68,31 +68,31 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // @Description  add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.
 // @accept json
 // @Produce      json
-// @Param input body []AddOnTrackRequest true "info"
+// @Param input body AddOnTrackRequest true "info"
 // @Tags         Schedule Tracking
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
 // @Router       /schedule/billNo [post]
 func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
-	var s []*AddOnTrackRequest
+	var s *AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	for _, t := range s {
-		if err := h.validator.ValidateBill(t.Number); err != nil {
+	for _, b := range s.Numbers {
+		if err := h.validator.ValidateBill(b); err != nil {
 			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 			return
 		}
-		if err := h.validator.ValidateEmails(t.Emails); err != nil {
-			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-			return
-		}
-		if err := h.validator.ValidateTime(t.Time); err != nil {
-			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-			return
-		}
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateTime(s.Time); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
 	}
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
@@ -105,115 +105,6 @@ func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 		return
 	}
 	c.JSON(200, resp)
-	return
-}
-
-// UpdateTrackingTime
-// @Summary      update time of tracking
-// @Security ApiKeyAuth
-// @Description  update time of tracking, bill or container doesn't matter
-// @accept json
-// @Produce      json
-// @Param input body UpdateTrackingTimeRequest true "info"
-// @Tags         Schedule Tracking
-// @Success      200  {object}  []BaseAddOnTrackResponse
-// @Failure      400
-// @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/time [put]
-func (h *HttpHandler) UpdateTrackingTime(c *gin.Context) {
-	var s UpdateTrackingTimeRequest
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.AbortWithStatus(401)
-		return
-	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.validator.ValidateTime(s.NewTime); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	res, err := h.client.UpdateTrackingTime(c.Request.Context(), s)
-	if err != nil {
-		c.JSON(500, gin.H{"success": false, "error": err.Error()})
-		return
-	}
-	c.JSON(200, res)
-	return
-}
-
-// AddEmailsOnTracking
-// @Summary      add new email to tracking
-// @Security ApiKeyAuth
-// @Description  add new email to tracking, bill or container doesn't matter
-// @accept json
-// @Produce      json
-// @Param input body AddEmailRequest true "info"
-// @Tags         Schedule Tracking
-// @Success      200 {object} BaseResponse
-// @Failure      400
-// @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/addEmail [put]
-func (h *HttpHandler) AddEmailsOnTracking(c *gin.Context) {
-	var s AddEmailRequest
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.AbortWithStatus(401)
-		return
-	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.validator.ValidateEmails(s.Emails); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.client.AddEmailsOnTracking(c.Request.Context(), s); err != nil {
-		c.JSON(500, gin.H{"success": false, "error": err.Error()})
-		return
-	}
-	c.JSON(200, gin.H{"success": true, "error": nil})
-	return
-}
-
-// DeleteEmailFromTrack
-// @Summary      delete email from tracking
-// @Security ApiKeyAuth
-// @Description  delete email from tracking, bill or container doesn't matter
-// @accept json
-// @Produce      json
-// @Param input body DeleteEmailFromTrackRequest true "info"
-// @Tags         Schedule Tracking
-// @Success      200 {object} BaseResponse
-// @Failure      400
-// @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/email [delete]
-func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
-	var s DeleteEmailFromTrackRequest
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.AbortWithStatus(401)
-		return
-	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.validator.ValidateEmails([]string{s.Email}); err != nil {
-		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
-		return
-	}
-	if err := h.client.DeleteEmailFromTrack(c.Request.Context(), s); err != nil {
-		c.JSON(500, gin.H{"success": false, "error": err.Error()})
-		return
-	}
-	c.JSON(200, gin.H{"success": true, "error": nil})
 	return
 }
 
@@ -230,7 +121,7 @@ func (h *HttpHandler) DeleteEmailFromTrack(c *gin.Context) {
 // @Failure 	 500  {object} BaseResponse
 // @Router       /schedule/containers [delete]
 func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
-	var s DeleteFromTrackRequest
+	var s *DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.AbortWithStatus(401)
@@ -266,7 +157,7 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 // @Failure 	 500  {object} BaseResponse
 // @Router       /schedule/billNumbers [delete]
 func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
-	var s DeleteFromTrackRequest
+	var s *DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
 	if err != nil {
 		c.AbortWithStatus(401)
@@ -343,32 +234,85 @@ func (h *HttpHandler) GetTimeZone(c *gin.Context) {
 	return
 }
 
-//ChangeEmailMessageSubject
-// @Summary change email message subject
-// @Security ApiKeyAuth
-// @Tags Schedule Tracking
-// @Description change email message subject
-// @Param input body ChangeEmailMessageSubjectRequest true "info"
-// @Success 	200 	{object} 	BaseResponse
-// @Failure 	500  	{object} 	BaseResponse
-// @Router       /schedule/emailSubject [put]
-func (h *HttpHandler) ChangeEmailMessageSubject(c *gin.Context) {
-	var s ChangeEmailMessageSubjectRequest
-	userId, err := h.utils.DecodeToken(c)
-	if err != nil {
-		c.AbortWithStatus(401)
-		return
-	}
+//UpdateContainers
+// @Summary      update container tracking task
+// @Tags         Schedule Tracking
+// @Description  update tracking tasks by input params
+// @accept json
+// @Produce      json
+// @Param input body AddOnTrackRequest true "info"
+// @Success      200 {object} BaseResponse
+// @Failure 	 500  {object} BaseResponse
+// @Router       /schedule/containers [put]
+func (h *HttpHandler) UpdateContainers(c *gin.Context) {
+	var s *AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	s.userId = int64(userId)
-	if err := h.validator.ValidateBill(s.Number); err != nil {
+	for _, b := range s.Numbers {
+		if err := h.validator.ValidateBill(b); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
-	if err := h.client.ChangeEmailMessageSubject(c.Request.Context(), s); err != nil {
+	if err := h.validator.ValidateTime(s.Time); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "cannot decode token"})
+		return
+	}
+	if err := h.client.Update(c.Request.Context(), int(userId), true, s); err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "error": nil})
+	return
+}
+
+//UpdateBills
+// @Summary      update container tracking task
+// @Tags         Schedule Tracking
+// @Description  update tracking tasks by input params
+// @accept json
+// @Produce      json
+// @Param input body AddOnTrackRequest true "info"
+// @Success      200 {object} BaseResponse
+// @Failure 	 500  {object} BaseResponse
+// @Router       /schedule/bills [put]
+func (h *HttpHandler) UpdateBills(c *gin.Context) {
+	var s *AddOnTrackRequest
+	if err := c.ShouldBindJSON(&s); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	for _, b := range s.Numbers {
+		if err := h.validator.ValidateBill(b); err != nil {
+			h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+			return
+		}
+	}
+	if err := h.validator.ValidateEmails(s.Emails); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	if err := h.validator.ValidateTime(s.Time); err != nil {
+		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
+		return
+	}
+	userId, err := h.utils.DecodeToken(c)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "cannot decode token"})
+		return
+	}
+	if err := h.client.Update(c.Request.Context(), int(userId), false, s); err != nil {
 		c.JSON(500, gin.H{"success": false, "error": err.Error()})
 		return
 	}

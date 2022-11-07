@@ -5,7 +5,7 @@ import (
 )
 
 type BaseTrackReq struct {
-	Number              string
+	Numbers             []string
 	UserId              int64
 	Country             string
 	Time                string

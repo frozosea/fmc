@@ -143,14 +143,12 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.POST(`/container`, handler.AddContainersOnTrack)
-		group.POST(`/billNo`, handler.AddBillNumbersOnTrack)
-		group.PUT(`/time`, handler.UpdateTrackingTime)
-		group.PUT(`/addEmail`, handler.AddEmailsOnTracking)
-		group.DELETE(`/email`, handler.DeleteEmailFromTrack)
+		group.POST(`/bill`, handler.AddBillNumbersOnTrack)
+		group.PUT(`/bills`, handler.UpdateBills)
+		group.PUT(`/containers`, handler.UpdateContainers)
 		group.DELETE(`/containers`, handler.DeleteContainersFromTrack)
-		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromTrack)
+		group.DELETE(`/bills`, handler.DeleteBillNumbersFromTrack)
 		group.GET(`/info`, handler.GetInfoAboutTracking)
-		group.PUT(`/emailSubject`, handler.ChangeEmailMessageSubject)
 	}
 	router.GET(`/schedule/timezone`, handler.GetTimeZone)
 

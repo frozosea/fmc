@@ -27,22 +27,11 @@ type ScheduleTrackingClient interface {
 	AddContainersOnTrack(ctx context.Context, in *AddOnTrackRequest, opts ...grpc.CallOption) (*AddOnTrackResponse, error)
 	//yes
 	AddBillNosOnTrack(ctx context.Context, in *AddOnTrackRequest, opts ...grpc.CallOption) (*AddOnTrackResponse, error)
-	//yes
-	UpdateTrackingTime(ctx context.Context, in *UpdateTrackingTimeRequest, opts ...grpc.CallOption) (*RepeatedBaseAddOnTrackResponse, error)
-	//yes
-	AddEmailsOnTracking(ctx context.Context, in *AddEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//yes
-	DeleteEmailFromTrack(ctx context.Context, in *DeleteEmailFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//yes
-	DeleteContainersFromTrack(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//yes
-	DeleteBillNosFromTrack(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//yes
+	Update(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteFromTracking(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetInfoAboutTrack(ctx context.Context, in *GetInfoAboutTrackRequest, opts ...grpc.CallOption) (*GetInfoAboutTrackResponse, error)
 	//yes
 	GetTimeZone(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTimeZoneResponse, error)
-	//yes
-	ChangeEmailMessageSubject(ctx context.Context, in *ChangeEmailMessageSubjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type scheduleTrackingClient struct {
@@ -71,45 +60,18 @@ func (c *scheduleTrackingClient) AddBillNosOnTrack(ctx context.Context, in *AddO
 	return out, nil
 }
 
-func (c *scheduleTrackingClient) UpdateTrackingTime(ctx context.Context, in *UpdateTrackingTimeRequest, opts ...grpc.CallOption) (*RepeatedBaseAddOnTrackResponse, error) {
-	out := new(RepeatedBaseAddOnTrackResponse)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/UpdateTrackingTime", in, out, opts...)
+func (c *scheduleTrackingClient) Update(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *scheduleTrackingClient) AddEmailsOnTracking(ctx context.Context, in *AddEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *scheduleTrackingClient) DeleteFromTracking(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/AddEmailsOnTracking", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *scheduleTrackingClient) DeleteEmailFromTrack(ctx context.Context, in *DeleteEmailFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/DeleteEmailFromTrack", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *scheduleTrackingClient) DeleteContainersFromTrack(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/DeleteContainersFromTrack", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *scheduleTrackingClient) DeleteBillNosFromTrack(ctx context.Context, in *DeleteFromTrackRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/DeleteBillNosFromTrack", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/DeleteFromTracking", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,15 +96,6 @@ func (c *scheduleTrackingClient) GetTimeZone(ctx context.Context, in *emptypb.Em
 	return out, nil
 }
 
-func (c *scheduleTrackingClient) ChangeEmailMessageSubject(ctx context.Context, in *ChangeEmailMessageSubjectRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/schedule_tacking.ScheduleTracking/ChangeEmailMessageSubject", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ScheduleTrackingServer is the server API for ScheduleTracking service.
 // All implementations must embed UnimplementedScheduleTrackingServer
 // for forward compatibility
@@ -151,22 +104,11 @@ type ScheduleTrackingServer interface {
 	AddContainersOnTrack(context.Context, *AddOnTrackRequest) (*AddOnTrackResponse, error)
 	//yes
 	AddBillNosOnTrack(context.Context, *AddOnTrackRequest) (*AddOnTrackResponse, error)
-	//yes
-	UpdateTrackingTime(context.Context, *UpdateTrackingTimeRequest) (*RepeatedBaseAddOnTrackResponse, error)
-	//yes
-	AddEmailsOnTracking(context.Context, *AddEmailRequest) (*emptypb.Empty, error)
-	//yes
-	DeleteEmailFromTrack(context.Context, *DeleteEmailFromTrackRequest) (*emptypb.Empty, error)
-	//yes
-	DeleteContainersFromTrack(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error)
-	//yes
-	DeleteBillNosFromTrack(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error)
-	//yes
+	Update(context.Context, *UpdateTaskRequest) (*emptypb.Empty, error)
+	DeleteFromTracking(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error)
 	GetInfoAboutTrack(context.Context, *GetInfoAboutTrackRequest) (*GetInfoAboutTrackResponse, error)
 	//yes
 	GetTimeZone(context.Context, *emptypb.Empty) (*GetTimeZoneResponse, error)
-	//yes
-	ChangeEmailMessageSubject(context.Context, *ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedScheduleTrackingServer()
 }
 
@@ -180,29 +122,17 @@ func (UnimplementedScheduleTrackingServer) AddContainersOnTrack(context.Context,
 func (UnimplementedScheduleTrackingServer) AddBillNosOnTrack(context.Context, *AddOnTrackRequest) (*AddOnTrackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddBillNosOnTrack not implemented")
 }
-func (UnimplementedScheduleTrackingServer) UpdateTrackingTime(context.Context, *UpdateTrackingTimeRequest) (*RepeatedBaseAddOnTrackResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTrackingTime not implemented")
+func (UnimplementedScheduleTrackingServer) Update(context.Context, *UpdateTaskRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedScheduleTrackingServer) AddEmailsOnTracking(context.Context, *AddEmailRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddEmailsOnTracking not implemented")
-}
-func (UnimplementedScheduleTrackingServer) DeleteEmailFromTrack(context.Context, *DeleteEmailFromTrackRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteEmailFromTrack not implemented")
-}
-func (UnimplementedScheduleTrackingServer) DeleteContainersFromTrack(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteContainersFromTrack not implemented")
-}
-func (UnimplementedScheduleTrackingServer) DeleteBillNosFromTrack(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteBillNosFromTrack not implemented")
+func (UnimplementedScheduleTrackingServer) DeleteFromTracking(context.Context, *DeleteFromTrackRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFromTracking not implemented")
 }
 func (UnimplementedScheduleTrackingServer) GetInfoAboutTrack(context.Context, *GetInfoAboutTrackRequest) (*GetInfoAboutTrackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInfoAboutTrack not implemented")
 }
 func (UnimplementedScheduleTrackingServer) GetTimeZone(context.Context, *emptypb.Empty) (*GetTimeZoneResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTimeZone not implemented")
-}
-func (UnimplementedScheduleTrackingServer) ChangeEmailMessageSubject(context.Context, *ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ChangeEmailMessageSubject not implemented")
 }
 func (UnimplementedScheduleTrackingServer) mustEmbedUnimplementedScheduleTrackingServer() {}
 
@@ -253,92 +183,38 @@ func _ScheduleTracking_AddBillNosOnTrack_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ScheduleTracking_UpdateTrackingTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTrackingTimeRequest)
+func _ScheduleTracking_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTaskRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).UpdateTrackingTime(ctx, in)
+		return srv.(ScheduleTrackingServer).Update(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/UpdateTrackingTime",
+		FullMethod: "/schedule_tacking.ScheduleTracking/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).UpdateTrackingTime(ctx, req.(*UpdateTrackingTimeRequest))
+		return srv.(ScheduleTrackingServer).Update(ctx, req.(*UpdateTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ScheduleTracking_AddEmailsOnTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddEmailRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).AddEmailsOnTracking(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/AddEmailsOnTracking",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).AddEmailsOnTracking(ctx, req.(*AddEmailRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ScheduleTracking_DeleteEmailFromTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteEmailFromTrackRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).DeleteEmailFromTrack(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/DeleteEmailFromTrack",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).DeleteEmailFromTrack(ctx, req.(*DeleteEmailFromTrackRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ScheduleTracking_DeleteContainersFromTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ScheduleTracking_DeleteFromTracking_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteFromTrackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).DeleteContainersFromTrack(ctx, in)
+		return srv.(ScheduleTrackingServer).DeleteFromTracking(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/DeleteContainersFromTrack",
+		FullMethod: "/schedule_tacking.ScheduleTracking/DeleteFromTracking",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).DeleteContainersFromTrack(ctx, req.(*DeleteFromTrackRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ScheduleTracking_DeleteBillNosFromTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteFromTrackRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).DeleteBillNosFromTrack(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/DeleteBillNosFromTrack",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).DeleteBillNosFromTrack(ctx, req.(*DeleteFromTrackRequest))
+		return srv.(ScheduleTrackingServer).DeleteFromTracking(ctx, req.(*DeleteFromTrackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -379,24 +255,6 @@ func _ScheduleTracking_GetTimeZone_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ScheduleTracking_ChangeEmailMessageSubject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeEmailMessageSubjectRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ScheduleTrackingServer).ChangeEmailMessageSubject(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/schedule_tacking.ScheduleTracking/ChangeEmailMessageSubject",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScheduleTrackingServer).ChangeEmailMessageSubject(ctx, req.(*ChangeEmailMessageSubjectRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ScheduleTracking_ServiceDesc is the grpc.ServiceDesc for ScheduleTracking service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -413,24 +271,12 @@ var ScheduleTracking_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ScheduleTracking_AddBillNosOnTrack_Handler,
 		},
 		{
-			MethodName: "UpdateTrackingTime",
-			Handler:    _ScheduleTracking_UpdateTrackingTime_Handler,
+			MethodName: "Update",
+			Handler:    _ScheduleTracking_Update_Handler,
 		},
 		{
-			MethodName: "AddEmailsOnTracking",
-			Handler:    _ScheduleTracking_AddEmailsOnTracking_Handler,
-		},
-		{
-			MethodName: "DeleteEmailFromTrack",
-			Handler:    _ScheduleTracking_DeleteEmailFromTrack_Handler,
-		},
-		{
-			MethodName: "DeleteContainersFromTrack",
-			Handler:    _ScheduleTracking_DeleteContainersFromTrack_Handler,
-		},
-		{
-			MethodName: "DeleteBillNosFromTrack",
-			Handler:    _ScheduleTracking_DeleteBillNosFromTrack_Handler,
+			MethodName: "DeleteFromTracking",
+			Handler:    _ScheduleTracking_DeleteFromTracking_Handler,
 		},
 		{
 			MethodName: "GetInfoAboutTrack",
@@ -439,10 +285,6 @@ var ScheduleTracking_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTimeZone",
 			Handler:    _ScheduleTracking_GetTimeZone_Handler,
-		},
-		{
-			MethodName: "ChangeEmailMessageSubject",
-			Handler:    _ScheduleTracking_ChangeEmailMessageSubject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

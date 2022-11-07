@@ -10,11 +10,11 @@ import (
 	"os"
 	"strings"
 	"time"
+	auth2 "user-api/internal/auth"
 	"user-api/internal/cache"
-	"user-api/internal/logging"
-	"user-api/pkg/auth"
-	schedule_tracking "user-api/pkg/schedule-tracking"
-	"user-api/pkg/user"
+	schedule_tracking2 "user-api/internal/schedule-tracking"
+	user2 "user-api/internal/user"
+	"user-api/pkg/logging"
 )
 
 type (
@@ -106,14 +106,14 @@ func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error)
 	config := new(ScheduleTrackingLoggerSettings)
 	return readIni("SCHEDULE_LOGS", config)
 }
-func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
+func GetScheduleTrackingService(db *sql.DB) *schedule_tracking2.Service {
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
 		return nil
 	}
-	repository := schedule_tracking.NewRepository(db)
-	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
+	repository := schedule_tracking2.NewRepository(db)
+	return schedule_tracking2.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
 }
 func parseTime(timeStr string, sep string) int64 {
 	splitInfo := strings.Split(timeStr, sep)
@@ -138,7 +138,7 @@ func getAuthLoggerConfig() (*AuthLoggerSettings, error) {
 	return readIni("AUTH_LOGS", config)
 }
 
-func GetAuthService(db *sql.DB) *auth.Service {
+func GetAuthService(db *sql.DB) *auth2.Service {
 	loggerConf, err := getAuthLoggerConfig()
 	if err != nil {
 		panic(err)
@@ -147,12 +147,12 @@ func GetAuthService(db *sql.DB) *auth.Service {
 	if getTokenSettingsErr != nil {
 		panic(getTokenSettingsErr)
 	}
-	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
-	hash := auth.NewHash()
-	repository := auth.NewRepository(db, hash)
+	tokenManager := auth2.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
+	hash := auth2.NewHash()
+	repository := auth2.NewRepository(db, hash)
 
-	controller := auth.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
-	return auth.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+	controller := auth2.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
+	return auth2.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {
 	config := new(UserLoggerSettings)
@@ -170,12 +170,12 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
 
-func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
+func GetUserService(db *sql.DB, redisConf *RedisSettings) *user2.Service {
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
-	repository := user.NewRepository(db)
-	controller := user.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
-	return user.NewService(controller)
+	repository := user2.NewRepository(db)
+	controller := user2.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	return user2.NewService(controller)
 }

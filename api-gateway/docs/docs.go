@@ -256,54 +256,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/addEmail": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "add new email to tracking, bill or container doesn't matter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "add new email to tracking",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddEmailRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/billNo": {
             "post": {
                 "security": [
@@ -329,10 +281,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                            }
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
                         }
                     }
                 ],
@@ -403,6 +352,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/schedule/bills": {
+            "put": {
+                "description": "update tracking tasks by input params",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "update container tracking task",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/container": {
             "post": {
                 "security": [
@@ -428,10 +417,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                            }
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
                         }
                     }
                 ],
@@ -455,6 +441,44 @@ const docTemplate = `{
             }
         },
         "/schedule/containers": {
+            "put": {
+                "description": "update tracking tasks by input params",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "update container tracking task",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -502,93 +526,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/email": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "delete email from tracking, bill or container doesn't matter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "delete email from tracking",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.DeleteEmailFromTrackRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/emailSubject": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "change email message subject",
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "change email message subject",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.ChangeEmailMessageSubjectRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/info": {
             "get": {
                 "security": [
@@ -620,57 +557,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/schedule_tracking.GetInfoAboutTrackResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/schedule/time": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "update time of tracking, bill or container doesn't matter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "update time of tracking",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.UpdateTrackingTimeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/schedule_tracking.BaseAddOnTrackResponse"
-                            }
                         }
                     },
                     "400": {
@@ -1278,23 +1164,6 @@ const docTemplate = `{
                 }
             }
         },
-        "schedule_tracking.AddEmailRequest": {
-            "type": "object",
-            "properties": {
-                "emails": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "numbers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "schedule_tracking.AddOnTrackRequest": {
             "type": "object",
             "required": [
@@ -1314,7 +1183,10 @@ const docTemplate = `{
                     }
                 },
                 "number": {
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "time": {
                     "type": "string"
@@ -1363,28 +1235,6 @@ const docTemplate = `{
                 }
             }
         },
-        "schedule_tracking.ChangeEmailMessageSubjectRequest": {
-            "type": "object",
-            "properties": {
-                "newSubject": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
-        "schedule_tracking.DeleteEmailFromTrackRequest": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "number": {
-                    "type": "string"
-                }
-            }
-        },
         "schedule_tracking.DeleteFromTrackRequest": {
             "type": "object",
             "properties": {
@@ -1424,20 +1274,6 @@ const docTemplate = `{
             "properties": {
                 "timeZone": {
                     "type": "string"
-                }
-            }
-        },
-        "schedule_tracking.UpdateTrackingTimeRequest": {
-            "type": "object",
-            "properties": {
-                "newTime": {
-                    "type": "string"
-                },
-                "numbers": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

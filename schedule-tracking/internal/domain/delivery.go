@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,19 +15,15 @@ import (
 type converter struct {
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) []*BaseTrackReq {
-	var outputArr []*BaseTrackReq
-	for _, track := range r.GetAddOnTrackRequest() {
-		outputArr = append(outputArr, &BaseTrackReq{
-			Number:              track.GetNumber(),
-			UserId:              track.GetUserId(),
-			Country:             country,
-			Time:                track.GetTime(),
-			Emails:              track.GetEmails(),
-			EmailMessageSubject: track.GetEmailMessageSubject(),
-		})
+func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) *BaseTrackReq {
+	return &BaseTrackReq{
+		Numbers:             r.GetNumbers(),
+		UserId:              r.GetUserId(),
+		Country:             country,
+		Time:                r.GetTime(),
+		Emails:              r.GetEmails(),
+		EmailMessageSubject: r.GetEmailMessageSubject(),
 	}
-	return outputArr
 }
 func (c *converter) convertBaseAddOnTrackResponse(r []*BaseAddOnTrackResponse) []*pb.BaseAddOnTrackResponse {
 	var res []*pb.BaseAddOnTrackResponse
@@ -47,26 +42,22 @@ func (c *converter) convertAddOnTrackResponse(r *AddOnTrackResponse) *pb.AddOnTr
 		AlreadyOnTrack: r.alreadyOnTrack,
 	}
 }
-func (c *converter) convertAddEmails(r *pb.AddEmailRequest) AddEmailRequest {
-	return AddEmailRequest{
-		numbers: r.GetNumbers(),
-		emails:  r.GetEmails(),
-		userId:  r.GetUserId(),
-	}
-}
-func (c *converter) convertDeleteEmails(r *pb.DeleteEmailFromTrackRequest) DeleteEmailFromTrack {
-	return DeleteEmailFromTrack{
-		number: r.GetNumber(),
-		email:  r.GetEmail(),
-		userId: r.GetUserId(),
-	}
-}
 func (c *converter) convertInterfaceArrayToStringArray(r []interface{}) []string {
 	var outputArr []string
 	for _, v := range r {
 		outputArr = append(outputArr, fmt.Sprintf(`%v`, v))
 	}
 	return outputArr
+}
+func (c *converter) convertUpdateTaskRequest(r *pb.UpdateTaskRequest, country string) *BaseTrackReq {
+	return &BaseTrackReq{
+		Numbers:             r.Req.GetNumbers(),
+		UserId:              r.Req.GetUserId(),
+		Country:             country,
+		Time:                r.Req.GetTime(),
+		Emails:              r.Req.GetEmails(),
+		EmailMessageSubject: r.Req.GetEmailMessageSubject(),
+	}
 }
 
 type Grpc struct {
@@ -91,15 +82,6 @@ func (s *Grpc) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
 		}
 	}
-	go func() {
-		jsonRepr, reprErr := json.Marshal(res)
-		if reprErr != nil {
-			return
-		}
-		for _, v := range r.GetAddOnTrackRequest() {
-			s.logger.InfoLog(fmt.Sprintf(`add container number on track request: %v to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
-		}
-	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
 
@@ -117,70 +99,7 @@ func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (
 			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}
 	}
-	go func() {
-		jsonRepr, reprErr := json.Marshal(res)
-		if reprErr != nil {
-			return
-		}
-		for _, v := range r.GetAddOnTrackRequest() {
-			s.logger.InfoLog(fmt.Sprintf(`add bill number on track request: %s to user with id: %d, with result: %v`, v.GetNumber(), v.GetUserId(), jsonRepr))
-		}
-	}()
 	return s.converter.convertAddOnTrackResponse(res), nil
-}
-func (s *Grpc) UpdateTrackingTime(ctx context.Context, r *pb.UpdateTrackingTimeRequest) (*pb.RepeatedBaseAddOnTrackResponse, error) {
-	resp, err := s.controller.UpdateTrackingTime(ctx, r.GetNumbers(), r.GetTime(), r.GetUserId())
-	if err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id ")
-		case *NumberDoesntBelongThisUserError:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			return &pb.RepeatedBaseAddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
-		}
-	}
-	go func() {
-		for _, v := range resp {
-			s.logger.InfoLog(fmt.Sprintf(`task with id: %s new Time: %s`, v.number, r.Time))
-		}
-	}()
-	return &pb.RepeatedBaseAddOnTrackResponse{Response: s.convertBaseAddOnTrackResponse(resp)}, nil
-
-}
-func (s *Grpc) AddEmailsOnTracking(ctx context.Context, r *pb.AddEmailRequest) (*emptypb.Empty, error) {
-	if err := s.controller.AddEmailToTracking(ctx, s.converter.convertAddEmails(r)); err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
-		case *NumberDoesntBelongThisUserError:
-			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go func() {
-				s.logger.ExceptionLog(fmt.Sprintf(`add Emails: %v for Numbers: %v err: %s`, r.GetEmails(), r.GetNumbers(), err.Error()))
-			}()
-			return &emptypb.Empty{}, err
-		}
-	}
-	return &emptypb.Empty{}, nil
-}
-func (s *Grpc) DeleteEmailFromTrack(ctx context.Context, r *pb.DeleteEmailFromTrackRequest) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteEmailFromTrack(ctx, s.converter.convertDeleteEmails(r)); err != nil {
-		switch err.(type) {
-		case *scheduler.LookupJobError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find job with this id")
-		case *CannotFindEmailError:
-			return &emptypb.Empty{}, status.Error(codes.NotFound, "cannot find email in job args")
-		case *NumberDoesntBelongThisUserError:
-			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
-		default:
-			go s.logger.ExceptionLog(fmt.Sprintf(`delete email: %s for Number: %s err: %s`, r.GetEmail(), r.GetNumber(), err.Error()))
-			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
-
-		}
-	}
-	return &emptypb.Empty{}, nil
-
 }
 func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackRequest, isContainer bool) (*emptypb.Empty, error) {
 	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumber()...); err != nil {
@@ -240,9 +159,9 @@ func (s *Grpc) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResp
 	zone, _ := t.Zone()
 	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
 }
-func (s *Grpc) ChangeEmailMessageSubject(ctx context.Context, r *pb.ChangeEmailMessageSubjectRequest) (*emptypb.Empty, error) {
-	if err := s.controller.ChangeEmailMessageSubject(ctx, r.GetUserId(), r.GetNumber(), r.GetNewSubject()); err != nil {
-		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+func (s *Grpc) Update(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
+	if err := s.controller.Update(ctx, s.converter.convertUpdateTaskRequest(r, "RU"), r.GetIsContainers()); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }

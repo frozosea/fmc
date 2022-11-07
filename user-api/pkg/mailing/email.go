@@ -8,11 +8,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"schedule-tracking/pkg/logging"
+	"user-api/pkg/logging"
 )
 
 type IMailing interface {
 	SendWithFile(toAddress, subject, filePath string) error
+	SendSimple(toAddress, subject, body string) error
 }
 type Response struct {
 	Result struct {
@@ -36,20 +37,23 @@ type Mailing struct {
 func NewMailing(logger logging.ILogger, senderName string, senderEmail string, unisenderApiKey string, signature string) *Mailing {
 	return &Mailing{reader: file_reader.New(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, signature: signature}
 }
-
-func (m *Mailing) getForm(toAddress, subject, fileName, body string, file string) url.Values {
-	query := url.Values{}
-	query.Set("format", "json")
-	query.Set("api_key", m.UnisenderApiKey)
-	query.Set("sender_name", m.senderName)
-	query.Set("email", toAddress)
-	query.Set("sender_email", m.senderEmail)
-	query.Set("subject", subject)
-	query.Set("body", body)
-	query.Set("wrap_type", "STRING")
-	query.Set("list_id", "1")
-	query.Set(fmt.Sprintf(`attachments[%s]`, fileName), file)
-	return query
+func (m *Mailing) getBaseUrlValues(toAddress, subject, body string) url.Values {
+	values := url.Values{}
+	values.Set("format", "json")
+	values.Set("api_key", m.UnisenderApiKey)
+	values.Set("sender_name", m.senderName)
+	values.Set("email", toAddress)
+	values.Set("sender_email", m.senderEmail)
+	values.Set("subject", subject)
+	values.Set("body", body)
+	values.Set("wrap_type", "STRING")
+	values.Set("list_id", "1")
+	return values
+}
+func (m *Mailing) getUrlValuesForFile(toAddress, subject, fileName, body string, file string) url.Values {
+	values := m.getBaseUrlValues(toAddress, subject, body)
+	values.Set(fmt.Sprintf(`attachments[%s]`, fileName), file)
+	return values
 }
 func (m *Mailing) checkStatusOfEmail(id string) error {
 	client := http.Client{}
@@ -100,10 +104,19 @@ func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {
 	if err != nil {
 		return err
 	}
-	form := m.getForm(toAddress, subject, fileName, m.signature, string(readFile))
+	form := m.getUrlValuesForFile(toAddress, subject, fileName, m.signature, string(readFile))
 	id, sendMailErr := m.sendEmail(form)
 	if sendMailErr != nil {
 		return sendMailErr
+	}
+	return m.checkStatusOfEmail(id)
+}
+
+func (m *Mailing) SendSimple(toAddress, subject, body string) error {
+	urlValues := m.getBaseUrlValues(toAddress, subject, body)
+	id, err := m.sendEmail(urlValues)
+	if err != nil {
+		return err
 	}
 	return m.checkStatusOfEmail(id)
 }

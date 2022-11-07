@@ -1,9 +1,6 @@
 package archive
 
 import (
-	"context"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	pb "schedule-tracking/pkg/proto"
 	"schedule-tracking/pkg/tracking"
 )
@@ -69,13 +66,13 @@ func NewGrpc(service *Service) *Grpc {
 	return &Grpc{service: service, UnimplementedArchiveServer: pb.UnimplementedArchiveServer{}, converter: newConverter()}
 }
 
-func (g *Grpc) GetAllBillsContainers(ctx context.Context, r *pb.GetAllBillsContainerRequest) (*pb.GetAllBillsContainerResponse, error) {
-	result, err := g.service.GetAll(ctx, int(r.GetUserId()))
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-	return &pb.GetAllBillsContainerResponse{
-		Bills:      g.converter.convertBillsResponse(result.bills),
-		Containers: g.converter.convertContainersResponse(result.containers),
-	}, nil
-}
+//func (g *Grpc) GetAllBillsContainers(ctx context.Context, r *pb.Get) (*pb.GetAllBillsContainerResponse, error) {
+//	result, err := g.service.GetAll(ctx, int(r.GetUserId()))
+//	if err != nil {
+//		return nil, status.Error(codes.Internal, err.Error())
+//	}
+//	return &pb.GetAllBillsContainerResponse{
+//		Bills:      g.converter.convertBillsResponse(result.bills),
+//		Containers: g.converter.convertContainersResponse(result.containers),
+//	}, nil
+//}
