@@ -1167,13 +1167,13 @@ const docTemplate = `{
         "schedule_tracking.AddOnTrackRequest": {
             "type": "object",
             "required": [
-                "email_subject",
+                "emailSubject",
                 "emails",
-                "number",
+                "numbers",
                 "time"
             ],
             "properties": {
-                "email_subject": {
+                "emailSubject": {
                     "type": "string"
                 },
                 "emails": {
@@ -1182,7 +1182,7 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "number": {
+                "numbers": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1297,17 +1297,17 @@ const docTemplate = `{
         "tracking.BillNumberResponse": {
             "type": "object",
             "properties": {
-                "billNo": {
-                    "type": "string"
-                },
-                "eta_final_delivery": {
+                "etaFinalDelivery": {
                     "type": "integer"
                 },
-                "info_about_moving": {
+                "infoAboutMoving": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "number": {
+                    "type": "string"
                 },
                 "scac": {
                     "type": "string"
@@ -1317,17 +1317,17 @@ const docTemplate = `{
         "tracking.ContainerNumberResponse": {
             "type": "object",
             "properties": {
-                "container": {
+                "containerSize": {
                     "type": "string"
                 },
-                "container_size": {
-                    "type": "string"
-                },
-                "info_about_moving": {
+                "infoAboutMoving": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/tracking.BaseInfoAboutMoving"
                     }
+                },
+                "number": {
+                    "type": "string"
                 },
                 "scac": {
                     "type": "string"
@@ -1348,7 +1348,7 @@ const docTemplate = `{
         "user.AllContainersAndBillNumbers": {
             "type": "object",
             "properties": {
-                "bill_numbers": {
+                "billNumbers": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/user.Container"
@@ -1376,16 +1376,16 @@ const docTemplate = `{
         "user.Container": {
             "type": "object",
             "required": [
+                "IsOnTrack",
                 "id",
-                "is_on_track",
                 "number"
             ],
             "properties": {
+                "IsOnTrack": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "integer"
-                },
-                "is_on_track": {
-                    "type": "boolean"
                 },
                 "number": {
                     "type": "string"

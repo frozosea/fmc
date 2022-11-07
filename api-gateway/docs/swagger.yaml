@@ -152,22 +152,22 @@ definitions:
     type: object
   schedule_tracking.AddOnTrackRequest:
     properties:
-      email_subject:
+      emailSubject:
         type: string
       emails:
         items:
           type: string
         type: array
-      number:
+      numbers:
         items:
           type: string
         type: array
       time:
         type: string
     required:
-    - email_subject
+    - emailSubject
     - emails
-    - number
+    - numbers
     - time
     type: object
   schedule_tracking.AddOnTrackResponse:
@@ -237,27 +237,27 @@ definitions:
     type: object
   tracking.BillNumberResponse:
     properties:
-      billNo:
-        type: string
-      eta_final_delivery:
+      etaFinalDelivery:
         type: integer
-      info_about_moving:
+      infoAboutMoving:
         items:
           $ref: '#/definitions/tracking.BaseInfoAboutMoving'
         type: array
+      number:
+        type: string
       scac:
         type: string
     type: object
   tracking.ContainerNumberResponse:
     properties:
-      container:
+      containerSize:
         type: string
-      container_size:
-        type: string
-      info_about_moving:
+      infoAboutMoving:
         items:
           $ref: '#/definitions/tracking.BaseInfoAboutMoving'
         type: array
+      number:
+        type: string
       scac:
         type: string
     type: object
@@ -270,7 +270,7 @@ definitions:
     type: object
   user.AllContainersAndBillNumbers:
     properties:
-      bill_numbers:
+      billNumbers:
         items:
           $ref: '#/definitions/user.Container'
         type: array
@@ -288,15 +288,15 @@ definitions:
     type: object
   user.Container:
     properties:
+      IsOnTrack:
+        type: boolean
       id:
         type: integer
-      is_on_track:
-        type: boolean
       number:
         type: string
     required:
+    - IsOnTrack
     - id
-    - is_on_track
     - number
     type: object
   user.DeleteNumbers:
