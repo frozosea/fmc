@@ -20,7 +20,7 @@ import {RequestSender} from "./trackTrace/helpers/requestSender";
 import {Datetime} from "./trackTrace/helpers/datetime";
 import {TrackingByContainerNumberService} from "./server/services/trackingByContainerNumberService";
 import {HaluContainer} from "./trackTrace/TrackingByContainerNumber/halu/halu";
-import {TrackingBybillNumberService} from "./server/services/trackingByBillNumberService";
+import {TrackingByBillNumberService} from "./server/services/trackingByBillNumberService";
 import BillNumberTrackingController from "./trackingByBillNumberController";
 import {FesoBillNumber} from "./trackTrace/trackingBybillNumber/feso/feso";
 import {SkluBillNumber} from "./trackTrace/trackingBybillNumber/sklu/sklu";
@@ -35,7 +35,7 @@ import {
 } from "./trackTrace/trackingBybillNumber/sitc/captchaResolver";
 import {SitcBillNumber, SitcBillNumberRequest} from "./trackTrace/trackingBybillNumber/sitc/sitc";
 import {ZhguBillNumber} from "./trackTrace/trackingBybillNumber/zhgu/zhgu";
-import {AppDataSource} from "./db/data-source";
+import {ScacForTrackingRepository, ScacGrpcService, ScacService} from "./server/services/scacService";
 
 // container.register<>("",{})
 const baseArgs = {
@@ -95,5 +95,8 @@ export const baseLogger = new Logger()
 export const trackingByContainerNumberGrpcService = new ContainerTrackingController(trackingByContainerNumberForRussia, trackingByContainerNumberForOtherWorld, scacRepo, cache, serviceLogger)
 export const trackingByContainerNumberService = new TrackingByContainerNumberService(trackingByContainerNumberGrpcService, baseLogger);
 export const billNumberTrackingController = new BillNumberTrackingController(mainTrackingByBillNumberForRussia, scacRepo, cache, serviceLogger)
-export const trackingByBillNumberService = new TrackingBybillNumberService(billNumberTrackingController, baseLogger)
+export const trackingByBillNumberService = new TrackingByBillNumberService(billNumberTrackingController, baseLogger)
 
+export const scacRepository = new ScacForTrackingRepository();
+export const scacService = new ScacService(scacRepository, baseLogger)
+export const scacGrpcService = new ScacGrpcService(scacService);

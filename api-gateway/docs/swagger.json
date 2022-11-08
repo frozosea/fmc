@@ -629,6 +629,32 @@
                 }
             }
         },
+        "/tracking/allScac": {
+            "get": {
+                "description": "get all scac codes for frontend",
+                "tags": [
+                    "Tracking"
+                ],
+                "summary": "get all scac codes for frontend",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/tracking.Scac"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/tracking/bill": {
             "get": {
                 "description": "tracking by bill number, if eta not found will be 0",
@@ -1292,6 +1318,17 @@
                 }
             }
         },
+        "tracking.BaseResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "tracking.BillNumberResponse": {
             "type": "object",
             "properties": {
@@ -1328,6 +1365,17 @@
                     "type": "string"
                 },
                 "scac": {
+                    "type": "string"
+                }
+            }
+        },
+        "tracking.Scac": {
+            "type": "object",
+            "properties": {
+                "fullName": {
+                    "type": "string"
+                },
+                "scacCode": {
                     "type": "string"
                 }
             }

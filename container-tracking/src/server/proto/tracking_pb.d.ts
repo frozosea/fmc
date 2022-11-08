@@ -5,6 +5,7 @@
 /* eslint-disable */
 
 import * as jspb from "google-protobuf";
+import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 
 export class Request extends jspb.Message { 
     getNumber(): string;
@@ -120,6 +121,51 @@ export namespace TrackingByBillNumberResponse {
         scac: string,
         infoAboutMovingList: Array<InfoAboutMoving.AsObject>,
         etaFinalDelivery: number,
+    }
+}
+
+export class Scac extends jspb.Message { 
+    getScac(): string;
+    setScac(value: string): Scac;
+    getFullname(): string;
+    setFullname(value: string): Scac;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Scac.AsObject;
+    static toObject(includeInstance: boolean, msg: Scac): Scac.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: Scac, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Scac;
+    static deserializeBinaryFromReader(message: Scac, reader: jspb.BinaryReader): Scac;
+}
+
+export namespace Scac {
+    export type AsObject = {
+        scac: string,
+        fullname: string,
+    }
+}
+
+export class GetAllScacResponse extends jspb.Message { 
+    clearAllScacList(): void;
+    getAllScacList(): Array<Scac>;
+    setAllScacList(value: Array<Scac>): GetAllScacResponse;
+    addAllScac(value?: Scac, index?: number): Scac;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): GetAllScacResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: GetAllScacResponse): GetAllScacResponse.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: GetAllScacResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): GetAllScacResponse;
+    static deserializeBinaryFromReader(message: GetAllScacResponse, reader: jspb.BinaryReader): GetAllScacResponse;
+}
+
+export namespace GetAllScacResponse {
+    export type AsObject = {
+        allScacList: Array<Scac.AsObject>,
     }
 }
 

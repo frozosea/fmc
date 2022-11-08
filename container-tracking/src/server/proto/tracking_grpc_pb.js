@@ -3,6 +3,29 @@
 'use strict';
 var grpc = require('grpc');
 var tracking_pb = require('./tracking_pb.js');
+var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
+
+function serialize_google_protobuf_Empty(arg) {
+  if (!(arg instanceof google_protobuf_empty_pb.Empty)) {
+    throw new Error('Expected argument of type google.protobuf.Empty');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_google_protobuf_Empty(buffer_arg) {
+  return google_protobuf_empty_pb.Empty.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_tracking_GetAllScacResponse(arg) {
+  if (!(arg instanceof tracking_pb.GetAllScacResponse)) {
+    throw new Error('Expected argument of type tracking.GetAllScacResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_tracking_GetAllScacResponse(buffer_arg) {
+  return tracking_pb.GetAllScacResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
 
 function serialize_tracking_Request(arg) {
   if (!(arg instanceof tracking_pb.Request)) {
@@ -68,3 +91,18 @@ var TrackingByBillNumberService = exports.TrackingByBillNumberService = {
 };
 
 exports.TrackingByBillNumberClient = grpc.makeGenericClientConstructor(TrackingByBillNumberService);
+var ScacServiceService = exports.ScacServiceService = {
+  getAll: {
+    path: '/tracking.ScacService/GetAll',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: tracking_pb.GetAllScacResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_tracking_GetAllScacResponse,
+    responseDeserialize: deserialize_tracking_GetAllScacResponse,
+  },
+};
+
+exports.ScacServiceClient = grpc.makeGenericClientConstructor(ScacServiceService);

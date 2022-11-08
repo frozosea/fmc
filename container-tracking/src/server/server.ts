@@ -1,8 +1,11 @@
 import {Server, ServerCredentials} from "@grpc/grpc-js";
-import {TrackingByBillNumberService, TrackingByContainerNumberService} from "./proto/tracking_grpc_pb";
-import {trackingByBillNumberService, trackingByContainerNumberService} from "../containers";
+import {
+    ScacServiceService,
+    TrackingByBillNumberService,
+    TrackingByContainerNumberService
+} from "./proto/tracking_grpc_pb";
+import {scacGrpcService, trackingByBillNumberService, trackingByContainerNumberService} from "../init";
 import {config} from "dotenv";
-import {trackBillNoByServer} from "./clients";
 import {AppDataSource} from "../db/data-source";
 
 export const server = new Server();
@@ -10,6 +13,9 @@ export const server = new Server();
 server.addService(TrackingByContainerNumberService, trackingByContainerNumberService)
 // @ts-ignore
 server.addService(TrackingByBillNumberService, trackingByBillNumberService)
+// @ts-ignore
+server.addService(ScacServiceService,scacGrpcService);
+
 export default function startServer() {
     config()
     AppDataSource.initialize()

@@ -22,3 +22,13 @@ type ContainerNumberResponse struct {
 	Scac            string                `protobuf:"varint,3,opt,name=Scac,proto3,enum=tracking.Scac" json:"scac"`
 	InfoAboutMoving []BaseInfoAboutMoving `protobuf:"bytes,4,rep,name=info_about_moving,json=infoAboutMoving,proto3" json:"infoAboutMoving"`
 }
+
+type Scac struct {
+	ScacCode string
+	FullName string
+}
+
+type BaseResponse struct {
+	Success bool
+	Error   string
+}

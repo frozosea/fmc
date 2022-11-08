@@ -1,7 +1,7 @@
 import startServer from "./server/server";
 import {config} from "dotenv"
 import {AppDataSource} from "./db/data-source";
-import {mainTrackingByBillNumberForRussia} from "./containers";
+import {mainTrackingByBillNumberForRussia} from "./init";
 
 function main() {
     config();

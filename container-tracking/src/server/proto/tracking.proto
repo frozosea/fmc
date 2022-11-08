@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package tracking;
-
+import "google/protobuf/empty.proto";
 option go_package = "../../../api-gateway/pkg/tracking";
 
 service TrackingByContainerNumber{
@@ -9,8 +9,13 @@ service TrackingByContainerNumber{
 }
 service TrackingByBillNumber{
   rpc TrackByBillNumber(Request) returns (TrackingByBillNumberResponse) {};
-
 }
+service ScacService{
+  rpc GetAll(google.protobuf.Empty) returns (GetAllScacResponse) {};
+}
+
+
+
 enum Country{
   RU = 0;
   OTHER = 1;
@@ -39,4 +44,13 @@ message TrackingByBillNumberResponse{
   string scac = 3;
   repeated InfoAboutMoving info_about_moving = 4;
   int64 eta_final_delivery = 5;
+}
+
+message Scac{
+  string scac = 1;
+  string fullname = 2;
+}
+
+message GetAllScacResponse{
+  repeated Scac all_scac = 1;
 }

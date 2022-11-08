@@ -3,21 +3,21 @@ package user
 import (
 	"context"
 	"fmc-gateway/pkg/logging"
-	"fmc-gateway/pkg/user-pb"
+	pb "fmc-gateway/pkg/user-pb"
 	"fmt"
 	"google.golang.org/grpc"
 )
 
 type converter struct{}
 
-func (c *converter) ConvertToGrpcContainer(r []string) []*__.Container {
-	var containers []*__.Container
+func (c *converter) ConvertToGrpcContainer(r []string) []*pb.Container {
+	var containers []*pb.Container
 	for _, item := range r {
-		containers = append(containers, &__.Container{Number: item})
+		containers = append(containers, &pb.Container{Number: item})
 	}
 	return containers
 }
-func (c *converter) containerFromGrpc(r []*__.ContainerResponse) []*Container {
+func (c *converter) containerFromGrpc(r []*pb.ContainerResponse) []*Container {
 	var containers []*Container
 	for _, item := range r {
 		containers = append(containers, &Container{
@@ -31,17 +31,17 @@ func (c *converter) containerFromGrpc(r []*__.ContainerResponse) []*Container {
 
 type Client struct {
 	conn      *grpc.ClientConn
-	cli       __.UserClient
+	cli       pb.UserClient
 	logger    logging.ILogger
 	converter converter
 }
 
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
-	return &Client{conn: conn, cli: __.NewUserClient(conn), logger: logger, converter: converter{}}
+	return &Client{conn: conn, cli: pb.NewUserClient(conn), logger: logger, converter: converter{}}
 }
 
 func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *AddContainers) error {
-	_, err := c.cli.AddContainerToAccount(ctx, &__.AddContainerToAccountRequest{
+	_, err := c.cli.AddContainerToAccount(ctx, &pb.AddContainerToAccountRequest{
 		Container: c.converter.ConvertToGrpcContainer(r.Numbers),
 		UserId:    userId,
 	})
@@ -52,7 +52,7 @@ func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *Add
 	return nil
 }
 func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
-	_, err := c.cli.DeleteContainersFromAccount(ctx, &__.DeleteContainersFromAccountRequest{
+	_, err := c.cli.DeleteContainersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
 		NumberIds: r.Numbers,
 	})
@@ -63,7 +63,7 @@ func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, 
 	return nil
 }
 func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
-	_, err := c.cli.DeleteBillNumbersFromAccount(ctx, &__.DeleteContainersFromAccountRequest{
+	_, err := c.cli.DeleteBillNumbersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
 		NumberIds: r.Numbers,
 	})
@@ -74,7 +74,7 @@ func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64,
 	return nil
 }
 func (c *Client) AddBillNumbersToAccount(ctx context.Context, userId int64, r *AddContainers) error {
-	_, err := c.cli.AddBillNumberToAccount(ctx, &__.AddContainerToAccountRequest{
+	_, err := c.cli.AddBillNumberToAccount(ctx, &pb.AddContainerToAccountRequest{
 		Container: c.converter.ConvertToGrpcContainer(r.Numbers),
 		UserId:    userId,
 	})
@@ -86,7 +86,7 @@ func (c *Client) AddBillNumbersToAccount(ctx context.Context, userId int64, r *A
 	return nil
 }
 func (c *Client) GetAll(ctx context.Context, userId int64) (*AllContainersAndBillNumbers, error) {
-	result, err := c.cli.GetAll(ctx, &__.GetAllContainersFromAccountRequest{UserId: userId})
+	result, err := c.cli.GetAll(ctx, &pb.GetAllContainersFromAccountRequest{UserId: userId})
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`get all containers and bills for user: %d failed: %s`, userId, err.Error()))
 		return &AllContainersAndBillNumbers{}, err

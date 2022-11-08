@@ -13,12 +13,12 @@ export class BillNumberServiceSerializer extends ServiceSerializer {
         grpcEmptyResp.setInfoAboutMovingList(this.serializeInfoAboutMoving(response.infoAboutMoving))
         grpcEmptyResp.setEtaFinalDelivery(response.etaFinalDelivery)
         grpcEmptyResp.setBillno(response.billNo)
-        grpcEmptyResp.setScac(TrackingServiceConverter.convertScacIntoEnum(response.scac))
+        grpcEmptyResp.setScac(response.scac)
         return grpcEmptyResp
     }
 }
 
-export class TrackingBybillNumberService implements ITrackingByBillNumberServer {
+export class TrackingByBillNumberService implements ITrackingByBillNumberServer {
     protected trackingController: BillNumberTrackingController;
     protected logger: ILogger;
     protected serializer: BillNumberServiceSerializer;
@@ -31,7 +31,7 @@ export class TrackingBybillNumberService implements ITrackingByBillNumberServer 
 
     public trackByBillNumber(call: ServerUnaryCall<Request, TrackingByBillNumberResponse>, callback: sendUnaryData<TrackingByBillNumberResponse>) {
         let container: string = call.request.getNumber()
-        let scac: SCAC_TYPE = TrackingServiceConverter.convertEnumIntoScacType(call.request.getScac())
+        let scac: SCAC_TYPE = call.request.getScac()
         let country = TrackingServiceConverter.convertEnumCountryIntoCountryType(call.request.getCountry())
         this.logger.InfoLog(`${container}: ${scac}`)
         this.trackingController.trackByBillNumber({

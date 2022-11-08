@@ -83,3 +83,19 @@ func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 	c.JSON(200, response)
 	return
 }
+
+// GetAllScac
+// @Summary      get all scac codes for frontend
+// @Description   get all scac codes for frontend
+// @Tags         Tracking
+// @Success      200  {object}  []Scac
+// @Failure      500 {object}   BaseResponse
+// @Router       /tracking/allScac [get]
+func (h *HttpHandler) GetAllScac(c *gin.Context) {
+	response, err := h.client.GetAllScac(c.Request.Context())
+	if err != nil {
+		c.JSON(500, gin.H{`success`: false, `error`: err.Error()})
+		return
+	}
+	c.JSON(200, response)
+}
