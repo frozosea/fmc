@@ -60,7 +60,7 @@ func (h *HttpHandler) TrackByContainerNumber(c *gin.Context) {
 // @Success      200  {object}  BillNumberResponse
 // @Success      204
 // @Failure      400
-// @Router       /tracking/billNumber [get]
+// @Router       /tracking/bill [get]
 func (h *HttpHandler) TrackByBillNumber(c *gin.Context) {
 	var schema *Track
 	if err := c.ShouldBindQuery(&schema); err != nil {

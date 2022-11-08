@@ -124,7 +124,7 @@ func getTrackingHttpHandler(client *tracking.Client, utils *utils.HttpUtils) *tr
 func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler) {
 	trackingGroup := router.Group(`/tracking`)
 	{
-		trackingGroup.GET(`/billNumber`, handler.TrackByBillNumber)
+		trackingGroup.GET(`/bill`, handler.TrackByBillNumber)
 		trackingGroup.GET(`/container`, handler.TrackByContainerNumber)
 	}
 }
@@ -142,8 +142,8 @@ func initScheduleRoutes(router *gin.Engine, handler *schedule_tracking.HttpHandl
 	group := router.Group(`/schedule`)
 	group.Use(middleware.CheckAccessMiddleware)
 	{
-		group.POST(`/container`, handler.AddContainersOnTrack)
-		group.POST(`/bill`, handler.AddBillNumbersOnTrack)
+		group.POST(`/containers`, handler.AddContainersOnTrack)
+		group.POST(`/bills`, handler.AddBillNumbersOnTrack)
 		group.PUT(`/bills`, handler.UpdateBills)
 		group.PUT(`/containers`, handler.UpdateContainers)
 		group.DELETE(`/containers`, handler.DeleteContainersFromTrack)
@@ -195,10 +195,10 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 	group.Use(middleware.CheckAccessMiddleware)
 	{
 		group.POST(`/containers`, handler.AddContainersToAccount)
-		group.POST(`/billNumbers`, handler.AddBillNumbersToAccount)
+		group.POST(`/bills`, handler.AddBillNumbersToAccount)
 		group.DELETE(`/containers`, handler.DeleteContainersFromAccount)
-		group.DELETE(`/billNumbers`, handler.DeleteBillNumbersFromAccount)
-		group.GET(`/billsContainers`, handler.GetAll)
+		group.DELETE(`/bills`, handler.DeleteBillNumbersFromAccount)
+		group.GET(`/all`, handler.GetAll)
 	}
 }
 func initFreightsRouter(router *gin.Engine, handler *freight_service.Http) {

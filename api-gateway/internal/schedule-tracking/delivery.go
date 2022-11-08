@@ -27,7 +27,7 @@ func NewHttpHandler(client IClient, utils *utils.HttpUtils) *HttpHandler {
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
-// @Router       /schedule/container [post]
+// @Router       /schedule/containers [post]
 func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 	var s *AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {
@@ -73,7 +73,7 @@ func (h *HttpHandler) AddContainersOnTrack(c *gin.Context) {
 // @Success      200  {object}  AddOnTrackResponse
 // @Failure      400
 // @Failure      500  {object}  BaseResponse
-// @Router       /schedule/billNo [post]
+// @Router       /schedule/bills [post]
 func (h *HttpHandler) AddBillNumbersOnTrack(c *gin.Context) {
 	var s *AddOnTrackRequest
 	if err := c.ShouldBindJSON(&s); err != nil {

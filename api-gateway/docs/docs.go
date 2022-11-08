@@ -256,54 +256,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/schedule/billNo": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Schedule Tracking"
-                ],
-                "summary": "add bill numbers on track",
-                "parameters": [
-                    {
-                        "description": "info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
-                        }
-                    },
-                    "400": {
-                        "description": ""
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/schedule/billNumbers": {
             "delete": {
                 "security": [
@@ -395,16 +347,14 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/schedule/container": {
+            },
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.",
+                "description": "add bill numbers on track. Every day in your selected time track bill numbers and send email with result about it. You can add on track only if container/bill already in your account.",
                 "consumes": [
                     "application/json"
                 ],
@@ -414,7 +364,7 @@ const docTemplate = `{
                 "tags": [
                     "Schedule Tracking"
                 ],
-                "summary": "add containers on track",
+                "summary": "add bill numbers on track",
                 "parameters": [
                     {
                         "description": "info",
@@ -480,6 +430,52 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/schedule_tracking.BaseResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "add containers on track. Every day in your selected time track container and send email with result about it. You can add on track only if container/bill already in your account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Schedule Tracking"
+                ],
+                "summary": "add containers on track",
+                "parameters": [
+                    {
+                        "description": "info",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/schedule_tracking.AddOnTrackResponse"
+                        }
+                    },
+                    "400": {
+                        "description": ""
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -641,7 +637,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tracking/billNumber": {
+        "/tracking/bill": {
             "get": {
                 "description": "tracking by bill number, if eta not found will be 0",
                 "tags": [
@@ -749,7 +745,38 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/billNumbers": {
+        "/user/all": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all bill numbers and containers from account",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all bill numbers and containers from account",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user.AllContainersAndBillNumbers"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/user.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/bills": {
             "post": {
                 "security": [
                     {
@@ -820,37 +847,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/user.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/billsContainers": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get all bill numbers and containers from account",
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get all bill numbers and containers from account",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/user.AllContainersAndBillNumbers"
                         }
                     },
                     "500": {

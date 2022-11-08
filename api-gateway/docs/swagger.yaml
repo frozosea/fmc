@@ -466,38 +466,6 @@ paths:
       summary: get all freights
       tags:
       - Freights
-  /schedule/billNo:
-    post:
-      consumes:
-      - application/json
-      description: add bill numbers on track. Every day in your selected time track
-        bill numbers and send email with result about it. You can add on track only
-        if container/bill already in your account.
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
-        "400":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: add bill numbers on track
-      tags:
-      - Schedule Tracking
   /schedule/billNumbers:
     delete:
       consumes:
@@ -529,6 +497,37 @@ paths:
       tags:
       - Schedule Tracking
   /schedule/bills:
+    post:
+      consumes:
+      - application/json
+      description: add bill numbers on track. Every day in your selected time track
+        bill numbers and send email with result about it. You can add on track only
+        if container/bill already in your account.
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add bill numbers on track
+      tags:
+      - Schedule Tracking
     put:
       consumes:
       - application/json
@@ -554,38 +553,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: update container tracking task
-      tags:
-      - Schedule Tracking
-  /schedule/container:
-    post:
-      consumes:
-      - application/json
-      description: add containers on track. Every day in your selected time track
-        container and send email with result about it. You can add on track only if
-        container/bill already in your account.
-      parameters:
-      - description: info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
-        "400":
-          description: ""
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/schedule_tracking.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: add containers on track
       tags:
       - Schedule Tracking
   /schedule/containers:
@@ -616,6 +583,37 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: delete containers from tracking
+      tags:
+      - Schedule Tracking
+    post:
+      consumes:
+      - application/json
+      description: add containers on track. Every day in your selected time track
+        container and send email with result about it. You can add on track only if
+        container/bill already in your account.
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/schedule_tracking.AddOnTrackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/schedule_tracking.AddOnTrackResponse'
+        "400":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/schedule_tracking.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: add containers on track
       tags:
       - Schedule Tracking
     put:
@@ -712,7 +710,7 @@ paths:
       summary: get user's tasks archive with all info about containers and bills
       tags:
       - History
-  /tracking/billNumber:
+  /tracking/bill:
     get:
       description: tracking by bill number, if eta not found will be 0
       parameters:
@@ -790,7 +788,26 @@ paths:
       summary: Track by container number
       tags:
       - Tracking
-  /user/billNumbers:
+  /user/all:
+    get:
+      consumes:
+      - application/json
+      description: Get all bill numbers and containers from account
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.AllContainersAndBillNumbers'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all bill numbers and containers from account
+      tags:
+      - User
+  /user/bills:
     delete:
       consumes:
       - application/json
@@ -839,25 +856,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Add bill numbers to account
-      tags:
-      - User
-  /user/billsContainers:
-    get:
-      consumes:
-      - application/json
-      description: Get all bill numbers and containers from account
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/user.AllContainersAndBillNumbers'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/user.BaseResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Get all bill numbers and containers from account
       tags:
       - User
   /user/containers:

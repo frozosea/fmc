@@ -73,7 +73,7 @@ func (h *HttpHandler) AddContainersToAccount(c *gin.Context) {
 // @Tags        User
 // @Success 	200 	{object} BaseResponse
 // @Failure 	500 	{object} BaseResponse
-// @Router /user/billNumbers [post]
+// @Router /user/bills [post]
 func (h *HttpHandler) AddBillNumbersToAccount(c *gin.Context) {
 	h.addBillOrContainer(c, false)
 }
@@ -127,7 +127,7 @@ func (h *HttpHandler) DeleteContainersFromAccount(c *gin.Context) {
 // @Tags         User
 // @Success 200 {object} BaseResponse
 // @Failure 500 {object} BaseResponse
-// @Router /user/billNumbers [delete]
+// @Router /user/bills [delete]
 func (h *HttpHandler) DeleteBillNumbersFromAccount(c *gin.Context) {
 	h.deleteContainersOrBillNumbers(c, false)
 }
@@ -140,7 +140,7 @@ func (h *HttpHandler) DeleteBillNumbersFromAccount(c *gin.Context) {
 // @Tags         User
 // @Success 200 {object} AllContainersAndBillNumbers
 // @Failure 500 {object} BaseResponse
-// @Router /user/billsContainers [get]
+// @Router /user/all [get]
 func (h *HttpHandler) GetAll(c *gin.Context) {
 	userId, err := h.DecodeToken(c)
 	if err != nil {
