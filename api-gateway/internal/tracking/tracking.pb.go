@@ -20,6 +20,20 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+//enum Scac{
+//  FESO = 0;
+//  SKLU = 1;
+//  MAEU = 2;
+//  COSU = 3;
+//  KMTU = 4;
+//  ONEY = 5;
+//  SITC = 6;
+//  MSCU = 7;
+//  HALU = 8;
+//  ZHGU = 9;
+//  AUTO = 10;
+//
+//}
 type Country int32
 
 const (
