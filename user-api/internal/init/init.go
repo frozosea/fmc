@@ -2,19 +2,23 @@ package initpackage
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-	auth2 "user-api/internal/auth"
-	"user-api/internal/cache"
-	schedule_tracking2 "user-api/internal/schedule-tracking"
-	user2 "user-api/internal/user"
+	"user-api/internal/auth"
+	"user-api/internal/feedback"
+	"user-api/internal/schedule-tracking"
+	"user-api/internal/user"
+	"user-api/pkg/cache"
 	"user-api/pkg/logging"
+	"user-api/pkg/mailing"
 )
 
 type (
@@ -43,6 +47,13 @@ type (
 	AuthLoggerSettings struct {
 		ControllerSaveDir string
 		ServiceSaveDir    string
+	}
+	MailingSettings struct {
+		Host         string
+		Port         int
+		Email        string
+		Password     string
+		SendToEmails []string
 	}
 )
 
@@ -106,14 +117,14 @@ func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error)
 	config := new(ScheduleTrackingLoggerSettings)
 	return readIni("SCHEDULE_LOGS", config)
 }
-func GetScheduleTrackingService(db *sql.DB) *schedule_tracking2.Service {
+func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
 		return nil
 	}
-	repository := schedule_tracking2.NewRepository(db)
-	return schedule_tracking2.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
+	repository := schedule_tracking.NewRepository(db)
+	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
 }
 func parseTime(timeStr string, sep string) int64 {
 	splitInfo := strings.Split(timeStr, sep)
@@ -138,7 +149,7 @@ func getAuthLoggerConfig() (*AuthLoggerSettings, error) {
 	return readIni("AUTH_LOGS", config)
 }
 
-func GetAuthService(db *sql.DB) *auth2.Service {
+func GetAuthService(db *sql.DB) *auth.Service {
 	loggerConf, err := getAuthLoggerConfig()
 	if err != nil {
 		panic(err)
@@ -147,12 +158,12 @@ func GetAuthService(db *sql.DB) *auth2.Service {
 	if getTokenSettingsErr != nil {
 		panic(getTokenSettingsErr)
 	}
-	tokenManager := auth2.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
-	hash := auth2.NewHash()
-	repository := auth2.NewRepository(db, hash)
+	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
+	hash := auth.NewHash()
+	repository := auth.NewRepository(db, hash)
 
-	controller := auth2.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
-	return auth2.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+	controller := auth.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
+	return auth.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {
 	config := new(UserLoggerSettings)
@@ -170,12 +181,45 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
 
-func GetUserService(db *sql.DB, redisConf *RedisSettings) *user2.Service {
+func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
-	repository := user2.NewRepository(db)
-	controller := user2.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
-	return user2.NewService(controller)
+	repository := user.NewRepository(db)
+	controller := user.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	return user.NewService(controller)
+}
+func getMailingSettings() (*MailingSettings, error) {
+	email, password, smtpHost, smtpPort, sendToEmails := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS")
+	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" {
+		return nil, errors.New("no env variables")
+	}
+	intPort, err := strconv.Atoi(smtpPort)
+	if err != nil {
+		return nil, err
+	}
+	var sendToEmailArr []string
+	for _, v := range strings.Split(sendToEmails, ";") {
+		sendToEmailArr = append(sendToEmailArr, v)
+	}
+	return &MailingSettings{
+		Host:         smtpHost,
+		Port:         intPort,
+		Email:        email,
+		Password:     password,
+		SendToEmails: sendToEmailArr,
+	}, nil
+}
+func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
+	repository := feedback.NewRepository(db)
+	mSettings, err := getMailingSettings()
+	if err != nil {
+		panic(err)
+		return nil, nil
+	}
+	logger := logging.NewLogger("feedback")
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
+	service := feedback.NewService(m, repository, logger, mSettings.SendToEmails)
+	return feedback.NewGrpc(service), feedback.NewHttp(service)
 }

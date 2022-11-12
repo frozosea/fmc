@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
 )
 
 type RespositoryMoch struct {

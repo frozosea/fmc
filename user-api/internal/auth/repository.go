@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
 )
 
 type IRepository interface {

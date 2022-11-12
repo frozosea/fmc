@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
 	"user-api/pkg/logging"
 )
 

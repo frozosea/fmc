@@ -43,6 +43,14 @@ ALTER TABLE "containers"
 ALTER TABLE "bill_numbers"
     ADD CONSTRAINT "bill_numbers_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
+CREATE TABLE IF NOT EXISTS "feedback"
+(
+    "id"      serial           NOT NULL,
+    "email"   varchar(500)     NOT NULL,
+    "message" varchar(1000000) NOT NULL
+);
+
+
 CREATE OR REPLACE FUNCTION is_value_free_for_containers(_header_id integer, _value varchar) RETURNS BOOLEAN AS
 $$
 BEGIN

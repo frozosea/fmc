@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"fmt"
-	"user-api/internal/cache"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
+	"user-api/pkg/cache"
 	"user-api/pkg/logging"
 )
 

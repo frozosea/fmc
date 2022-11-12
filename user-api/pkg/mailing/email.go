@@ -1,122 +1,31 @@
 package mailing
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	file_reader "github.com/frozosea/file-reader"
-	"io"
-	"net/http"
-	"net/url"
-	"user-api/pkg/logging"
+	"gopkg.in/gomail.v2"
 )
 
 type IMailing interface {
-	SendWithFile(toAddress, subject, filePath string) error
-	SendSimple(toAddress, subject, body string) error
-}
-type Response struct {
-	Result struct {
-		Statuses []struct {
-			Id     int64  `json:"id"`
-			Status string `json:"status"`
-		} `json:"statuses"`
-	} `json:"result"`
+	//SendWithFile(toAddress, subject, filePath string) error
+	SendSimple(toAddresses []string, subject, body, textType string) error
 }
 
-//Mailing can send email
 type Mailing struct {
-	reader          *file_reader.FileReader
-	logger          logging.ILogger
-	senderName      string
-	senderEmail     string
-	UnisenderApiKey string
-	signature       string
+	smtpHost  string
+	smtpPort  int
+	fromEmail string
+	password  string
 }
 
-func NewMailing(logger logging.ILogger, senderName string, senderEmail string, unisenderApiKey string, signature string) *Mailing {
-	return &Mailing{reader: file_reader.New(), logger: logger, senderName: senderName, senderEmail: senderEmail, UnisenderApiKey: unisenderApiKey, signature: signature}
-}
-func (m *Mailing) getBaseUrlValues(toAddress, subject, body string) url.Values {
-	values := url.Values{}
-	values.Set("format", "json")
-	values.Set("api_key", m.UnisenderApiKey)
-	values.Set("sender_name", m.senderName)
-	values.Set("email", toAddress)
-	values.Set("sender_email", m.senderEmail)
-	values.Set("subject", subject)
-	values.Set("body", body)
-	values.Set("wrap_type", "STRING")
-	values.Set("list_id", "1")
-	return values
-}
-func (m *Mailing) getUrlValuesForFile(toAddress, subject, fileName, body string, file string) url.Values {
-	values := m.getBaseUrlValues(toAddress, subject, body)
-	values.Set(fmt.Sprintf(`attachments[%s]`, fileName), file)
-	return values
-}
-func (m *Mailing) checkStatusOfEmail(id string) error {
-	client := http.Client{}
-	checkStatusUrl := fmt.Sprintf(`https://api.unisender.com/ru/api/checkEmail?format=json&api_key=%s&email_id=%s`, m.UnisenderApiKey, id)
-	r, err := client.Get(checkStatusUrl)
-	if err != nil {
-		return err
-	}
-	defer r.Body.Close()
-	body, readErr := io.ReadAll(r.Body)
-	if readErr != nil {
-		return readErr
-	}
-	var s Response
-	if unmarshalErr := json.Unmarshal(body, &s); unmarshalErr != nil {
-		return unmarshalErr
-	}
-	for _, v := range s.Result.Statuses {
-		if v.Status != "ok_sent" {
-			return errors.New("email was not sent successfully")
-		}
-	}
-	return nil
-}
-func (m *Mailing) sendEmail(form url.Values) (string, error) {
-	client := http.Client{}
-	r, err := client.PostForm("https://api.unisender.com/ru/api/sendEmail", form)
-	if err != nil {
-		return "", err
-	}
-	defer r.Body.Close()
-	if r.StatusCode > 250 {
-		return "", errors.New("bad status code")
-	}
-	body, readErr := io.ReadAll(r.Body)
-	if readErr != nil {
-		return "", readErr
-	}
-	go m.logger.InfoLog(fmt.Sprintf(`send email result: %s`, string(body)))
-	return "", nil
-}
-func (m *Mailing) SendWithFile(toAddress, subject, filePath string) error {
-	fileName, err := m.reader.GetFileName(filePath)
-	if err != nil {
-		return err
-	}
-	readFile, err := m.reader.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-	form := m.getUrlValuesForFile(toAddress, subject, fileName, m.signature, string(readFile))
-	id, sendMailErr := m.sendEmail(form)
-	if sendMailErr != nil {
-		return sendMailErr
-	}
-	return m.checkStatusOfEmail(id)
+func NewMailing(smtpHost string, smtpPort int, fromEmail string, password string) *Mailing {
+	return &Mailing{smtpHost: smtpHost, smtpPort: smtpPort, fromEmail: fromEmail, password: password}
 }
 
-func (m *Mailing) SendSimple(toAddress, subject, body string) error {
-	urlValues := m.getBaseUrlValues(toAddress, subject, body)
-	id, err := m.sendEmail(urlValues)
-	if err != nil {
-		return err
-	}
-	return m.checkStatusOfEmail(id)
+func (w *Mailing) SendSimple(toAddress []string, subject, message, textType string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", w.fromEmail)
+	m.SetHeader("Cc", toAddress...)
+	m.SetHeader("Subject", subject)
+	m.SetBody(textType, message)
+	d := gomail.NewDialer(w.smtpHost, w.smtpPort, w.fromEmail, w.password)
+	return d.DialAndSend(m)
 }

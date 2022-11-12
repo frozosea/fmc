@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
 	pb "user-api/pkg/proto"
 )
 

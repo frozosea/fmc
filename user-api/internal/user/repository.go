@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
-	"user-api/pkg/domain"
+	"user-api/internal/domain"
 )
 
 type IRepository interface {
