@@ -155,3 +155,27 @@ func (h *HttpHandler) GetAll(c *gin.Context) {
 	c.JSON(200, response)
 	return
 }
+
+// Feedback
+// @Summary add feedback
+// @Description add feedback about our service
+// @accept json
+// @Tags         User
+// @Param 		input body AddFeedback true "info"
+// @Success 200 {object} BaseResponse
+// @Failure 500 {object} BaseResponse
+// @Router /user/feedback [post]
+func (h *HttpHandler) Feedback(c *gin.Context) {
+	var s *AddFeedback
+	if err := c.ShouldBindJSON(s); err != nil {
+		c.JSON(400, gin.H{"success": false, "error": "cannot validate your request!"})
+		return
+	}
+	if err := h.client.AddFeedback(c.Request.Context(), s.Email, s.Message); err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "error": nil})
+	return
+
+}

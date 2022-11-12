@@ -84,7 +84,6 @@ func (h *HttpHandler) Login(c *gin.Context) {
 
 // Refresh
 // @Summary Refresh token
-// @Security ApiKeyAuth
 // @Description refresh token by refresh token
 // @accept json
 // @Param input body RefreshTokenRequest true "info"

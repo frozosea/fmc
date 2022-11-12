@@ -12,3 +12,7 @@ type BaseResponse struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
 }
+type AddFeedback struct {
+	Email   string `json:"email"`
+	Message string `json:"message"`
+}

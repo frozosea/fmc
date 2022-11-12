@@ -282,6 +282,13 @@ definitions:
           type: string
         type: array
     type: object
+  user.AddFeedback:
+    properties:
+      email:
+        type: string
+      message:
+        type: string
+    type: object
   user.AllContainersAndBillNumbers:
     properties:
       billNumbers:
@@ -375,8 +382,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/auth.BaseResponse'
-      security:
-      - ApiKeyAuth: []
       summary: Refresh token
       tags:
       - Auth
@@ -938,6 +943,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Add containers to account
+      tags:
+      - User
+  /user/feedback:
+    post:
+      consumes:
+      - application/json
+      description: add feedback about our service
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/user.AddFeedback'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/user.BaseResponse'
+      summary: add feedback
       tags:
       - User
 securityDefinitions:

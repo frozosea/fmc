@@ -30,18 +30,19 @@ func (c *converter) containerFromGrpc(r []*pb.ContainerResponse) []*Container {
 }
 
 type Client struct {
-	conn      *grpc.ClientConn
-	cli       pb.UserClient
-	logger    logging.ILogger
-	converter converter
+	conn        *grpc.ClientConn
+	userCli     pb.UserClient
+	feedbackCli pb.UserFeedbackClient
+	logger      logging.ILogger
+	converter   converter
 }
 
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
-	return &Client{conn: conn, cli: pb.NewUserClient(conn), logger: logger, converter: converter{}}
+	return &Client{conn: conn, userCli: pb.NewUserClient(conn), logger: logger, converter: converter{}}
 }
 
 func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *AddContainers) error {
-	_, err := c.cli.AddContainerToAccount(ctx, &pb.AddContainerToAccountRequest{
+	_, err := c.userCli.AddContainerToAccount(ctx, &pb.AddContainerToAccountRequest{
 		Container: c.converter.ConvertToGrpcContainer(r.Numbers),
 		UserId:    userId,
 	})
@@ -52,7 +53,7 @@ func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *Add
 	return nil
 }
 func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
-	_, err := c.cli.DeleteContainersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
+	_, err := c.userCli.DeleteContainersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
 		NumberIds: r.Numbers,
 	})
@@ -63,7 +64,7 @@ func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, 
 	return nil
 }
 func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
-	_, err := c.cli.DeleteBillNumbersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
+	_, err := c.userCli.DeleteBillNumbersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
 		UserId:    userId,
 		NumberIds: r.Numbers,
 	})
@@ -74,7 +75,7 @@ func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64,
 	return nil
 }
 func (c *Client) AddBillNumbersToAccount(ctx context.Context, userId int64, r *AddContainers) error {
-	_, err := c.cli.AddBillNumberToAccount(ctx, &pb.AddContainerToAccountRequest{
+	_, err := c.userCli.AddBillNumberToAccount(ctx, &pb.AddContainerToAccountRequest{
 		Container: c.converter.ConvertToGrpcContainer(r.Numbers),
 		UserId:    userId,
 	})
@@ -86,7 +87,7 @@ func (c *Client) AddBillNumbersToAccount(ctx context.Context, userId int64, r *A
 	return nil
 }
 func (c *Client) GetAll(ctx context.Context, userId int64) (*AllContainersAndBillNumbers, error) {
-	result, err := c.cli.GetAll(ctx, &pb.GetAllContainersFromAccountRequest{UserId: userId})
+	result, err := c.userCli.GetAll(ctx, &pb.GetAllContainersFromAccountRequest{UserId: userId})
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`get all containers and bills for user: %d failed: %s`, userId, err.Error()))
 		return &AllContainersAndBillNumbers{}, err
@@ -96,4 +97,11 @@ func (c *Client) GetAll(ctx context.Context, userId int64) (*AllContainersAndBil
 		Containers:  c.converter.containerFromGrpc(result.GetContainers()),
 		BillNumbers: c.converter.containerFromGrpc(result.GetBillNumbers()),
 	}, nil
+}
+func (c *Client) AddFeedback(ctx context.Context, email, message string) error {
+	_, err := c.feedbackCli.AddFeedback(ctx, &pb.AddFeedbackRequest{
+		Email:   email,
+		Message: message,
+	})
+	return err
 }
