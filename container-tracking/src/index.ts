@@ -9,13 +9,7 @@ function main() {
         .then(async (_) => {
         })
         .catch((error) => console.log("Error: ", error));
-    // startServer();
-    (async() =>{
-        console.log(await mainTrackingByBillNumberForRussia.trackByBillNumber({
-            number :"SNKO101220501450",
-            scac:"SKLU"
-        }))
-    })();
+    startServer();
 }
 main();
 
