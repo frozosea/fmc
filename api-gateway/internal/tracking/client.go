@@ -76,20 +76,10 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 }
 
 func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip string) (ContainerNumberResponse, error) {
-	country := c.getCountry(ip)
-	var request pb.Request
-	if country == "RU" {
-		request = pb.Request{
-			Number:  track.Number,
-			Scac:    track.Scac,
-			Country: pb.Country(pb.Country_value["RU"]),
-		}
-	} else {
-		request = pb.Request{
-			Number:  track.Number,
-			Scac:    track.Scac,
-			Country: pb.Country(pb.Country_value["OTHER"]),
-		}
+	request := pb.Request{
+		Number:  track.Number,
+		Scac:    track.Scac,
+		Country: pb.Country(pb.Country_value["OTHER"]),
 	}
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
