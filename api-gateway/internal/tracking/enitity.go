@@ -24,8 +24,8 @@ type ContainerNumberResponse struct {
 }
 
 type Scac struct {
-	ScacCode string
-	FullName string
+	ScacCode string `json:"scacCode"`
+	FullName string `json:"fullName"`
 }
 
 type BaseResponse struct {
