@@ -271,16 +271,16 @@ func Run() {
 		panic(getSettingsErr)
 		return
 	}
-	freightClientSettings, err := getFreightClientSettings()
-	if err != nil {
-		panic(getSettingsErr)
-		return
-	}
-	freightClient, err := getFreightClient(freightClientSettings.Ip, freightClientSettings.Port)
-	if err != nil {
-		panic(getSettingsErr)
-		return
-	}
+	//freightClientSettings, err := getFreightClientSettings()
+	//if err != nil {
+	//	panic(getSettingsErr)
+	//	return
+	//}
+	//freightClient, err := getFreightClient(freightClientSettings.Ip, freightClientSettings.Port)
+	//if err != nil {
+	//	panic(getSettingsErr)
+	//	return
+	//}
 	router := gin.Default()
 	initAuthRoutes(router, AuthHttpHandler)
 	initTrackingRoutes(router, TrackingHttpHandler)
@@ -288,7 +288,7 @@ func Run() {
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
 	initHistoryRoutes(router, history.NewHttpHandler(scheduleTrackingHistoryClient, httpUtils), Middleware)
-	initFreightsRouter(router, freight_service.NewHttp(freightClient))
+	//initFreightsRouter(router, freight_service.NewHttp(freightClient))
 	defaultCors := cors.DefaultConfig()
 	defaultCors.AddAllowMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
 	defaultCors.AllowHeaders = []string{"Accept", "Authorization", "Cache-Control", "Content-Type", "DNT", "If-Modified-Since", "Keep-Alive", "Origin", "User-Agent", "X-Requested-With", "X-Real-Ip"}
