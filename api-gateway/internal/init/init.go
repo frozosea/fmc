@@ -290,7 +290,10 @@ func Run() {
 	initHistoryRoutes(router, history.NewHttpHandler(scheduleTrackingHistoryClient, httpUtils), Middleware)
 	initFreightsRouter(router, freight_service.NewHttp(freightClient))
 	defaultCors := cors.DefaultConfig()
+	defaultCors.AddAllowMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+	defaultCors.AllowHeaders = []string{"Accept", "Authorization", "Cache-Control", "Content-Type", "DNT", "If-Modified-Since", "Keep-Alive", "Origin", "User-Agent", "X-Requested-With", "X-Real-Ip"}
 	defaultCors.AllowAllOrigins = true
+	defaultCors.AllowCredentials = true
 	router.Use(cors.New(defaultCors))
 	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }
