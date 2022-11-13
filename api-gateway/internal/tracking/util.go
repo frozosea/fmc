@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 )
 
 type Ru string
@@ -48,13 +47,13 @@ func (u *util) sendRequest(ip string) (*ipApiResponse, error) {
 	return &s, nil
 }
 func (u *util) getCountry(ip string) Ru {
-	response, err := u.sendRequest(ip)
-	if err != nil {
-		return "OTHER"
-	}
-	countryCode := strings.ToUpper(response.CountryCode)
-	if countryCode == "RU" {
-		return "RU"
-	}
+	//response, err := u.sendRequest(ip)
+	//if err != nil {
+	//	return "OTHER"
+	//}
+	//countryCode := strings.ToUpper(response.CountryCode)
+	//if countryCode == "RU" {
+	//	return "RU"
+	//}
 	return "OTHER"
 }
