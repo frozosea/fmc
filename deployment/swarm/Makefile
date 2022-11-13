@@ -14,4 +14,4 @@ schedule-tracking:
 	docker stack deploy -c services/schedule-tracking/schedule-tracking.yaml schedule_tracking
 freight-service:
 	docker stack deploy -c services/freight-service/freight-service.yaml freight_service
-deploy: network dashboard tracking-api user-api schedule-tracking freight-service gateway
+deploy: network dashboard tracking-api user-api schedule-tracking gateway
