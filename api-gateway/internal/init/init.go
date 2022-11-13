@@ -126,7 +126,11 @@ func initTrackingRoutes(router *gin.Engine, handler *tracking.HttpHandler) {
 	{
 		trackingGroup.GET(`/bill`, handler.TrackByBillNumber)
 		trackingGroup.GET(`/container`, handler.TrackByContainerNumber)
-		trackingGroup.GET(`/allScac`, handler.GetAllScac)
+	}
+	{
+		scacGroup := router.Group("/scac")
+		scacGroup.GET("/containers", handler.GetContainerScac)
+		scacGroup.GET("/bills", handler.GetBillScac)
 	}
 }
 func getScheduleTrackingClient(ip, port string, logger logging.ILogger) (*schedule_tracking.Client, error) {

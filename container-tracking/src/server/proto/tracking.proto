@@ -11,7 +11,8 @@ service TrackingByBillNumber{
   rpc TrackByBillNumber(Request) returns (TrackingByBillNumberResponse) {};
 }
 service ScacService{
-  rpc GetAll(google.protobuf.Empty) returns (GetAllScacResponse) {};
+  rpc GetContainerScac(google.protobuf.Empty) returns (GetAllScacResponse) {};
+  rpc GetBillScac(google.protobuf.Empty) returns (GetAllScacResponse) {};
 }
 
 

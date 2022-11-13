@@ -1,7 +1,7 @@
 // GENERATED CODE -- DO NOT EDIT!
 
 'use strict';
-var grpc = require('@grpc/grpc-js');
+var grpc = require('grpc');
 var tracking_pb = require('./tracking_pb.js');
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 
@@ -92,8 +92,19 @@ var TrackingByBillNumberService = exports.TrackingByBillNumberService = {
 
 exports.TrackingByBillNumberClient = grpc.makeGenericClientConstructor(TrackingByBillNumberService);
 var ScacServiceService = exports.ScacServiceService = {
-  getAll: {
-    path: '/tracking.ScacService/GetAll',
+  getContainerScac: {
+    path: '/tracking.ScacService/GetContainerScac',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: tracking_pb.GetAllScacResponse,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_tracking_GetAllScacResponse,
+    responseDeserialize: deserialize_tracking_GetAllScacResponse,
+  },
+  getBillScac: {
+    path: '/tracking.ScacService/GetBillScac',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,

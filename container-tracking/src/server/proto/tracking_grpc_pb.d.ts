@@ -4,7 +4,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import * as grpc from "@grpc/grpc-js";
+import * as grpc from "grpc";
 import * as tracking_pb from "./tracking_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 
@@ -75,11 +75,21 @@ export class TrackingByBillNumberClient extends grpc.Client implements ITracking
 }
 
 interface IScacServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
-    getAll: IScacServiceService_IGetAll;
+    getContainerScac: IScacServiceService_IGetContainerScac;
+    getBillScac: IScacServiceService_IGetBillScac;
 }
 
-interface IScacServiceService_IGetAll extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse> {
-    path: "/tracking.ScacService/GetAll";
+interface IScacServiceService_IGetContainerScac extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse> {
+    path: "/tracking.ScacService/GetContainerScac";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
+    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
+    responseSerialize: grpc.serialize<tracking_pb.GetAllScacResponse>;
+    responseDeserialize: grpc.deserialize<tracking_pb.GetAllScacResponse>;
+}
+interface IScacServiceService_IGetBillScac extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse> {
+    path: "/tracking.ScacService/GetBillScac";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
@@ -91,18 +101,25 @@ interface IScacServiceService_IGetAll extends grpc.MethodDefinition<google_proto
 export const ScacServiceService: IScacServiceService;
 
 export interface IScacServiceServer {
-    getAll: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse>;
+    getContainerScac: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse>;
+    getBillScac: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, tracking_pb.GetAllScacResponse>;
 }
 
 export interface IScacServiceClient {
-    getAll(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
-    getAll(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
-    getAll(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getContainerScac(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getContainerScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getContainerScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getBillScac(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getBillScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    getBillScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
 }
 
 export class ScacServiceClient extends grpc.Client implements IScacServiceClient {
     constructor(address: string, credentials: grpc.ChannelCredentials, options?: object);
-    public getAll(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
-    public getAll(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
-    public getAll(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getContainerScac(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getContainerScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getContainerScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getBillScac(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getBillScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
+    public getBillScac(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: tracking_pb.GetAllScacResponse) => void): grpc.ClientUnaryCall;
 }

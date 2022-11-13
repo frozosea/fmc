@@ -251,6 +251,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/scac/bills": {
+            "get": {
+                "description": "get all scac codes for frontend",
+                "tags": [
+                    "Tracking"
+                ],
+                "summary": "get all scac codes for frontend",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/tracking.Scac"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/scac/containers": {
+            "get": {
+                "description": "get all scac codes for frontend",
+                "tags": [
+                    "Tracking"
+                ],
+                "summary": "get all scac codes for frontend",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/tracking.Scac"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/tracking.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/schedule/billNumbers": {
             "delete": {
                 "security": [
@@ -627,32 +679,6 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/history.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/tracking/allScac": {
-            "get": {
-                "description": "get all scac codes for frontend",
-                "tags": [
-                    "Tracking"
-                ],
-                "summary": "get all scac codes for frontend",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/tracking.Scac"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/tracking.BaseResponse"
                         }
                     }
                 }

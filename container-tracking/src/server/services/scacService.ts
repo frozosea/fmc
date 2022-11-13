@@ -10,10 +10,72 @@ interface BaseScac {
 
 export interface IScacRepository {
     GetAll(): Promise<BaseScac[]>
+
+    getContainerScac(): Promise<BaseScac[]>
+
+    getBillScac(): Promise<BaseScac[]>
 }
 
 
 export class ScacForTrackingRepository implements IScacRepository {
+    public async getContainerScac(): Promise<BaseScac[]> {
+        return [
+            {
+                scac: "COSU",
+                fullName: "Cosco"
+            },
+            {
+                scac: "MAEU",
+                fullName: "Maersk/Sealand Maersk"
+            },
+            {
+                scac: "MSCU",
+                fullName: "MSC"
+            },
+            {
+                scac: "ONEY",
+                fullName: "One Line"
+            },
+            {
+                scac: "FESO",
+                fullName: "Fesco"
+            },
+            {
+                scac: "SKLU",
+                fullName: "Sinokor"
+            },
+            {
+                scac: "HALU",
+                fullName: "Heung-a"
+            },
+            {
+                scac: "SITC",
+                fullName: "SITC"
+            }
+        ]
+    }
+
+    public async getBillScac(): Promise<BaseScac[]> {
+        return [
+            {
+                scac: "FESO",
+                fullName: "Fesco"
+            },
+            {
+                scac: "SKLU",
+                fullName: "Sinokor"
+            },
+            {
+                scac: "HALU",
+                fullName: "Heung-a"
+            },
+            {
+                scac: "SITC",
+                fullName: "SITC"
+            }
+        ]
+    }
+
     public async GetAll(): Promise<BaseScac[]> {
         return [
             {
@@ -65,11 +127,20 @@ export class ScacService {
         this.logger = logger;
     }
 
-    public async GetAllScac(): Promise<BaseScac[]> {
+    public async getContainerScac(): Promise<BaseScac[]> {
         try {
-            return this.repository.GetAll();
+            return this.repository.getContainerScac();
         } catch (e) {
-            this.logger.ExceptionLog(`get all scac from repository exception: ${String(e)}`)
+            this.logger.ExceptionLog(`get container scac from repository exception: ${String(e)}`)
+            throw e;
+        }
+    }
+
+    public async getBillScac(): Promise<BaseScac[]> {
+        try {
+            return this.repository.getBillScac();
+        } catch (e) {
+            this.logger.ExceptionLog(`get bill scac from repository exception: ${String(e)}`)
             throw e;
         }
     }
@@ -102,8 +173,18 @@ export class ScacGrpcService implements IScacServiceServer {
         this.converter = new Converter();
     }
 
-    public getAll(call: ServerUnaryCall<Request, null>, callback: sendUnaryData<GetAllScacResponse>) {
-        this.service.GetAllScac().then((response: BaseScac[]) => {
+    public getContainerScac(call: ServerUnaryCall<Request, null>, callback: sendUnaryData<GetAllScacResponse>) {
+        this.service.getContainerScac().then((response: BaseScac[]) => {
+                return callback(null, this.converter.toGrpc(response))
+            }
+        ).catch((e) => {
+                return callback(e, null);
+            }
+        )
+    }
+
+    public getBillScac(call: ServerUnaryCall<Request, null>, callback: sendUnaryData<GetAllScacResponse>) {
+        this.service.getBillScac().then((response: BaseScac[]) => {
                 return callback(null, this.converter.toGrpc(response))
             }
         ).catch((e) => {

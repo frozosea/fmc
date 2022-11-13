@@ -485,6 +485,40 @@ paths:
       summary: get all freights
       tags:
       - Freights
+  /scac/bills:
+    get:
+      description: get all scac codes for frontend
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/tracking.Scac'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/tracking.BaseResponse'
+      summary: get all scac codes for frontend
+      tags:
+      - Tracking
+  /scac/containers:
+    get:
+      description: get all scac codes for frontend
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/tracking.Scac'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/tracking.BaseResponse'
+      summary: get all scac codes for frontend
+      tags:
+      - Tracking
   /schedule/billNumbers:
     delete:
       consumes:
@@ -729,23 +763,6 @@ paths:
       summary: get user's tasks archive with all info about containers and bills
       tags:
       - History
-  /tracking/allScac:
-    get:
-      description: get all scac codes for frontend
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/tracking.Scac'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/tracking.BaseResponse'
-      summary: get all scac codes for frontend
-      tags:
-      - Tracking
   /tracking/bill:
     get:
       description: tracking by bill number, if eta not found will be 0
