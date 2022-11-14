@@ -62,12 +62,6 @@ export class MainTrackingForRussia {
         if (args.scac === "AUTO") {
             for (let task of tasks) {
                 try {
-                    // let res = await task.trackContainer(args);
-                    // if (res) {
-                    //     if (this.timeInspector.inspectTime(res)) {
-                    //         return res
-                    //     }
-                    // }
                     for (let i = 0; i < 3; i++) {
                         try {
                             let res = await task.trackContainer(args);
