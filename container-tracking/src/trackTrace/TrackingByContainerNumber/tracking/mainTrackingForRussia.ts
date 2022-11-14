@@ -74,8 +74,6 @@ export class MainTrackingForRussia {
                             continue
                         }
                     }
-                    throw new Error("");
-
                 } catch (e) {
                     continue
                 }

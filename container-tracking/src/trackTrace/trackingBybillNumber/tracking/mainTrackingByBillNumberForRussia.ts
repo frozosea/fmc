@@ -55,10 +55,16 @@ export default class MainTrackingByBillNumberForRussia {
             for (let task of tasks) {
                 try {
                     try {
-                        let res = await task.trackByBillNumber(args);
-                        if (res) {
-                            if (this.timeInspector.inspectTime(res)) {
-                                return res
+                        for (let i = 0; i < 3; i++) {
+                            try {
+                                let res = await task.trackByBillNumber(args);
+                                if (res) {
+                                    if (this.timeInspector.inspectTime(res)) {
+                                        return res
+                                    }
+                                }
+                            } catch (e) {
+                                continue
                             }
                         }
                     } catch (e) {
