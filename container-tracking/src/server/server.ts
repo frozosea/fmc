@@ -14,7 +14,7 @@ server.addService(TrackingByContainerNumberService, trackingByContainerNumberSer
 // @ts-ignore
 server.addService(TrackingByBillNumberService, trackingByBillNumberService)
 // @ts-ignore
-server.addService(ScacServiceService,scacGrpcService);
+server.addService(ScacServiceService, scacGrpcService);
 
 export default function startServer() {
     config()
@@ -24,7 +24,8 @@ export default function startServer() {
         .catch((error) => console.log("Error of init db: ", error))
     server.bindAsync(`0.0.0.0:${process.env.GRPC_PORT}`, ServerCredentials.createInsecure(), (error, port) => {
         server.start();
-        console.log("SERVER WAS STARTED")
+        if (error) console.log(error)
+        console.log(`SERVER WAS STARTED ON ${port}`)
     })
 }
 
