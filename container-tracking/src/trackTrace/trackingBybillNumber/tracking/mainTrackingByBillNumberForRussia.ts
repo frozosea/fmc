@@ -54,12 +54,15 @@ export default class MainTrackingByBillNumberForRussia {
         if (args.scac === "AUTO") {
             for (let task of tasks) {
                 try {
-                    let res = await task.trackByBillNumber(args);
-                    if (res !== undefined) {
-                        if (this.timeInspector.inspectTime(res)) {
-                            return res
+                    for (let i = 0; i < 3; i++) {
+                        let res = await task.trackByBillNumber(args);
+                        if (res !== undefined) {
+                            if (this.timeInspector.inspectTime(res)) {
+                                return res
+                            }
                         }
                     }
+
                 } catch (e) {
                 }
 
