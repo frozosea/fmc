@@ -26,7 +26,6 @@ func GetServer() (*grpc.Server, *feedback.Http, error) {
 	pb.RegisterUserServer(server, conf.GetUserService(db, conf.GetRedisSettings()))
 	pb.RegisterScheduleTrackingServer(server, conf.GetScheduleTrackingService(db))
 	pb.RegisterUserFeedbackServer(server, feedbackGrpcService)
-	fmt.Println("START")
 	return server, feedbackHttpHandler, nil
 }
 
@@ -45,6 +44,7 @@ func main() {
 			panic(err)
 			return
 		}
+		log.Println("START GRPC SERVER")
 		if err := server.Serve(l); err != nil {
 			panic(err)
 		}
@@ -56,6 +56,7 @@ func main() {
 			r.GET("/all", feedbackHttpHandler.GetAll)
 			r.GET("/byEmail", feedbackHttpHandler.GetByEmail)
 		}
+		fmt.Println("START HTTP")
 		log.Fatal(r.Run("0.0.0.0:9005"))
 	}()
 	s := make(chan os.Signal, 1)
