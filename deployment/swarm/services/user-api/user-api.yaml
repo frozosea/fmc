@@ -27,8 +27,7 @@ services:
       SEND_TO_EMAILS: <SEND_TO_ADMIN_EMAILS_SEPERATE_BY_SEMICOLON>
     networks:
       - public
-    command:
-      - "/init/main"
+
   db:
     image: postgres:13.3
     restart: unless-stopped
