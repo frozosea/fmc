@@ -1,5 +1,5 @@
 FROM golang:latest
-RUN mkdir /init
+RUN mkdir app
 WORKDIR /app/
 COPY schema/ /app/
 COPY  cmd/ /app/
