@@ -27,11 +27,10 @@ func (p *Provider) RegisterUser(ctx context.Context, user *domain.RegisterUser) 
 }
 func (p *Provider) Login(ctx context.Context, user *domain.User) (*Token, error) {
 	userId, err := p.repository.Login(ctx, user)
-	p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
-	switch err.(type) {
-	case *InvalidUserError:
+	if err != nil {
 		return nil, err
 	}
+	p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
 	token, genTokenErr := p.tokenManager.GenerateAccessRefreshTokens(userId)
 	if genTokenErr != nil {
 		p.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))

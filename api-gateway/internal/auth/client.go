@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"fmc-gateway/pkg/logging"
-	"fmc-gateway/pkg/user-pb"
+	pb "fmc-gateway/pkg/user-pb"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,26 +13,26 @@ import (
 
 type converter struct{}
 
-func (c *converter) convertUser(usr User) *__.LoginUserRequest {
-	return &__.LoginUserRequest{
+func (c *converter) convertUser(usr User) *pb.LoginUserRequest {
+	return &pb.LoginUserRequest{
 		Email:    usr.Email,
 		Password: usr.Password,
 	}
 }
-func (c *converter) convertLoginUser(usr *User) *__.LoginUserRequest {
-	return &__.LoginUserRequest{
+func (c *converter) convertLoginUser(usr *User) *pb.LoginUserRequest {
+	return &pb.LoginUserRequest{
 		Email:    usr.Email,
 		Password: usr.Password,
 	}
 }
-func (c *converter) convertRegisterUser(r *RegisterUser) *__.RegisterUserRequest {
-	return &__.RegisterUserRequest{
+func (c *converter) convertRegisterUser(r *RegisterUser) *pb.RegisterUserRequest {
+	return &pb.RegisterUserRequest{
 		Email:    r.Email,
 		Username: r.Username,
 		Password: r.Password,
 	}
 }
-func (c *converter) loginResponseConvert(response *__.LoginResponse) *LoginUserResponse {
+func (c *converter) loginResponseConvert(response *pb.LoginResponse) *LoginUserResponse {
 	return &LoginUserResponse{
 		Token:               response.GetTokens(),
 		RefreshToken:        response.GetRefreshToken(),
@@ -69,13 +69,13 @@ type IClient interface {
 	GetUserIdByJwtToken(ctx context.Context, token string) (int64, error)
 }
 type Client struct {
-	cli       __.AuthClient
+	cli       pb.AuthClient
 	converter converter
 	logger    logging.ILogger
 }
 
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
-	return &Client{cli: __.NewAuthClient(conn), converter: converter{}, logger: logger}
+	return &Client{cli: pb.NewAuthClient(conn), converter: converter{}, logger: logger}
 }
 
 func (c *Client) Register(ctx context.Context, user *RegisterUser) error {
@@ -107,7 +107,7 @@ func (c *Client) Login(ctx context.Context, user *User) (*LoginUserResponse, err
 	return c.converter.loginResponseConvert(r), nil
 }
 func (c *Client) RefreshToken(ctx context.Context, refreshToken string) (*LoginUserResponse, error) {
-	r, err := c.cli.RefreshToken(ctx, &__.RefreshTokenRequest{RefreshToken: refreshToken})
+	r, err := c.cli.RefreshToken(ctx, &pb.RefreshTokenRequest{RefreshToken: refreshToken})
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`refresh failed: %s`, err.Error()))
 		return &LoginUserResponse{}, err
@@ -115,7 +115,7 @@ func (c *Client) RefreshToken(ctx context.Context, refreshToken string) (*LoginU
 	return c.converter.loginResponseConvert(r), nil
 }
 func (c *Client) CheckAccess(ctx context.Context, token string) (bool, error) {
-	success, err := c.cli.Auth(ctx, &__.AuthRequest{Tokens: token})
+	success, err := c.cli.Auth(ctx, &pb.AuthRequest{Tokens: token})
 	if err != nil {
 		return false, err
 	}
@@ -125,7 +125,7 @@ func (c *Client) CheckAccess(ctx context.Context, token string) (bool, error) {
 	return success.GetSuccess(), nil
 }
 func (c *Client) GetUserIdByJwtToken(ctx context.Context, token string) (int64, error) {
-	response, err := c.cli.GetUserIdByJwtToken(ctx, &__.GetUserIdByJwtTokenRequest{Token: token})
+	response, err := c.cli.GetUserIdByJwtToken(ctx, &pb.GetUserIdByJwtTokenRequest{Token: token})
 	statusCode := status.Convert(err).Code()
 	switch statusCode {
 	case codes.Unauthenticated:
