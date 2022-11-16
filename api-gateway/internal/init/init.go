@@ -205,6 +205,9 @@ func initUserRoutes(router *gin.Engine, handler *user.HttpHandler, middleware *m
 		group.DELETE(`/bills`, handler.DeleteBillNumbersFromAccount)
 		group.GET(`/all`, handler.GetAll)
 	}
+	{
+		router.POST("/user/feedback", handler.Feedback)
+	}
 }
 func initFreightsRouter(router *gin.Engine, handler *freight_service.Http) {
 	group := router.Group("/freight")
