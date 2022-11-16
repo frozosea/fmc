@@ -167,7 +167,7 @@ func (h *HttpHandler) GetAll(c *gin.Context) {
 // @Router /user/feedback [post]
 func (h *HttpHandler) Feedback(c *gin.Context) {
 	var s *AddFeedback
-	if err := c.ShouldBindJSON(s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		c.JSON(400, gin.H{"success": false, "error": "cannot validate your request!"})
 		return
 	}
