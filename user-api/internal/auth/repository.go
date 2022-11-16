@@ -51,7 +51,7 @@ func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) er
 func (r *Repository) Login(ctx context.Context, user *domain.User) (int, error) {
 	var id int
 	var userPassword string
-	row := r.db.QueryRowContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.username = $1`, user.Email)
+	row := r.db.QueryRowContext(ctx, `SELECT id, password FROM "user" AS u WHERE u.email = $1`, user.Email)
 	if row.Err() != nil {
 		return id, row.Err()
 	}
