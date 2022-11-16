@@ -38,7 +38,7 @@ type Client struct {
 }
 
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
-	return &Client{conn: conn, userCli: pb.NewUserClient(conn), logger: logger, converter: converter{}}
+	return &Client{conn: conn, userCli: pb.NewUserClient(conn), feedbackCli: pb.NewUserFeedbackClient(conn), logger: logger, converter: converter{}}
 }
 
 func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *AddContainers) error {

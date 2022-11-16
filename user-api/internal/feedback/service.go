@@ -38,12 +38,14 @@ func (s *Service) Add(ctx context.Context, fb *Feedback) error {
 	errCh := make(chan error, 1)
 	go func() {
 		if err := s.repository.Save(ctx, fb); err != nil {
+			s.logger.ExceptionLog(fmt.Sprintf(`save feedback to repository error: %s`, err.Error()))
 			errCh <- err
 		}
 	}()
 	go func() {
 		subject := fmt.Sprintf("container tracking feedback by %s", fb.Email)
 		if err := s.mailing.SendSimple(s.sendToEmails, subject, s.msgGen.Gen(fb), s.msgGen.getTextType()); err != nil {
+			s.logger.ExceptionLog(fmt.Sprintf(`send email with feedback error: %s`, err.Error()))
 			errCh <- err
 		}
 	}()
@@ -53,8 +55,6 @@ func (s *Service) Add(ctx context.Context, fb *Feedback) error {
 			return ctx.Err()
 		case err := <-errCh:
 			return err
-		default:
-			return nil
 		}
 	}
 }
