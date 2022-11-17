@@ -358,6 +358,8 @@ type AuthClient interface {
 	//Yes
 	Auth(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	GetUserIdByJwtToken(ctx context.Context, in *GetUserIdByJwtTokenRequest, opts ...grpc.CallOption) (*GetUserIdByJwtTokenResponse, error)
+	SendRecoveryEmail(ctx context.Context, in *SendRecoveryEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RecoveryUser(ctx context.Context, in *RecoveryUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type authClient struct {
@@ -413,6 +415,24 @@ func (c *authClient) GetUserIdByJwtToken(ctx context.Context, in *GetUserIdByJwt
 	return out, nil
 }
 
+func (c *authClient) SendRecoveryEmail(ctx context.Context, in *SendRecoveryEmailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.Auth/SendRecoveryEmail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) RecoveryUser(ctx context.Context, in *RecoveryUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/user.Auth/RecoveryUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility
@@ -426,6 +446,8 @@ type AuthServer interface {
 	//Yes
 	Auth(context.Context, *AuthRequest) (*AuthResponse, error)
 	GetUserIdByJwtToken(context.Context, *GetUserIdByJwtTokenRequest) (*GetUserIdByJwtTokenResponse, error)
+	SendRecoveryEmail(context.Context, *SendRecoveryEmailRequest) (*emptypb.Empty, error)
+	RecoveryUser(context.Context, *RecoveryUserRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -447,6 +469,12 @@ func (UnimplementedAuthServer) Auth(context.Context, *AuthRequest) (*AuthRespons
 }
 func (UnimplementedAuthServer) GetUserIdByJwtToken(context.Context, *GetUserIdByJwtTokenRequest) (*GetUserIdByJwtTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserIdByJwtToken not implemented")
+}
+func (UnimplementedAuthServer) SendRecoveryEmail(context.Context, *SendRecoveryEmailRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendRecoveryEmail not implemented")
+}
+func (UnimplementedAuthServer) RecoveryUser(context.Context, *RecoveryUserRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RecoveryUser not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -551,6 +579,42 @@ func _Auth_GetUserIdByJwtToken_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_SendRecoveryEmail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendRecoveryEmailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).SendRecoveryEmail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Auth/SendRecoveryEmail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).SendRecoveryEmail(ctx, req.(*SendRecoveryEmailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_RecoveryUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecoveryUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).RecoveryUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/user.Auth/RecoveryUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).RecoveryUser(ctx, req.(*RecoveryUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -577,6 +641,14 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserIdByJwtToken",
 			Handler:    _Auth_GetUserIdByJwtToken_Handler,
+		},
+		{
+			MethodName: "SendRecoveryEmail",
+			Handler:    _Auth_SendRecoveryEmail_Handler,
+		},
+		{
+			MethodName: "RecoveryUser",
+			Handler:    _Auth_RecoveryUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

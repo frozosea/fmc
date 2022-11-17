@@ -106,3 +106,51 @@ func (h *HttpHandler) Refresh(c *gin.Context) {
 	c.JSON(200, token)
 	return
 }
+
+// SendRecoveryEmail
+// @Summary Send recovery user email
+// @Description Send recovery user email
+// @accept json
+// @Param input body SendRecoveryEmailRequest true "info"
+// @Tags         Auth
+// @Success 200 {object} BaseResponse
+// @Failure 500 {object} BaseResponse
+// @Router /auth/remind [post]
+func (h *HttpHandler) SendRecoveryEmail(c *gin.Context) {
+	var s *SendRecoveryEmailRequest
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	err := h.client.SendRecoveryEmail(c.Request.Context(), s.Email)
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "error": nil})
+	return
+}
+
+// RecoveryUser
+// @Summary Recovery user by token
+// @Description Recovery user by token
+// @accept json
+// @Param input body RecoveryUserRequest true "info"
+// @Tags         Auth
+// @Success 200 {object} BaseResponse
+// @Failure 500 {object} BaseResponse
+// @Router /auth/recovery [post]
+func (h *HttpHandler) RecoveryUser(c *gin.Context) {
+	var s *RecoveryUserRequest
+	if err := c.ShouldBindJSON(&s); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	err := h.client.RecoveryUser(c.Request.Context(), s.Token, s.Password)
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"success": true, "error": nil})
+	return
+}

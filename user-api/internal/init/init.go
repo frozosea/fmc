@@ -149,7 +149,7 @@ func getAuthLoggerConfig() (*AuthLoggerSettings, error) {
 	return readIni("AUTH_LOGS", config)
 }
 
-func GetAuthService(db *sql.DB) *auth.Service {
+func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 	loggerConf, err := getAuthLoggerConfig()
 	if err != nil {
 		panic(err)
@@ -161,9 +161,14 @@ func GetAuthService(db *sql.DB) *auth.Service {
 	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
 	hash := auth.NewHash()
 	repository := auth.NewRepository(db, hash)
-
-	controller := auth.NewProvider(repository, tokenManager, logging.NewLogger(loggerConf.ControllerSaveDir))
-	return auth.NewService(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
+	mSettings, err := getMailingSettings()
+	if err != nil {
+		panic(err)
+		return nil
+	}
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
+	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir))
+	return auth.NewGrpc(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {
 	config := new(UserLoggerSettings)
@@ -181,14 +186,14 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
 
-func GetUserService(db *sql.DB, redisConf *RedisSettings) *user.Service {
+func GetUserGrpcService(db *sql.DB, redisConf *RedisSettings) *user.Grpc {
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
 	repository := user.NewRepository(db)
-	controller := user.NewProvider(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
-	return user.NewService(controller)
+	controller := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	return user.NewGrpc(controller)
 }
 func getMailingSettings() (*MailingSettings, error) {
 	email, password, smtpHost, smtpPort, sendToEmails := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS")

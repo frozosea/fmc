@@ -2,63 +2,75 @@ package user
 
 import (
 	"context"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"fmt"
 	"user-api/internal/domain"
-	pb "user-api/pkg/proto"
+	"user-api/pkg/cache"
+	"user-api/pkg/logging"
 )
 
 type Service struct {
-	controller *Provider
-	converter  converter
-	pb.UnimplementedUserServer
+	repository IRepository
+	logger     logging.ILogger
+	cache      cache.ICache
 }
 
-func NewService(controller *Provider) *Service {
-	return &Service{controller: controller, converter: converter{}, UnimplementedUserServer: pb.UnimplementedUserServer{}}
+func NewService(repository IRepository, logger logging.ILogger, cache cache.ICache) *Service {
+	return &Service{repository: repository, logger: logger, cache: cache}
 }
 
-func (s *Service) AddContainerToAccount(ctx context.Context, r *pb.AddContainerToAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.AddContainerToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r))
-}
-func (s *Service) AddBillNumberToAccount(ctx context.Context, r *pb.AddContainerToAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.AddBillNumberToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r))
-}
-func (s *Service) DeleteContainersFromAccount(ctx context.Context, r *pb.DeleteContainersFromAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.DeleteContainersFromAccount(ctx, int(r.GetUserId()), r.GetNumberIds())
-
-}
-func (s *Service) DeleteBillNumbersFromAccount(ctx context.Context, r *pb.DeleteContainersFromAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.DeleteBillNumbersFromAccount(ctx, int(r.GetUserId()), r.GetNumberIds())
-
-}
-func (s *Service) GetAll(ctx context.Context, r *pb.GetAllContainersFromAccountRequest) (*pb.GetAllContainersResponse, error) {
-	res, err := s.controller.GetAllContainers(ctx, int(r.GetUserId()))
-	if err != nil {
-		return &pb.GetAllContainersResponse{}, err
+func (p *Service) AddContainerToAccount(ctx context.Context, userId int, containers []string) error {
+	go p.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %v`, userId, containers))
+	if saveErr := p.repository.AddContainerToAccount(ctx, userId, containers); saveErr != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`add container to user-pb: %d failed with err: %s`, userId, saveErr.Error()))
+		return saveErr
 	}
-	return &pb.GetAllContainersResponse{
-		BillNumbers: s.converter.convertContainerOrBillToGrpc(res.BillNumbers),
-		Containers:  s.converter.convertContainerOrBillToGrpc(res.Containers),
-	}, nil
+	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
-
-type converter struct{}
-
-func (c *converter) convertContainerOrBillToGrpc(r []*domain.Container) []*pb.ContainerResponse {
-	var arr []*pb.ContainerResponse
-	for _, v := range r {
-		arr = append(arr, &pb.ContainerResponse{
-			Id:        v.Id,
-			Number:    v.Number,
-			IsOnTrack: v.IsOnTrack,
-		})
+func (p *Service) AddBillNumberToAccount(ctx context.Context, userId int, numbers []string) error {
+	go p.logger.InfoLog(fmt.Sprintf(`add numbers to user: %d, numbers: %v`, &userId, &numbers))
+	if addBillErr := p.repository.AddBillNumberToAccount(ctx, userId, numbers); addBillErr != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`add numbers: %v to user: %d err: %s`, numbers, userId, addBillErr.Error()))
+		return addBillErr
 	}
-	return arr
+	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
-func (c *converter) addContainerOrBillConvert(r *pb.AddContainerToAccountRequest) []string {
-	var containers []string
-	for _, v := range r.GetContainer() {
-		containers = append(containers, v.GetNumber())
+func (p *Service) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+	if deleteErr := p.repository.DeleteContainersFromAccount(ctx, userId, numberIds); deleteErr != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`delete containers: %v from user-pb: %d failed with err: %s`, numberIds, userId, deleteErr.Error()))
+		return deleteErr
 	}
-	return containers
+	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
+}
+func (p *Service) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+	if delErr := p.repository.DeleteBillNumbersFromAccount(ctx, userId, numberIds); delErr != nil {
+		//go p.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers: %v from user-pb: %d failed with err: %s`, numberIds, userId, delErr.Error()))
+		return delErr
+	}
+	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
+}
+func (p *Service) GetAllContainers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
+	cacheCh := make(chan *domain.AllContainersAndBillNumbers)
+	go func() {
+		var containers domain.AllContainersAndBillNumbers
+		if getFromCacheError := p.cache.Get(ctx, fmt.Sprintf(`%d`, userId), &containers); getFromCacheError != nil {
+			return
+		}
+		cacheCh <- &containers
+	}()
+	repoCh := make(chan *domain.AllContainersAndBillNumbers)
+	go func() {
+		result, getFromRepositoryErr := p.repository.GetAllContainersAndBillNumbers(ctx, userId)
+		if getFromRepositoryErr != nil {
+			return
+		}
+		repoCh <- result
+	}()
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case cacheResult := <-cacheCh:
+		return cacheResult, nil
+	case repoRes := <-repoCh:
+		return repoRes, p.cache.Set(ctx, fmt.Sprintf(`%d`, userId), repoRes)
+	}
 }

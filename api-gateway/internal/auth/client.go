@@ -67,6 +67,8 @@ type IClient interface {
 	RefreshToken(ctx context.Context, refreshToken string) (*LoginUserResponse, error)
 	CheckAccess(ctx context.Context, token string) (bool, error)
 	GetUserIdByJwtToken(ctx context.Context, token string) (int64, error)
+	SendRecoveryEmail(ctx context.Context, email string) error
+	RecoveryUser(ctx context.Context, token string, password string) error
 }
 type Client struct {
 	cli       pb.AuthClient
@@ -133,4 +135,21 @@ func (c *Client) GetUserIdByJwtToken(ctx context.Context, token string) (int64, 
 	default:
 		return response.GetUserId(), err
 	}
+}
+func (c *Client) SendRecoveryEmail(ctx context.Context, email string) error {
+	_, err := c.cli.SendRecoveryEmail(ctx, &pb.SendRecoveryEmailRequest{Email: email})
+	statusCode := status.Convert(err).Code()
+	switch statusCode {
+	case codes.NotFound:
+		return &InvalidUserError{}
+	default:
+		return err
+	}
+}
+func (c *Client) RecoveryUser(ctx context.Context, token string, password string) error {
+	_, err := c.cli.RecoveryUser(ctx, &pb.RecoveryUserRequest{
+		Token:    token,
+		Password: password,
+	})
+	return err
 }

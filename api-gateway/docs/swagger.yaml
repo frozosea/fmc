@@ -29,6 +29,13 @@ definitions:
     - tokenExpires
     - token_type
     type: object
+  auth.RecoveryUserRequest:
+    properties:
+      password:
+        type: string
+      token:
+        type: string
+    type: object
   auth.RefreshTokenRequest:
     properties:
       refreshToken:
@@ -48,6 +55,13 @@ definitions:
     - email
     - password
     - username
+    type: object
+  auth.SendRecoveryEmailRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
     type: object
   auth.User:
     properties:
@@ -361,6 +375,30 @@ paths:
       summary: Login user by username and password
       tags:
       - Auth
+  /auth/recovery:
+    post:
+      consumes:
+      - application/json
+      description: Recovery user by token
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RecoveryUserRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+      summary: Recovery user by token
+      tags:
+      - Auth
   /auth/refresh:
     post:
       consumes:
@@ -407,6 +445,30 @@ paths:
           schema:
             $ref: '#/definitions/auth.BaseResponse'
       summary: Register user by username and password
+      tags:
+      - Auth
+  /auth/remind:
+    post:
+      consumes:
+      - application/json
+      description: Send recovery user email
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SendRecoveryEmailRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.BaseResponse'
+      summary: Send recovery user email
       tags:
       - Auth
   /cities:

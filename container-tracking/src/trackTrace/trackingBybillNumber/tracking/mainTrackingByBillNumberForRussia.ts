@@ -60,7 +60,6 @@ export default class MainTrackingByBillNumberForRussia {
                             return res
                         }
                     }
-
                 } catch (e) {
                     continue
                 }

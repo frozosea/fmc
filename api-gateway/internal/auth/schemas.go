@@ -15,3 +15,11 @@ type BaseResponse struct {
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refreshToken" binding:"required"`
 }
+type SendRecoveryEmailRequest struct {
+	Email string `json:"email" binding:"required"`
+}
+
+type RecoveryUserRequest struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}

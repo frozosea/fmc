@@ -180,8 +180,10 @@ func initAuthRoutes(router *gin.Engine, AuthHttpHandler *auth.HttpHandler) {
 	group := router.Group(`/auth`)
 	{
 		group.POST(`/refresh`, AuthHttpHandler.Refresh)
-		router.POST(`/auth/register`, AuthHttpHandler.Register)
-		router.POST(`/auth/login`, AuthHttpHandler.Login)
+		group.POST(`/register`, AuthHttpHandler.Register)
+		group.POST(`/login`, AuthHttpHandler.Login)
+		group.POST("/remind", AuthHttpHandler.SendRecoveryEmail)
+		group.POST("/recovery", AuthHttpHandler.RecoveryUser)
 	}
 }
 func getUserClient(ip, port string, logger logging.ILogger) (*user.Client, error) {

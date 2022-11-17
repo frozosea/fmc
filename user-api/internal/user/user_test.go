@@ -95,7 +95,7 @@ func (l *loggerMoch) WarningLog(logString string) {}
 func (l *loggerMoch) FatalLog(logString string) {}
 
 func TestControllerWithMochs(t *testing.T) {
-	c := NewProvider(&RespositoryMoch{}, &loggerMoch{}, &cacheMoch{})
+	c := NewService(&RespositoryMoch{}, &loggerMoch{}, &cacheMoch{})
 	ctx := context.Background()
 	res, err := c.GetAllContainers(ctx, 1)
 	assert.NoError(t, err)
