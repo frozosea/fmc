@@ -22,8 +22,8 @@ func GetServer() (*grpc.Server, *feedback.Http, error) {
 		return server, nil, err
 	}
 	feedbackGrpcService, feedbackHttpHandler := conf.GetFeedbackDeliveries(db)
-	pb.RegisterAuthServer(server, conf.GetAuthService(db))
-	pb.RegisterUserServer(server, conf.GetUserService(db, conf.GetRedisSettings()))
+	pb.RegisterAuthServer(server, conf.GetAuthGrpcService(db))
+	pb.RegisterUserServer(server, conf.GetUserGrpcService(db, conf.GetRedisSettings()))
 	pb.RegisterScheduleTrackingServer(server, conf.GetScheduleTrackingService(db))
 	pb.RegisterUserFeedbackServer(server, feedbackGrpcService)
 	return server, feedbackHttpHandler, nil

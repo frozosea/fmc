@@ -3,105 +3,103 @@ package auth
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
+	"time"
 	"user-api/internal/domain"
+	"user-api/pkg/htmlTemplateReader"
 	"user-api/pkg/logging"
-	pb "user-api/pkg/proto"
+	"user-api/pkg/mailing"
 )
 
-type converter struct{}
-
-func (c *converter) registerUserConvert(r *pb.RegisterUserRequest) *domain.RegisterUser {
-	return &domain.RegisterUser{
-		Email:    r.GetEmail(),
-		Username: r.GetUsername(),
-		Password: r.GetPassword(),
-	}
-}
-func (c *converter) loginUserConvert(r *pb.LoginUserRequest) *domain.User {
-	return &domain.User{
-		Email:    r.GetEmail(),
-		Password: r.GetPassword(),
-	}
-}
-func (c *converter) loginResponseConvert(t *Token) *pb.LoginResponse {
-	return &pb.LoginResponse{
-		Tokens:              t.AccessToken,
-		RefreshToken:        t.RefreshToken,
-		TokenExpires:        int64(t.AccessTokenExpiration),
-		RefreshTokenExpires: int64(t.RefreshTokenExpiration),
-	}
-}
-
 type Service struct {
-	controller *Provider
-	converter  converter
-	logger     logging.ILogger
-	pb.UnimplementedAuthServer
+	repository   IRepository
+	tokenManager ITokenManager
+	hash         IHash
+	reader       *htmlTemplateReader.HTMLReader
+	emailSender  mailing.IMailing
+	logger       logging.ILogger
 }
 
-func NewService(controller *Provider, logger logging.ILogger) *Service {
-	return &Service{controller: controller, converter: converter{}, logger: logger, UnimplementedAuthServer: pb.UnimplementedAuthServer{}}
+func NewService(repository IRepository, tokenManager ITokenManager, hash IHash, emailSender mailing.IMailing, logger logging.ILogger) *Service {
+	return &Service{repository: repository, tokenManager: tokenManager, logger: logger, hash: hash, emailSender: emailSender, reader: htmlTemplateReader.NewHTMLReader()}
 }
 
-func (s *Service) RegisterUser(ctx context.Context, r *pb.RegisterUserRequest) (*emptypb.Empty, error) {
-	if err := s.controller.RegisterUser(ctx, s.converter.registerUserConvert(r)); err != nil {
-		switch err.(type) {
-		case *AlreadyRegisterError:
-			return &emptypb.Empty{}, status.Error(codes.AlreadyExists, "user with these parameters already exists")
-		default:
-			return &emptypb.Empty{}, err
-		}
+func (p *Service) RegisterUser(ctx context.Context, user *domain.RegisterUser) error {
+	hashPassword, hashErr := p.hash.Hash(user.Password)
+	if hashErr != nil {
+		return hashErr
 	}
-	go s.logger.InfoLog(fmt.Sprintf(`user-pb with username "%s" was registered`, r.GetUsername()))
-	return &emptypb.Empty{}, nil
+	user.Password = hashPassword
+	if regUserErr := p.repository.Register(ctx, user); regUserErr != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Email, regUserErr.Error()))
+		return regUserErr
+	}
+	go p.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Email))
+	return nil
 }
-
-func (s *Service) LoginUser(ctx context.Context, r *pb.LoginUserRequest) (*pb.LoginResponse, error) {
-	resp, err := s.controller.Login(ctx, s.converter.loginUserConvert(r))
+func (p *Service) Login(ctx context.Context, user *domain.User) (*Token, error) {
+	userId, err := p.repository.Login(ctx, user)
 	if err != nil {
-		switch err.(type) {
-		case *InvalidUserError:
-			return &pb.LoginResponse{}, status.Error(codes.NotFound, "cannot login user with these parameters")
-		default:
-			return &pb.LoginResponse{}, status.Error(codes.Internal, err.Error())
-		}
+		return nil, err
 	}
-	return s.converter.loginResponseConvert(resp), nil
-}
-func (s *Service) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (*pb.LoginResponse, error) {
-	ch := make(chan *pb.LoginResponse, 1)
-	errCh := make(chan error, 1)
-	go func() {
-		resp, err := s.controller.RefreshToken(r.GetRefreshToken())
-		if err != nil {
-			errCh <- status.Error(codes.Internal, err.Error())
-			ch <- &pb.LoginResponse{}
-		}
-		errCh <- nil
-		ch <- s.converter.loginResponseConvert(resp)
-	}()
-	select {
-	case <-ctx.Done():
-		return &pb.LoginResponse{}, ctx.Err()
-	case result := <-ch:
-		return result, <-errCh
+	p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
+	token, genTokenErr := p.tokenManager.GenerateAccessRefreshTokens(userId)
+	if genTokenErr != nil {
+		p.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))
+		return nil, genTokenErr
 	}
+	return token, genTokenErr
 }
-func (s *Service) Auth(ctx context.Context, r *pb.AuthRequest) (*pb.AuthResponse, error) {
-	success, err := s.controller.CheckAccess(ctx, r.GetTokens())
-	if err != nil || !success {
-		return &pb.AuthResponse{Success: false}, err
+func (p *Service) RefreshToken(refreshToken string) (*Token, error) {
+	var token *Token
+	userId, decodeTokenErr := p.tokenManager.DecodeToken(refreshToken)
+	if decodeTokenErr != nil {
+		return token, decodeTokenErr
 	}
-	return &pb.AuthResponse{Success: true}, nil
-
+	return p.tokenManager.GenerateAccessRefreshTokens(userId)
 }
-func (s *Service) GetUserIdByJwtToken(ctx context.Context, r *pb.GetUserIdByJwtTokenRequest) (*pb.GetUserIdByJwtTokenResponse, error) {
-	userId, err := s.controller.GetUserIdByJwtToken(ctx, r.GetToken())
+func (p *Service) CheckAccess(ctx context.Context, tokenString string) (bool, error) {
+	userId, decodeTokenErr := p.tokenManager.DecodeToken(tokenString)
+	if decodeTokenErr != nil || userId < 0 {
+		return false, decodeTokenErr
+	}
+	return p.repository.CheckAccess(ctx, userId)
+}
+func (p *Service) GetUserIdByJwtToken(tokenString string) (int, error) {
+	res, err := p.tokenManager.DecodeToken(tokenString)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
+		return -1, err
 	}
-	return &pb.GetUserIdByJwtTokenResponse{UserId: int64(userId)}, nil
+	return res, nil
+}
+func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error {
+	if exist, err := p.repository.CheckEmailExist(ctx, email); !exist || err != nil {
+		return &InvalidUserError{}
+	}
+	userId, err := p.repository.GetUserId(ctx, email)
+	if err != nil {
+		return err
+	}
+	token, err := p.tokenManager.GenerateToken(userId, time.Hour)
+	if err != nil {
+		return err
+	}
+	url := generateRecoveryPasswordUrl(token)
+	e := &EmailTemplate{url}
+	template, err := p.reader.GetStringHtml("templates", "resetPasswordEmailTemplate", e)
+	if err != nil {
+		return err
+	}
+	return p.emailSender.SendSimple([]string{email}, "FindMyCargo recovery password", template, "text/plain")
+}
+
+func (p *Service) RecoveryUser(ctx context.Context, token string, newPassword string) error {
+	userId, err := p.tokenManager.DecodeToken(token)
+	if err != nil {
+		return err
+	}
+	hashPwd, err := p.hash.Hash(newPassword)
+	if err != nil {
+		return err
+	}
+	return p.repository.SetNewPassword(ctx, userId, hashPwd)
 }

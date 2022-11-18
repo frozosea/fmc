@@ -58,6 +58,10 @@ service Auth{
   rpc Auth(AuthRequest) returns (AuthResponse) {};
 
   rpc GetUserIdByJwtToken(GetUserIdByJwtTokenRequest) returns (GetUserIdByJwtTokenResponse) {};
+
+  rpc SendRecoveryEmail(SendRecoveryEmailRequest) returns (google.protobuf.Empty) {};
+
+  rpc RecoveryUser(RecoveryUserRequest)returns (google.protobuf.Empty) {};
 }
 message RegisterUserRequest{
   string email = 1;
@@ -117,4 +121,12 @@ message CheckNumberExistsResponse{
 message AddFeedbackRequest{
   string email = 1;
   string message = 2;
+}
+
+message SendRecoveryEmailRequest{
+  string email = 1;
+}
+message RecoveryUserRequest{
+  string token = 1;
+  string password = 2;
 }
