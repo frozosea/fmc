@@ -106,7 +106,15 @@ func GetJwtSecret() string {
 func GetTokenSettings() (*JwtSettings, error) {
 	jwt := new(JwtSettings)
 	jwt.JwtSecretKey = GetJwtSecret()
-	return readIni("TOKEN", jwt)
+	jwt.AccessTokenExpiration = os.Getenv("ACCESS_TOKEN_EXPIRATION")
+	if jwt.AccessTokenExpiration == "" {
+		return nil, errors.New("no ACCESS_TOKEN_EXPIRATION env variable")
+	}
+	jwt.RefreshTokenExpiration = os.Getenv("REFRESH_TOKEN_EXPIRATION")
+	if jwt.RefreshTokenExpiration == "" {
+		return nil, errors.New("no REFRESH_TOKEN_EXPIRATION env variable")
+	}
+	return jwt, nil
 }
 
 func GetRedisSettings() *RedisSettings {

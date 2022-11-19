@@ -28,6 +28,8 @@ services:
       BASE_DOMAIN_URL: <BASE_BACKEND_URL_WITH_PROTOCOL>
       SCHEDULE_TRACKING_IP: schedule_tracking_api
       SCHEDULE_TRACKING_PORT: 8005
+      REFRESH_TOKEN_EXPIRATION: 12h
+      ACCESS_TOKEN_EXPIRATION: 1h
     networks:
       - public
 
