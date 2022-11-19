@@ -7,6 +7,8 @@ import (
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
 	"strconv"
@@ -191,7 +193,19 @@ func GetUserGrpcService(db *sql.DB, redisConf *RedisSettings) *user.Grpc {
 	if err != nil {
 		panic(err)
 	}
-	repository := user.NewRepository(db)
+	scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort := os.Getenv("SCHEDULE_TRACKING_IP"), os.Getenv("SCHEDULE_TRACKING_PORT")
+	if scheduleTrackingMicroserviceIp == "" || scheduleTrackingMicroservicePort == "" {
+		panic("no env variables!")
+		return nil
+	}
+	url := fmt.Sprintf("%s:%s", scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort)
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+		return nil
+	}
+	scheduleTrackingInfoRepository := user.NewScheduleTrackingInfoRepository(conn)
+	repository := user.NewRepository(db, scheduleTrackingInfoRepository)
 	controller := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
 	return user.NewGrpc(controller)
 }

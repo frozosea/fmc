@@ -29,15 +29,21 @@ message AddContainerToAccountRequest{
 }
 message DeleteContainersFromAccountRequest{
   int64 user_id = 1;
-  repeated int64 number_ids = 2;
+  repeated string numbers = 2;
 }
 message GetAllContainersFromAccountRequest{
   int64 user_id = 1;
 }
+message ScheduleTrackingObject{
+  string time = 1;
+  repeated string emails = 2;
+  string subject = 3;
+}
 message ContainerResponse{
-  int64 id = 1;
-  string number = 2;
-  bool is_on_track = 3;
+  string number = 1;
+  bool is_on_track = 2;
+  bool is_container = 3;
+  ScheduleTrackingObject scheduleTrackingObject = 4;
 }
 message GetAllContainersResponse{
   repeated ContainerResponse bill_numbers = 1;

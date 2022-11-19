@@ -17,13 +17,21 @@ func (c *converter) ConvertToGrpcContainer(r []string) []*pb.Container {
 	}
 	return containers
 }
+func (c *converter) scheduleTrackingInfoObjectFromGrpc(r *pb.ScheduleTrackingObject) *ScheduleTrackingInfoObject {
+	return &ScheduleTrackingInfoObject{
+		Time:    r.GetTime(),
+		Emails:  r.GetEmails(),
+		Subject: r.GetSubject(),
+	}
+}
 func (c *converter) containerFromGrpc(r []*pb.ContainerResponse) []*Container {
 	var containers []*Container
 	for _, item := range r {
 		containers = append(containers, &Container{
-			Id:        item.GetId(),
-			Number:    item.GetNumber(),
-			IsOnTrack: item.GetIsOnTrack(),
+			Number:               item.GetNumber(),
+			IsOnTrack:            item.GetIsOnTrack(),
+			IsContainer:          item.GetIsContainer(),
+			ScheduleTrackingInfo: c.scheduleTrackingInfoObjectFromGrpc(item.GetScheduleTrackingObject()),
 		})
 	}
 	return containers
@@ -54,8 +62,8 @@ func (c *Client) AddContainerToAccount(ctx context.Context, userId int64, r *Add
 }
 func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
 	_, err := c.userCli.DeleteContainersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
-		UserId:    userId,
-		NumberIds: r.Numbers,
+		UserId:  userId,
+		Numbers: r.Numbers,
 	})
 	if err != nil {
 		go c.logger.ExceptionLog(fmt.Sprintf(`delete containers from account: %d for numbers: %v failed: %s`, userId, r.Numbers, err.Error()))
@@ -65,8 +73,8 @@ func (c *Client) DeleteContainersFromAccount(ctx context.Context, userId int64, 
 }
 func (c *Client) DeleteBillNumbersFromAccount(ctx context.Context, userId int64, r *DeleteNumbers) error {
 	_, err := c.userCli.DeleteBillNumbersFromAccount(ctx, &pb.DeleteContainersFromAccountRequest{
-		UserId:    userId,
-		NumberIds: r.Numbers,
+		UserId:  userId,
+		Numbers: r.Numbers,
 	})
 	if err != nil {
 		//go c.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers from account: %d for numbers: %v failed: %s`, userId, r.numberIds, err.Error()))

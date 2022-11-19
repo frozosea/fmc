@@ -3,23 +3,53 @@ package user
 import (
 	"context"
 	"database/sql"
+	"google.golang.org/grpc"
 	"user-api/internal/domain"
+	pb "user-api/pkg/scheduleTrackingPb"
 )
+
+type IScheduleTrackingInfoRepository interface {
+	GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error)
+}
+
+type ScheduleTrackingInfoRepository struct {
+	cli pb.ScheduleTrackingClient
+}
+
+func NewScheduleTrackingInfoRepository(conn *grpc.ClientConn) *ScheduleTrackingInfoRepository {
+	return &ScheduleTrackingInfoRepository{cli: pb.NewScheduleTrackingClient(conn)}
+}
+
+func (r *ScheduleTrackingInfoRepository) GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error) {
+	response, err := r.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{
+		Number: number,
+		UserId: int64(userId),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &domain.ScheduleTrackingInfoObject{
+		Emails:  response.GetEmails(),
+		Subject: response.GetEmailMessageSubject(),
+		Time:    response.GetTime(),
+	}, nil
+}
 
 type IRepository interface {
 	AddContainerToAccount(ctx context.Context, userId int, containers []string) error
 	AddBillNumberToAccount(ctx context.Context, userId int, containers []string) error
-	DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error
-	DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error
+	DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error
+	DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error
 	GetAllContainersAndBillNumbers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error)
 }
 
 type Repository struct {
-	db *sql.DB
+	scheduleTrackingInfoRepository IScheduleTrackingInfoRepository
+	db                             *sql.DB
 }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{db: db}
+func NewRepository(db *sql.DB, scheduleTrackingInfoRepository IScheduleTrackingInfoRepository) *Repository {
+	return &Repository{db: db, scheduleTrackingInfoRepository: scheduleTrackingInfoRepository}
 }
 func (r *Repository) checkContainerOrBillExists(ctx context.Context, userId int, isContainer bool, number string) bool {
 	if isContainer {
@@ -67,18 +97,18 @@ func (r *Repository) AddBillNumberToAccount(ctx context.Context, userId int, con
 	return nil
 }
 
-func (r *Repository) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	for _, v := range numberIds {
-		_, err := r.db.ExecContext(ctx, `DELETE FROM "containers" AS c WHERE c.user_id = $1 AND c.id = $2`, userId, v)
+func (r *Repository) DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	for _, v := range numbers {
+		_, err := r.db.ExecContext(ctx, `DELETE FROM "containers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, v)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	for _, v := range numberIds {
-		_, err := r.db.ExecContext(ctx, `DELETE FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.id = $2`, userId, v)
+func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	for _, v := range numbers {
+		_, err := r.db.ExecContext(ctx, `DELETE FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, v)
 		if err != nil {
 			return err
 		}
@@ -87,7 +117,7 @@ func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId in
 }
 func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domain.Container, error) {
 	var containers []*domain.Container
-	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number)  c.id,c.number,c.is_on_track FROM "containers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
+	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number)  c.number,c.is_on_track FROM "containers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
 		return containers, nil
 	}
@@ -99,25 +129,37 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 	}(containerRows)
 	for containerRows.Next() {
 		var container domain.Container
-		if scanErr := containerRows.Scan(&container.Id, &container.Number, &container.IsOnTrack); scanErr != nil {
+		if scanErr := containerRows.Scan(&container, &container.Number, &container.IsOnTrack); scanErr != nil {
 			return containers, scanErr
 		}
+		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+		if err != nil {
+			return nil, err
+		}
+		container.ScheduleTrackingInfo = scheduleTrackingInfo
+		container.IsContainer = true
 		containers = append(containers, &container)
 	}
 	return containers, nil
 }
 func (r *Repository) getAllBillNumbers(ctx context.Context, userId int) ([]*domain.Container, error) {
 	var containers []*domain.Container
-	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number) c.id,c.number,c.is_on_track FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
+	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number) c.number,c.is_on_track FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
 		return containers, err
 	}
 	defer containerRows.Close()
 	for containerRows.Next() {
 		var container domain.Container
-		if scanErr := containerRows.Scan(&container.Id, &container.Number, &container.IsOnTrack); scanErr != nil {
+		if scanErr := containerRows.Scan(&container.Number, &container.IsOnTrack); scanErr != nil {
 			return containers, scanErr
 		}
+		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+		if err != nil {
+			return nil, err
+		}
+		container.ScheduleTrackingInfo = scheduleTrackingInfo
+		container.IsContainer = false
 		containers = append(containers, &container)
 	}
 	return containers, nil

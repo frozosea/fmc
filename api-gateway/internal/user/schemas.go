@@ -5,7 +5,7 @@ type AddContainers struct {
 }
 
 type DeleteNumbers struct {
-	Numbers []int64 `json:"numberIds"`
+	Numbers []string `json:"numbers"`
 }
 
 type BaseResponse struct {

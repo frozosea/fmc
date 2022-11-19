@@ -1595,30 +1595,49 @@ const docTemplate = `{
         "user.Container": {
             "type": "object",
             "required": [
-                "IsOnTrack",
-                "id",
+                "isOnTrack",
                 "number"
             ],
             "properties": {
-                "IsOnTrack": {
+                "isContainer": {
                     "type": "boolean"
                 },
-                "id": {
-                    "type": "integer"
+                "isOnTrack": {
+                    "type": "boolean"
                 },
                 "number": {
                     "type": "string"
+                },
+                "scheduleTrackingInfo": {
+                    "$ref": "#/definitions/user.ScheduleTrackingInfoObject"
                 }
             }
         },
         "user.DeleteNumbers": {
             "type": "object",
             "properties": {
-                "numberIds": {
+                "numbers": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
+                }
+            }
+        },
+        "user.ScheduleTrackingInfoObject": {
+            "type": "object",
+            "properties": {
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
                 }
             }
         }
