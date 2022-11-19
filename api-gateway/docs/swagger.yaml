@@ -18,16 +18,16 @@ definitions:
         type: integer
       token:
         type: string
-      token_type:
-        type: string
       tokenExpires:
         type: integer
+      tokenType:
+        type: string
     required:
     - refreshToken
     - refreshTokenExpires
     - token
     - tokenExpires
-    - token_type
+    - tokenType
     type: object
   auth.RecoveryUserRequest:
     properties:

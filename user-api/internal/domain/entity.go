@@ -13,7 +13,7 @@ type ScheduleTrackingInfoObject struct {
 }
 type AllContainersAndBillNumbers struct {
 	Containers  []*Container `json:"containers"`
-	BillNumbers []*Container `json:"bill_numbers"`
+	BillNumbers []*Container `json:"billNumbers"`
 }
 type User struct {
 	Email    string `json:"email"`

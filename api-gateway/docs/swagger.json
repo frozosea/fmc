@@ -1114,7 +1114,7 @@
                 "refreshTokenExpires",
                 "token",
                 "tokenExpires",
-                "token_type"
+                "tokenType"
             ],
             "properties": {
                 "refreshToken": {
@@ -1129,7 +1129,7 @@
                 "tokenExpires": {
                     "type": "integer"
                 },
-                "token_type": {
+                "tokenType": {
                     "type": "string"
                 }
             }

@@ -2,7 +2,7 @@ package auth
 
 type LoginUserResponse struct {
 	Token               string `json:"token,omitempty" binding:"required"`
-	TokenType           string `json:"token_type,omitempty" binding:"required"`
+	TokenType           string `json:"tokenType,omitempty" binding:"required"`
 	RefreshToken        string `json:"refreshToken,omitempty" binding:"required"`
 	TokenExpires        int64  `json:"tokenExpires,omitempty" binding:"required"`
 	RefreshTokenExpires int64  `json:"refreshTokenExpires,omitempty" binding:"required"`

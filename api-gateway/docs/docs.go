@@ -1122,7 +1122,7 @@ const docTemplate = `{
                 "refreshTokenExpires",
                 "token",
                 "tokenExpires",
-                "token_type"
+                "tokenType"
             ],
             "properties": {
                 "refreshToken": {
@@ -1137,7 +1137,7 @@ const docTemplate = `{
                 "tokenExpires": {
                     "type": "integer"
                 },
-                "token_type": {
+                "tokenType": {
                     "type": "string"
                 }
             }
