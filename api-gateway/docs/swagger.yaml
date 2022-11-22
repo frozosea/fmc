@@ -220,17 +220,24 @@ definitions:
     type: object
   schedule_tracking.GetInfoAboutTrackResponse:
     properties:
-      emailSubject:
+      isContainer:
+        type: boolean
+      isOnTrack:
+        type: boolean
+      number:
         type: string
+      scheduleTrackingInfo:
+        $ref: '#/definitions/schedule_tracking.ScheduleTrackingInfo'
+    type: object
+  schedule_tracking.ScheduleTrackingInfo:
+    properties:
       emails:
         items:
           type: string
         type: array
-      nextRunTime:
-        type: integer
-      number:
+      subject:
         type: string
-      runningTime:
+      time:
         type: string
     type: object
   schedule_tracking.TimeZoneResponse:

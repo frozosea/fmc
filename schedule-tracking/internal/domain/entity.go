@@ -32,11 +32,15 @@ type DeleteEmailFromTrack struct {
 	userId int64
 }
 type GetInfoAboutTrackResponse struct {
-	number              string
-	emails              []interface{}
-	nextRunTime         time.Time
-	time                string
-	emailMessageSubject string
+	Number               string                `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	IsContainer          bool                  `json:"isContainer"`
+	IsOnTrack            bool                  `json:"isOnTrack"`
+	ScheduleTrackingInfo *ScheduleTrackingInfo `json:"scheduleTrackingInfo"`
+}
+type ScheduleTrackingInfo struct {
+	Time    string   `json:"time"`
+	Subject string   `json:"subject"`
+	Emails  []string `json:"emails"`
 }
 
 type TrackingTask struct {

@@ -134,8 +134,6 @@ func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId in
 }
 func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domain.Container, error) {
 	var containers []*domain.Container
-	//errCh := make(chan error, 1)
-	//resultCh := make(chan []*domain.Container)
 	rows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number)  c.number,c.is_on_track FROM "containers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
 		return nil, err

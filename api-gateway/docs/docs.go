@@ -1435,22 +1435,33 @@ const docTemplate = `{
         "schedule_tracking.GetInfoAboutTrackResponse": {
             "type": "object",
             "properties": {
-                "emailSubject": {
+                "isContainer": {
+                    "type": "boolean"
+                },
+                "isOnTrack": {
+                    "type": "boolean"
+                },
+                "number": {
                     "type": "string"
                 },
+                "scheduleTrackingInfo": {
+                    "$ref": "#/definitions/schedule_tracking.ScheduleTrackingInfo"
+                }
+            }
+        },
+        "schedule_tracking.ScheduleTrackingInfo": {
+            "type": "object",
+            "properties": {
                 "emails": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "nextRunTime": {
-                    "type": "integer"
-                },
-                "number": {
+                "subject": {
                     "type": "string"
                 },
-                "runningTime": {
+                "time": {
                     "type": "string"
                 }
             }

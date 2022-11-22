@@ -78,11 +78,10 @@ type GetInfoAboutTrackRequest struct {
 }
 
 type GetInfoAboutTrackResponse struct {
-	Number       string   `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
-	Emails       []string `json:"emails" validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
-	NextRunTime  int64    `json:"nextRunTime"`
-	Time         string   `json:"runningTime"`
-	EmailSubject string   `json:"emailSubject"`
+	Number               string                `json:"number" validate:"min=10,max=28,regexp=[a-zA-Z]{3,}\d{5,}"`
+	IsContainer          bool                  `json:"isContainer"`
+	IsOnTrack            bool                  `json:"isOnTrack"`
+	ScheduleTrackingInfo *ScheduleTrackingInfo `json:"scheduleTrackingInfo"`
 }
 
 type BaseResponse struct {
@@ -98,4 +97,9 @@ type ChangeEmailMessageSubjectRequest struct {
 	Number     string
 	userId     int64
 	NewSubject string
+}
+type ScheduleTrackingInfo struct {
+	Time    string   `json:"time"`
+	Subject string   `json:"subject"`
+	Emails  []string `json:"emails"`
 }
