@@ -34,15 +34,15 @@ func (p *Service) AddBillNumberToAccount(ctx context.Context, userId int, number
 	}
 	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
-func (p *Service) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	if deleteErr := p.repository.DeleteContainersFromAccount(ctx, userId, numberIds); deleteErr != nil {
-		go p.logger.ExceptionLog(fmt.Sprintf(`delete containers: %v from user-pb: %d failed with err: %s`, numberIds, userId, deleteErr.Error()))
+func (p *Service) DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	if deleteErr := p.repository.DeleteContainersFromAccount(ctx, userId, numbers); deleteErr != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`delete containers: %v from user-pb: %d failed with err: %s`, numbers, userId, deleteErr.Error()))
 		return deleteErr
 	}
 	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
-func (p *Service) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	if delErr := p.repository.DeleteBillNumbersFromAccount(ctx, userId, numberIds); delErr != nil {
+func (p *Service) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	if delErr := p.repository.DeleteBillNumbersFromAccount(ctx, userId, numbers); delErr != nil {
 		//go p.logger.ExceptionLog(fmt.Sprintf(`delete bill numbers: %v from user-pb: %d failed with err: %s`, numberIds, userId, delErr.Error()))
 		return delErr
 	}

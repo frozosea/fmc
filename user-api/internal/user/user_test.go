@@ -22,15 +22,16 @@ func (r *RespositoryMoch) AddBillNumberToAccount(ctx context.Context, userId int
 
 }
 
-func (r *RespositoryMoch) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+func (r *RespositoryMoch) DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error {
 	return nil
 
 }
 
-func (r *RespositoryMoch) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
+func (r *RespositoryMoch) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error {
 	return nil
 
 }
+
 func (r *RespositoryMoch) GetAllContainersAndBillNumbers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
 	time.Sleep(time.Second * 2)
 	var containers []*domain.Container

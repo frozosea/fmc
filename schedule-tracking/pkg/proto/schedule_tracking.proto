@@ -34,8 +34,8 @@ message AddOnTrackRequest{
   string time = 5;
 }
 message UpdateTaskRequest{
-    AddOnTrackRequest req = 1;
-    bool is_containers = 2;
+  AddOnTrackRequest req = 1;
+  bool is_containers = 2;
 }
 message BaseAddOnTrackResponse{
   bool success = 1;
@@ -53,12 +53,16 @@ message GetInfoAboutTrackRequest{
   string number = 1;
   int64 user_id = 3;
 }
+message ScheduleTrackingInfo{
+  string time = 1;
+  repeated string emails = 2;
+  string subject = 3;
+}
 message GetInfoAboutTrackResponse{
   string number = 2;
-  repeated string emails = 3;
-  int64 next_run_time = 4;
-  string time = 5;
-  string email_message_subject = 6;
+  bool is_container = 3;
+  bool is_on_track = 4;
+  ScheduleTrackingInfo schedule_tracking_info = 5;
 }
 message DeleteFromTrackRequest{
   int64 user_id = 1;

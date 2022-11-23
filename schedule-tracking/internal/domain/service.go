@@ -180,20 +180,24 @@ func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 	if !s.checkNumberInTaskTable(ctx, number, userId) {
 		return &GetInfoAboutTrackResponse{}, &NumberDoesntBelongThisUserError{}
 	}
-	job, err := s.taskManager.Get(ctx, number)
-	if err != nil {
-		return &GetInfoAboutTrackResponse{}, err
-	}
 	repoJob, err := s.repository.GetByNumber(ctx, number)
 	if err != nil {
-		return &GetInfoAboutTrackResponse{}, err
+		return &GetInfoAboutTrackResponse{
+			Number:               repoJob.Number,
+			IsContainer:          repoJob.IsContainer,
+			IsOnTrack:            false,
+			ScheduleTrackingInfo: &ScheduleTrackingInfo{},
+		}, err
 	}
 	return &GetInfoAboutTrackResponse{
-		number:              number,
-		emails:              job.Args,
-		nextRunTime:         job.NextRunTime,
-		emailMessageSubject: repoJob.EmailMessageSubject,
-		time:                repoJob.Time,
+		Number:      repoJob.Number,
+		IsContainer: repoJob.IsContainer,
+		IsOnTrack:   true,
+		ScheduleTrackingInfo: &ScheduleTrackingInfo{
+			Time:    repoJob.Time,
+			Subject: repoJob.EmailMessageSubject,
+			Emails:  repoJob.Emails,
+		},
 	}, nil
 }
 

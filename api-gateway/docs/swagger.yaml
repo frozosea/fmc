@@ -18,16 +18,16 @@ definitions:
         type: integer
       token:
         type: string
-      token_type:
-        type: string
       tokenExpires:
         type: integer
+      tokenType:
+        type: string
     required:
     - refreshToken
     - refreshTokenExpires
     - token
     - tokenExpires
-    - token_type
+    - tokenType
     type: object
   auth.RecoveryUserRequest:
     properties:
@@ -220,17 +220,24 @@ definitions:
     type: object
   schedule_tracking.GetInfoAboutTrackResponse:
     properties:
-      emailSubject:
+      isContainer:
+        type: boolean
+      isOnTrack:
+        type: boolean
+      number:
         type: string
+      scheduleTrackingInfo:
+        $ref: '#/definitions/schedule_tracking.ScheduleTrackingInfo'
+    type: object
+  schedule_tracking.ScheduleTrackingInfo:
+    properties:
       emails:
         items:
           type: string
         type: array
-      nextRunTime:
-        type: integer
-      number:
+      subject:
         type: string
-      runningTime:
+      time:
         type: string
     type: object
   schedule_tracking.TimeZoneResponse:
@@ -323,23 +330,35 @@ definitions:
     type: object
   user.Container:
     properties:
-      IsOnTrack:
+      isContainer:
         type: boolean
-      id:
-        type: integer
+      isOnTrack:
+        type: boolean
       number:
         type: string
+      scheduleTrackingInfo:
+        $ref: '#/definitions/user.ScheduleTrackingInfoObject'
     required:
-    - IsOnTrack
-    - id
+    - isOnTrack
     - number
     type: object
   user.DeleteNumbers:
     properties:
-      numberIds:
+      numbers:
         items:
-          type: integer
+          type: string
         type: array
+    type: object
+  user.ScheduleTrackingInfoObject:
+    properties:
+      emails:
+        items:
+          type: string
+        type: array
+      subject:
+        type: string
+      time:
+        type: string
     type: object
 info:
   contact: {}

@@ -174,10 +174,14 @@ func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackReque
 		}
 	}
 	return GetInfoAboutTrackResponse{
-		Number:       resp.GetNumber(),
-		Emails:       resp.GetEmails(),
-		NextRunTime:  resp.GetNextRunTime(),
-		EmailSubject: resp.GetEmailMessageSubject(),
+		Number:      resp.GetNumber(),
+		IsContainer: resp.GetIsContainer(),
+		IsOnTrack:   resp.GetIsOnTrack(),
+		ScheduleTrackingInfo: &ScheduleTrackingInfo{
+			Time:    resp.GetScheduleTrackingInfo().GetTime(),
+			Subject: resp.GetScheduleTrackingInfo().GetSubject(),
+			Emails:  resp.GetScheduleTrackingInfo().GetEmails(),
+		},
 	}, nil
 }
 func (c *Client) GetTimeZone(ctx context.Context) (*TimeZoneResponse, error) {

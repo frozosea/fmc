@@ -1,9 +1,15 @@
 package user
 
+type ScheduleTrackingInfoObject struct {
+	Time    string   `json:"time"`
+	Emails  []string `json:"emails"`
+	Subject string   `json:"subject"`
+}
 type Container struct {
-	Id        int64  `json:"id" binding:"required"`
-	Number    string `json:"number" binding:"required"`
-	IsOnTrack bool   `json:"IsOnTrack" binding:"required"`
+	Number               string                      `json:"number" binding:"required"`
+	IsOnTrack            bool                        `json:"isOnTrack" binding:"required"`
+	IsContainer          bool                        `json:"isContainer"`
+	ScheduleTrackingInfo *ScheduleTrackingInfoObject `json:"scheduleTrackingInfo"`
 }
 type AllContainersAndBillNumbers struct {
 	Containers  []*Container `json:"containers"`

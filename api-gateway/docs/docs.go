@@ -1122,7 +1122,7 @@ const docTemplate = `{
                 "refreshTokenExpires",
                 "token",
                 "tokenExpires",
-                "token_type"
+                "tokenType"
             ],
             "properties": {
                 "refreshToken": {
@@ -1137,7 +1137,7 @@ const docTemplate = `{
                 "tokenExpires": {
                     "type": "integer"
                 },
-                "token_type": {
+                "tokenType": {
                     "type": "string"
                 }
             }
@@ -1435,22 +1435,33 @@ const docTemplate = `{
         "schedule_tracking.GetInfoAboutTrackResponse": {
             "type": "object",
             "properties": {
-                "emailSubject": {
+                "isContainer": {
+                    "type": "boolean"
+                },
+                "isOnTrack": {
+                    "type": "boolean"
+                },
+                "number": {
                     "type": "string"
                 },
+                "scheduleTrackingInfo": {
+                    "$ref": "#/definitions/schedule_tracking.ScheduleTrackingInfo"
+                }
+            }
+        },
+        "schedule_tracking.ScheduleTrackingInfo": {
+            "type": "object",
+            "properties": {
                 "emails": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "nextRunTime": {
-                    "type": "integer"
-                },
-                "number": {
+                "subject": {
                     "type": "string"
                 },
-                "runningTime": {
+                "time": {
                     "type": "string"
                 }
             }
@@ -1595,30 +1606,49 @@ const docTemplate = `{
         "user.Container": {
             "type": "object",
             "required": [
-                "IsOnTrack",
-                "id",
+                "isOnTrack",
                 "number"
             ],
             "properties": {
-                "IsOnTrack": {
+                "isContainer": {
                     "type": "boolean"
                 },
-                "id": {
-                    "type": "integer"
+                "isOnTrack": {
+                    "type": "boolean"
                 },
                 "number": {
                     "type": "string"
+                },
+                "scheduleTrackingInfo": {
+                    "$ref": "#/definitions/user.ScheduleTrackingInfoObject"
                 }
             }
         },
         "user.DeleteNumbers": {
             "type": "object",
             "properties": {
-                "numberIds": {
+                "numbers": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "type": "string"
                     }
+                }
+            }
+        },
+        "user.ScheduleTrackingInfoObject": {
+            "type": "object",
+            "properties": {
+                "emails": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subject": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
                 }
             }
         }

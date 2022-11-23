@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/domain"
 	pb "user-api/pkg/proto"
@@ -13,7 +15,6 @@ func (c *converter) convertContainerOrBillToGrpc(r []*domain.Container) []*pb.Co
 	var arr []*pb.ContainerResponse
 	for _, v := range r {
 		arr = append(arr, &pb.ContainerResponse{
-			Id:        v.Id,
 			Number:    v.Number,
 			IsOnTrack: v.IsOnTrack,
 		})
@@ -29,33 +30,45 @@ func (c *converter) addContainerOrBillConvert(r *pb.AddContainerToAccountRequest
 }
 
 type Grpc struct {
-	controller *Service
-	converter  converter
+	service   *Service
+	converter converter
 	pb.UnimplementedUserServer
 }
 
 func NewGrpc(controller *Service) *Grpc {
-	return &Grpc{controller: controller, converter: converter{}, UnimplementedUserServer: pb.UnimplementedUserServer{}}
+	return &Grpc{service: controller, converter: converter{}, UnimplementedUserServer: pb.UnimplementedUserServer{}}
 }
 
 func (s *Grpc) AddContainerToAccount(ctx context.Context, r *pb.AddContainerToAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.AddContainerToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r))
+	if err := s.service.AddContainerToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r)); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }
 func (s *Grpc) AddBillNumberToAccount(ctx context.Context, r *pb.AddContainerToAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.AddBillNumberToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r))
+	if err := s.service.AddBillNumberToAccount(ctx, int(r.GetUserId()), s.converter.addContainerOrBillConvert(r)); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }
 func (s *Grpc) DeleteContainersFromAccount(ctx context.Context, r *pb.DeleteContainersFromAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.DeleteContainersFromAccount(ctx, int(r.GetUserId()), r.GetNumberIds())
+	if err := s.service.DeleteContainersFromAccount(ctx, int(r.GetUserId()), r.GetNumbers()); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 
 }
 func (s *Grpc) DeleteBillNumbersFromAccount(ctx context.Context, r *pb.DeleteContainersFromAccountRequest) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, s.controller.DeleteBillNumbersFromAccount(ctx, int(r.GetUserId()), r.GetNumberIds())
+	if err := s.service.DeleteBillNumbersFromAccount(ctx, int(r.GetUserId()), r.GetNumbers()); err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 
 }
 func (s *Grpc) GetAll(ctx context.Context, r *pb.GetAllContainersFromAccountRequest) (*pb.GetAllContainersResponse, error) {
-	res, err := s.controller.GetAllContainers(ctx, int(r.GetUserId()))
+	res, err := s.service.GetAllContainers(ctx, int(r.GetUserId()))
 	if err != nil {
-		return &pb.GetAllContainersResponse{}, err
+		return &pb.GetAllContainersResponse{}, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.GetAllContainersResponse{
 		BillNumbers: s.converter.convertContainerOrBillToGrpc(res.BillNumbers),

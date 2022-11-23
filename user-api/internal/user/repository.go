@@ -3,23 +3,70 @@ package user
 import (
 	"context"
 	"database/sql"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"user-api/internal/domain"
+	pb "user-api/pkg/scheduleTrackingPb"
 )
+
+type NoTaskError struct {
+}
+
+func (e *NoTaskError) Error() string {
+	return "no task with this id!"
+}
+
+type IScheduleTrackingInfoRepository interface {
+	GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error)
+}
+
+type ScheduleTrackingInfoRepository struct {
+	cli pb.ScheduleTrackingClient
+}
+
+func NewScheduleTrackingInfoRepository(conn *grpc.ClientConn) *ScheduleTrackingInfoRepository {
+	return &ScheduleTrackingInfoRepository{cli: pb.NewScheduleTrackingClient(conn)}
+}
+
+func (r *ScheduleTrackingInfoRepository) GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error) {
+	response, err := r.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{
+		Number: number,
+		UserId: int64(userId),
+	})
+	if err != nil {
+		statusCode := status.Convert(err).Code()
+		switch statusCode {
+		case codes.NotFound:
+			return nil, &NoTaskError{}
+		case codes.PermissionDenied:
+			return nil, &NoTaskError{}
+		default:
+			return nil, err
+		}
+	}
+	return &domain.ScheduleTrackingInfoObject{
+		Emails:  response.GetEmails(),
+		Subject: response.GetEmailMessageSubject(),
+		Time:    response.GetTime(),
+	}, nil
+}
 
 type IRepository interface {
 	AddContainerToAccount(ctx context.Context, userId int, containers []string) error
 	AddBillNumberToAccount(ctx context.Context, userId int, containers []string) error
-	DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error
-	DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error
+	DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error
+	DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error
 	GetAllContainersAndBillNumbers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error)
 }
 
 type Repository struct {
-	db *sql.DB
+	scheduleTrackingInfoRepository IScheduleTrackingInfoRepository
+	db                             *sql.DB
 }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{db: db}
+func NewRepository(db *sql.DB, scheduleTrackingInfoRepository IScheduleTrackingInfoRepository) *Repository {
+	return &Repository{db: db, scheduleTrackingInfoRepository: scheduleTrackingInfoRepository}
 }
 func (r *Repository) checkContainerOrBillExists(ctx context.Context, userId int, isContainer bool, number string) bool {
 	if isContainer {
@@ -67,18 +114,18 @@ func (r *Repository) AddBillNumberToAccount(ctx context.Context, userId int, con
 	return nil
 }
 
-func (r *Repository) DeleteContainersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	for _, v := range numberIds {
-		_, err := r.db.ExecContext(ctx, `DELETE FROM "containers" AS c WHERE c.user_id = $1 AND c.id = $2`, userId, v)
+func (r *Repository) DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	for _, v := range numbers {
+		_, err := r.db.ExecContext(ctx, `DELETE FROM "containers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, v)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
-func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numberIds []int64) error {
-	for _, v := range numberIds {
-		_, err := r.db.ExecContext(ctx, `DELETE FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.id = $2`, userId, v)
+func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error {
+	for _, v := range numbers {
+		_, err := r.db.ExecContext(ctx, `DELETE FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.number = $2`, userId, v)
 		if err != nil {
 			return err
 		}
@@ -87,20 +134,35 @@ func (r *Repository) DeleteBillNumbersFromAccount(ctx context.Context, userId in
 }
 func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domain.Container, error) {
 	var containers []*domain.Container
-	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number)  c.id,c.number,c.is_on_track FROM "containers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
+	rows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number)  c.number,c.is_on_track FROM "containers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
-		return containers, nil
+		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
 			return
 		}
-	}(containerRows)
-	for containerRows.Next() {
+	}(rows)
+	for rows.Next() {
 		var container domain.Container
-		if scanErr := containerRows.Scan(&container.Id, &container.Number, &container.IsOnTrack); scanErr != nil {
-			return containers, scanErr
+		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
+			return containers, err
+		}
+		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+		if err != nil {
+			switch err.(type) {
+			case *NoTaskError:
+				container.ScheduleTrackingInfo = nil
+				container.IsOnTrack = false
+			default:
+				return containers, err
+
+			}
+		} else {
+			container.ScheduleTrackingInfo = scheduleTrackingInfo
+			container.IsContainer = false
+			container.IsOnTrack = true
 		}
 		containers = append(containers, &container)
 	}
@@ -108,15 +170,30 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 }
 func (r *Repository) getAllBillNumbers(ctx context.Context, userId int) ([]*domain.Container, error) {
 	var containers []*domain.Container
-	containerRows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number) c.id,c.number,c.is_on_track FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
+	rows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number) c.number,c.is_on_track FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
 		return containers, err
 	}
-	defer containerRows.Close()
-	for containerRows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var container domain.Container
-		if scanErr := containerRows.Scan(&container.Id, &container.Number, &container.IsOnTrack); scanErr != nil {
-			return containers, scanErr
+		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
+			return containers, err
+		}
+		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+		if err != nil {
+			switch err.(type) {
+			case *NoTaskError:
+				container.ScheduleTrackingInfo = nil
+				container.IsOnTrack = false
+			default:
+				return containers, err
+
+			}
+		} else {
+			container.ScheduleTrackingInfo = scheduleTrackingInfo
+			container.IsContainer = false
+			container.IsOnTrack = true
 		}
 		containers = append(containers, &container)
 	}
