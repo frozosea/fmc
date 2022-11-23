@@ -130,28 +130,23 @@ func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackReq
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
-			return &pb.GetInfoAboutTrackResponse{
-				Number:      resp.number,
-				Emails:      []string{},
-				NextRunTime: 0,
-			}, status.Error(codes.NotFound, "task with this id was not found")
+			return nil, status.Error(codes.NotFound, "task with this id was not found")
 		case *NumberDoesntBelongThisUserError:
 			return &pb.GetInfoAboutTrackResponse{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go s.logger.ExceptionLog(fmt.Sprintf(`get info about tracking err: %s`, err.Error()))
-			return &pb.GetInfoAboutTrackResponse{
-				Number:      resp.number,
-				Emails:      []string{},
-				NextRunTime: 0,
-			}, status.Error(codes.Internal, err.Error())
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 	}
 	return &pb.GetInfoAboutTrackResponse{
-		Number:              resp.number,
-		Emails:              s.converter.convertInterfaceArrayToStringArray(resp.emails),
-		NextRunTime:         resp.nextRunTime.Unix(),
-		EmailMessageSubject: resp.emailMessageSubject,
-		Time:                resp.time,
+		Number:      resp.Number,
+		IsOnTrack:   resp.IsOnTrack,
+		IsContainer: resp.IsContainer,
+		ScheduleTrackingInfo: &pb.ScheduleTrackingInfo{
+			Time:    resp.ScheduleTrackingInfo.Time,
+			Subject: resp.ScheduleTrackingInfo.Subject,
+			Emails:  resp.ScheduleTrackingInfo.Emails,
+		},
 	}, nil
 }
 func (s *Grpc) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {

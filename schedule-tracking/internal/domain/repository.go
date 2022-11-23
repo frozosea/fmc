@@ -86,40 +86,6 @@ func (r *Repository) GetByNumber(ctx context.Context, number string) (*TrackingT
 	return &task, nil
 }
 
-//func (r *Repository) getEmails(ctx context.Context, number string) ([]string, error) {
-//	var s []string
-//	if err := r.db.QueryRowContext(ctx, `SELECT t.emails AS t FROM "tasks" AS t WHERE t.number = $1`, number).Scan(pq.Array(&s)); err != nil {
-//		return s, err
-//	}
-//	return s, nil
-//}
-//func (r *Repository) AddEmails(ctx context.Context, numbers []string, emails []string) error {
-//	for _, v := range numbers {
-//		_, err := r.db.ExecContext(ctx, `UPDATE "tasks" AS t SET emails = t.emails || $1 WHERE t.number = $2`, pq.Array(emails), v)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
-//func (r *Repository) DeleteEmail(ctx context.Context, number string, email string) error {
-//	oldEmailsFromDb, err := r.getEmails(ctx, number)
-//	if err != nil {
-//		return err
-//	}
-//	updatedEmails := util.Pop(oldEmailsFromDb, util.GetIndex(email, util.ConvertArgsToInterface(oldEmailsFromDb)...))
-//	_, addErr := r.db.ExecContext(ctx, `UPDATE "tasks" AS t SET emails = $1 WHERE t.number = $2`, pq.Array(updatedEmails), number)
-//	return addErr
-//}
-//func (r *Repository) UpdateTime(ctx context.Context, numbers []string, newTime string) error {
-//	for _, number := range numbers {
-//		_, err := r.db.ExecContext(ctx, `UPDATE "tasks" AS t SET time = $1 WHERE t.number = $2`, newTime, number)
-//		if err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
 func (r *Repository) Delete(ctx context.Context, numbers []string) error {
 	for _, number := range numbers {
 		_, err := r.db.ExecContext(ctx, `DELETE FROM "tasks" AS t WHERE t.number = $1`, number)
