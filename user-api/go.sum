@@ -34,8 +34,6 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.mod h1:cXg6YxExXjJnVBQHBLXeUAgxn2UodCpnH306RInaBQk=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/frozosea/file-reader v0.0.0-20221005051220-a6f7f8354ba9 h1:C03DsPcQBY/heBQysXWMFRFOolCibrzZV4OwxxAhn3g=
-github.com/frozosea/file-reader v0.0.0-20221005051220-a6f7f8354ba9/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37 h1:48HuBzVYRI6ARNJ5mWwmmZ8VzYvefxublU1MoGEf+AI=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
 github.com/frozosea/fmc-proto v0.1.1 h1:k6rqpyFhLL1kj6fLxWNebyxXR/fuvM3xYyb3n+IPb2s=

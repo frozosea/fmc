@@ -3,8 +3,11 @@ module schedule-tracking
 go 1.18
 
 require (
+	github.com/frozosea/file-reader v0.0.0-20221005045025-703d43ce3658
+	github.com/frozosea/fmc-proto v0.1.1
 	github.com/go-ini/ini v1.66.6
 	github.com/joho/godotenv v1.4.0
+	github.com/lib/pq v1.10.6
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.8.0
 	github.com/xuri/excelize/v2 v2.6.0
@@ -14,11 +17,8 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/frozosea/file-reader v0.0.0-20221005045025-703d43ce3658 // indirect
-	github.com/frozosea/fmc-proto v0.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.10.6 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
