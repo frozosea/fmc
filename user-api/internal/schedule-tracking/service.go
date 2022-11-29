@@ -3,12 +3,12 @@ package schedule_tracking
 import (
 	"context"
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/pkg/cache"
 	"user-api/pkg/logging"
-	pb "user-api/pkg/proto"
 )
 
 type Service struct {

@@ -38,6 +38,8 @@ github.com/frozosea/file-reader v0.0.0-20221005051220-a6f7f8354ba9 h1:C03DsPcQBY
 github.com/frozosea/file-reader v0.0.0-20221005051220-a6f7f8354ba9/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37 h1:48HuBzVYRI6ARNJ5mWwmmZ8VzYvefxublU1MoGEf+AI=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
+github.com/frozosea/fmc-proto v0.1.1 h1:k6rqpyFhLL1kj6fLxWNebyxXR/fuvM3xYyb3n+IPb2s=
+github.com/frozosea/fmc-proto v0.1.1/go.mod h1:y7n2ZWVX5/eSgJBr0JD0h6w1Nm5WSOA+u6M69uijOuM=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=

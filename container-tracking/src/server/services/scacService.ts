@@ -1,6 +1,6 @@
 import {ILogger} from "../../logging";
-import {GetAllScacResponse, Request, Scac} from "../proto/tracking_pb";
-import {IScacServiceServer} from "../proto/tracking_grpc_pb";
+import {GetAllScacResponse, Request, Scac} from "../../../../protobuf/tracking/tracking_pb";
+import {IScacServiceServer} from "../../../../protobuf/tracking/tracking_grpc_pb";
 import {sendUnaryData, ServerUnaryCall} from "@grpc/grpc-js";
 
 interface BaseScac {

@@ -3,11 +3,11 @@ package domain
 import (
 	"context"
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/schedule-tracking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"schedule-tracking/pkg/logging"
-	pb "schedule-tracking/pkg/proto"
 	"schedule-tracking/pkg/scheduler"
 	"time"
 )

@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"fmc-gateway/pkg/logging"
-	pb "fmc-gateway/pkg/user-pb"
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

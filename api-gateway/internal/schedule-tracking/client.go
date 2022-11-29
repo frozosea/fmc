@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmc-gateway/pkg/logging"
-	pb "fmc-gateway/pkg/schedule-tracking-pb"
+	pb "github.com/frozosea/fmc-proto/schedule-tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

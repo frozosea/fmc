@@ -1,7 +1,7 @@
 package schedule_tracking
 
 import (
-	pb "fmc-gateway/pkg/schedule-tracking-pb"
+	pb "github.com/frozosea/fmc-proto/schedule-tracking"
 	_ "gopkg.in/validator.v2"
 )
 

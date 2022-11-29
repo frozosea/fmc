@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/user"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -12,7 +13,6 @@ import (
 	"syscall"
 	"user-api/internal/feedback"
 	conf "user-api/internal/init"
-	pb "user-api/pkg/proto"
 )
 
 func GetServer() (*grpc.Server, *feedback.Http, error) {

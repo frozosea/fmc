@@ -3,8 +3,8 @@ package user
 import (
 	"context"
 	"fmc-gateway/pkg/logging"
-	pb "fmc-gateway/pkg/user-pb"
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/user"
 	"google.golang.org/grpc"
 )
 

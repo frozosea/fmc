@@ -2,11 +2,11 @@ package feedback
 
 import (
 	"context"
+	pb "github.com/frozosea/fmc-proto/user"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	pb "user-api/pkg/proto"
 )
 
 type Http struct {

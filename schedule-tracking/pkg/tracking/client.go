@@ -3,6 +3,7 @@ package tracking
 import (
 	"context"
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/tracking"
 	"google.golang.org/grpc"
 	"schedule-tracking/pkg/logging"
 	"time"
@@ -10,17 +11,17 @@ import (
 
 type Client struct {
 	conn              *grpc.ClientConn
-	billNoClient      trackingByBillNumberClient
-	containerNoClient trackingByContainerNumberClient
+	billNoClient      pb.TrackingByBillNumberClient
+	containerNoClient pb.TrackingByContainerNumberClient
 	logger            logging.ILogger
 	Сonverter
 }
 
 func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumberResponse, error) {
-	request := Request{
+	request := pb.Request{
 		Number:  track.Number,
-		Scac:    Scac(Scac_value[track.Scac]),
-		Country: Country(Country_value[track.Country]),
+		Scac:    track.Scac,
+		Country: pb.Country(pb.Country_value[track.Country]),
 	}
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
@@ -31,10 +32,10 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumbe
 }
 
 func (c *Client) TrackByContainerNumber(ctx context.Context, track Track) (ContainerNumberResponse, error) {
-	request := Request{
+	request := pb.Request{
 		Number:  track.Number,
-		Scac:    Scac(Scac_value[track.Scac]),
-		Country: Country(Country_value[track.Country]),
+		Scac:    track.Scac,
+		Country: pb.Country(pb.Country_value[track.Country]),
 	}
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
@@ -46,8 +47,8 @@ func (c *Client) TrackByContainerNumber(ctx context.Context, track Track) (Conta
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 	return &Client{
 		conn:              conn,
-		billNoClient:      trackingByBillNumberClient{cc: conn},
-		containerNoClient: trackingByContainerNumberClient{cc: conn},
+		billNoClient:      pb.NewTrackingByBillNumberClient(conn),
+		containerNoClient: pb.NewTrackingByContainerNumberClient(conn),
 		logger:            logger,
 	}
 }
@@ -62,26 +63,26 @@ func NewСonverter() *Сonverter {
 func (c *Сonverter) convertNodeTimeStampToTime(t int64) time.Time {
 	return time.Unix(t/1000, 0)
 }
-func (c *Сonverter) convertGrpcInfoAboutMoving(resp []*InfoAboutMoving) []BaseInfoAboutMoving {
+func (c *Сonverter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
 		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.convertNodeTimeStampToTime(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
-func (c *Сonverter) convertGrpcBlNoResponse(response *TrackingByBillNumberResponse) BillNumberResponse {
+func (c *Сonverter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberResponse) BillNumberResponse {
 	return BillNumberResponse{
 		BillNo:           response.GetBillNo(),
-		Scac:             response.GetScac().String(),
+		Scac:             response.GetScac(),
 		InfoAboutMoving:  c.convertGrpcInfoAboutMoving(response.InfoAboutMoving),
 		EtaFinalDelivery: c.convertNodeTimeStampToTime(response.GetEtaFinalDelivery()),
 	}
 }
-func (c *Сonverter) convertGrpcContainerNoResponse(response *TrackingByContainerNumberResponse) ContainerNumberResponse {
+func (c *Сonverter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {
 	return ContainerNumberResponse{
 		Container:       response.GetContainer(),
 		ContainerSize:   response.GetContainerSize(),
-		Scac:            response.GetScac().String(),
+		Scac:            response.GetScac(),
 		InfoAboutMoving: c.convertGrpcInfoAboutMoving(response.GetInfoAboutMoving()),
 	}
 }

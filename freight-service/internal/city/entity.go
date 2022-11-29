@@ -1,6 +1,6 @@
 package city
 
-import pb "freight_service/pkg/proto"
+import pb "github.com/frozosea/fmc-proto/freight"
 
 type BaseEntity struct {
 	RuFullName string

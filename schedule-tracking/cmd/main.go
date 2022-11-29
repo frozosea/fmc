@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	pb "github.com/frozosea/fmc-proto/schedule-tracking"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"log"
@@ -9,15 +10,13 @@ import (
 	"os"
 	"os/signal"
 	init_package "schedule-tracking/internal/init"
-	pb "schedule-tracking/pkg/proto"
 	"syscall"
 )
 
 func Run() {
 	s := grpc.NewServer()
-	scheduleTrackingGrpcService, archiveGrpcService := init_package.GetScheduleTrackingAndArchiveGrpcService()
+	scheduleTrackingGrpcService := init_package.GetScheduleTrackingAndArchiveGrpcService()
 	pb.RegisterScheduleTrackingServer(s, scheduleTrackingGrpcService)
-	pb.RegisterArchiveServer(s, archiveGrpcService)
 	l, err := net.Listen("tcp", `0.0.0.0:8005`)
 	if err != nil {
 		panic(err)

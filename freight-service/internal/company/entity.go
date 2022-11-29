@@ -1,6 +1,6 @@
 package company
 
-import pb "freight_service/pkg/proto"
+import pb "github.com/frozosea/fmc-proto/freight"
 
 type BaseCompany struct {
 	Url         string

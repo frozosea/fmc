@@ -3,11 +3,11 @@ package user
 import (
 	"context"
 	"database/sql"
+	pb "github.com/frozosea/fmc-proto/schedule-tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"user-api/internal/domain"
-	pb "user-api/pkg/scheduleTrackingPb"
 )
 
 type NoTaskError struct {
@@ -45,10 +45,11 @@ func (r *ScheduleTrackingInfoRepository) GetInfo(ctx context.Context, number str
 			return nil, err
 		}
 	}
+	s := response.GetScheduleTrackingInfo()
 	return &domain.ScheduleTrackingInfoObject{
-		Emails:  response.GetEmails(),
-		Subject: response.GetEmailMessageSubject(),
-		Time:    response.GetTime(),
+		Emails:  s.GetEmails(),
+		Subject: s.GetSubject(),
+		Time:    s.GetTime(),
 	}, nil
 }
 

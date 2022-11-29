@@ -2,11 +2,11 @@ package user
 
 import (
 	"context"
+	pb "github.com/frozosea/fmc-proto/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/domain"
-	pb "user-api/pkg/proto"
 )
 
 type converter struct{}

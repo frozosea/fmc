@@ -3,7 +3,7 @@ package freight
 import (
 	"context"
 	"freight_service/internal/city"
-	pb "freight_service/pkg/proto"
+	pb "github.com/frozosea/fmc-proto/freight"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
