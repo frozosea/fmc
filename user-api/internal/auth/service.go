@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 	"user-api/internal/domain"
-	"user-api/pkg/htmlTemplateReader"
 	"user-api/pkg/logging"
 	"user-api/pkg/mailing"
 )
@@ -14,13 +13,13 @@ type Service struct {
 	repository   IRepository
 	tokenManager ITokenManager
 	hash         IHash
-	reader       *htmlTemplateReader.HTMLReader
-	emailSender  mailing.IMailing
-	logger       logging.ILogger
+	*RecoveryUserTemplateGenerator
+	emailSender mailing.IMailing
+	logger      logging.ILogger
 }
 
 func NewService(repository IRepository, tokenManager ITokenManager, hash IHash, emailSender mailing.IMailing, logger logging.ILogger) *Service {
-	return &Service{repository: repository, tokenManager: tokenManager, logger: logger, hash: hash, emailSender: emailSender, reader: htmlTemplateReader.NewHTMLReader()}
+	return &Service{repository: repository, tokenManager: tokenManager, logger: logger, hash: hash, emailSender: emailSender, RecoveryUserTemplateGenerator: NewRecoveryUserTemplateGenerator()}
 }
 
 func (p *Service) RegisterUser(ctx context.Context, user *domain.RegisterUser) error {
@@ -83,13 +82,11 @@ func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error
 	if err != nil {
 		return err
 	}
-	url := generateRecoveryPasswordUrl(token)
-	e := &EmailTemplate{url}
-	template, err := p.reader.GetStringHtml("templates", "resetPasswordEmailTemplate", e)
+	template, err := p.GetRecoveryUserTemplate(token)
 	if err != nil {
 		return err
 	}
-	return p.emailSender.SendSimple([]string{email}, "FindMyCargo recovery password", template, "text/plain")
+	return p.emailSender.SendSimple(ctx, []string{email}, "FindMyCargo recovery password", template, "text/html")
 }
 
 func (p *Service) RecoveryUser(ctx context.Context, token string, newPassword string) error {

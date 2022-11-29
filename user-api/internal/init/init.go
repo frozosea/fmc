@@ -56,6 +56,7 @@ type (
 		Email        string
 		Password     string
 		SendToEmails []string
+		AuthKey      string
 	}
 )
 
@@ -176,7 +177,7 @@ func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 		panic(err)
 		return nil
 	}
-	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey)
 	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir))
 	return auth.NewGrpc(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
@@ -218,8 +219,8 @@ func GetUserGrpcService(db *sql.DB, redisConf *RedisSettings) *user.Grpc {
 	return user.NewGrpc(controller)
 }
 func getMailingSettings() (*MailingSettings, error) {
-	email, password, smtpHost, smtpPort, sendToEmails := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS")
-	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" {
+	email, password, smtpHost, smtpPort, sendToEmails, authKey := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS"), os.Getenv("AUTH_KEY")
+	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" || authKey == "" {
 		return nil, errors.New("no env variables")
 	}
 	intPort, err := strconv.Atoi(smtpPort)
@@ -236,6 +237,7 @@ func getMailingSettings() (*MailingSettings, error) {
 		Email:        email,
 		Password:     password,
 		SendToEmails: sendToEmailArr,
+		AuthKey:      authKey,
 	}, nil
 }
 func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
@@ -246,7 +248,7 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 		return nil, nil
 	}
 	logger := logging.NewLogger("feedback")
-	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey)
 	service := feedback.NewService(m, repository, logger, mSettings.SendToEmails)
 	return feedback.NewGrpc(service), feedback.NewHttp(service)
 }

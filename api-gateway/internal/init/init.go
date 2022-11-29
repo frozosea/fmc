@@ -13,6 +13,7 @@ import (
 	"fmc-gateway/pkg/middleware"
 	"fmc-gateway/pkg/utils"
 	"fmt"
+	reader "github.com/frozosea/file-reader/pkg"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -20,7 +21,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 )
 
 type (
@@ -283,6 +286,15 @@ func Run() {
 	}
 	router := gin.Default()
 	router.Use(Middleware.CORSMiddleware)
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+		return
+	}
+	sep := reader.New().GetSeparator()
+	splitCwd := strings.Split(wd, sep)
+	templateFolderFilePath := strings.Join(splitCwd[:len(splitCwd)-1], sep) + sep + "templates"
+	router.StaticFS("/static", http.Dir(templateFolderFilePath))
 	initAuthRoutes(router, AuthHttpHandler)
 	initTrackingRoutes(router, TrackingHttpHandler)
 	initDocsRoutes(router)

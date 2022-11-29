@@ -2,15 +2,17 @@ package htmlTemplateReader
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
+	reader "user-api/pkg/fileReader"
 )
 
 type HTMLReader struct {
 }
 
-func NewHTMLReader() *HTMLReader {
+func New() *HTMLReader {
 	return &HTMLReader{}
 }
 
@@ -29,18 +31,19 @@ func (h *HTMLReader) ParseTemplateDir(dir string) (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return template.ParseFiles(paths...)
 }
 func (h *HTMLReader) GetStringHtml(dir, filename string, data interface{}) (string, error) {
-	t, err := h.ParseTemplateDir(dir)
+	f := reader.New()
+	fileByteBody, err := f.ReadFile(f.GetFileNameByDirNameAndFilename(dir, filename))
+	t, err := template.New(filename).Parse(string(fileByteBody))
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 	var body bytes.Buffer
-
 	t = t.Lookup(filename)
-	if err := t.Execute(&body, &data); err != nil {
+	if err := t.Execute(&body, data); err != nil {
 		return "", err
 	}
 	return body.String(), nil

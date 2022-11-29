@@ -3,6 +3,7 @@ package feedback
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"user-api/pkg/logging"
 	"user-api/pkg/mailing"
 )
@@ -35,26 +36,29 @@ func NewService(mailing mailing.IMailing, repository IRepository, logger logging
 }
 
 func (s *Service) Add(ctx context.Context, fb *Feedback) error {
-	errCh := make(chan error, 1)
-	go func() {
+	g, ctx := errgroup.WithContext(ctx)
+	g.Go(func() error {
 		if err := s.repository.Save(ctx, fb); err != nil {
 			s.logger.ExceptionLog(fmt.Sprintf(`save feedback to repository error: %s`, err.Error()))
-			errCh <- err
+			return err
 		}
-	}()
-	go func() {
+		return nil
+	})
+	g.Go(func() error {
 		subject := fmt.Sprintf("container tracking feedback by %s", fb.Email)
-		if err := s.mailing.SendSimple(s.sendToEmails, subject, s.msgGen.Gen(fb), s.msgGen.getTextType()); err != nil {
+		if err := s.mailing.SendSimple(ctx, s.sendToEmails, subject, s.msgGen.Gen(fb), s.msgGen.getTextType()); err != nil {
 			s.logger.ExceptionLog(fmt.Sprintf(`send email with feedback error: %s`, err.Error()))
-			errCh <- err
+			return err
 		}
-	}()
+		return nil
+	})
+	if err := g.Wait(); err != nil {
+		return err
+	}
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
-		case err := <-errCh:
-			return err
+			return nil
 		}
 	}
 }
