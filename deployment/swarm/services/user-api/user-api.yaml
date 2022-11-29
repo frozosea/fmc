@@ -30,6 +30,8 @@ services:
       SCHEDULE_TRACKING_PORT: 8005
       REFRESH_TOKEN_EXPIRATION: 12h
       ACCESS_TOKEN_EXPIRATION: 1h
+      BASE_BACKEND_URL: https://api.findmycargo.ru
+      BASE_FRONTEND_URL: https://www.findmycargo.ru
     networks:
       - public
 
