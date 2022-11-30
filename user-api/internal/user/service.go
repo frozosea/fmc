@@ -49,21 +49,24 @@ func (p *Service) DeleteBillNumbersFromAccount(ctx context.Context, userId int, 
 	return p.cache.Del(ctx, fmt.Sprintf(`%d`, userId))
 }
 func (p *Service) GetAllContainers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
+	ctxWithCancel, cancel := context.WithCancel(ctx)
 	cacheCh := make(chan *domain.AllContainersAndBillNumbers)
 	go func() {
 		var containers domain.AllContainersAndBillNumbers
-		if getFromCacheError := p.cache.Get(ctx, fmt.Sprintf(`%d`, userId), &containers); getFromCacheError != nil {
+		if getFromCacheError := p.cache.Get(ctxWithCancel, fmt.Sprintf(`%d`, userId), &containers); getFromCacheError != nil {
 			return
 		}
 		cacheCh <- &containers
+		cancel()
 	}()
 	repoCh := make(chan *domain.AllContainersAndBillNumbers)
 	go func() {
-		result, getFromRepositoryErr := p.repository.GetAllContainersAndBillNumbers(ctx, userId)
-		if getFromRepositoryErr != nil {
+		result, err := p.repository.GetAllContainersAndBillNumbers(ctxWithCancel, userId)
+		if err != nil {
 			return
 		}
 		repoCh <- result
+		cancel()
 	}()
 	select {
 	case <-ctx.Done():

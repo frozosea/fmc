@@ -150,20 +150,22 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
 			return containers, err
 		}
-		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
-		if err != nil {
-			switch err.(type) {
-			case *NoTaskError:
-				container.ScheduleTrackingInfo = nil
-				container.IsOnTrack = false
-			default:
-				return containers, err
+		if container.IsOnTrack {
+			scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+			if err != nil {
+				switch err.(type) {
+				case *NoTaskError:
+					container.ScheduleTrackingInfo = nil
+					container.IsOnTrack = false
+				default:
+					return containers, err
 
+				}
+			} else {
+				container.ScheduleTrackingInfo = scheduleTrackingInfo
+				container.IsContainer = false
+				container.IsOnTrack = true
 			}
-		} else {
-			container.ScheduleTrackingInfo = scheduleTrackingInfo
-			container.IsContainer = false
-			container.IsOnTrack = true
 		}
 		containers = append(containers, &container)
 	}
@@ -181,20 +183,22 @@ func (r *Repository) getAllBillNumbers(ctx context.Context, userId int) ([]*doma
 		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
 			return containers, err
 		}
-		scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
-		if err != nil {
-			switch err.(type) {
-			case *NoTaskError:
-				container.ScheduleTrackingInfo = nil
-				container.IsOnTrack = false
-			default:
-				return containers, err
+		if container.IsOnTrack {
+			scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+			if err != nil {
+				switch err.(type) {
+				case *NoTaskError:
+					container.ScheduleTrackingInfo = nil
+					container.IsOnTrack = false
+				default:
+					return containers, err
 
+				}
+			} else {
+				container.ScheduleTrackingInfo = scheduleTrackingInfo
+				container.IsContainer = false
+				container.IsOnTrack = true
 			}
-		} else {
-			container.ScheduleTrackingInfo = scheduleTrackingInfo
-			container.IsContainer = false
-			container.IsOnTrack = true
 		}
 		containers = append(containers, &container)
 	}

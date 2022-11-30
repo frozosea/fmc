@@ -14,10 +14,18 @@ type converter struct{}
 func (c *converter) convertContainerOrBillToGrpc(r []*domain.Container) []*pb.ContainerResponse {
 	var arr []*pb.ContainerResponse
 	for _, v := range r {
-		arr = append(arr, &pb.ContainerResponse{
+		pbResp := &pb.ContainerResponse{
 			Number:    v.Number,
 			IsOnTrack: v.IsOnTrack,
-		})
+		}
+		if v.IsOnTrack {
+			pbResp.ScheduleTrackingObject = &pb.ScheduleTrackingObject{
+				Time:    v.ScheduleTrackingInfo.Time,
+				Emails:  v.ScheduleTrackingInfo.Emails,
+				Subject: v.ScheduleTrackingInfo.Subject,
+			}
+		}
+		arr = append(arr, pbResp)
 	}
 	return arr
 }
