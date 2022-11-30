@@ -600,7 +600,7 @@ paths:
       summary: get all scac codes for frontend
       tags:
       - Tracking
-  /schedule/billNumbers:
+  /schedule/bills:
     delete:
       consumes:
       - application/json
@@ -630,7 +630,6 @@ paths:
       summary: delete bill numbers from tracking
       tags:
       - Schedule Tracking
-  /schedule/bills:
     post:
       consumes:
       - application/json

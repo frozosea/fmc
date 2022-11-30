@@ -15,7 +15,7 @@ func TestCache(t *testing.T) {
 		t.Skip()
 	}
 	const KEY = "testCacheKey"
-	var cachValue = []struct {
+	var cacheValue = []struct {
 		Value string
 	}{{Value: "TEST_VALUE"}}
 	var redisUrl string
@@ -30,7 +30,7 @@ func TestCache(t *testing.T) {
 	})
 	ctx := context.Background()
 	cache := NewCache(cli, time.Duration(1))
-	if err := cache.Set(ctx, KEY, cachValue); err != nil {
+	if err := cache.Set(ctx, KEY, cacheValue); err != nil {
 		log.Fatal(err.Error())
 		return
 	}
@@ -41,6 +41,6 @@ func TestCache(t *testing.T) {
 		log.Fatal(err.Error())
 	}
 	for index, v := range dest {
-		assert.Equal(t, v.Value, cachValue[index].Value)
+		assert.Equal(t, v.Value, cacheValue[index].Value)
 	}
 }

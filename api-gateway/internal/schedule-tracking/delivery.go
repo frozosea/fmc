@@ -127,11 +127,11 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	s.userId = int64(userId)
 	if err := h.validator.ValidateContainers(s.Numbers); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -155,7 +155,7 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 // @Success      200 {object} BaseResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/billNumbers [delete]
+// @Router       /schedule/bills [delete]
 func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 	var s *DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)
@@ -163,11 +163,11 @@ func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 		c.AbortWithStatus(401)
 		return
 	}
-	s.userId = int64(userId)
-	if err := h.utils.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}
+	s.userId = int64(userId)
 	if err := h.validator.ValidateBills(s.Numbers); err != nil {
 		h.utils.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return

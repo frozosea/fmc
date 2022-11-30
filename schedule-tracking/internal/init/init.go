@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	user_pb "github.com/frozosea/fmc-pb/user"
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -18,7 +19,6 @@ import (
 	"schedule-tracking/pkg/mailing"
 	"schedule-tracking/pkg/scheduler"
 	"schedule-tracking/pkg/tracking"
-	user_pb "schedule-tracking/pkg/user-pb"
 )
 
 type (
@@ -172,7 +172,7 @@ func GetUserClientSettings() (*UserClientSettings, error) {
 	return settings, nil
 }
 
-func GetScheduleTrackingAndArchiveGrpcService() (*domain.Grpc, *archive.Grpc) {
+func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	trackerConf, getSettingsErr := GetTrackingSettings()
 	if getSettingsErr != nil {
 		panic(getSettingsErr)
@@ -204,7 +204,7 @@ func GetScheduleTrackingAndArchiveGrpcService() (*domain.Grpc, *archive.Grpc) {
 	archiveRepository := archive.NewRepository(db)
 	archiveLoggerSettings, err := GetArchiveLoggerSettings()
 	if err != nil {
-		return nil, nil
+		return nil
 	}
 	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
 	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService)
@@ -212,8 +212,7 @@ func GetScheduleTrackingAndArchiveGrpcService() (*domain.Grpc, *archive.Grpc) {
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
-	archiveGrpc := archive.NewGrpc(archiveService)
-	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir)), archiveGrpc
+	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 
 func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {

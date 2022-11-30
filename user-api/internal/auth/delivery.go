@@ -3,12 +3,12 @@ package auth
 import (
 	"context"
 	"fmt"
+	pb "github.com/frozosea/fmc-pb/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/domain"
 	"user-api/pkg/logging"
-	pb "user-api/pkg/proto"
 )
 
 type converter struct{}

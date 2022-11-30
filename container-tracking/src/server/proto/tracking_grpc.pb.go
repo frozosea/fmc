@@ -4,7 +4,7 @@
 // - protoc             v3.20.3
 // source: tracking.proto
 
-package tracking
+package __
 
 import (
 	context "context"

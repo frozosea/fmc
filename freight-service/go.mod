@@ -3,6 +3,7 @@ module freight_service
 go 1.18
 
 require (
+	github.com/frozosea/fmc-pb v1.0.4
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-ini/ini v1.66.6

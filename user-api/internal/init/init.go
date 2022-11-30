@@ -128,14 +128,14 @@ func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error)
 	config := new(ScheduleTrackingLoggerSettings)
 	return readIni("SCHEDULE_LOGS", config)
 }
-func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Service {
+func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Grpc {
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
 		return nil
 	}
 	repository := schedule_tracking.NewRepository(db)
-	return schedule_tracking.NewService(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
+	return schedule_tracking.NewGrpc(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
 }
 func parseTime(timeStr string, sep string) int64 {
 	splitInfo := strings.Split(timeStr, sep)

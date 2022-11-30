@@ -3,8 +3,8 @@ package tracking
 import (
 	"context"
 	"fmc-gateway/pkg/logging"
-	pb "fmc-gateway/pkg/tracking-pb"
 	"fmt"
+	pb "github.com/frozosea/fmc-pb/tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

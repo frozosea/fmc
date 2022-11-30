@@ -48,7 +48,7 @@ func (r *Repository) AddMarkBillNoWasRemovedFromTrack(ctx context.Context, numbe
 func (r *Repository) CheckNumberExists(ctx context.Context, number string, userId int64, isContainer bool) (bool, error) {
 	var returnedNumber sql.NullString
 	if isContainer {
-		if err := r.db.QueryRowContext(ctx, `SELECT c.number FROM "container" AS c WHERE c.number = $1 AND c.user_id = $2`, number, userId).Scan(&returnedNumber); err != nil {
+		if err := r.db.QueryRowContext(ctx, `SELECT c.number FROM "containers" AS c WHERE c.number = $1 AND c.user_id = $2`, number, userId).Scan(&returnedNumber); err != nil {
 			return false, err
 		}
 		if returnedNumber.Valid {

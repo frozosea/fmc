@@ -1,7 +1,8 @@
 package freight_service
 
 import (
-	pb "fmc-gateway/pkg/freight-pb"
+	pb "github.com/frozosea/fmc-pb/freight"
+
 	"time"
 )
 

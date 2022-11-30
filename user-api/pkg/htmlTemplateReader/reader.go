@@ -2,7 +2,6 @@ package htmlTemplateReader
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -38,7 +37,6 @@ func (h *HTMLReader) GetStringHtml(dir, filename string, data interface{}) (stri
 	fileByteBody, err := f.ReadFile(f.GetFileNameByDirNameAndFilename(dir, filename))
 	t, err := template.New(filename).Parse(string(fileByteBody))
 	if err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	var body bytes.Buffer

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmc-gateway/pkg/logging"
-	pb "fmc-gateway/pkg/schedule-tracking-pb"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -124,26 +124,12 @@ func (c *Client) AddBillNosOnTrack(ctx context.Context, userId int, req *AddOnTr
 //}
 
 func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userId int64, req *DeleteFromTrackRequest) error {
-	if isContainer {
-		_, err := c.cli.DeleteFromTracking(ctx, &pb.DeleteFromTrackRequest{
-			UserId: userId,
-			Number: req.Numbers,
-		})
-		statusCode := status.Convert(err).Code()
-		switch statusCode {
-		case codes.NotFound:
-			return errors.New("cannot find job with this id")
-		case codes.PermissionDenied:
-			return errors.New("number does not belong to this user or cannot find job by your params")
-		case codes.InvalidArgument:
-			return errors.New(err.Error())
-		}
-		return err
-	} else {
-		_, err := c.cli.DeleteFromTracking(ctx, &pb.DeleteFromTrackRequest{
-			UserId: userId,
-			Number: req.Numbers,
-		})
+	_, err := c.cli.DeleteFromTracking(ctx, &pb.DeleteFromTrackingRequest{
+		UserId:      userId,
+		Numbers:     req.Numbers,
+		IsContainer: isContainer,
+	})
+	if err != nil {
 		statusCode := status.Convert(err).Code()
 		switch statusCode {
 		case codes.NotFound:
@@ -155,6 +141,7 @@ func (c *Client) DeleteFromTracking(ctx context.Context, isContainer bool, userI
 		}
 		return err
 	}
+	return nil
 }
 
 func (c *Client) GetInfoAboutTrack(ctx context.Context, r GetInfoAboutTrackRequest) (GetInfoAboutTrackResponse, error) {
@@ -210,9 +197,10 @@ func (c *converter) addOnTrackRequestConvert(userId int, r *AddOnTrackRequest) *
 		Numbers:             r.Numbers,
 		Emails:              r.Emails,
 		EmailMessageSubject: r.EmailMessageSubject,
+		Time:                r.Time,
 	}
 }
-func (c *converter) baseAddOnTrackResponseConver(r []*pb.BaseAddOnTrackResponse) []BaseAddOnTrackResponse {
+func (c *converter) baseAddOnTrackResponseConvert(r []*pb.BaseAddOnTrackResponse) []BaseAddOnTrackResponse {
 	var result []BaseAddOnTrackResponse
 	for _, v := range r {
 		result = append(result, BaseAddOnTrackResponse{
@@ -225,7 +213,7 @@ func (c *converter) baseAddOnTrackResponseConver(r []*pb.BaseAddOnTrackResponse)
 }
 func (c *converter) addOnTrackResponseConvert(r *pb.AddOnTrackResponse) *AddOnTrackResponse {
 	return &AddOnTrackResponse{
-		Result:         c.baseAddOnTrackResponseConver(r.GetBaseResponse()),
+		Result:         c.baseAddOnTrackResponseConvert(r.GetBaseResponse()),
 		AlreadyOnTrack: r.GetAlreadyOnTrack(),
 	}
 }

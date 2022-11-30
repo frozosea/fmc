@@ -31,6 +31,8 @@ github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37 h1:48HuBzVYRI6ARNJ5mWwmmZ8VzYvefxublU1MoGEf+AI=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
+github.com/frozosea/fmc-pb v1.0.4 h1:+YrBkjGupigmbFZUHFW1FdCFnW5G3/ykA5SrUt1SXgs=
+github.com/frozosea/fmc-pb v1.0.4/go.mod h1:4odFZl+s7BxzVYHk4n1iodcwynhgBJm6B1Ww1OJyinM=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/cors v1.4.0 h1:oJ6gwtUl3lqV0WEIwM/LxPF1QZ5qe2lGWdY2+bz7y0g=
 github.com/gin-contrib/cors v1.4.0/go.mod h1:bs9pNM0x/UsmHPBWT2xZz9ROh8xYjYkiURUfmBoMlcs=

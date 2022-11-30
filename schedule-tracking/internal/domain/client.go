@@ -3,8 +3,8 @@ package domain
 import (
 	"context"
 	"fmt"
+	user_pb "github.com/frozosea/fmc-pb/user"
 	"schedule-tracking/pkg/logging"
-	user_pb "schedule-tracking/pkg/user-pb"
 )
 
 type UserClient struct {

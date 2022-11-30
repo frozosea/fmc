@@ -2,7 +2,8 @@ package company
 
 import (
 	"context"
-	pb "freight_service/pkg/proto"
+	pb "github.com/frozosea/fmc-pb/freight"
+
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -2,11 +2,11 @@ package user
 
 import (
 	"context"
+	pb "github.com/frozosea/fmc-pb/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/domain"
-	pb "user-api/pkg/proto"
 )
 
 type converter struct{}
@@ -14,10 +14,18 @@ type converter struct{}
 func (c *converter) convertContainerOrBillToGrpc(r []*domain.Container) []*pb.ContainerResponse {
 	var arr []*pb.ContainerResponse
 	for _, v := range r {
-		arr = append(arr, &pb.ContainerResponse{
+		pbResp := &pb.ContainerResponse{
 			Number:    v.Number,
 			IsOnTrack: v.IsOnTrack,
-		})
+		}
+		if v.IsOnTrack {
+			pbResp.ScheduleTrackingObject = &pb.ScheduleTrackingObject{
+				Time:    v.ScheduleTrackingInfo.Time,
+				Emails:  v.ScheduleTrackingInfo.Emails,
+				Subject: v.ScheduleTrackingInfo.Subject,
+			}
+		}
+		arr = append(arr, pbResp)
 	}
 	return arr
 }

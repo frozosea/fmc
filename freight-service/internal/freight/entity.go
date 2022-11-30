@@ -4,7 +4,8 @@ import (
 	"freight_service/internal/city"
 	"freight_service/internal/company"
 	"freight_service/internal/container"
-	pb "freight_service/pkg/proto"
+	pb "github.com/frozosea/fmc-pb/freight"
+
 	"time"
 )
 
