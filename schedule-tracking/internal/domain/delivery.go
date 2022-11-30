@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-proto/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -101,8 +101,8 @@ func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (
 	}
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
-func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackRequest, isContainer bool) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumber()...); err != nil {
+func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest, isContainer bool) (*emptypb.Empty, error) {
+	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumbers()...); err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
@@ -110,7 +110,7 @@ func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackRequ
 			return &emptypb.Empty{}, status.Error(codes.PermissionDenied, err.Error())
 		default:
 			go func() {
-				for _, v := range r.GetNumber() {
+				for _, v := range r.GetNumbers() {
 					s.logger.ExceptionLog(fmt.Sprintf(`delete Number: %s for user-pb %d from tracking err: %s`, v, r.GetUserId(), err.Error()))
 				}
 			}()
@@ -119,11 +119,8 @@ func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackRequ
 	}
 	return &emptypb.Empty{}, nil
 }
-func (s *Grpc) DeleteContainersFromTrack(ctx context.Context, r *pb.DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return s.deleteFromTracking(ctx, r, true)
-}
-func (s *Grpc) DeleteBillNosFromTrack(ctx context.Context, r *pb.DeleteFromTrackRequest) (*emptypb.Empty, error) {
-	return s.deleteFromTracking(ctx, r, false)
+func (s *Grpc) DeleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest) (*emptypb.Empty, error) {
+	return s.deleteFromTracking(ctx, r, r.GetIsContainer())
 }
 func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
 	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber(), r.GetUserId())

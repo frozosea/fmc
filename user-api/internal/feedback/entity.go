@@ -1,7 +1,7 @@
 package feedback
 
 import (
-	pb "github.com/frozosea/fmc-proto/user"
+	pb "github.com/frozosea/fmc-pb/user"
 )
 
 type Feedback struct {

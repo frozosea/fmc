@@ -2,7 +2,7 @@ package freight_service
 
 import (
 	"context"
-	pb "github.com/frozosea/fmc-proto/freight"
+	pb "github.com/frozosea/fmc-pb/freight"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

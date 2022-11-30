@@ -1,6 +1,6 @@
 package container
 
-import pb "github.com/frozosea/fmc-proto/freight"
+import pb "github.com/frozosea/fmc-pb/freight"
 
 type Container struct {
 	Id   int

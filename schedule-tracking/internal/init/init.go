@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	user_pb "github.com/frozosea/fmc-proto/user"
+	user_pb "github.com/frozosea/fmc-pb/user"
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"

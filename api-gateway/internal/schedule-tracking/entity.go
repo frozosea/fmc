@@ -1,7 +1,7 @@
 package schedule_tracking
 
 import (
-	pb "github.com/frozosea/fmc-proto/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	_ "gopkg.in/validator.v2"
 )
 
@@ -18,6 +18,7 @@ func (a *AddOnTrackRequest) ToGrpc(userId int) *pb.AddOnTrackRequest {
 		Numbers:             a.Numbers,
 		Emails:              a.Emails,
 		EmailMessageSubject: a.EmailMessageSubject,
+		Time:                a.Time,
 	}
 }
 

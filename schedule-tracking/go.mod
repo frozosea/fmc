@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/frozosea/file-reader v0.0.0-20221005045025-703d43ce3658
-	github.com/frozosea/fmc-proto v0.1.1
+	github.com/frozosea/fmc-pb v1.0.4
 	github.com/go-ini/ini v1.66.6
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.6

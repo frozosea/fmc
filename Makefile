@@ -7,7 +7,21 @@ schedule-tracking-proto:
 freight-proto:
 	protoc --proto_path=${PWD}/protobuf/freight   --go_out=${PWD}/protobuf/freight    --go-grpc_out=${PWD}/protobuf/freight    -I ${PWD}/protobuf/freight  freight.proto
 
-tracking-proto:
-	sh build-
+update-proto:
+	cd schedule-tracking;\
+	go mod tidy;\
+	go get github.com/frozosea/fmc-pb@latest;\
+	cd ..;\
+	cd freight-service;\
+	go mod tidy;\
+	go get github.com/frozosea/fmc-pb@latest;\
+	cd ..;\
+    cd user-api;\
+    go mod tidy;\
+  	go get github.com/frozosea/fmc-pb@latest;\
+    cd ..;\
+    cd api-gateway;\
+    go mod tidy;\
+  	go get github.com/frozosea/fmc-pb@latest;\
 
-    #grpc_tools_node_protoc --js_out=import_style=commonjs,binary:${PWD}/ --grpc_out=${PWD}/  tracking.proto \
+

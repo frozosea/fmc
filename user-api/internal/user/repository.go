@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
-	pb "github.com/frozosea/fmc-proto/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

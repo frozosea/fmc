@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
-	user_pb "github.com/frozosea/fmc-proto/user"
+	user_pb "github.com/frozosea/fmc-pb/user"
 	"schedule-tracking/pkg/logging"
 )
 

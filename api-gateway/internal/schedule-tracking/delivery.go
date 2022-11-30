@@ -155,7 +155,7 @@ func (h *HttpHandler) DeleteContainersFromTrack(c *gin.Context) {
 // @Success      200 {object} BaseResponse
 // @Failure      400
 // @Failure 	 500  {object} BaseResponse
-// @Router       /schedule/billNumbers [delete]
+// @Router       /schedule/bills [delete]
 func (h *HttpHandler) DeleteBillNumbersFromTrack(c *gin.Context) {
 	var s *DeleteFromTrackRequest
 	userId, err := h.utils.DecodeToken(c)

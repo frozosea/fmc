@@ -40,8 +40,8 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.mod h1:cXg6YxExXjJnVBQHBLXeUAgxn2UodCpnH306RInaBQk=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
-github.com/frozosea/fmc-proto v0.1.1 h1:k6rqpyFhLL1kj6fLxWNebyxXR/fuvM3xYyb3n+IPb2s=
-github.com/frozosea/fmc-proto v0.1.1/go.mod h1:y7n2ZWVX5/eSgJBr0JD0h6w1Nm5WSOA+u6M69uijOuM=
+github.com/frozosea/fmc-pb v1.0.4 h1:+YrBkjGupigmbFZUHFW1FdCFnW5G3/ykA5SrUt1SXgs=
+github.com/frozosea/fmc-pb v1.0.4/go.mod h1:4odFZl+s7BxzVYHk4n1iodcwynhgBJm6B1Ww1OJyinM=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/cors v1.4.0 h1:oJ6gwtUl3lqV0WEIwM/LxPF1QZ5qe2lGWdY2+bz7y0g=

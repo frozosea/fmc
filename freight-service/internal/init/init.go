@@ -11,7 +11,7 @@ import (
 	"freight_service/pkg/cache"
 	"freight_service/pkg/logging"
 	"freight_service/pkg/middleware"
-	pb "github.com/frozosea/fmc-proto/freight"
+	pb "github.com/frozosea/fmc-pb/freight"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ini/ini"

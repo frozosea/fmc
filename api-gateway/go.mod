@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37
-	github.com/frozosea/fmc-proto v0.1.1
+	github.com/frozosea/fmc-pb v1.0.4
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/joho/godotenv v1.4.0

@@ -3,7 +3,7 @@ package history
 import (
 	"context"
 	"fmc-gateway/internal/tracking"
-	pb "github.com/frozosea/fmc-proto/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	"google.golang.org/grpc"
 )
 

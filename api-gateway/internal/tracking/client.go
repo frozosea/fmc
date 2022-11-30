@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmc-gateway/pkg/logging"
 	"fmt"
-	pb "github.com/frozosea/fmc-proto/tracking"
+	pb "github.com/frozosea/fmc-pb/tracking"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

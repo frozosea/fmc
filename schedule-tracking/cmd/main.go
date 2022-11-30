@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	pb "github.com/frozosea/fmc-proto/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/schedule-tracking"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"log"

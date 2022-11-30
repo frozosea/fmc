@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	pb "github.com/frozosea/fmc-proto/user"
+	pb "github.com/frozosea/fmc-pb/user"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"

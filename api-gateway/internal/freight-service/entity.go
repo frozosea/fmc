@@ -1,7 +1,7 @@
 package freight_service
 
 import (
-	pb "github.com/frozosea/fmc-proto/freight"
+	pb "github.com/frozosea/fmc-pb/freight"
 
 	"time"
 )

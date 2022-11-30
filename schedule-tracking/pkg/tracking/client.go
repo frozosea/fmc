@@ -3,7 +3,7 @@ package tracking
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-proto/tracking"
+	pb "github.com/frozosea/fmc-pb/tracking"
 	"google.golang.org/grpc"
 	"schedule-tracking/pkg/logging"
 	"time"
@@ -14,7 +14,7 @@ type Client struct {
 	billNoClient      pb.TrackingByBillNumberClient
 	containerNoClient pb.TrackingByContainerNumberClient
 	logger            logging.ILogger
-	Сonverter
+	Converter
 }
 
 func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumberResponse, error) {
@@ -53,24 +53,24 @@ func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 	}
 }
 
-type Сonverter struct{}
+type Converter struct{}
 
-func NewСonverter() *Сonverter {
-	return &Сonverter{}
+func NewConverter() *Converter {
+	return &Converter{}
 }
 
 //tracking written on node js so nodejs timestamp is +3 zero on end of timestamp
-func (c *Сonverter) convertNodeTimeStampToTime(t int64) time.Time {
+func (c *Converter) convertNodeTimeStampToTime(t int64) time.Time {
 	return time.Unix(t/1000, 0)
 }
-func (c *Сonverter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
+func (c *Converter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
 		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.convertNodeTimeStampToTime(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
-func (c *Сonverter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberResponse) BillNumberResponse {
+func (c *Converter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberResponse) BillNumberResponse {
 	return BillNumberResponse{
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac(),
@@ -78,7 +78,7 @@ func (c *Сonverter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberRe
 		EtaFinalDelivery: c.convertNodeTimeStampToTime(response.GetEtaFinalDelivery()),
 	}
 }
-func (c *Сonverter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {
+func (c *Converter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {
 	return ContainerNumberResponse{
 		Container:       response.GetContainer(),
 		ContainerSize:   response.GetContainerSize(),

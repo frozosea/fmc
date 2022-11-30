@@ -95,7 +95,7 @@ func (s *Service) AddContainerNumbersOnTrack(ctx context.Context, req *BaseTrack
 	}, nil
 }
 func (s *Service) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
-	if !s.cli.CheckNumberBelongUser(ctx, number, userId, true) {
+	if !s.cli.CheckNumberBelongUser(ctx, number, userId, false) {
 		return nil, &NumberDoesntBelongThisUserError{}
 	}
 	task := s.GetTrackByBillNumberTask(number, country, userId, emailSubject)
