@@ -3,7 +3,7 @@ import {
     ScacServiceService,
     TrackingByBillNumberService,
     TrackingByContainerNumberService
-} from "../../../protobuf/tracking/tracking_grpc_pb";
+} from "./proto/tracking_grpc_pb";
 import {scacGrpcService, trackingByBillNumberService, trackingByContainerNumberService} from "../init";
 import {config} from "dotenv";
 import {AppDataSource} from "../db/data-source";

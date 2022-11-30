@@ -1,10 +1,10 @@
-import {TrackingByBillNumberClient, TrackingByContainerNumberClient} from "../../../protobuf/tracking/tracking_grpc_pb";
+import {TrackingByBillNumberClient, TrackingByContainerNumberClient} from "./proto/tracking_grpc_pb";
 import {credentials} from "@grpc/grpc-js";
 import {
     Request,
     TrackingByBillNumberResponse,
     TrackingByContainerNumberResponse
-} from "../../../protobuf/tracking/tracking_pb";
+} from "./proto/tracking_pb";
 import {COUNTRY_TYPE, SCAC_TYPE} from "../types";
 import {TrackingServiceConverter} from "./services/trackingByContainerNumberService";
 
