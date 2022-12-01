@@ -3,8 +3,9 @@ module schedule-tracking
 go 1.18
 
 require (
-	github.com/frozosea/file-reader v0.0.0-20221005045025-703d43ce3658
+	github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37
 	github.com/frozosea/fmc-pb v1.0.4
+	github.com/frozosea/mailing v1.0.1
 	github.com/go-ini/ini v1.66.6
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.6
@@ -30,6 +31,8 @@ require (
 	golang.org/x/sys v0.0.0-20220317061510-51cd9980dadf // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220314164441-57ef72a4c106 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

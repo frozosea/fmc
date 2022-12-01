@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/frozosea/mailing"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -20,7 +21,6 @@ import (
 	"user-api/internal/user"
 	"user-api/pkg/cache"
 	"user-api/pkg/logging"
-	"user-api/pkg/mailing"
 )
 
 type (
@@ -177,7 +177,11 @@ func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 		panic(err)
 		return nil
 	}
-	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey)
+	m, err := mailing.NewWithElasticEmail(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey, "containerTrackingContacts")
+	if err != nil {
+		panic(err)
+		return nil
+	}
 	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir))
 	return auth.NewGrpc(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
@@ -248,7 +252,11 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 		return nil, nil
 	}
 	logger := logging.NewLogger("feedback")
-	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey)
+	m, err := mailing.NewWithElasticEmail(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey, "containerTrackingContacts")
+	if err != nil {
+		panic(err)
+		return nil, nil
+	}
 	service := feedback.NewService(m, repository, logger, mSettings.SendToEmails)
 	return feedback.NewGrpc(service), feedback.NewHttp(service)
 }

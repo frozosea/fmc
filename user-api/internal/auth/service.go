@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/frozosea/mailing"
 	"time"
 	"user-api/internal/domain"
 	"user-api/pkg/logging"
-	"user-api/pkg/mailing"
 )
 
 type Service struct {
@@ -78,7 +79,7 @@ func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error
 	if err != nil {
 		return err
 	}
-	token, err := p.tokenManager.GenerateToken(userId, time.Hour)
+	token, err := p.tokenManager.GenerateResetPasswordToken(userId, time.Hour)
 	if err != nil {
 		return err
 	}
@@ -90,9 +91,12 @@ func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error
 }
 
 func (p *Service) RecoveryUser(ctx context.Context, token string, newPassword string) error {
-	userId, err := p.tokenManager.DecodeToken(token)
+	userId, operationType, err := p.tokenManager.DecodeResetPasswordToken(token)
 	if err != nil {
 		return err
+	}
+	if operationType != "reset_password" {
+		return errors.New("invalid token")
 	}
 	hashPwd, err := p.hash.Hash(newPassword)
 	if err != nil {

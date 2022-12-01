@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	user_pb "github.com/frozosea/fmc-pb/user"
+	"github.com/frozosea/mailing"
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -16,7 +17,6 @@ import (
 	"schedule-tracking/internal/domain"
 	excel_writer "schedule-tracking/pkg/excel-writer"
 	"schedule-tracking/pkg/logging"
-	"schedule-tracking/pkg/mailing"
 	"schedule-tracking/pkg/scheduler"
 	"schedule-tracking/pkg/tracking"
 )
@@ -121,13 +121,12 @@ func GetEmailSignature() (*EmailSignatureSettings, error) {
 	settings := new(EmailSignatureSettings)
 	return readIni("EMAIL_SETTINGS", settings)
 }
-func GetMailing(sender *EmailSenderSettings) *mailing.Mailing {
-	logger := logging.NewLogger("emails")
+func GetMailing(sender *EmailSenderSettings) mailing.IMailing {
 	settings, err := GetEmailSignature()
 	if err != nil {
 		panic(err)
 	}
-	return mailing.NewMailing(logger, sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
+	return mailing.NewWithUniSender(sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
 }
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))

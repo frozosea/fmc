@@ -19,10 +19,17 @@ type TokenClaims struct {
 	UserId int `json:"userId"`
 }
 
+type TokenClaimsWithOperationType struct {
+	*TokenClaims
+	OperationType string
+}
+
 type ITokenManager interface {
 	GenerateToken(userId int, tokenExpiration time.Duration) (string, error)
 	GenerateAccessRefreshTokens(userId int) (*Token, error)
 	DecodeToken(tokenStr string) (int, error)
+	GenerateResetPasswordToken(userId int, tokenExpiration time.Duration) (string, error)
+	DecodeResetPasswordToken(token string) (int, string, error)
 }
 
 type TokenManager struct {
@@ -72,4 +79,23 @@ func (t *TokenManager) DecodeToken(tokenStr string) (int, error) {
 		return -1, errors.New(`token claims are not valid`)
 	}
 	return claims.UserId, nil
+}
+func (t *TokenManager) GenerateResetPasswordToken(userId int, tokenExpiration time.Duration) (string, error) {
+	standardClaims := jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(tokenExpiration).Unix(),
+		IssuedAt:  time.Now().Unix()}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaimsWithOperationType{TokenClaims: &TokenClaims{StandardClaims: standardClaims, UserId: userId}, OperationType: "reset_password"}).SignedString([]byte(t.SecretKey))
+}
+func (t *TokenManager) DecodeResetPasswordToken(token string) (int, string, error) {
+	parsedToken, parsedTokenErr := jwt.ParseWithClaims(token, &TokenClaimsWithOperationType{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(t.SecretKey), nil
+	})
+	if parsedTokenErr != nil {
+		return -1, "", parsedTokenErr
+	}
+	claims, ok := parsedToken.Claims.(*TokenClaimsWithOperationType)
+	if !ok {
+		return -1, "", errors.New(`token claims are not valid`)
+	}
+	return claims.UserId, claims.OperationType, nil
 }

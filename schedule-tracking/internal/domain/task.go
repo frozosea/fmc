@@ -3,15 +3,15 @@ package domain
 import (
 	"context"
 	"fmt"
+	"github.com/frozosea/mailing"
 	"os"
 	"schedule-tracking/internal/archive"
 	excelwriter "schedule-tracking/pkg/excel-writer"
 	"schedule-tracking/pkg/logging"
-	"schedule-tracking/pkg/mailing"
 	"schedule-tracking/pkg/scheduler"
 	"schedule-tracking/pkg/tracking"
+	"schedule-tracking/pkg/util"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -70,25 +70,14 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number, country string, user
 			go c.logger.ExceptionLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
 			return false
 		}
-		for _, v := range emails {
-			var wg sync.WaitGroup
-			var mu sync.Mutex
-			wg.Add(1)
-			go func() {
-				mu.Lock()
-				defer mu.Unlock()
-				defer wg.Done()
-				var subject string
-				if emailSubject == " " || emailSubject == "" {
-					subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now()))
-				} else {
-					subject = emailSubject
-				}
-				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), subject, pathToFile); sendErr != nil {
-					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, sendErr.Error()))
-				}
-			}()
-			wg.Wait()
+		var subject string
+		if emailSubject == " " || emailSubject == "" {
+			subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.Container), c.timeFormatter.Convert(time.Now()))
+		} else {
+			subject = emailSubject
+		}
+		if sendErr := c.mailing.SendWithFile(ctx, util.ConvertInterfaceArgsToString(emails), subject, pathToFile); sendErr != nil {
+			c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, emails, sendErr.Error()))
 		}
 		if removeErr := os.Remove(pathToFile); removeErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
@@ -137,25 +126,14 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number, country string, userId in
 			go c.logger.FatalLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
 			return false
 		}
-		for _, v := range emails {
-			var wg sync.WaitGroup
-			var mu sync.Mutex
-			wg.Add(1)
-			go func() {
-				mu.Lock()
-				defer wg.Done()
-				defer mu.Unlock()
-				var subject string
-				if emailSubject == " " || emailSubject == "" {
-					subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.BillNo), c.timeFormatter.Convert(time.Now()))
-				} else {
-					subject = emailSubject
-				}
-				if sendErr := c.mailing.SendWithFile(fmt.Sprintf(`%v`, v), subject, pathToFile); sendErr != nil {
-					c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, v, sendErr.Error()))
-				}
-			}()
-			wg.Wait()
+		var subject string
+		if emailSubject == " " || emailSubject == "" {
+			subject = fmt.Sprintf(`%s Tracking %s`, strings.ToUpper(result.BillNo), c.timeFormatter.Convert(time.Now()))
+		} else {
+			subject = emailSubject
+		}
+		if sendErr := c.mailing.SendWithFile(ctx, util.ConvertInterfaceArgsToString(emails), subject, pathToFile); sendErr != nil {
+			c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, emails, sendErr.Error()))
 		}
 		if err := os.Remove(pathToFile); err != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, err.Error()))

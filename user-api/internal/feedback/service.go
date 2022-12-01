@@ -3,9 +3,9 @@ package feedback
 import (
 	"context"
 	"fmt"
+	"github.com/frozosea/mailing"
 	"golang.org/x/sync/errgroup"
 	"user-api/pkg/logging"
-	"user-api/pkg/mailing"
 )
 
 type messageGenerator struct {

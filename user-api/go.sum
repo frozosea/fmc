@@ -38,6 +38,8 @@ github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37 h1:48HuBzVYRI
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
 github.com/frozosea/fmc-pb v1.0.4 h1:+YrBkjGupigmbFZUHFW1FdCFnW5G3/ykA5SrUt1SXgs=
 github.com/frozosea/fmc-pb v1.0.4/go.mod h1:4odFZl+s7BxzVYHk4n1iodcwynhgBJm6B1Ww1OJyinM=
+github.com/frozosea/mailing v1.0.1 h1:hniNC1r/9sIeUY+9p58i/JHPDsKXZb/4FNzL1t4ryYs=
+github.com/frozosea/mailing v1.0.1/go.mod h1:6Rff1x+Geohtz+Ej6YwbL03abZcdL7kwIm69SGXt8fQ=
 github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
