@@ -14,6 +14,7 @@ import (
 	"fmc-gateway/pkg/utils"
 	"fmt"
 	reader "github.com/frozosea/file-reader/pkg"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -284,6 +285,8 @@ func Run() {
 		return
 	}
 	router := gin.Default()
+	defaultCors := cors.DefaultConfig()
+	router.Use(cors.New(defaultCors))
 	router.Use(Middleware.CORSMiddleware)
 	wd, err := os.Getwd()
 	if err != nil {
@@ -300,12 +303,5 @@ func Run() {
 	initUserRoutes(router, UserHttpHandler, Middleware)
 	initScheduleRoutes(router, ScheduleTrackingHttpHandler, Middleware)
 	initHistoryRoutes(router, history.NewHttpHandler(scheduleTrackingHistoryClient, httpUtils), Middleware)
-	//defaultCors := cors.DefaultConfig()
-	//defaultCors.AddAllowMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-	//defaultCors.AllowHeaders = []string{"Accept", "Authorization", "Cache-Control", "Content-Type", "DNT", "If-Modified-Since", "Keep-Alive", "Origin", "User-Agent", "X-Requested-With", "X-Real-Ip", "Access-Control-Allow-Origin"}
-	//defaultCors.AllowAllOrigins = true
-	////defaultCors.AllowOrigins = []string{"*"}
-	//defaultCors.AllowCredentials = true
-	//router.Use(cors.New(defaultCors))
 	log.Fatal(router.Run(fmt.Sprintf(`0.0.0.0:8080`)))
 }
