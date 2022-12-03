@@ -287,7 +287,7 @@ func Run() {
 	router := gin.Default()
 	defaultCors := cors.DefaultConfig()
 	router.Use(cors.New(defaultCors))
-	router.Use(Middleware.CORSMiddleware)
+	//router.Use(Middleware.CORSMiddleware)
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
