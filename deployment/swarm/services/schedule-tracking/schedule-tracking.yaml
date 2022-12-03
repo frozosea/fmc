@@ -44,7 +44,7 @@ services:
     command:
       [ "-path", "./schema" ,"-database",  "postgres://schedule_tracking:schedule_tracking_password@postgres_db:5434/schedule_tracking_db?sslmode=disable", "up" ]
     depends_on:
-      -   postgres_db
+      - postgres_db
     networks:
       - public
   dump_database:
