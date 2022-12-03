@@ -41,6 +41,9 @@ func (m *Middleware) CORSMiddleware(c *gin.Context) {
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
 
 	if c.Request.Method == "OPTIONS" {
+		c.Writer.Header().Set("Access-Control-Max-Age", "1728000")
+		c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		c.Writer.Header().Set("Content-Length", "0")
 		c.AbortWithStatus(204)
 		return
 	}
