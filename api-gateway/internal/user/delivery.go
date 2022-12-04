@@ -80,7 +80,7 @@ func (h *HttpHandler) AddBillNumbersToAccount(c *gin.Context) {
 
 func (h *HttpHandler) deleteContainersOrBillNumbers(c *gin.Context, isContainer bool) {
 	var s DeleteNumbers
-	if err := h.Validate(c, &s); err != nil {
+	if err := c.ShouldBindJSON(&s); err != nil {
 		h.ValidateSchemaError(c, http.StatusBadRequest, "invalid input body")
 		return
 	}

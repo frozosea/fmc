@@ -36,8 +36,10 @@ func (c *Client) AddContainersOnTrack(ctx context.Context, userId int, req *AddO
 	if err != nil {
 		statusOfRequest := status.Convert(err)
 		switch statusOfRequest.Code() {
+		case codes.NotFound:
+			return &AddOnTrackResponse{}, errors.New("cannot find job with this id")
 		case codes.PermissionDenied:
-			return &AddOnTrackResponse{}, errors.New("number does not belong to this user or cannot find job by your params")
+			return &AddOnTrackResponse{}, errors.New("number does not belong to this user")
 		case codes.InvalidArgument:
 			return &AddOnTrackResponse{}, errors.New(err.Error())
 		}
