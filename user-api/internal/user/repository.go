@@ -163,10 +163,10 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 				}
 			} else {
 				container.ScheduleTrackingInfo = scheduleTrackingInfo
-				container.IsContainer = true
 				container.IsOnTrack = true
 			}
 		}
+		container.IsContainer = true
 		containers = append(containers, &container)
 	}
 	return containers, nil
@@ -196,10 +196,10 @@ func (r *Repository) getAllBillNumbers(ctx context.Context, userId int) ([]*doma
 				}
 			} else {
 				container.ScheduleTrackingInfo = scheduleTrackingInfo
-				container.IsContainer = false
 				container.IsOnTrack = true
 			}
 		}
+		container.IsContainer = false
 		containers = append(containers, &container)
 	}
 	return containers, nil
