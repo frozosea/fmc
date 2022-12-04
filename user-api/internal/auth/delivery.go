@@ -78,16 +78,17 @@ func (s *Grpc) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (*pb
 		resp, err := s.controller.RefreshToken(r.GetRefreshToken())
 		if err != nil {
 			errCh <- status.Error(codes.Internal, err.Error())
-			ch <- &pb.LoginResponse{}
+			return
 		}
-		errCh <- nil
 		ch <- s.converter.loginResponseConvert(resp)
 	}()
 	select {
 	case <-ctx.Done():
 		return &pb.LoginResponse{}, ctx.Err()
 	case result := <-ch:
-		return result, <-errCh
+		return result, nil
+	case err := <-errCh:
+		return nil, err
 	}
 }
 func (s *Grpc) Auth(ctx context.Context, r *pb.AuthRequest) (*pb.AuthResponse, error) {
