@@ -70,6 +70,7 @@ func (p *Service) GetAllContainers(ctx context.Context, userId int) (*domain.All
 	}()
 	select {
 	case <-ctx.Done():
+		cancel()
 		return nil, ctx.Err()
 	case cacheResult := <-cacheCh:
 		return cacheResult, nil

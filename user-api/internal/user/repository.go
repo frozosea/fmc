@@ -147,6 +147,7 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 	}(rows)
 	for rows.Next() {
 		var container domain.Container
+		container.IsContainer = true
 		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
 			return containers, err
 		}
@@ -166,43 +167,42 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 				container.IsOnTrack = true
 			}
 		}
-		container.IsContainer = true
 		containers = append(containers, &container)
 	}
 	return containers, nil
 }
 func (r *Repository) getAllBillNumbers(ctx context.Context, userId int) ([]*domain.Container, error) {
-	var containers []*domain.Container
+	var bills []*domain.Container
 	rows, err := r.db.QueryContext(ctx, `SELECT DISTINCT ON (c.number) c.number,c.is_on_track FROM "bill_numbers" AS c WHERE c.user_id = $1 AND c.is_arrived = false`, userId)
 	if err != nil {
-		return containers, err
+		return bills, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var container domain.Container
-		if err := rows.Scan(&container.Number, &container.IsOnTrack); err != nil {
-			return containers, err
+		var bill domain.Container
+		bill.IsContainer = false
+		if err := rows.Scan(&bill.Number, &bill.IsOnTrack); err != nil {
+			return bills, err
 		}
-		if container.IsOnTrack {
-			scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, container.Number, userId)
+		if bill.IsOnTrack {
+			scheduleTrackingInfo, err := r.scheduleTrackingInfoRepository.GetInfo(ctx, bill.Number, userId)
 			if err != nil {
 				switch err.(type) {
 				case *NoTaskError:
-					container.ScheduleTrackingInfo = nil
-					container.IsOnTrack = false
+					bill.ScheduleTrackingInfo = nil
+					bill.IsOnTrack = false
 				default:
-					return containers, err
+					return bills, err
 
 				}
 			} else {
-				container.ScheduleTrackingInfo = scheduleTrackingInfo
-				container.IsOnTrack = true
+				bill.ScheduleTrackingInfo = scheduleTrackingInfo
+				bill.IsOnTrack = true
 			}
 		}
-		container.IsContainer = false
-		containers = append(containers, &container)
+		bills = append(bills, &bill)
 	}
-	return containers, nil
+	return bills, nil
 }
 func (r *Repository) GetAllContainersAndBillNumbers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error) {
 	var allBillNumbersAndContainers domain.AllContainersAndBillNumbers

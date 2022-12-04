@@ -15,8 +15,9 @@ func (c *converter) convertContainerOrBillToGrpc(r []*domain.Container) []*pb.Co
 	var arr []*pb.ContainerResponse
 	for _, v := range r {
 		pbResp := &pb.ContainerResponse{
-			Number:    v.Number,
-			IsOnTrack: v.IsOnTrack,
+			Number:      v.Number,
+			IsOnTrack:   v.IsOnTrack,
+			IsContainer: v.IsContainer,
 		}
 		if v.IsOnTrack {
 			pbResp.ScheduleTrackingObject = &pb.ScheduleTrackingObject{
