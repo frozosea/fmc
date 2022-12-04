@@ -163,7 +163,7 @@ func (r *Repository) getAllContainers(ctx context.Context, userId int) ([]*domai
 				}
 			} else {
 				container.ScheduleTrackingInfo = scheduleTrackingInfo
-				container.IsContainer = false
+				container.IsContainer = true
 				container.IsOnTrack = true
 			}
 		}
