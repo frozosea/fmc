@@ -34,10 +34,8 @@ func NewService(logger logging.ILogger, cli *UserClient, taskManager *scheduler.
 }
 func (s *Service) checkNumberInTaskTable(ctx context.Context, number string, userId int64) bool {
 	task, err := s.repository.GetByNumber(ctx, number)
-	if task.UserId != userId {
-		return false
-	}
-	if err != nil {
+	fmt.Println(task.UserId == userId, err)
+	if task.UserId != userId || err != nil {
 		return false
 	}
 	return true
@@ -149,7 +147,7 @@ func (s *Service) AddBillNumbersOnTrack(ctx context.Context, req *BaseTrackReq) 
 	}, nil
 }
 
-func (s *Service) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, numbers ...string) error {
+func (s *Service) DeleteFromTracking(ctx context.Context, userId int64, isContainer bool, numbers []string) error {
 	for _, v := range numbers {
 		if !s.checkNumberInTaskTable(ctx, v, userId) {
 			return &NumberDoesntBelongThisUserError{}
@@ -203,7 +201,7 @@ func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 }
 
 func (s *Service) Update(ctx context.Context, r *BaseTrackReq, isContainer bool) error {
-	if err := s.DeleteFromTracking(ctx, r.UserId, isContainer, r.Numbers...); err != nil {
+	if err := s.DeleteFromTracking(ctx, r.UserId, isContainer, r.Numbers); err != nil {
 		return err
 	}
 	if isContainer {

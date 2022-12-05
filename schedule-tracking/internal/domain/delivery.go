@@ -102,7 +102,7 @@ func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
 func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest, isContainer bool) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumbers()...); err != nil {
+	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumbers()); err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())

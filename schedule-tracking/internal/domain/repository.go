@@ -88,8 +88,7 @@ func (r *Repository) GetByNumber(ctx context.Context, number string) (*TrackingT
 
 func (r *Repository) Delete(ctx context.Context, numbers []string) error {
 	for _, number := range numbers {
-		_, err := r.db.ExecContext(ctx, `DELETE FROM "tasks" AS t WHERE t.number = $1`, number)
-		if err != nil {
+		if _, err := r.db.ExecContext(ctx, `DELETE FROM "tasks" AS t WHERE t.number = $1`, number); err != nil {
 			return err
 		}
 	}
