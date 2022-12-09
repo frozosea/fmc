@@ -1,8 +1,9 @@
 import {
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
     ITrackingArgs,
-    TrackingContainerResponse,
-    OneTrackingEvent, BaseContainerConstructor
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {SitcContainerTrackingApiResponseSchema} from "./sitcApiResponseSchema";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
@@ -34,15 +35,29 @@ export class SitcInfoAboutMovingParser {
     }
 
     public getInfoAboutMoving(sitcApiResp: SitcContainerTrackingApiResponseSchema): OneTrackingEvent[] {
-        let infoAboutMoving: OneTrackingEvent[] = []
+        let infoAboutMoving = []
         for (let item of sitcApiResp.data.list) {
-            let infoAboutMovingOneEvent: OneTrackingEvent = {
-                time: this.datetime.strptime(item.eventDate, "YYYY-MM-DD HH:mm:ss").getTime(),
-                operationName: item.movementNameEn,
-                vessel: item.vesselCode,
-                location: item.eventPort
+            let oneEvent = {}
+            try {
+                oneEvent["time"] = this.datetime.strptime(item.eventDate, "YYYY-MM-DD HH:mm:ss").getTime()
+            } catch (e) {
             }
-            infoAboutMoving.push(infoAboutMovingOneEvent)
+            try {
+                oneEvent["operationName"] = item.movementNameEn
+            } catch (e) {
+            }
+            try {
+                oneEvent["location"] = item.vesselCode
+            } catch (e) {
+            }
+            try {
+                oneEvent["vessel"] = item.eventPort
+            } catch (e) {
+            }
+            if(Object.keys(oneEvent).length!==0){
+                infoAboutMoving.push(oneEvent)
+
+            }
         }
         return infoAboutMoving
     }

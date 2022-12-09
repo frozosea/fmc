@@ -61,14 +61,19 @@ export class FesoInfoAboutMovingParser {
         let infoAboutMoving: OneTrackingEvent[] = [];
         let lastEvents = fescoApiResponse.lastEvents
         for (let item of lastEvents) {
-            let time = item.time.split("Z")[0]
-            let oneOperationObject: OneTrackingEvent = {
-                time: this.datetime.strptime(time, "YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
-                operationName: item.operationNameLatin.trim(),
-                location: item.locNameLatin.trim(),
-                vessel: item.vessel ? item.vessel : " "
+            try {
+                let time = item.time.split("Z")[0]
+                let oneOperationObject: OneTrackingEvent = {
+                    time: time ? this.datetime.strptime(time, "YYYY-MM-DDTHH:mm:ss.SSS").getTime() : 0,
+                    operationName: item.operationNameLatin ? item.operationNameLatin.trim() : "",
+                    location: item.locNameLatin ? item.locNameLatin.trim() : "",
+                    vessel: item.vessel ? item.vessel : " "
+                }
+                infoAboutMoving.push(oneOperationObject)
+            } catch (e) {
+                continue
             }
-            infoAboutMoving.push(oneOperationObject)
+
         }
         return infoAboutMoving
     }

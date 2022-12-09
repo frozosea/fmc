@@ -1,14 +1,16 @@
 import {
-    OneTrackingEvent, BaseContainerConstructor,
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
-    TrackingContainerResponse,
-    ITrackingArgs
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {MaerskApiResponseSchema} from "./maerskApiResponseSchema";
 import {GetEtaException, NotThisShippingLineException} from "../../../exceptions";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
 import {config} from "../../../../tests/classesConfigurator";
+import {IDatetime} from "../../helpers/datetime";
 
 
 export class MaeuRequest {
@@ -56,9 +58,11 @@ export class MaeuPortOfDischargingParser {
 
 export class MaeuEtaParser {
     protected podParser: MaeuPortOfDischargingParser;
+    protected datetime: IDatetime;
 
-    public constructor() {
+    public constructor(datetime: IDatetime) {
         this.podParser = new MaeuPortOfDischargingParser()
+        this.datetime = datetime
     }
 
     public getEta(maerskApiResponse: MaerskApiResponseSchema): OneTrackingEvent {
@@ -66,15 +70,26 @@ export class MaeuEtaParser {
         try {
             eta = maerskApiResponse.containers[0].eta_final_delivery
         } catch (e) {
-            eta = " "
+            eta = ""
         }
-        if (eta !== " ") {
-            return {
-                time: config.DATETIME.strptime(eta,"YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
+        if (eta !== "") {
+            let obj: OneTrackingEvent = {
+                location: "",
+                time: 0,
                 operationName: "ETA",
-                location: this.podParser.getPortOfDischarging(maerskApiResponse),
                 vessel: " "
             }
+            try {
+                obj["location"] = this.podParser.getPortOfDischarging(maerskApiResponse)
+            } catch (e) {
+
+            }
+            try {
+                obj["time"] = this.datetime.strptime(eta, "YYYY-MM-DDTHH:mm:ss.SSS").getTime()
+            } catch (e) {
+
+            }
+            return obj
         } else {
             throw new GetEtaException()
         }
@@ -83,19 +98,23 @@ export class MaeuEtaParser {
 
 export class MaeuInfoAboutMovingParser {
     public parseInfoAboutMoving(maerskApiResp: MaerskApiResponseSchema): OneTrackingEvent[] {
-        let infoAboutMovingArray: OneTrackingEvent[] = []
+        let infoAboutMovingArray = []
         for (let bigEvent of maerskApiResp.containers[0].locations) {
             let terminal = bigEvent.terminal !== null || true || bigEvent.terminal !== " " ? bigEvent.terminal : bigEvent.city
             for (let event of bigEvent.events) {
-                let eventTime = event.actual_time ? event.actual_time : event.expected_time
-                let operationTime = config.DATETIME.strptime(eventTime,"YYYY-MM-DDTHH:mm:ss.SSS").getTime()
-                let infoAboutMovingDict: OneTrackingEvent = {
-                    time: operationTime,
-                    location: terminal,
-                    operationName: event.activity,
-                    vessel: event.vessel_name === "" ? " " : event.vessel_name
+                try {
+                    let eventTime = event.actual_time ? event.actual_time : event.expected_time
+                    let operationTime = config.DATETIME.strptime(eventTime, "YYYY-MM-DDTHH:mm:ss.SSS").getTime()
+                    let infoAboutMovingDict: OneTrackingEvent = {
+                        time: operationTime,
+                        location: terminal,
+                        operationName: event.activity,
+                        vessel: event.vessel_name === "" ? " " : event.vessel_name
+                    }
+                    infoAboutMovingArray.push(infoAboutMovingDict)
+                } catch (e) {
+                    continue
                 }
-                infoAboutMovingArray.push(infoAboutMovingDict)
             }
         }
         return infoAboutMovingArray
@@ -114,10 +133,10 @@ export class MaeuApiParser {
     public containerSizeParser: MaeuContainerSizeParser;
     public etaParser: MaeuEtaParser;
 
-    public constructor() {
+    public constructor(datetime: IDatetime) {
         this.infoAboutMovingParser = new MaeuInfoAboutMovingParser();
         this.containerSizeParser = new MaeuContainerSizeParser();
-        this.etaParser = new MaeuEtaParser();
+        this.etaParser = new MaeuEtaParser(datetime);
     }
 
     public parseMaeuApiAndGetReadyObject(maerskApiResp: MaerskApiResponseSchema, container: string): TrackingContainerResponse {
@@ -147,7 +166,7 @@ export class MaeuContainer extends BaseTrackerByContainerNumber<fetchArgs> {
     public constructor(args: BaseContainerConstructor<fetchArgs>) {
         super(args);
         this.request = new MaeuRequest(args.requestSender, args.UserAgentGenerator)
-        this.parser = new MaeuApiParser()
+        this.parser = new MaeuApiParser(args.datetime)
     }
 
     public async trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse> {

@@ -12,10 +12,12 @@ import {
     UnlocodesRepoMoch
 } from "./skluApiResponseExample";
 import {fetchArgs, IRequest} from "../../src/trackTrace/helpers/requestSender";
+import {IUnlocodesRepo, UnlocodeObject} from "../../src/trackTrace/TrackingByContainerNumber/sklu/unlocodesRepo";
 
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path")
+
 
 
 const requestMoch: IRequest<fetchArgs> = {

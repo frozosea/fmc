@@ -9,7 +9,7 @@ type AddOnTrackRequest struct {
 	Numbers             []string `json:"numbers" binding:"required"`
 	Emails              []string `json:"emails" binding:"required"  validate:"min=3,max=500,regexp=^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$"`
 	Time                string   `json:"time" binding:"required"  validate:"min=4,max=5,regexp=\d{1,2}:\d{2}"`
-	EmailMessageSubject string   `json:"emailSubject" binding:"required"  validate:""`
+	EmailMessageSubject string   `json:"emailSubject,omitempty" binding:"required"  validate:""`
 }
 
 func (a *AddOnTrackRequest) ToGrpc(userId int) *pb.AddOnTrackRequest {

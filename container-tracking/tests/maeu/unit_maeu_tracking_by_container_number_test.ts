@@ -31,7 +31,7 @@ describe("MAEU Tracking by container number test", () => {
         assert.strictEqual(actualPod, maeuExamleApiResponse.destination.city)
     })
     it("MAEU get eta test", () => {
-        let maeuEtaParser = new MaeuEtaParser()
+        let maeuEtaParser = new MaeuEtaParser(config.DATETIME)
         const expectedEtaObject: OneTrackingEvent = {
             time: config.DATETIME.strptime("2022-06-11T13:54:00.000","YYYY-MM-DDTHH:mm:ss.SSS").getTime(),
             operationName: "ETA",

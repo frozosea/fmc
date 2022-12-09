@@ -1,8 +1,9 @@
 import {
-    OneTrackingEvent, BaseContainerConstructor,
+    BaseContainerConstructor,
     BaseTrackerByContainerNumber,
-    TrackingContainerResponse,
-    ITrackingArgs
+    ITrackingArgs,
+    OneTrackingEvent,
+    TrackingContainerResponse
 } from "../../base";
 import {CosuApiResponseSchema, CosuInfoAboutMoving, EtaResponseSchema} from "./cosuApiResponseSchema";
 import {NotThisShippingLineException} from "../../../exceptions";
@@ -105,10 +106,10 @@ export class CosuInfoAboutMovingParser {
         let rawContainerHistoryInfo: CosuInfoAboutMoving[] = apiResp.data.content.containers[0].containerHistorys
         for (let item of rawContainerHistoryInfo) {
             let oneInfoAboutMovingObject: OneTrackingEvent = {
-                time: this.datetime.strptime(item.timeOfIssue, "YYYY-MM-DD HH:mm").getTime(),
-                operationName: item.containerNumberStatus,
-                location: item.location,
-                vessel: item.transportation
+                time: item.timeOfIssue ? this.datetime.strptime(item.timeOfIssue, "YYYY-MM-DD HH:mm").getTime() : 0,
+                operationName: item.containerNumberStatus ? item.containerNumberStatus : " ",
+                location: item.location ? item.location : " ",
+                vessel: item.transportation ? item.transportation : " "
             }
             infoAboutMoving.push(oneInfoAboutMovingObject)
         }

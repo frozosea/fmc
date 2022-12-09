@@ -5,7 +5,7 @@ import {
     OneTrackingEvent,
     TrackingContainerResponse
 } from "../../base";
-import {IUnlocodesRepo, UnlocodeObject} from "./unlocodesRepo";
+import {IUnlocodesRepo} from "./unlocodesRepo";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {SinokorApiResponseSchema} from "./sinokorApiResponseSchema";
 import {NotThisShippingLineException} from "../../../exceptions";
@@ -135,7 +135,11 @@ export class SkluInfoAboutMovingParser {
         let outputArray: string[] = []
         let table = doc.querySelector("#wrapper > div > div:nth-child(6) > div.panel-body > div > table").querySelectorAll("td")
         for (let item of table) {
-            outputArray.push(item.textContent)
+            try {
+                outputArray.push(item.textContent)
+            } catch (e) {
+                continue
+            }
         }
         return [outputArray, doc]
     }
@@ -144,31 +148,49 @@ export class SkluInfoAboutMovingParser {
         let allOperations: string[] = []
         let allTexts = doc.getElementsByClassName("splitTable")[0].getElementsByClassName("firstTh")
         for (let item of allTexts) {
-            allOperations.push(item.textContent)
+            try {
+                allOperations.push(item.textContent)
+            } catch (e) {
+                continue
+            }
         }
         return allOperations
     }
 
     protected getInfoAboutMoving(stringHtml: string, container: string): OneTrackingEvent[] {
-        let outputArr: OneTrackingEvent[] = []
+        let events = []
         let [text, doc] = this.parseTable(stringHtml)
         let allEvents = this.parseAllOperations(doc)
         let sliceArr = SliceArray.from(text)
-        for (let [times, locations, vessels, operation] of this.zip(sliceArr[[2, , 3]], sliceArr[[1, , 3]], sliceArr[[, , 3]], allEvents)) {
-            let oneEvent = {
-                time: this.parseAndConvertTime(times),
-                operationName: operation.trim(),
-                location: locations.trim(),
-                vessel: vessels.trim()
+        for (let [time, location, vessel, operation] of this.zip(sliceArr[[2, , 3]], sliceArr[[1, , 3]], sliceArr[[, , 3]], allEvents)) {
+            let oneEvent = {}
+            try {
+                oneEvent["time"] = this.parseAndConvertTime(time)
+            } catch (e) {
             }
-            outputArr.push(oneEvent)
+
+            try {
+                oneEvent["operationName"] = operation.trim()
+            } catch (e) {
+            }
+            try {
+                oneEvent["location"] = location.trim()
+            } catch (e) {
+            }
+            try {
+                oneEvent["vessel"] = vessel.trim()
+            } catch (e) {
+            }
+            if (Object.keys(oneEvent).length !== 0) {
+                events.push(oneEvent)
+            }
         }
-        for (let item of outputArr) {
+        for (let item of events) {
             if (item.vessel === container) {
                 item.vessel = " "
             }
         }
-        return outputArr
+        return events
     }
 
     public parseInfoAboutMovingPage(infoAboutMovingString: string, container: string): OneTrackingEvent[] {
@@ -207,14 +229,14 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
         try {
             let apiResponse: SinokorApiResponseSchema[] = await this.skluRequest.sendRequestToApi(args);
             if (apiResponse !== null) {
-                let nextRequestDataObject = await this.apiParser.parseSinokorApiJson(apiResponse)
-                let eta: OneTrackingEvent = await this.etaParser.getEtaObject(nextRequestDataObject);
-                let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(nextRequestDataObject.billNo, args.number);
+                let getInfoAboutMovingRequestData = this.apiParser.parseSinokorApiJson(apiResponse)
+                let eta: OneTrackingEvent = await this.etaParser.getEtaObject(getInfoAboutMovingRequestData);
+                let infoAboutMovingStringHtml: string = await this.skluRequest.sendRequestAndGetInfoAboutMovingStringHtml(getInfoAboutMovingRequestData.billNo, args.number);
                 let infoAboutMoving: OneTrackingEvent[] = this.infoAboutMovingParser.parseInfoAboutMovingPage(infoAboutMovingStringHtml, args.number);
                 infoAboutMoving.push(eta)
                 return {
                     container: args.number,
-                    containerSize: nextRequestDataObject.containerSize,
+                    containerSize: getInfoAboutMovingRequestData.containerSize,
                     scac: "SKLU",
                     infoAboutMoving: infoAboutMoving
                 }
@@ -229,11 +251,4 @@ export class SkluContainer extends BaseTrackerByContainerNumber<fetchArgs> {
     }
 }
 
-export class UnlocodesRepoMoch implements IUnlocodesRepo {
-    public async getUnlocode(unlocode: string): Promise<string> {
-        return "Hososhima"
-    }
 
-    public async addUnlocode(obj: UnlocodeObject): Promise<void> {
-    }
-}

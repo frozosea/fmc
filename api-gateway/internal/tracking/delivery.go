@@ -108,7 +108,7 @@ func (h *HttpHandler) GetContainerScac(c *gin.Context) {
 // @Failure      500 {object}   BaseResponse
 // @Router       /scac/bills [get]
 func (h *HttpHandler) GetBillScac(c *gin.Context) {
-	response, err := h.client.GetContainerScac(c.Request.Context())
+	response, err := h.client.GetBillScac(c.Request.Context())
 	if err != nil {
 		c.JSON(500, gin.H{`success`: false, `error`: err.Error()})
 		return

@@ -60,15 +60,26 @@ class BaseMscuParser {
 
 export class MscuInfoAboutMovingParser extends BaseMscuParser {
     public getInfoAboutMoving(apiResp: MscuApiResponseSchema): OneTrackingEvent[] {
-        let infoAboutMovingArray: OneTrackingEvent[] = []
+        let infoAboutMovingArray = []
         for (let item of apiResp.Data.BillOfLadings[0].ContainersInfo[0].Events) {
-            let event: OneTrackingEvent = {
-                time: this.datetime.strptime(item.Date, "DD/MM/YYYY").getTime(),
-                operationName: item.Description === "" ? " " : item.Description.trim(),
-                location: item.Location === "" ? " " : item.Location.trim(),
-                vessel: " "
+            let oneEvent = {}
+            try {
+                oneEvent["time"] = this.datetime.strptime(item.Date, "DD/MM/YYYY").getTime()
+            } catch (e) {
             }
-            infoAboutMovingArray.push(event)
+
+            try {
+                oneEvent["operationName"] = item.Description === "" ? " " : item.Description.trim()
+            } catch (e) {
+            }
+            try {
+                oneEvent["location"] = item.Location === "" ? " " : item.Location.trim()
+            } catch (e) {
+            }
+            oneEvent["vessel"] = ""
+            if (Object.keys(oneEvent).length !== 0) {
+                infoAboutMovingArray.push(oneEvent)
+            }
         }
         return infoAboutMovingArray.reverse()
     }
@@ -77,7 +88,7 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
 export class MscuEtaParser extends BaseMscuParser {
     public getEta(apiResp: MscuApiResponseSchema): OneTrackingEvent {
         let etaDate: string = apiResp.Data.BillOfLadings[0].GeneralTrackingInfo.FinalPodEtaDate
-        if (etaDate === "") {
+        if (!etaDate) {
             throw new GetEtaException()
         }
         return {

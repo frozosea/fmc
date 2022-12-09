@@ -1,4 +1,9 @@
-import {BaseTrackerByContainerNumber, TrackingArgsWithScac, TrackingContainerResponse} from "../../base";
+import {
+    BaseTrackerByContainerNumber,
+    ITrackingByContainerNumber,
+    TrackingArgsWithScac,
+    TrackingContainerResponse
+} from "../../base";
 import {ContainerNotFoundException} from "../../../exceptions";
 import {fetchArgs} from "../../helpers/requestSender";
 import {ITrackingByBillNumberResponse, SCAC_TYPE} from "../../../types";
@@ -28,6 +33,61 @@ export class TimeInspector {
         const today = new Date();
         let diffBetweenDates = this.getDifferenceBetweenDatesInMonths(today, lastDateInInfoAboutMoving);
         return diffBetweenDates <= 3;
+    }
+}
+
+
+class TrackerForRussia {
+    public readonly trackers: { tracker: ITrackingByContainerNumber, scac: string }[]
+    protected timeInspector: TimeInspector;
+
+    public constructor(trackers: { tracker: ITrackingByContainerNumber, scac: string }[], timeInspector: TimeInspector) {
+        this.trackers = trackers;
+        this.timeInspector = timeInspector;
+    }
+
+    protected getContainerByScac(scac: SCAC_TYPE): ITrackingByContainerNumber {
+        for (const item of this.trackers) {
+            if (item.scac === scac) {
+                return item.tracker
+            }
+        }
+        return null
+    }
+
+    protected getAllTrackers(): ITrackingByContainerNumber[] {
+        const trackers: ITrackingByContainerNumber[] = []
+        for (const item of this.trackers) {
+            trackers.push(item.tracker)
+        }
+        return trackers
+    }
+
+    public async trackContainer(args: TrackingArgsWithScac): Promise<TrackingContainerResponse> {
+        let tasks: ITrackingByContainerNumber[] = this.getAllTrackers()
+        if (args.scac === "AUTO") {
+            for (let task of tasks) {
+                try {
+                    let res = await task.trackContainer(args);
+                    if (res) {
+                        if (this.timeInspector.inspectTime(res)) {
+                            return res
+                        } else {
+                            break
+                        }
+                    }
+                } catch (e) {
+                    continue
+                }
+            }
+            throw new ContainerNotFoundException()
+        } else {
+            try {
+                return await this.getContainerByScac(args.scac).trackContainer(args);
+            } catch (e) {
+                throw new ContainerNotFoundException()
+            }
+        }
     }
 }
 
@@ -66,6 +126,8 @@ export class MainTrackingForRussia {
                     if (res) {
                         if (this.timeInspector.inspectTime(res)) {
                             return res
+                        } else {
+                            break
                         }
                     }
                 } catch (e) {
