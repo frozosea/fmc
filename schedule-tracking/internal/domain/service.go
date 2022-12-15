@@ -194,7 +194,7 @@ func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 			IsContainer:          repoJob.IsContainer,
 			IsOnTrack:            false,
 			ScheduleTrackingInfo: &ScheduleTrackingInfo{},
-		}, nil
+		}, err
 	}
 	return &GetInfoAboutTrackResponse{
 		Number:      repoJob.Number,
