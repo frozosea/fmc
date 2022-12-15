@@ -34,7 +34,6 @@ func NewService(logger logging.ILogger, cli *UserClient, taskManager *scheduler.
 }
 func (s *Service) checkNumberInTaskTable(ctx context.Context, number string, userId int64) bool {
 	task, err := s.repository.GetByNumber(ctx, number)
-	fmt.Println(task.UserId == userId, err)
 	if task.UserId != userId || err != nil {
 		return false
 	}
@@ -186,7 +185,16 @@ func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 			IsContainer:          repoJob.IsContainer,
 			IsOnTrack:            false,
 			ScheduleTrackingInfo: &ScheduleTrackingInfo{},
-		}, err
+		}, nil
+	}
+	_, err = s.taskManager.Get(ctx, number)
+	if err != nil {
+		return &GetInfoAboutTrackResponse{
+			Number:               repoJob.Number,
+			IsContainer:          repoJob.IsContainer,
+			IsOnTrack:            false,
+			ScheduleTrackingInfo: &ScheduleTrackingInfo{},
+		}, nil
 	}
 	return &GetInfoAboutTrackResponse{
 		Number:      repoJob.Number,
