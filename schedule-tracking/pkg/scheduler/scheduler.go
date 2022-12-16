@@ -132,7 +132,7 @@ func (m *Manager) Modify(ctx context.Context, taskId string, task ITask, args ..
 	return nil
 }
 
-func NewDefault() *Manager {
+func NewDefault(timezone string) *Manager {
 	jobStore := NewMemoryJobStore()
-	return &Manager{executor: NewExecutor(jobStore, NewTimeParser(), log.New(os.Stdout, "log", 1)), jobstore: jobStore, baseLogger: *log.New(os.Stdout, "log", 1), timeParser: NewTimeParser()}
+	return &Manager{executor: NewExecutor(jobStore, NewTimeParser(timezone), log.New(os.Stdout, "log", 1)), jobstore: jobStore, baseLogger: *log.New(os.Stdout, "log", 1), timeParser: NewTimeParser(timezone)}
 }

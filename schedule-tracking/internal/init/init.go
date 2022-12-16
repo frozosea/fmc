@@ -159,8 +159,6 @@ func GetArchiveLoggerSettings() (*ArchiveLoggerSettings, error) {
 	return readIni("ARCHIVE_LOGS", config)
 }
 
-var TaskManager = scheduler.NewDefault()
-
 func GetUserClientSettings() (*UserClientSettings, error) {
 	ip, port := os.Getenv("USER_GRPC_HOST"), os.Getenv("USER_GRPC_PORT")
 	settings := new(UserClientSettings)
@@ -207,6 +205,11 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	}
 	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
 	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService)
+	var timezone = os.Getenv("TZ")
+	if timezone == "" {
+		timezone = "Asia/Vladivostok"
+	}
+	var TaskManager = scheduler.NewDefault(timezone)
 	scheduleTrackingService := domain.NewService(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
