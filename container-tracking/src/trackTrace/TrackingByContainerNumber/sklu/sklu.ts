@@ -50,7 +50,7 @@ export class SkluRequestSender {
             method: "GET",
             headers: headers
         })
-        if (res !== []) {
+        if (res) {
             return res
         } else {
             res = await this.requestSender.sendRequestAndGetJson({
@@ -58,7 +58,7 @@ export class SkluRequestSender {
                 method: "GET",
                 headers: headers
             })
-            if (res !== []) {
+            if (res) {
                 return res
 
             }
@@ -164,6 +164,7 @@ export class SkluInfoAboutMovingParser {
         let sliceArr = SliceArray.from(text)
         for (let [time, location, vessel, operation] of this.zip(sliceArr[[2, , 3]], sliceArr[[1, , 3]], sliceArr[[, , 3]], allEvents)) {
             let oneEvent = {}
+
             try {
                 oneEvent["time"] = this.parseAndConvertTime(time)
             } catch (e) {
@@ -173,16 +174,22 @@ export class SkluInfoAboutMovingParser {
                 oneEvent["operationName"] = operation.trim()
             } catch (e) {
             }
+
             try {
                 oneEvent["location"] = location.trim()
             } catch (e) {
             }
+
             try {
                 oneEvent["vessel"] = vessel.trim()
             } catch (e) {
             }
-            if (Object.keys(oneEvent).length !== 0) {
-                events.push(oneEvent)
+
+            try {
+                if (Object.keys(oneEvent).length !== 0) {
+                    events.push(oneEvent)
+                }
+            } catch (e) {
             }
         }
         for (let item of events) {

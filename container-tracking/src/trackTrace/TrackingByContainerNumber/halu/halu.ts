@@ -22,7 +22,7 @@ export class HaluRequest extends SkluRequestSender {
             headers: requestHeaders,
             body: null
         })
-        if (res !== []) {
+        if (res) {
             return res
         } else {
             res = await this.requestSender.sendRequestAndGetJson({
