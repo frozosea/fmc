@@ -9,7 +9,6 @@ import {MaerskApiResponseSchema} from "./maerskApiResponseSchema";
 import {GetEtaException, NotThisShippingLineException} from "../../../exceptions";
 import {fetchArgs, IRequest} from "../../helpers/requestSender";
 import {IUserAgentGenerator} from "../../helpers/userAgentGenerator";
-import {config} from "../../../../tests/classesConfigurator";
 import {IDatetime} from "../../helpers/datetime";
 
 
@@ -97,21 +96,41 @@ export class MaeuEtaParser {
 }
 
 export class MaeuInfoAboutMovingParser {
+    protected datetime: IDatetime;
+
+    public constructor(datetime: IDatetime) {
+        this.datetime = datetime;
+    }
+
     public parseInfoAboutMoving(maerskApiResp: MaerskApiResponseSchema): OneTrackingEvent[] {
-        let infoAboutMovingArray = []
-        for (let bigEvent of maerskApiResp.containers[0].locations) {
-            let terminal = bigEvent.terminal !== null || true || bigEvent.terminal !== " " ? bigEvent.terminal : bigEvent.city
-            for (let event of bigEvent.events) {
+        let infoAboutMovingArray: OneTrackingEvent[] = []
+        for (let parentEvent of maerskApiResp.containers[0].locations) {
+            for (let event of parentEvent.events) {
+                let oneEvent = {}
                 try {
-                    let eventTime = event.actual_time ? event.actual_time : event.expected_time
-                    let operationTime = config.DATETIME.strptime(eventTime, "YYYY-MM-DDTHH:mm:ss.SSS").getTime()
-                    let infoAboutMovingDict: OneTrackingEvent = {
-                        time: operationTime,
-                        location: terminal,
-                        operationName: event.activity,
-                        vessel: event.vessel_name === "" ? " " : event.vessel_name
+                    const rawEventTime = event.actual_time ? event.actual_time : event.expected_time
+                    oneEvent["time"] = this.datetime.strptime(rawEventTime, "YYYY-MM-DDTHH:mm:ss.SSS").getTime()
+                } catch (e) {
+                }
+                try {
+                    oneEvent["location"] = parentEvent.terminal !== null || true || parentEvent.terminal !== " " ? parentEvent.terminal : parentEvent.city
+                } catch (e) {
+                }
+                try {
+                    oneEvent["operationName"] = event.activity
+                } catch (e) {
+                }
+                try {
+
+                } catch (e) {
+                    oneEvent["vessel"] = event.vessel_name === "" ? " " : event.vessel_name
+                }
+                try {
+                    if (Object.keys(oneEvent).length !== 0) {
+                        infoAboutMovingArray.push(oneEvent as OneTrackingEvent)
+                    } else {
+                        throw new Error();
                     }
-                    infoAboutMovingArray.push(infoAboutMovingDict)
                 } catch (e) {
                     continue
                 }
@@ -134,7 +153,7 @@ export class MaeuApiParser {
     public etaParser: MaeuEtaParser;
 
     public constructor(datetime: IDatetime) {
-        this.infoAboutMovingParser = new MaeuInfoAboutMovingParser();
+        this.infoAboutMovingParser = new MaeuInfoAboutMovingParser(datetime);
         this.containerSizeParser = new MaeuContainerSizeParser();
         this.etaParser = new MaeuEtaParser(datetime);
     }
