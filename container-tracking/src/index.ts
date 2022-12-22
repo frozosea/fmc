@@ -7,8 +7,9 @@ function main() {
     AppDataSource.initialize()
         .then(async (_) => {
         })
-        .catch((error) => console.log("Error: ", error));
+        .catch((error) => console.log("Error: ", error))
     startServer();
+
 }
 main();
 

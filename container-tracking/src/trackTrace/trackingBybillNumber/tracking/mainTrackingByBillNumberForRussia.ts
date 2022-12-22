@@ -61,7 +61,6 @@ export default class MainTrackingByBillNumberForRussia {
                         }
                     }
                 } catch (e) {
-                    continue
                 }
 
             }

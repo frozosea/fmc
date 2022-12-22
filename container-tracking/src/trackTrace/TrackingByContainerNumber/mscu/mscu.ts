@@ -60,7 +60,7 @@ class BaseMscuParser {
 
 export class MscuInfoAboutMovingParser extends BaseMscuParser {
     public getInfoAboutMoving(apiResp: MscuApiResponseSchema): OneTrackingEvent[] {
-        let infoAboutMovingArray = []
+        let infoAboutMovingArray: OneTrackingEvent[] = []
         for (let item of apiResp.Data.BillOfLadings[0].ContainersInfo[0].Events) {
             let oneEvent = {}
             try {
@@ -78,8 +78,9 @@ export class MscuInfoAboutMovingParser extends BaseMscuParser {
             }
             oneEvent["vessel"] = ""
             if (Object.keys(oneEvent).length !== 0) {
-                infoAboutMovingArray.push(oneEvent)
+                infoAboutMovingArray.push(oneEvent as OneTrackingEvent)
             }
+            infoAboutMovingArray.push(oneEvent as OneTrackingEvent)
         }
         return infoAboutMovingArray.reverse()
     }

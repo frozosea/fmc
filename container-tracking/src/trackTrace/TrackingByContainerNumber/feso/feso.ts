@@ -73,7 +73,6 @@ export class FesoInfoAboutMovingParser {
             } catch (e) {
                 continue
             }
-
         }
         return infoAboutMoving
     }

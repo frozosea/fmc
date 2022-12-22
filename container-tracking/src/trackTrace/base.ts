@@ -1,5 +1,5 @@
 import {IUserAgentGenerator} from "./helpers/userAgentGenerator";
-import {_BaseRequestSenderArgs, IRequest} from "./helpers/requestSender";
+import {_BaseRequestSenderArgs,  IRequest} from "./helpers/requestSender";
 import {IDatetime} from "./helpers/datetime";
 import {SCAC_TYPE} from "../types";
 
@@ -37,7 +37,7 @@ export interface BaseContainerConstructor<T extends _BaseRequestSenderArgs> {
     datetime: IDatetime
 }
 
-export abstract class BaseTrackerByContainerNumber<T extends _BaseRequestSenderArgs> implements ITrackingByContainerNumber {
+export abstract class BaseTrackerByContainerNumber<T extends _BaseRequestSenderArgs> {
     protected UserAgentGenerator: IUserAgentGenerator;
     protected requestSender: IRequest<T>;
     protected datetime: IDatetime;
@@ -47,6 +47,5 @@ export abstract class BaseTrackerByContainerNumber<T extends _BaseRequestSenderA
         this.UserAgentGenerator = args.UserAgentGenerator;
         this.datetime = args.datetime;
     }
-
     public abstract trackContainer(args: ITrackingArgs): Promise<TrackingContainerResponse>
 }

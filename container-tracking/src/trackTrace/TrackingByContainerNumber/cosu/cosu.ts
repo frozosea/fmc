@@ -1,9 +1,8 @@
 import {
-    BaseContainerConstructor,
+    OneTrackingEvent, BaseContainerConstructor,
     BaseTrackerByContainerNumber,
-    ITrackingArgs,
-    OneTrackingEvent,
-    TrackingContainerResponse
+    TrackingContainerResponse,
+    ITrackingArgs
 } from "../../base";
 import {CosuApiResponseSchema, CosuInfoAboutMoving, EtaResponseSchema} from "./cosuApiResponseSchema";
 import {NotThisShippingLineException} from "../../../exceptions";

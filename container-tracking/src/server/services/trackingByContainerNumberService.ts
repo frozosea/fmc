@@ -63,7 +63,7 @@ export class TrackingByContainerNumberService implements ITrackingByContainerNum
 
     public trackByContainerNumber(call: ServerUnaryCall<Request, TrackingByContainerNumberResponse>, callback: sendUnaryData<TrackingByContainerNumberResponse>): void {
         let container: string = call.request.getNumber()
-        let scac: SCAC_TYPE = call.request.getScac()
+        let scac: SCAC_TYPE = call.request.getScac() as SCAC_TYPE
         let country = TrackingServiceConverter.convertEnumCountryIntoCountryType(call.request.getCountry())
         this.logger.InfoLog(`${container}: ${scac}`)
         this.trackingController.trackContainer({
