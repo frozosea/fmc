@@ -39,8 +39,13 @@ export default class BillNumberTrackingController {
     }
 
     public async trackByBillNumber(args: TrackingArgsWithScac): Promise<ITrackingByBillNumberResponse> {
-        let result = await this.cacheHandler.getTrackingInfoFromCache<ITrackingByBillNumberResponse>(args.number)
-        if (result !== null) return result
+        try {
+            let result = await this.cacheHandler.getTrackingInfoFromCache<ITrackingByBillNumberResponse>(args.number)
+            if (result !== null) return result
+        } catch (e) {
+
+        }
+
         if (args.scac === "AUTO") {
             let scacFromDb = await this.scacContainersRepository.getScac(args.number)
             if (scacFromDb !== null) {

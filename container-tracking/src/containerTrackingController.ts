@@ -65,8 +65,11 @@ export default class ContainerTrackingController {
     }
 
     public async trackContainer(args: TrackingArgsWithScac): Promise<TrackingContainerResponse> {
-        let result = await this.cacheHandler.getTrackingInfoFromCache<TrackingContainerResponse>(args.number)
-        if (result !== null) return result
+        try {
+            let result = await this.cacheHandler.getTrackingInfoFromCache<TrackingContainerResponse>(args.number)
+            if (result !== null) return result
+        } catch (e) {
+        }
         if (args.scac === "AUTO") {
             let scacFromDb = await this.scacContainersRepository.getScac(args.number)
             if (scacFromDb !== null) {
