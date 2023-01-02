@@ -6,6 +6,8 @@ import (
 	"fmc-gateway/internal/auth"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"strings"
 )
 
@@ -52,4 +54,10 @@ func (h *HttpUtils) DecodeToken(c *gin.Context) (UserId, error) {
 		return -1, exc
 	}
 	return userId, nil
+}
+
+func GenerateAuthHeader(ctx context.Context, token string) (context.Context, grpc.CallOption) {
+	md := metadata.New(map[string]string{"Authorization": token})
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return ctx, grpc.Header(&md)
 }

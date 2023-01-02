@@ -23,8 +23,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./container-tracking
-          file: ./container-tracking/Dockerfile
+          context: ./tracking
+          file: ./tracking/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fmc-tracking:latest
@@ -95,8 +95,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./api-gateway
-          file: ./api-gateway/Dockerfile
+          context: ./http-gateway
+          file: ./http-gateway/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/fmc-gateway:latest

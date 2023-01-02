@@ -23,5 +23,5 @@ func (w *WithFullNameList) ToGRPC() *pb.GetAllScacResponse {
 	for _, v := range w.list {
 		allLines = append(allLines, v.ToGRPC())
 	}
-	return &pb.GetAllScacResponse{AllScac: allLines}
+	return &pb.GetAllScacResponse{Data: allLines}
 }
