@@ -1,0 +1,61 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    environment:
+      POSTGRES_USERNAME: tracking_user
+      POSTGRES_PASSWORD: tracking_password
+      REQUEST_TIMEOUT_MS: 1000
+      WAIT_SELECTOR_TIMEOUT: 6000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE_NAME: tracking_database
+      REDIS_URL: redis:6379
+      REDIS_TTL: <ttl> # in format 4h or 5m
+      TWO_CAPTCHA_API_KEY: <API_KEY_FOR_2CAPTCHA_SEVICE>
+      SITC_SERVICE_USERNAME: <SITC_SERVICE_USERNAME>
+      SITC_SERVICE_PASSWORD: <SITC_SERVICE_PASSWORD>
+      SITC_SERVICE_BASIC_AUTH: <SITC_SERVICE_BASIC_AUTH>
+      SITC_ACCESS_TOKEN: <SITC_ACCESS_BEARER_TOKEN>
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "51372:51372"
+    networks:
+      - public
+  redis:
+    image: 'bitnami/redis:latest'
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PORT_NUMBER=6379
+    ports:
+      - "6379:6379"
+    networks:
+      - public
+  postgres:
+    image: postgres:13.3
+    ports:
+      - "5432:5432"
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_USER: tracking_user
+      POSTGRES_PASSWORD: tracking_password
+      POSTGRES_DB: tracking_database
+    networks:
+      - public
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./schema/:/schema
+    command:
+      [ "-path", "./schema" ,"-database",  "postgres://tracking_user:tracking_password@postgres:5432/tracking_database?sslmode=disable", "up" ]
+    depends_on:
+      - db
+    networks:
+      - public
+networks:
+  public:
+    name: public
+    external: true

@@ -1,0 +1,58 @@
+{
+  "containerScac": [
+    {
+      "scac": "COSU",
+      "fullName": "Cosco"
+    },
+    {
+      "scac": "MAEU",
+      "fullName": "Maersk/Sealand Maersk"
+    },
+    {
+      "scac": "MSCU",
+      "fullName": "MSC"
+    },
+    {
+      "scac": "ONEY",
+      "fullName": "One Line"
+    },
+    {
+      "scac": "FESO",
+      "fullName": "Fesco"
+    },
+    {
+      "scac": "SKLU",
+      "fullName": "Sinokor"
+    },
+    {
+      "scac": "HALU",
+      "fullName": "Heung-a"
+    },
+    {
+      "scac": "SITC",
+      "fullName": "SITC"
+    }
+  ],
+  "billScac": [
+    {
+      "scac": "FESO",
+      "fullName": "Fesco"
+    },
+    {
+      "scac": "SKLU",
+      "fullName": "Sinokor"
+    },
+    {
+      "scac": "HALU",
+      "fullName": "Heung-a"
+    },
+    {
+      "scac": "SITC",
+      "fullName": "SITC"
+    },
+    {
+      "scac": "ZHGU",
+      "fullName": "Zhong Gu"
+    }
+  ]
+}

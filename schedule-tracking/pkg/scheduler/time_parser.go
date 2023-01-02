@@ -85,6 +85,5 @@ func (t TimeParser) Parse(s string) (time.Duration, error) {
 		tz = time.Local
 	}
 	date := time.Date(now.Year(), now.Month(), day, hour, minute, 0, 0, tz)
-	fmt.Println(date.Sub(now), date)
 	return date.Sub(now), nil
 }

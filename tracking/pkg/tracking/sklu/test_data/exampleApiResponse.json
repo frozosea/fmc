@@ -1,0 +1,62 @@
+[
+  {
+    "BKNO": "SNKO101220802074",
+    "CNTR": "20'x1",
+    "POR": null,
+    "POL": "VNSGN",
+    "POD": "RUVYP",
+    "DLV": "RUVYP",
+    "VSL": "SWCG",
+    "VYG": "2205N",
+    "ETD": "2022-09-08",
+    "ETA": "2022-11-06"
+  },
+  {
+    "BKNO": "SNKO011220602534",
+    "CNTR": "20'x1",
+    "POR": null,
+    "POL": "KRPUS",
+    "POD": "VNSGN",
+    "DLV": "VNSGN",
+    "VSL": "SKOR",
+    "VYG": "2209S",
+    "ETD": "2022-08-23",
+    "ETA": "2022-08-29"
+  },
+  {
+    "BKNO": "SNKO101220500384",
+    "CNTR": "20'x18",
+    "POR": null,
+    "POL": "VNSGN",
+    "POD": "RUVST",
+    "DLV": "RUVST",
+    "VSL": "SWSR",
+    "VYG": "2206N",
+    "ETD": "2022-05-30",
+    "ETA": "2022-06-18"
+  },
+  {
+    "BKNO": "SNKO020220314955",
+    "CNTR": "20'x15",
+    "POR": null,
+    "POL": "CNSHA",
+    "POD": "VNSGN",
+    "DLV": "VNSGN",
+    "VSL": "KMPE",
+    "VYG": "2203S",
+    "ETD": "2022-04-03",
+    "ETA": "2022-04-08"
+  },
+  {
+    "BKNO": "SNKO010211213061",
+    "CNTR": "20'x47",
+    "POR": "KRKAN",
+    "POL": "KRKAN",
+    "POD": "CNSHA",
+    "DLV": "CNSHA",
+    "VSL": "JKVY",
+    "VYG": "2202S",
+    "ETD": "2022-02-20",
+    "ETA": "2022-02-22"
+  }
+]

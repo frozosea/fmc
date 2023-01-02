@@ -62,12 +62,12 @@ type Client struct {
 }
 
 func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) (*BillNumberResponse, error) {
-	request := pb.Request{
+	request := &pb.Request{
 		Number:  track.Number,
 		Scac:    track.Scac,
-		Country: pb.Country(pb.Country_value["RU"]),
+		Country: pb.Country(pb.Country_value["OTHER"]),
 	}
-	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
+	response, err := c.billNoClient.TrackByBillNumber(ctx, request)
 	if err != nil {
 		c.logger.ExceptionLog(fmt.Sprintf(`trackingByBillNumber error: %s`, err.Error()))
 		return new(BillNumberResponse), err
@@ -75,15 +75,15 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track, _ string) 
 	return c.ConvertGrpcBlNoResponse(response), nil
 }
 
-func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, ip string) (ContainerNumberResponse, error) {
-	request := pb.Request{
+func (c *Client) TrackByContainerNumber(ctx context.Context, track Track, _ string) (ContainerNumberResponse, error) {
+	request := &pb.Request{
 		Number:  track.Number,
 		Scac:    track.Scac,
 		Country: pb.Country(pb.Country_value["OTHER"]),
 	}
-	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
+	response, err := c.containerNoClient.TrackByContainerNumber(ctx, request)
 	if err != nil {
-		c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
+		go c.logger.ExceptionLog(fmt.Sprintf(`trackingByContainerNumber error: %s`, err.Error()))
 		return c.ConvertGrpcContainerNoResponse(response), err
 	}
 	return c.ConvertGrpcContainerNoResponse(response), nil
@@ -103,6 +103,7 @@ func (c *Client) GetBillScac(ctx context.Context) ([]*Scac, error) {
 	}
 	return c.Converter.ConvertScac(data), nil
 }
+
 func NewClient(conn *grpc.ClientConn, logger logging.ILogger) *Client {
 	return &Client{
 		conn:              conn,

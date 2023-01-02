@@ -1,0 +1,58 @@
+{
+  "code": 1,
+  "msg": "success",
+  "data": {
+    "list": [
+      {
+        "movementid": "2c2881b880f3e8e2018107f45a6862be",
+        "blNo": "SITDLVK222G951",
+        "containerNo": "SITU9130070",
+        "eventdate": "2022-05-27",
+        "portname": "dalian",
+        "movementcode": "OP",
+        "movementname": "客户提空箱",
+        "movementnameen": "outbound pickup"
+      },
+      {
+        "movementid": "E0D111F1B84D08C8E0537F00000108C8",
+        "blNo": "SITDLVK222G951",
+        "containerNo": "SITU9130070",
+        "eventdate": "2022-06-04",
+        "portname": "dalian",
+        "movementcode": "VL",
+        "movementname": "出口装船",
+        "movementnameen": "loaded onto vessel"
+      },
+      {
+        "movementid": "E14DE48BA9B402D2E0537F00000102D2",
+        "blNo": "SITDLVK222G951",
+        "containerNo": "SITU9130070",
+        "eventdate": "2022-06-13",
+        "portname": "shanghai",
+        "movementcode": "IC",
+        "movementname": "进口重箱入场",
+        "movementnameen": "inbound in cy"
+      },
+      {
+        "movementid": "E14DE48BA9B502D2E0537F00000102D2",
+        "blNo": "SITDLVK222G951",
+        "containerNo": "SITU9130070",
+        "eventdate": "2022-06-13",
+        "portname": "shanghai",
+        "movementcode": "TS",
+        "movementname": "转船",
+        "movementnameen": "transshipment between vessel"
+      },
+      {
+        "movementid": "E2F0A9E40344074AE053ACA805D1074A",
+        "blNo": "SITDLVK222G951",
+        "containerNo": "SITU9130070",
+        "eventdate": "2022-07-03",
+        "portname": "shanghai",
+        "movementcode": "VL",
+        "movementname": "出口装船",
+        "movementnameen": "loaded onto vessel"
+      }
+    ]
+  }
+}

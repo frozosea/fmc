@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sinokor New e-Service</title>
+    <script type="text/javascript" src="/Scripts/commonFunction.js?v=20220611184351294"></script>
+    <link href="/assets/css/font-awesome.css" rel="stylesheet"/>
+    <link href="/assets/css/pe-icon-7-stroke.css" rel="stylesheet"/>
+    <link href="/assets/css/style_new.css" rel="stylesheet"/>
+
+    <script src="/assets/js/jquery.min.js"></script>
+
+    <script src="/assets/js/jquery-ui.min.js"></script>
+    <script src="/assets/js/icheck.js"></script>
+    <script src="/assets/js/metisMenu.js"></script>
+    <script src="/assets/js/ui.js"></script>
+
+    <link href="/Content/themes/base/jquery-ui.min.css" rel="stylesheet"/>
+    <link href="/Content/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/Content/bootstrap-datetimepicker.css" rel="stylesheet"/>
+    <link href="/Content/bootstrap-fileinput/css/fileinput.css" rel="stylesheet"/>
+    <link href="/Content/bootstrap-fileinput/css/fileinput-rtl.css" rel="stylesheet"/>
+    <link href="/Content/simple-line-icons.css" rel="stylesheet"/>
+    <link href="/Content/animate.min.css" rel="stylesheet"/>
+    <link href="/Content/Site.css" rel="stylesheet"/>
+    <link href="/Content/datatables.bootstrap.min.css" rel="stylesheet"/>
+    <link href="/Content/codemirror.css" rel="stylesheet"/>
+    <link href="/Content/jquery.highlight-within-textarea.css" rel="stylesheet"/>
+
+    <script src="/Scripts/modernizr-2.6.2.js"></script>
+
+
+    <script src="/Scripts/commonFunction.js"></script>
+    <script src="/Scripts/bootstrap.min.js"></script>
+    <script src="/Scripts/moment-with-locales.min.js"></script>
+    <script src="/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Scripts/respond.js"></script>
+    <script src="/Scripts/fileinput.js"></script>
+    <script src="/Scripts/locales/LANG.js"></script>
+    <script src="/Scripts/jquery.datatables.min.js"></script>
+    <script src="/Scripts/datatables.bootstrap.min.js"></script>
+    <script src="/Scripts/jquery.nicescroll.js"></script>
+    <script src="/Scripts/excel-gen.js"></script>
+    <script src="/Scripts/FileSaver.min.js"></script>
+    <script src="/Scripts/jszip.min.js"></script>
+    <script src="/Scripts/codemirror.js"></script>
+    <script src="/Scripts/jquery.highlight-within-textarea.js"></script>
+
+    <style>
+        .ui-autocomplete {
+            z-index: 9999;
+        }
+
+        .carousel-caption {
+            top: -30px;
+            background-color: #777777;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function () {
+            $('.hpanel > a').hover(function () {
+                $(this).addClass('on');
+            }, function () {
+                $(this).removeClass('on');
+            });
+        });
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $('body').addClass('blueBody').removeClass('org');
+            //$(".aaa").click(function () {
+            //    $('body').addClass('blueBody').removeClass('org');
+            //});
+            //$(".bbb").click(function () {
+            //    $('body').addClass('org').removeClass('blueBody blueBody2');
+            //});
+            //$(".ccc").click(function () {
+            //    $('body').addClass('blueBody2').removeClass('org blueBody');
+            //});
+
+            $('button[type=submit]').click(function () {
+                var clickedBtn = $(this)
+                setTimeout(function () {
+                    clickedBtn.attr('disabled', 'disabled');
+                }, 1);
+            });
+
+            $("#_laySearchBox").keydown(function (e) {
+                if (e.keyCode == 13) {
+                    $("#_laySearchBox").val($("#_laySearchBox").val().toUpperCase().trim());
+                    if ($("#_laySearchBox").val().length != 16 || $("#_laySearchBox").val().indexOf("'") >= 0) {
+                        alert("EN" == "KR" ? "잘못된 Booking 또는 B/L 번호입니다." : "Wrong B/L No. Please check it again.");
+                    } else {
+                        $.ajax({
+                            url: '/Home/chkExistsBooking',
+                            type: 'GET',
+                            data: {bkno: $("#_laySearchBox").val()},
+                            dataType: 'JSON',
+
+                            success: function (result) {
+                                if (result.STATUS == "N") {
+                                    alert(result.MSG);
+                                    return false;
+                                } else {
+                                    location.href = "../BLDetail?blno=" + $("#_laySearchBox").val();
+                                    return false;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            if ("False" == "True") {
+                var date1 = new Date("December 31, 2100 01:00:00");
+                document.cookie = 'custcd_Sinokor_eService=;expires=' + date1.toUTCString() + ';path=/';
+
+                $("#_laySearchBox").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "/Home/GetNoList",
+                            type: "POST",
+                            dataType: "json",
+                            data: {Prefix: request.term.toUpperCase()},
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return {
+                                        label: item.Text,
+                                        value: item.Text
+                                    }
+                                }))
+                            },
+                            error: function (response) {
+                                alert(response.responseText);
+                            }
+                        });
+                    },
+                    select: function (e, i) {
+                        if (i.item.value.indexOf("(") > -1)
+                            $("#_laySearchBox").val(i.item.value.substr(0, i.item.value.indexOf("(") - 1));
+                        else
+                            $("#_laySearchBox").val(i.item.value);
+                        return false;
+                    },
+                    minLength: 4
+                });
+            }
+
+            if (IsSetCookie("hideMenu_Sinokor_eService", "true")) {
+                $("body").addClass("hide-sidebar");
+            } else {
+                $("body").removeClass("hide-sidebar");
+            }
+        });
+
+        var setCookie = function (name, value, exp) {
+            var date = new Date();
+            date.setTime(date.getTime() + exp * 24 * 60 * 60 * 1000);
+            document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/';
+        };
+
+        function hideMenu() {
+            //쿠키 설정
+            if ($("body").hasClass("hide-sidebar") == false) {
+                setCookie("hideMenu_Sinokor_eService", "true", 1);
+            } else {
+                setCookie("hideMenu_Sinokor_eService", "false", 1);
+            }
+        }
+
+        function IsSetCookie(name, val) {
+            var nameOfCookie = name + "=" + val;
+
+            if (document.cookie.indexOf(nameOfCookie) == -1) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    </script>
+</head>
+<body>
+<div id="header">
+    <!-- start: Header -->
+    <div class="color-line">
+    </div>
+    <div class="light-version" id="logo">
+        <a id="_layLogoIco" href="/Home"><span><img id="imgLogo" src="/assets/images/logo.png"/></span></a>
+    </div>
+    <nav role="navigation">
+        <!--  -->
+        <div class="small-logo">
+            <span class="text-primary"></span>
+        </div>
+        <div class="navbar-form-custom">
+            <div class="form-group searchTop">
+                <input id="_laySearchBox" class="form-control" type="text" placeholder="Search B/L No." value=""
+                       data-toggle="tooltip" data-placement="bottom"
+                       title="You can search Detail informtion of B/L as input B/L No. Please enter B/L No include SNKO.">
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <button id="_layMobileIco" class="navbar-toggle mobile-menu-toggle" type="button" data-toggle="collapse"
+                    data-target="#mobile-collapse">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="collapse mobile-navbar mobileMenu" id="mobile-collapse">
+                <ul class="nav" id="side-menu-m">
+                    <li><a href="javascript: goManual();">Manual</a></li>
+                    <li><a class="panel-link" href="/Account/Login">Login</a></li>
+                    <li><a class="panel-link" href="/History/AccessLog">Working History</a></li>
+                    <li>
+                        <a href="##"><span class="nav-label">Schedule</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a href="javascript: goSchedule();">Point to Point Schedule</a></li>
+                            <li><a href="/Schedule/VesselSchedule">Vessel Schedule</a></li>
+                            <li><a href="/Schedule/PortSchedule">Port Schedule</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="panel-link" href="/Booking">New Booking</a></li>
+                    <li>
+                        <a href="##"><span class="nav-label">Outbound</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a href="/List/Outbound">Outbound</a></li>
+                            <li><a href="/List/Outbound?option=D&amp;mode=M&amp;div=BIN&amp;status=N">B/L Issue</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="/List/Inbound">Inbound</a></li>
+
+                    <li>
+                        <a href="#" class="panel-link"><span class="nav-label">Tariff</span><span
+                                class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a href="/Etc/StandardTariff">Standard Tariff</a></li>
+                            <li><a href="/Etc/DemDetTariff">DEM/DET Tariff</a></li>
+                            <li><a href="javascript: openPopupMenu('../Popup/DropOffTariff');">Drop-Off Tariff</a></li>
+                            <li><a href="/Tariff">My Freight No.</a></li>
+                            <li><a href="/Tariff/InvoiceDetail">Invoice Freight</a></li>
+                        </ul>
+                    </li>
+                    <li><a class="panel-link" href="/Tracking">Cargo Tracking</a></li>
+                    <li><a class="panel-link" href="/OneTouch">OneTouch B/K &amp; B/L</a></li>
+                    <li>
+                        <a href="#" class="panel-link"><span class="nav-label">Map View</span><span
+                                class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a href="/Map/VslFinder">Vessel Finder</a></li>
+                            <li><a href="/Map/TerminalLocation">Terminal Location</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="panel-link"><span class="nav-label">ETC</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li><a href="/Notice">Notice</a></li>
+                            <li><a href="/Faq">FAQ</a></li>
+                            <li><a href="/Downloads">Downloads</a></li>
+                            <li><a href="/Etc/DGList">D/G Code</a></li>
+                            <li><a href="javascript: openPopupMenu('http://sinokor.co.kr/en/net_01kr.html');">Contact
+                                Point(HQ)</a></li>
+                            <li><a href="javascript: openPopupMenu('http://sinokor.co.kr/en/net_02OS.html');">Contact
+                                Point(Agency)</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+
+        <div class="navbar-right set01">
+            <ul class="nav navbar-nav no-borders">
+
+                <li>
+                    <a href="/Home" data-toggle="tooltip" data-placement="bottom" title="Home"><i class="pe-7s-home"
+                                                                                                  style="color: #4577C4;"></i></a>
+                </li>
+                <li class="topAccount" id="_layLanguageIco" style="width: 58px;">
+                    <a href="##" data-toggle="dropdown"><i class="glyphicon glyphicon-text-color text-info"
+                                                           style="color: #4577C4;"></i></a>
+                    <ul class="dropdown-menu hdropdown notification animated flipInX">
+                        <li style="background-color: darkcyan;">
+                            <a title="English">
+                                <img src="https://flagcdn.com/36x27/gb.png" width="36" height="27"/>
+                                <span style="color: khaki;">English</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/?lang=KR" title="English">
+                                <img src="https://flagcdn.com/36x27/kr.png" width="36" height="27"/>
+                                Korean
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- 메뉴얼 : S -->
+                <li id="_layManual" style="width: 60px;">
+
+                    <a class="right-sidebar-toggle" id="_layManualIco" data-toggle="tooltip" data-placement="bottom"
+                       title="Manual" href="##"><img src="/Content/Image/manual--40px.png"
+                                                     style="position: absolute; top: 8px; left: 8px;"/></a>
+                </li>
+                <!-- 메뉴얼 : E -->
+                <li class="btnLogout" id="_layLoginIco">
+                    <a id="_layLoginIco" href="/Account/Login" data-toggle="tooltip" data-placement="bottom"
+                       title="Log-In"><i class="pe-7s-unlock text-info"></i></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="divLoadingConfirm" class="jumbotron"
+         style="position: absolute; top: 0px; left: 45%; width: 300px; height: 70px; padding: 10px 10px 10px 10px; margin: 0 0 0 0; border-radius: 0px 0px 20px 20px; opacity: 0.8; display: none; background-color: #2b60b2;">
+        <a href="javascript: goLoadingConfirm();">
+            <div style="padding-bottom: 20px;">
+                <p style="font-size: 14px; margin-bottom: 0px; color: white;">There are <span
+                        id="lblLoadingConfirmCnt"></span>Bookings that require loading confirm.</p>
+            </div>
+        </a>
+        <div id="btnLoadingConfirm"
+             style="float: right; color: white; position: absolute; bottom: 0px; right: 10px; font-size: 12px; display: none;">
+            <input type="checkbox" onchange="javascript: hideLoadingConfirm();"/>Hide for a day
+        </div>
+    </div>
+</div>
+<!-- Navigation -->
+<aside id="menu">
+
+    <div class="header-link hide-menu" onclick="javascript: hideMenu();">
+        <i class="fa fa-bars"></i>
+    </div>
+
+    <div id="navigation">
+        <div class="profile-picture">
+            <div>
+                <dd>
+                    <span class="man-circle"><img class="img-circle m-b" src="/assets/images/man.gif"></span>
+                </dd>
+            </div>
+        </div>
+
+        <div id="side-menu">
+            <!-- common meuu Start-->
+            <ul class="nav">
+                <li><a class="panel-link" href="/History/AccessLog">Working History</a></li>
+                <li>
+                    <a href="##"><span class="nav-label">Schedule</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="javascript: goSchedule();">Point to Point Schedule</a></li>
+                        <li><a href="/Schedule/VesselSchedule">Vessel Schedule</a></li>
+                        <li><a href="/Schedule/PortSchedule">Port Schedule</a></li>
+                    </ul>
+                </li>
+                <li><a href="/Booking">New Booking</a></li>
+                <li>
+                    <a href="##"><span class="nav-label">Outbound</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="/List/Outbound">Outbound</a></li>
+                        <li><a href="/List/Outbound?option=D&amp;mode=M&amp;div=BIN&amp;status=N">B/L Issue</a></li>
+                    </ul>
+                </li>
+                <li><a href="/List/Inbound">Inbound</a></li>
+                <li>
+                    <a href="##"><span class="nav-label">Tariff</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="/Etc/StandardTariff">Standard Tariff</a></li>
+                        <li><a href="/Etc/DemDetTariff">DEM/DET Tariff</a></li>
+                        <li><a href="javascript: openPopupMenu('../Popup/DropOffTariff');">Drop-Off Tariff</a></li>
+                        <li><a href="/Tariff">My Freight No.</a></li>
+                        <li><a href="/Tariff/InvoiceDetail">Invoice Freight</a></li>
+                    </ul>
+                </li>
+                <li><a class="panel-link" href="/Tracking">Cargo Tracking</a></li>
+                <li><a class="panel-link" href="/OneTouch">OneTouch B/K &amp; B/L</a></li>
+                <li>
+                    <a href="#" class="panel-link"><span class="nav-label">Map View</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="/Map/VslFinder">Vessel Finder</a></li>
+                        <li><a href="/Map/TerminalLocation">Terminal Location</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="##"><span class="nav-label">Continuous Print</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="/List/Outbound?option=D&amp;mode=M&amp;div=BKN&amp;status=C">Outbound</a></li>
+                        <li><a href="/List/Inbound?option=D&amp;mode=M&amp;div=AN">Inbound</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="##"><span class="nav-label">ETC</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        <li><a href="/Notice">Notice</a></li>
+                        <li><a href="/Faq">FAQ</a></li>
+                        <li><a href="/Downloads">Downloads</a></li>
+                        <li><a href="/Req">Request about System</a></li>
+                        <li><a href="/Etc/DGList">D/G Code</a></li>
+                        <li><a href="javascript: openPopupMenu('http://sinokor.co.kr/en/net_01kr.html');">Contact
+                            Point(HQ)</a></li>
+                        <li><a href="javascript: openPopupMenu('http://sinokor.co.kr/en/net_02OS.html');">Contact
+                            Point(Agency)</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- common meuu End-->
+        </div>
+    </div>
+
+</aside>
+<!-- User's Manual sidebar -->
+<div class="animated fadeInRight" id="right-sidebar">
+    <div class="p-m g-menu">
+        <div class="sitemap-header">
+            <h4>Manual</h4>
+            <button class="right-sidebar-toggle sidebar-button btn btn-default m-b-md" id="sidebar-close"><i
+                    class="pe pe-7s-close"></i></button>
+        </div>
+        <div class="sitemap-body">
+            <!-- common meuu Start-->
+            <ul class="nav">
+                <li>
+                    <ul class="nav nav-second-level">
+                        <li><span class="nav-label"><i class="glyphicon glyphicon-book"></i><a
+                                href="/AttachFile/DownloadSystemForm?name=MANUAL" target="_blank">PDF Manual</a></span>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- common meuu End-->
+        </div>
+    </div>
+</div>
+<!-- User's Manual  End -->
+<!-- header  End -->
+<!-- Start: content -->
+<div id="wrapper">
+
+    <!--Excep Export-->
+    <script src="/Scripts/ExcelExport/dataTables.buttons.min.js"></script>
+    <script src="/Scripts/ExcelExport/pdfmake.min.js"></script>
+    <script src="/Scripts/ExcelExport/vfs_fonts.js"></script>
+    <script src="/Scripts/ExcelExport/buttons.html5.min.js"></script>
+    <script src="/Scripts/ExcelExport/buttons.print.min.js"></script>
+
+    <div class="content animate-panel subContent writeContent detailContent">
+        <!-- Content S-- >
+        <!-- start: content -->
+        <div class="panel tit">
+            <div class="panel-body">
+                <div class="col-md-12 col-sm-12">
+                    <h3 class="animated fadeInRight">Cargo Tracking</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group" style="padding-bottom: 5px;">
+            <button class="btn btn-primary" onclick="javascript: refresh();"><span
+                    class="glyphicon glyphicon-refresh"></span> Clear
+            </button>
+        </div>
+
+        <form action="/Index/Tracking" method="get">
+            <div class="hpanel panel-collapse">
+                <!-- Start -->
+                <div class="panel-heading">
+                    <div class="panel-tools">
+                        <a id="togSearch" class="showhide"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                    <label>Search Option</label>
+                </div>
+                <div class="panel-body">
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <div class="col-sm-3 lableRight">
+                                    <label class="control-label al">B/L No.</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input id="blno" class="form-control" type="text" placeholder="Enter the B/L No."
+                                           value="SNKO101220501450"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="col-sm-3 lableRight">
+                                    <label class="control-label al">CNTR No.</label>
+                                </div>
+                                <div class="col-sm-9">
+                                    <input id="cntrno" class="form-control" type="text"
+                                           placeholder="Enter the Container No." value="TEMU2094051"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divSearch" class="btn-group right">
+                        <button type="button" class="btn btn-primary" onclick="javascript: search();"><span
+                                class="glyphicon glyphicon-search"></span>Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="hpanel panel-collapse">
+            <div class="panel-heading">
+                <div class="panel-tools">
+                    <a id="togSearch" class="showhide"><i class="fa fa-chevron-up"></i></a>
+                </div>
+                <label>Schedule Info.</label>
+            </div>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-both form-group">
+                        <div class='form-group liLeft'>
+                            <ul>
+                                <li class="col-sm-12 col-md-4">
+                                    <b class="colorBlue">
+                                        <a href="javascript: viewVslInfo('HAHM', '2205N');"><span
+                                                class="glyphicon glyphicon-hand-right"></span>HEUNG-A HOCHIMINH / 2205N</a>
+                                    </b>
+                                    <br/><a href="javascript: viewSvcRoute('KHS1');">KHS1</a><br/>
+                                    <span>6 Days</span>
+                                </li>
+                                <li class="col-sm-12 col-md-8">
+                                    <div class="col-sm-6 col-md-6">
+                                        <b class="colorBlue">Hochiminh </b><br/>CAT LAI<br/>2022-06-07 02:00
+                                    </div>
+                                    <div class="col-sm-6 col-md-6">
+                                        <b class="colorBlue">Busan </b><br/>BPTS<br/>2022-06-13 02:00
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class='form-group liLeft'>
+                            <ul>
+                                <li class="col-sm-12 col-md-4">
+                                    <b class="colorBlue">
+                                        <a href="javascript: viewVslInfo('HAU', '2256E');"><span
+                                                class="glyphicon glyphicon-hand-right"></span>HEUNG-A ULSAN / 2256E</a>
+                                    </b>
+                                    <br/><a href="javascript: viewSvcRoute('MSX');">MSX</a><br/>
+                                    <span>1 Days</span>
+                                </li>
+                                <li class="col-sm-12 col-md-8">
+                                    <div class="col-sm-6 col-md-6">
+                                        <b class="colorBlue">Busan </b><br/>BPTS<br/>2022-06-15 09:00
+                                    </div>
+                                    <div class="col-sm-6 col-md-6">
+                                        <b class="colorBlue">Hososhima </b><br/>HOSOSHIMA TERMINAL(SHIRAHMA #14)<br/>2022-06-17
+                                        08:00
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">Receipt</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;"></label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">Loading</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;">HOCHIMINH, VIETNAM</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-6 col-md-6">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">Discharging</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;">HOSOSHIMA, JAPAN</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">Delivery</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;">HOSOSHIMA, JAPAN</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hpanel panel-collapse">
+            <div class="panel-heading">
+                <div class="panel-tools">
+                    <a id="togSearch" class="showhide"><i class="fa fa-chevron-up"></i></a>
+                </div>
+                <label>Container Info.</label>
+            </div>
+            <div class="panel-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-6 col-md-4">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">CNTR</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;">20&#39;x15</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">COC/SOC</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;">COC</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-4">
+                            <div class="col-sm-3 lableRight">
+                                <label class="control-label">Special</label>
+                            </div>
+                            <div class="col-sm-9 lableLeft">
+                                <label class="control-label" style="color: black;"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group table-responsive">
+                        <div class="col-sm-12 col-md-6">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Type/Size</th>
+                                    <th>Q'ty</th>
+                                    <th>COC/SOC</th>
+                                    <th>Full/Empty</th>
+                                    <th>D/G</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>20&#39; DRY</td>
+                                    <td>15</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                    <td>N</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Cntr No.</th>
+                                    <th>Type/Size</th>
+                                    <th>SOC</th>
+                                    <th>Full/Empty</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>SKLU1327134</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>HALU2063170</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>SKLU3503021</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>SKLU1312514</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>TEMU4625239</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>FCIU3399743</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>SKLU1806409</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>BEAU2348266</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>TCLU3277337</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: khaki;">TEMU2094051</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>TEMU5829978</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>SKLU1529238</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>BSIU3012300</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>KMLU2202566</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                <tr>
+                                    <td>HALU3610184</td>
+                                    <td>20&#39; DRY</td>
+                                    <td>COC</td>
+                                    <td>Full</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hpanel panel-collapse">
+            <div class="panel-heading">
+                <div class="panel-tools">
+                    <a id="togSearch" class="showhide"><i class="fa fa-chevron-up"></i></a>
+                </div>
+                <label>Tracking Info.</label>
+                <div class="panelBtnGroup">
+                    <a class="btn btn-primary" id="ListExportExcel"><span class="glyphicon glyphicon-excel"></span>
+                        Excel</a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="splitTable">
+                    <table>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Pickup (1/1)</span></th>
+                            <th>CNTR No.</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>TEMU2094051</td>
+                            <td>SINOKOR TAM CANG CAT LAI Depot</td>
+                            <td>2022-05-30 MON 10:22</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Return (1/1)</span></th>
+                            <th>CNTR No.</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>TEMU2094051</td>
+                            <td>CAT LAI</td>
+                            <td>2022-05-31 TUE 01:48</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Departure</span></th>
+                            <th>Vessel / Voyage</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>HEUNG-A HOCHIMINH / 2205N</td>
+                            <td>CAT LAI</td>
+                            <td>2022-06-07 TUE 02:00</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Arrival(T/S) (Scheduled)</span></th>
+                            <th>Vessel / Voyage</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>HEUNG-A HOCHIMINH / 2205N</td>
+                            <td>BPTS</td>
+                            <td>2022-06-13 MON 02:00</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Departure(T/S) (Scheduled)</span></th>
+                            <th>Vessel / Voyage</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>HEUNG-A ULSAN / 2256E</td>
+                            <td>BPTS</td>
+                            <td>2022-06-15 WED 09:00</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="firstTh"><span>Arrival (Scheduled)</span></th>
+                            <th>Vessel / Voyage</th>
+                            <th>Location</th>
+                            <th>Date & Time</th>
+                        </tr>
+                        <tr>
+                            <td>HEUNG-A ULSAN / 2256E</td>
+                            <td>HOSOSHIMA TERMINAL(SHIRAHMA #14)</td>
+                            <td>2022-06-17 FRI 08:00</td>
+                        </tr>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="hidden">
+            <table id="tblResult" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Container No. or Vessel/Voyage</th>
+                    <th>Location</th>
+                    <th>Date&Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Pickup (1/1)</td>
+                    <td>TEMU2094051</td>
+                    <td>SINOKOR TAM CANG CAT LAI Depot</td>
+                    <td>2022-05-30 MON 10:22</td>
+                </tr>
+                <tr>
+                    <td>Return (1/1)</td>
+                    <td>TEMU2094051</td>
+                    <td>CAT LAI</td>
+                    <td>2022-05-31 TUE 01:48</td>
+                </tr>
+                <tr>
+                    <td>Departure</td>
+                    <td>HEUNG-A HOCHIMINH / 2205N</td>
+                    <td>CAT LAI</td>
+                    <td>2022-06-07 TUE 02:00</td>
+                </tr>
+                <tr>
+                    <td>Arrival(T/S) (Scheduled)</td>
+                    <td>HEUNG-A HOCHIMINH / 2205N</td>
+                    <td>BPTS</td>
+                    <td>2022-06-13 MON 02:00</td>
+                </tr>
+                <tr>
+                    <td>Departure(T/S) (Scheduled)</td>
+                    <td>HEUNG-A ULSAN / 2256E</td>
+                    <td>BPTS</td>
+                    <td>2022-06-15 WED 09:00</td>
+                </tr>
+                <tr>
+                    <td>Arrival (Scheduled)</td>
+                    <td>HEUNG-A ULSAN / 2256E</td>
+                    <td>HOSOSHIMA TERMINAL(SHIRAHMA #14)</td>
+                    <td>2022-06-17 FRI 08:00</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="divMap" class="hpanel panel-collapse" style="display: none;">
+            <div class="panel-heading">
+                <div class="panel-tools">
+                    <a id="togSearch" class="showhide"><i class="fa fa-chevron-up"></i></a>
+                </div>
+                <label>Map View</label>
+            </div>
+            <div class="panel-body" style="height: 600px;">
+                <form name="viewerForm" id="viewerForm">
+                    <input type="hidden" id="txApiToken" name="txApiToken" value="473dba9f-9283-4ae5-8351-1c1dfdd06d52">
+                    <input type="hidden" id="ApiToken" name="ApiToken" value="e5c4a0c1-4ebd-4c8e-bcc4-58af6cc1867d">
+                    <input type="hidden" id="Authorization" name="Authorization" value="">
+                </form>
+                <iframe frameborder="0"
+                        style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%;"
+                        allowfullscreen name="viewer"></iframe>
+            </div>
+        </div>
+
+        <div class="modal fade" id="blList" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="ModalLabel">Select the B/L No. to search cargo tracking.</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <select class="form-control" id="ddlYear" name="ddlYear"
+                                        onchange="javascript: getBLList();" style="width: 80px;">
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2019">2019</option>
+                                    <option value="2018">2018</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="responsive-table tableGrid">
+                                    <table id="tblList" class="table table-striped table-bordered" cellspacing="0">
+                                        <thead>
+                                        <tr>
+                                            <th>B/L No.</th>
+                                            <th>CNTR</th>
+                                            <th>POL</th>
+                                            <th>POD</th>
+                                            <th>VSL</th>
+                                            <th>VYG</th>
+                                            <th>ETD</th>
+                                            <th>ETA</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tblListBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="progress" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
+                                 style="width: 100%">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <footer id="ieFooter" class="footer"
+            style="height: 90px; background-color: white; font-size: 15px; padding: 0px 0px 0px 0px; display: none;">
+        <div class="col-sm-12 col-md-12" style="padding-left: 0px; padding-right: 0px;">
+            <div id="ieAlert" class="alert alert-danger" style="margin-bottom: 0px; height: 60px;">
+                <div class="col-sm-9 col-md-9">
+                    <i class='glyphicon glyphicon-alert'></i> This browser is not safe for security. For smooth service,
+                    please use <label style='font-weight: bold'>Chrome, FireFox, Microsoft Edge</label> browsers.
+                </div>
+                <div class="col-sm-3 col-md-3 textRight" style="font-size: small;">
+                    <button style="max-width: 230px; background-color: #FF6656; border: 0px 0px 0px 0px;"
+                            onclick="javascript: hideIE();">Hide for 3days <i class="glyphicon glyphicon-remove"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-12" style="padding-left: 0px; padding-right: 0px;">
+            <div class="noticeBox">
+                <div id="noticeDiv" data-ride="carousel">
+                    <!-- Wrapper for slides -->
+                    <div id="carouselBody" class="carousel-inner" role="listbox" style="min-height: 20px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <footer id="normalFooter" class="footer" style="height: 30px; display: none; padding: 0px 0px 0px 0px;">
+        <div class="col-sm-12 col-md-12" style="padding: 0px 0px 0px 0px;">
+            <div class="noticeBox">
+                <div id="noticeDiv" data-ride="carousel">
+                    <!-- Wrapper for slides -->
+                    <div id="carouselBody" class="carousel-inner" role="listbox" style="min-height: 20px;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+<!-- end: content -->
+<div class="hidden">
+    <input type="hidden" id="isHistoryBackOrFowerd" value="false"/>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        if ($("#blno").val() != "" && "Y" == "Y") {
+            if ("Y" == "Y") {
+                var accessToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxNzA4OCIsIkFJU19BUElfQ0FSR09fVFJBQ0tfUE9SVENBTExfTE9HIjoiQUlTX0FQSV9DQVJHT19UUkFDS19QT1JUQ0FMTF9MT0ciLCJBSVNfQVBJX0NBUkdPX01PRElGWSI6IkFJU19BUElfQ0FSR09fTU9ESUZZIiwiQUlTX0FQSV9DQVJHT19NVUxUSV9BUFBMWSI6IkFJU19BUElfQ0FSR09fTVVMVElfQVBQTFkiLCJBSVNfQVBJX0NBUkdPX1RSQUNLX0xPRyI6IkFJU19BUElfQ0FSR09fVFJBQ0tfTE9HIiwiQUlTX0FQSV9DQVJHT19BUFBMWSI6IkFJU19BUElfQ0FSR09fQVBQTFkiLCJhcGlWZXJzaW9uIjoidjEuNCIsImFwaVRva2VuIjoiNDczZGJhOWYtOTI4My00YWU1LTgzNTEtMWMxZGZkZDA2ZDUyIiwiYWlzQ29udHJhY3QiOnsiY29udHJhY3RTdGFydER0bSI6MTY1NDAwOTIwMDAwMCwiY29udHJhY3RFbmREdG0iOjE2NTY2MDEyMDAwMDB9LCJBSVNfQVBJX0NBUkdPX01VTFRJX01PRElGWSI6IkFJU19BUElfQ0FSR09fTVVMVElfTU9ESUZZIiwiQUlTX0FQSV9DQVJHT19UUkFDS19WU0wiOiJBSVNfQVBJX0NBUkdPX1RSQUNLX1ZTTCIsImlhdCI6MTY1NDk0MDYzMSwiZXhwIjoxNjg2NDc2NjMxfQ.ySUpjTYKs-XMNPUrJfLgkIw0UW8e8nB0mDIwdWVSPnz8IoG5-5mOwTa9EaRRJ3tco02hiJIdWaz2ZgniYtVrMQ";
+                $("#Authorization").val("bearer " + accessToken);
+                frm = document.getElementById("viewerForm");
+                //frm.action = "https://txweb-vtrack-staging.azurewebsites.net/custom/shipment-detail?blNo=" + $("#blno").val().toUpperCase();
+                frm.action = "https://shipgo.tradlinx.com/custom/sinokor-detail?blNo=" + $("#blno").val().toUpperCase();
+                frm.target = "viewer";
+                frm.method = "post";
+                frm.submit();
+                $("#divMap").show();
+            } else {
+                frm = document.getElementById("viewerForm");
+                frm.action = "../Popup/TrackingMap?blNo=" + $("#blno").val().toUpperCase();
+                frm.target = "viewer";
+                frm.method = "post";
+                frm.submit();
+                $("#divMap").show();
+            }
+        }
+        $("#tblResult").DataTable({
+            dom: 'Bfrtip',
+            sorting: false,
+            buttons: [{
+                extend: 'excelHtml5',
+                text: 'Excel',
+                exportOptions: {
+                    stripHtml: false,
+                    format: {
+                        body: function (data, column, row) {
+                            //Html tag 변경 후 return
+                            data = data.replace(/<br\s*\/?>/ig, "\r\n");
+                            data = data.replace(/<.*?>/g, "");
+                            data = data.replace("&amp;", "&");
+                            data = data.replace("&nbsp;", "");
+                            data = data.replace("&nbsp;", "");
+                            return data;
+                        }
+                    }
+                },
+                customize: function (xlsx) {
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                    $('row c', sheet).attr('s', '55'); //row c[r^-"A"] 이런식으로 사용하면 한 열씩 지정하여 속성부여 가능 ('s', '55' : wrapped text, 's', '50' : left aligned text)
+                }
+            }]
+        });
+
+        $("#blno").keydown(function (event) {
+            if (event.keyCode == 13)
+                search();
+        });
+        $("#cntrno").keydown(function (event) {
+            if (event.keyCode == 13)
+                search();
+        });
+
+        if ($("#blno").val() == "" && $("#cntrno").val() != "") {
+            search();
+        }
+    });
+
+    $("#ListExportExcel").click(function () {
+        $(".buttons-excel").click();
+    });
+
+    function refresh() {
+        location.href = "../Tracking";
+    }
+
+    function showProgress() {
+        $("#progress").modal();
+    }
+
+    function search() {
+        if ($("#blno").val() != "") {
+            $("#blno").val($("#blno").val().toUpperCase().trim());
+            $.ajax({
+                url: '/Home/chkExistsBooking',
+                type: 'GET',
+                data: {bkno: $("#blno").val().toUpperCase()},
+                dataType: 'JSON',
+
+                success: function (result) {
+                    if (result.STATUS == "N") {
+                        alert(result.MSG);
+                        return false;
+                    } else {
+                        showProgress();
+                        location.href = "../Tracking?blno=" + $("#blno").val().toUpperCase() + "&cntrno=" + $("#cntrno").val().toUpperCase();
+                        return false;
+                    }
+                }
+            });
+        } else if ($("#cntrno").val() != "") {
+            $("#cntrno").val($("#cntrno").val().toUpperCase().trim());
+            getBLList();
+        } else {
+            alert("Enter the B/L No. or Container No.");
+        }
+    }
+
+    function getBLList() {
+        $("#tblListBody").text("");
+
+        $.ajax({
+            url: '/Tracking/GetBLList',
+            type: 'GET',
+            data: {cntrno: $("#cntrno").val().toUpperCase(), year: $("#ddlYear").val()},
+            dataType: 'JSON',
+            async: false,
+
+            success: function (result) {
+                var html = "";
+                if (result.length < 1) {
+                    html += "<tr><td colspan='8' style='text-align: center;'>There is no Data.</td></tr>";
+                } else {
+                    $.each(result, function (i, data) {
+                        html += "<tr>"
+                            + "     <td style='text-align: center;'><a href=\"javascript: selectBL('" + data.BKNO + "');\">" + data.BKNO + "</a></td>"
+                            + "     <td style='text-align: center;'>" + data.CNTR + "</td>"
+                            + "     <td style='text-align: center;'>" + data.POL + "</td>"
+                            + "     <td style='text-align: center;'>" + data.POD + "</td>"
+                            + "     <td style='text-align: center;'>" + data.VSL + "</td>"
+                            + "     <td style='text-align: center;'>" + data.VYG + "</td>"
+                            + "     <td style='text-align: center;'>" + data.ETD + "</td>"
+                            + "     <td style='text-align: center;'>" + data.ETA + "</td>"
+                            + "</tr>";
+                    });
+                }
+                $("#tblListBody").append(html);
+            }, fail: function (result) {
+                alert(result);
+            }
+        });
+        $("#blList").modal();
+    }
+
+    function selectBL(bkno) {
+        $("#blno").val(bkno);
+        search();
+    }
+
+    function viewVslInfo(vsl, vyg) {
+        window.open("../Popup/VslInfo?vsl=" + vsl + "&vyg=" + vyg, "vslinfo", "fullscreen=no, resizable=yes, width=1200, height=700, location=no, toolbar=no,menubar=no,scrollbars=yes");
+        //post_to_popup("vslinfo", "1200", "700", "../Popup/VslInfo", {
+        //    "vsl": vsl, "vyg": vyg
+        //});
+    }
+
+    function viewSvcRoute(svc) {
+        window.open("../Popup/SvcRoute?svc=" + svc, "SVC Route", "fullscreen=no, resizable=yes, width=1200, height=700, location=no, toolbar=no,menubar=no,scrollbars=yes");
+    }
+
+    function popupMap() {
+        if ("SNKO101220501450" != "")
+            window.open("../Popup/TrackingMap?blno=SNKO101220501450", "TrackingMap", "fullscreen=yes, resizable=yes, width=1200, height=700, location=no, toolbar=no,menubar=no,scrollbars=yes");
+    }
+</script>
+
+
+<script type="text/javascript">
+    //리스트 조회 시 신규 접속은 새로 그리고 뒤로가기/앞으로가기 인 경우는 state 유지를 위해 추가 2022.03.25
+    if (window.performance) {
+        var navEntries = window.performance.getEntriesByType('navigation');
+        if (navEntries.length > 0 && navEntries[0].type === 'back_forward') {
+            $("#isHistoryBackOrFowerd").val("true");
+            //console.log('As per API lv2, this page is load from back/forward');
+        } else if (window.performance.navigation
+            && window.performance.navigation.type == window.performance.navigation.TYPE_BACK_FORWARD) {
+            $("#isHistoryBackOrFowerd").val("true");
+            //console.log('As per API lv1, this page is load from back/forward');
+        } else {
+            $("#isHistoryBackOrFowerd").val("false");
+            //console.log('This is normal page load');
+        }
+    } else {
+        $("#isHistoryBackOrFowerd").val("false");
+        //console.log("Unfortunately, your browser doesn't support this API");
+    }
+
+    $(document).on('submit', 'form', function () {
+        var buttons = $(this).find('[type="submit"]');
+        if ($(this).valid()) {
+            buttons.each(function (btn) {
+                $(buttons[btn]).prop('disabled', true);
+            });
+        } else {
+            buttons.each(function (btn) {
+                $(buttons[btn]).prop('disabled', false);
+            });
+        }
+    }).ready(function () {
+        if (IsSetCookie("hideIE_Sinokor", "true")) {
+            $("#ieFooter").remove();
+            $("#normalFooter").show();
+        } else {
+            var agent = navigator.userAgent.toLowerCase();
+            if ((navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1)) {
+                $("#ieFooter").show();
+                $("#normalFooter").remove();
+            } else {
+                $("#ieFooter").remove();
+                $("#normalFooter").show();
+            }
+        }
+
+        if ("False" == "True" && "RU" == "KR") {
+            if (IsSetCookie("hideLoadingConfirm_Sinokor", "true") == false) {
+                $.ajax({
+                    url: "/Booking/GetLoadingConfirmCount",
+                    type: "POST",
+                    dataType: "json",
+                    data: {},
+                    success: function (result) {
+                        if (Number(result) > 0) {
+                            $("#lblLoadingConfirmCnt").html("");
+                            $("#lblLoadingConfirmCnt").append(result);
+                            setInterval(toggleLoadingConfirm, 60000);
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    $('input[type="text"]').keydown(function (event) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            return false;
+        }
+    });
+
+    $.ajax({
+        url: "/Notice/GetRecentNotice",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (result) {
+            if (result.length > 0) {
+                $("#carouselBody").text("");
+                var html = "";
+                $.each(result, function (i, data) {
+                    if (i == 0)
+                        html += "<div class='item active'> ";
+                    else
+                        html += "<div class='item'> ";
+                    html += "<img src='../../Content/Image/CarouselImg.png' />"
+                        + "<div class='carousel-caption d-none d-md-block' style='background-color: transparent; padding-top: 25px;'>"
+                        + "<a style='color: white;' href=\"javascript: viewNoticeDetail('" + data.NUM + "'); \"><h5>" + data.TITLE + "</h5></a>"
+                        + "</div>"
+                        + "</div>";
+                });
+                $("#carouselBody").append(html);
+                $("#noticeDiv").addClass("carousel slide");
+            }
+        },
+        error: function (response) {
+            alert(response.responseText);
+        }
+    });
+
+    function toggleLoadingConfirm() {
+        var obj = $("#divLoadingConfirm");
+        if (obj.css("display") == "none") {
+            var height = obj.css({
+                display: "block"
+            }).height();
+
+            obj.css({
+                overflow: "hidden",
+                marginBottom: height,
+                height: 0
+            }).animate({
+                marginBottom: 0,
+                height: height
+            }, 500, function () {
+                $(this).css({
+                    overflow: "",
+                    height: "",
+                    marginTop: ""
+                });
+                obj.show();
+                $("#btnLoadingConfirm").show();
+            });
+        } else {
+            var height = obj.css({
+                display: "block"
+            }).height();
+            $("#btnLoadingConfirm").hide();
+            obj.css({
+                overflow: "hidden",
+                //marginTop: height,
+                marginBottom: 0,
+                height: height
+            }).animate({
+                marginBottom: height,
+                height: 0
+            }, 500, function () {
+                $(this).css({
+                    overflow: "",
+                    height: "",
+                    marginTop: ""
+                });
+                obj.hide();
+            });
+        }
+    }
+
+    function viewNoticeDetail(num) {
+        location.href = "../Notice/Detail?num=" + num;
+    }
+
+    function goManual() {
+        $("#_layManualIco").click();
+    }
+
+    function logOut() {
+        if (confirm("Do you want to log-out?"))
+            location.href = "../Account/Login";
+    }
+
+    function goSchedule() {
+        post_to_url("/Schedule", {"popup": "N", "div": "C", "bnd": "O"});
+    }
+
+    function hideIE() {
+        setCookie("hideIE_Sinokor", "true", 3);
+        $("#ieAlert").fadeOut("slow");
+        $("#ieFooter").height("30px");
+    }
+
+    function openPopupMenu(url) {
+        window.open(url, "_blank", "fullscreen=no,resizable=yes,location=no,toolbar=no,menubar=no,scrollbars=yes");
+    }
+
+    function hideLoadingConfirm() {
+        setCookie("hideLoadingConfirm_Sinokor", "true", 1);
+        $("#divLoadingConfirm").fadeOut("slow");
+    }
+
+    function goLoadingConfirm() {
+        location.href = "../List/Outbound?option=D&mode=M&div=LDY&status=N";
+    }
+</script>
+</body>
+</html>

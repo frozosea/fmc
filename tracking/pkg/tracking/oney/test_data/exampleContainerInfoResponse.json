@@ -1,0 +1,178 @@
+{
+  "TRANS_RESULT_KEY": "S",
+  "Exception": "",
+  "count": "1",
+  "list": [
+    {
+      "maxRows": 0,
+      "models": [],
+      "weight": "",
+      "copNo": "CCHI0C23914256",
+      "blNo": "CHIU06661600",
+      "eventDt": "2022-06-14 15:01",
+      "cntrTpszCd": "D5",
+      "copStsCd": "T",
+      "piece": "",
+      "sealNo": "",
+      "placeNm": "DETROIT, MI, UNITED STATES",
+      "yardNm": "UNIVERSAL INTERMODAL - DETROIT (DEPOT)",
+      "statusNm": "Empty Container Release to Shipper",
+      "bkgNo": "CHIU06661600",
+      "poNo": "",
+      "yardCd": "USDET31",
+      "statusCd": "MOTYDO",
+      "cntrNo": "GAOU6642924",
+      "cntrTpszNm": "40'DRY HC.",
+      "dspbkgNo": "",
+      "socFlg": "N",
+      "mvmtStsCd": "OP",
+      "hashColumns": [
+        [
+          "no",
+          {}
+        ],
+        [
+          "bl_no",
+          "CHIU06661600"
+        ],
+        [
+          "cntr_no",
+          "GAOU6642924"
+        ],
+        [
+          "cntr_tpsz_nm",
+          "40'DRY HC."
+        ],
+        [
+          "ibflag",
+          {}
+        ],
+        [
+          "event_dt",
+          "2022-06-14 15:01"
+        ],
+        [
+          "lloyd_no",
+          {}
+        ],
+        [
+          "cop_dtl_seq",
+          {}
+        ],
+        [
+          "yard_cd",
+          "USDET31"
+        ],
+        [
+          "seal_no",
+          ""
+        ],
+        [
+          "vgm_rcv",
+          {}
+        ],
+        [
+          "dsp_bkg_no",
+          ""
+        ],
+        [
+          "place_cd",
+          {}
+        ],
+        [
+          "status_cd",
+          "MOTYDO"
+        ],
+        [
+          "cop_no",
+          "CCHI0C23914256"
+        ],
+        [
+          "nod_cd",
+          {}
+        ],
+        [
+          "act_tp_cd",
+          {}
+        ],
+        [
+          "po_no",
+          ""
+        ],
+        [
+          "soc_flg",
+          "N"
+        ],
+        [
+          "pagerows",
+          {}
+        ],
+        [
+          "cntr_tpsz_cd",
+          "D5"
+        ],
+        [
+          "enbl_flag",
+          {}
+        ],
+        [
+          "vvd",
+          {}
+        ],
+        [
+          "weight",
+          ""
+        ],
+        [
+          "yard_nm",
+          "UNIVERSAL INTERMODAL - DETROIT (DEPOT)"
+        ],
+        [
+          "cntr_flg",
+          {}
+        ],
+        [
+          "bkg_no",
+          "CHIU06661600"
+        ],
+        [
+          "vsl_eng_nm",
+          {}
+        ],
+        [
+          "vsl_cd",
+          {}
+        ],
+        [
+          "cop_sts_cd",
+          "T"
+        ],
+        [
+          "piece",
+          ""
+        ],
+        [
+          "mvmt_sts_cd",
+          "OP"
+        ],
+        [
+          "status_nm",
+          "Empty Container Release to Shipper"
+        ],
+        [
+          "skd_dir_cd",
+          {}
+        ],
+        [
+          "place_nm",
+          "DETROIT, MI, UNITED STATES"
+        ],
+        [
+          "skd_voy_no",
+          {}
+        ]
+      ],
+      "hashFields": []
+    }
+  ]
+}
