@@ -1,0 +1,11 @@
+## Api gateway microservice
+
+### Env variables
+
+- USER_APP_IP
+- USER_APP_PORT
+- TRACKING_IP
+- TRACKING_PORT
+- SCHEDULE_TRACKING_HOST
+- SCHEDULE_TRACKING_PORT
+

@@ -41,6 +41,7 @@ func (s *Service) checkNumberInTaskTable(ctx context.Context, number string, use
 }
 func (s *Service) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
 	if !s.cli.CheckNumberBelongUser(ctx, number, userId, true) {
+		fmt.Println("no number")
 		return nil, &NumberDoesntBelongThisUserError{}
 	}
 	task := s.GetTrackByContainerNumberTask(number, country, userId, emailSubject)
