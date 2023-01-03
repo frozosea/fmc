@@ -28,7 +28,6 @@ func (c *ContainerTrackingService) trackByContainerNumber(ctx context.Context, s
 	go func() {
 		ctx := context.Background()
 		if err := c.scacRepo.Add(ctx, response.Scac, number); err != nil {
-			fmt.Println(err)
 			c.logger.ExceptionLog(fmt.Sprintf(`add scac: %s to repo for container number: %s`, response.Scac, number))
 		}
 		c.logger.InfoLog(fmt.Sprintf(`%s container was found with scac %s`, number, response.Scac))
@@ -41,7 +40,6 @@ func (c *ContainerTrackingService) trackByContainerNumber(ctx context.Context, s
 func (c *ContainerTrackingService) Track(ctx context.Context, scac, number string) (*ContainerTrackingResponse, error) {
 	var r *ContainerTrackingResponse
 	if err := c.cache.Get(ctx, number, &r); err == nil {
-		fmt.Println(r)
 		return r, nil
 	}
 	if scac == "AUTO" {

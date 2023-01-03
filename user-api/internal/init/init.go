@@ -94,8 +94,9 @@ func GetDatabase() (*sql.DB, error) {
 		log.Fatalf(`open database err:%s`, err.Error())
 		return db, err
 	}
-	if exc := db.Ping(); exc != nil {
-		return db, exc
+	if err := db.Ping(); err != nil {
+		log.Fatalf(`ping database err: %s`, err.Error())
+		return db, err
 	}
 	return db, nil
 }

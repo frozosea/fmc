@@ -41,10 +41,10 @@ func (p *Service) Login(ctx context.Context, user *domain.User) (*Token, error) 
 	if err != nil {
 		return nil, err
 	}
-	p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
+	go p.logger.InfoLog(fmt.Sprintf(`user with id %d was login`, userId))
 	token, genTokenErr := p.tokenManager.GenerateAccessRefreshTokens(userId)
 	if genTokenErr != nil {
-		p.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))
+		go p.logger.ExceptionLog(fmt.Sprintf(`generate access refresh tokens for user-pb: %d error: %s`, userId, genTokenErr.Error()))
 		return nil, genTokenErr
 	}
 	return token, genTokenErr
