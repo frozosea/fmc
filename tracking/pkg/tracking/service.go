@@ -45,7 +45,6 @@ func (c *ContainerTrackingService) Track(ctx context.Context, scac, number strin
 	if scac == "AUTO" {
 		scacFromDb, err := c.scacRepo.Get(ctx, number)
 		if err == nil && scacFromDb != "" {
-			fmt.Println(scacFromDb)
 			return c.trackByContainerNumber(ctx, scacFromDb, number)
 		}
 		return c.trackByContainerNumber(ctx, scac, number)
@@ -73,7 +72,6 @@ func (s *BillTrackingService) trackByBillNumber(ctx context.Context, scac, numbe
 	go func() {
 		ctx := context.Background()
 		if err := s.scacRepo.Add(ctx, response.Scac, number); err != nil {
-			fmt.Println(err)
 			s.logger.ExceptionLog(fmt.Sprintf(`add scac: %s to repo for bill number: %s`, response.Scac, number))
 		}
 		s.logger.InfoLog(fmt.Sprintf(`%s bill was found with scac %s`, number, response.Scac))
@@ -87,7 +85,6 @@ func (s *BillTrackingService) trackByBillNumber(ctx context.Context, scac, numbe
 func (s *BillTrackingService) Track(ctx context.Context, scac, number string) (*BillNumberTrackingResponse, error) {
 	var r *BillNumberTrackingResponse
 	if err := s.cache.Get(ctx, number, &r); err == nil {
-		fmt.Println(r)
 		return r, nil
 	}
 	if scac == "AUTO" {

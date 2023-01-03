@@ -1,6 +1,8 @@
 package captcha_resolver
 
-import "context"
+import (
+	"context"
+)
 
 type ICaptcha interface {
 	Resolve(ctx context.Context) (RandomString, SolvedCaptcha, error)

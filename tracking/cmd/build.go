@@ -134,7 +134,6 @@ func (b *Builder) initUnlocodesRepo() *Builder {
 }
 
 func (b *Builder) initCache() *Builder {
-	fmt.Println(b.variables.RedisConfig.Url)
 	b.cache = cache.NewCache(redis.NewClient(&redis.Options{
 		Addr:     b.variables.RedisConfig.Url,
 		Password: "", // no password set
