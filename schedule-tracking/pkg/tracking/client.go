@@ -66,7 +66,7 @@ func (c *Converter) convertNodeTimeStampToTime(t int64) time.Time {
 func (c *Converter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
-		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.convertNodeTimeStampToTime(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
+		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: time.UnixMilli(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
