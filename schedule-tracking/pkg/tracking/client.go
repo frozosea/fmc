@@ -59,10 +59,6 @@ func NewConverter() *Converter {
 	return &Converter{}
 }
 
-//tracking written on node js so nodejs timestamp is +3 zero on end of timestamp
-func (c *Converter) convertNodeTimeStampToTime(t int64) time.Time {
-	return time.Unix(t/1000, 0)
-}
 func (c *Converter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
@@ -75,7 +71,7 @@ func (c *Converter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberRes
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac(),
 		InfoAboutMoving:  c.convertGrpcInfoAboutMoving(response.InfoAboutMoving),
-		EtaFinalDelivery: c.convertNodeTimeStampToTime(response.GetEtaFinalDelivery()),
+		EtaFinalDelivery: time.UnixMilli(response.GetEtaFinalDelivery()),
 	}
 }
 func (c *Converter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {
