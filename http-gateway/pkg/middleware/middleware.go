@@ -34,19 +34,19 @@ func (m *Middleware) CheckAccessMiddleware(c *gin.Context) {
 	}
 }
 
-func (m *Middleware) CORSMiddleware(c *gin.Context) {
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Cache-Control, Content-Type, DNT, If-Modified-Since, Keep-Alive, Origin, User-Agent, X-Requested-With, X-Real-Ip, Access-Control-Allow-Origin")
-	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
-
-	if c.Request.Method == "OPTIONS" {
-		c.Writer.Header().Set("Access-Control-Max-Age", "1728000")
-		c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		c.Writer.Header().Set("Content-Length", "0")
-		c.AbortWithStatus(204)
-		return
-	}
-
-	c.Next()
-}
+//func (m *Middleware) CORSMiddleware(c *gin.Context) {
+//	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+//	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+//	c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Cache-Control, Content-Type, DNT, If-Modified-Since, Keep-Alive, Origin, User-Agent, X-Requested-With, X-Real-Ip, Access-Control-Allow-Origin")
+//	c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
+//
+//	if c.Request.Method == "OPTIONS" {
+//		c.Writer.Header().Set("Access-Control-Max-Age", "1728000")
+//		c.Writer.Header().Set("Content-Type", "text/plain; charset=utf-8")
+//		c.Writer.Header().Set("Content-Length", "0")
+//		c.AbortWithStatus(204)
+//		return
+//	}
+//
+//	c.Next()
+//}
