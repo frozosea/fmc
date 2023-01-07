@@ -37,9 +37,10 @@ func NewTaskManager(duration time.Duration, generator *TaskGenerator, manager *s
 }
 
 func (t *TaskManager) Run() error {
-	task := t.generator.Generate()
-	const taskId = "sitcLoginProviderTask"
 	ctx := context.Background()
+	task := t.generator.Generate()
+	task(ctx)
+	const taskId = "sitcLoginProviderTask"
 	if _, err := t.manager.AddWithDuration(ctx, taskId, task, t.duration); err != nil {
 		return err
 	}

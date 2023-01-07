@@ -144,7 +144,7 @@ func (b *Builder) initCache() *Builder {
 
 func (b *Builder) initLoginProvider() *Builder {
 	b.loginProvider = login_provider.NewTaskManager(
-		time.Hour*4,
+		time.Hour*1,
 		login_provider.NewTaskGenerator(b.sitcStore, login_provider.NewProvider(
 			b.sitcStore.Username(),
 			b.sitcStore.Password(),
