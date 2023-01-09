@@ -204,13 +204,13 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 		return nil
 	}
 	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
-	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService)
 	var timezone = os.Getenv("TZ")
 	if timezone == "" {
 		timezone = "Asia/Vladivostok"
 	}
-	var TaskManager = scheduler.NewDefault(timezone)
-	scheduleTrackingService := domain.NewService(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
+	var taskManager = scheduler.NewDefault(timezone)
+	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService, taskManager)
+	scheduleTrackingService := domain.NewService(controllerLogger, client, taskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
