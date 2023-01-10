@@ -7,12 +7,13 @@ services:
     environment:
       USER_APP_IP: user_api
       USER_APP_PORT: 9001
+      ALTS_KEY_FOR_USER_APP: <>ALTS_KEY_FOR_USER_APP
       TRACKING_IP: tracking_api
       TRACKING_PORT: 51372
+      ALTS_KEY_FOR_TRACKING_APP: <ALTS_KEY_FOR_TRACKING_APP>
       SCHEDULE_TRACKING_HOST: schedule_tracking_api
       SCHEDULE_TRACKING_PORT: 8005
-      FREIGHT_HOST: freight_api
-      FREIGHT_PORT: 51839
+      ALTS_KEY_FOR_SCHEDULE_TRACKING_APP: <ALTS_KEY_FOR_SCHEDULE_TRACKING_APP>
     networks:
       - public
   nginx:

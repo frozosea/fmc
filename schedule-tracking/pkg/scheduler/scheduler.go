@@ -5,18 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"time"
 )
 
 type ShouldBeCancelled bool
-type ITask func(ctx context.Context, args ...interface{}) ShouldBeCancelled
+type ITask func(ctx context.Context)
 
 type Job struct {
 	Id          string
 	Fn          ITask
 	NextRunTime time.Time
-	Args        []interface{}
 	Interval    time.Duration
 	Time        string
 	Ctx         context.Context
@@ -25,6 +23,7 @@ type Job struct {
 type Schedule struct {
 	Next time.Ticker
 }
+
 type Manager struct {
 	executor   IJobExecutor
 	jobstore   IJobStore
@@ -32,17 +31,12 @@ type Manager struct {
 	baseLogger log.Logger
 }
 
-func (m *Manager) Start() {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, os.Interrupt)
-	<-quit
-}
-func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr string, taskArgs ...interface{}) (*Job, error) {
+func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr string) (*Job, error) {
 	taskTime, err := m.timeParser.Parse(timeStr)
 	if err != nil {
 		return &Job{}, err
 	}
-	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, taskArgs, timeStr)
+	job, err := m.jobstore.Save(ctx, taskId, task, taskTime, timeStr)
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return &Job{}, err
@@ -51,8 +45,9 @@ func (m *Manager) Add(ctx context.Context, taskId string, task ITask, timeStr st
 	go m.executor.Run(job)
 	return job, nil
 }
-func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask, interval time.Duration, taskArgs ...interface{}) (*Job, error) {
-	job, err := m.jobstore.Save(ctx, taskId, task, interval, taskArgs, fmt.Sprintf(`%d:%d`, time.Now().Add(interval).Hour(), time.Now().Add(interval).Minute()))
+
+func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask, interval time.Duration) (*Job, error) {
+	job, err := m.jobstore.Save(ctx, taskId, task, interval, fmt.Sprintf(`%d:%d`, time.Now().Add(interval).Hour(), time.Now().Add(interval).Minute()))
 	if err != nil {
 		m.baseLogger.Println(fmt.Sprintf(`add task with id: %s err: %s`, taskId, err.Error()))
 		return job, err
@@ -60,9 +55,11 @@ func (m *Manager) AddWithDuration(ctx context.Context, taskId string, task ITask
 	go m.executor.Run(job)
 	return job, err
 }
+
 func (m *Manager) Get(ctx context.Context, taskId string) (*Job, error) {
 	return m.jobstore.Get(ctx, taskId)
 }
+
 func (m *Manager) Reschedule(ctx context.Context, taskId string, timeStr string) (*Job, error) {
 	job, err := m.jobstore.Get(ctx, taskId)
 	if err != nil {
@@ -84,6 +81,7 @@ func (m *Manager) Reschedule(ctx context.Context, taskId string, timeStr string)
 	go m.executor.Run(newJob)
 	return newJob, nil
 }
+
 func (m *Manager) RescheduleWithDuration(ctx context.Context, taskId string, newInterval time.Duration) (*Job, error) {
 	job, err := m.jobstore.Get(ctx, taskId)
 	if err != nil {
@@ -101,29 +99,31 @@ func (m *Manager) RescheduleWithDuration(ctx context.Context, taskId string, new
 	go m.executor.Run(newJob)
 	return newJob, nil
 }
+
 func (m *Manager) Remove(ctx context.Context, taskId string) error {
 	if err := m.executor.Remove(taskId); err != nil {
 		return err
 	}
 	return m.jobstore.Remove(ctx, taskId)
 }
+
 func (m *Manager) RemoveAll(ctx context.Context) error {
 	return m.jobstore.RemoveAll(ctx)
 }
-func (m *Manager) Modify(ctx context.Context, taskId string, task ITask, args ...interface{}) error {
+
+func (m *Manager) Modify(ctx context.Context, taskId string, task ITask) error {
 	job, err := m.jobstore.Get(ctx, taskId)
 	if err != nil {
 		return err
 	}
 	job.Fn = task
-	job.Args = args
 	if err := m.jobstore.Remove(ctx, taskId); err != nil {
 		return err
 	}
 	if err := m.executor.Remove(taskId); err != nil {
 		return err
 	}
-	newJob, err := m.jobstore.Save(job.Ctx, job.Id, job.Fn, job.Interval, job.Args, job.Time)
+	newJob, err := m.jobstore.Save(job.Ctx, job.Id, job.Fn, job.Interval, job.Time)
 	if err != nil {
 		return err
 	}

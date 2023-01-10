@@ -58,12 +58,15 @@ type Logger struct {
 func (l *Logger) InfoLog(logString string) {
 	l.infoLogger.Info(logString)
 }
+
 func (l *Logger) ExceptionLog(logString string) {
 	l.exceptionLogger.Error(logString)
 }
+
 func (l *Logger) WarningLog(logString string) {
 	l.warningLogger.Warning(logString)
 }
+
 func (l *Logger) FatalLog(logString string) {
 	l.fatalLogger.Fatal(logString)
 }

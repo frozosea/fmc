@@ -15,6 +15,8 @@ Steps to run this project:
 - SITC_SERVICE_PASSWORD
 - SITC_SERVICE_BASIC_AUTH
 - SITC_ACCESS_TOKEN
+- ALTS_KEY
+
 3. make migration: `make migrate-up`
 4. Run
 

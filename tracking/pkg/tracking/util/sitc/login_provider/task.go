@@ -40,6 +40,7 @@ func (t *TaskManager) Run() error {
 	task := t.generator.Generate()
 	const taskId = "sitcLoginProviderTask"
 	ctx := context.Background()
+	task(ctx)
 	if _, err := t.manager.AddWithDuration(ctx, taskId, task, t.duration); err != nil {
 		return err
 	}

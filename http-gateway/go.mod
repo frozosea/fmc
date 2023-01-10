@@ -3,7 +3,7 @@ module http-gateway
 go 1.18
 
 require (
-	github.com/frozosea/fmc-pb v1.0.7
+	github.com/frozosea/fmc-pb v1.1.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
 	github.com/joho/godotenv v1.4.0
 	google.golang.org/grpc v1.51.0

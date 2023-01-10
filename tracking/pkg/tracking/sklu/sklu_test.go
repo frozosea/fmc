@@ -36,11 +36,11 @@ var httpMockUp = requests.NewRequestMockUp(200, func(r requests.RequestMockUp) (
 	} else if r.RUrl == fmt.Sprintf("http://ebiz.sinokor.co.kr/Tracking/GetBLList?cntrno=%s&year=%d", containerNumber, time.Now().Year()) {
 		return os.ReadFile("test_data/exampleApiResponse.json")
 	} else if r.RUrl == fmt.Sprintf(`http://ebiz.sinokor.co.kr/Tracking?blno=%s&cntrno=`, billNumber) {
-		return os.ReadFile("test_data/exampleInfoAboutMoving.html")
+		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	} else if r.RUrl == fmt.Sprintf(`http://ebiz.sinokor.co.kr/Tracking?blno=%s&cntrno=%s`, billNumber, containerNumber) {
-		return os.ReadFile("test_data/exampleInfoAboutMoving.html")
+		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	} else {
-		return os.ReadFile("test_data/exampleInfoAboutMoving.html")
+		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	}
 })
 var ctx = context.Background()
@@ -87,7 +87,7 @@ func TestApiParser(t *testing.T) {
 }
 
 func getInfoAboutMovingDoc(t *testing.T) *goquery.Document {
-	response, err := os.ReadFile("test_data/exampleInfoAboutMoving.html")
+	response, err := os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	assert.NoError(t, err)
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(response))
 	if err != nil {

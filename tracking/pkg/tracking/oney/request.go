@@ -37,17 +37,6 @@ func (h *headersGenerator) generate() map[string]string {
 	}
 }
 
-type body struct {
-	FCmd   string `json:"f_cmd"`
-	CntrNo string `json:"cntr_no"`
-	BkgNo  string `json:"bkg_no"`
-	CopNo  string `json:"cop_no"`
-}
-
-func newBody(FCmd string, cntrNo string, bkgNo string, copNo string) *body {
-	return &body{FCmd: FCmd, CntrNo: cntrNo, BkgNo: bkgNo, CopNo: copNo}
-}
-
 type bodyGenerator struct {
 }
 

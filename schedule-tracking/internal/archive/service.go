@@ -20,6 +20,7 @@ func NewService(logger logging.ILogger, repository IRepository) *Service {
 func (s *Service) GetAll(ctx context.Context, userId int) (*AllArchive, error) {
 	return s.repository.GetAll(ctx, userId)
 }
+
 func (s *Service) AddByContainer(ctx context.Context, userId int, info *tracking.ContainerNumberResponse) error {
 	if err := s.repository.AddByContainer(ctx, userId, info); err != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`add new container into archive user id: %d error: %s`, userId, err.Error()))
@@ -34,6 +35,7 @@ func (s *Service) AddByContainer(ctx context.Context, userId int, info *tracking
 	}()
 	return nil
 }
+
 func (s *Service) AddByBill(ctx context.Context, userId int, info *tracking.BillNumberResponse) error {
 	if err := s.repository.AddByBill(ctx, userId, info); err != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`add new bill into archive user id: %d error: %s`, userId, err.Error()))

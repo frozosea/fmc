@@ -21,5 +21,7 @@
 - SMTP_HOST 
 - SMTP_PORT 
 - SEND_TO_EMAILS
+- ALTS_KEY
+
 
 Microservice methods are in `pkg/proto`.

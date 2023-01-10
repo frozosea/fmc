@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"schedule-tracking/pkg/logging"
 	"schedule-tracking/pkg/scheduler"
-	"schedule-tracking/pkg/util"
 )
 
 type CannotFindEmailError struct{}
@@ -32,6 +31,7 @@ type Service struct {
 func NewService(logger logging.ILogger, cli *UserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Service {
 	return &Service{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, repository: repository, CustomTasks: customTasks}
 }
+
 func (s *Service) checkNumberInTaskTable(ctx context.Context, number string, userId int64) bool {
 	task, err := s.repository.GetByNumber(ctx, number)
 	if task.UserId != userId || err != nil {
@@ -39,12 +39,13 @@ func (s *Service) checkNumberInTaskTable(ctx context.Context, number string, use
 	}
 	return true
 }
-func (s *Service) addOneContainer(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
+
+func (s *Service) addOneContainer(ctx context.Context, number, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
 	if !s.cli.CheckNumberBelongUser(ctx, number, userId, true) {
 		return nil, &NumberDoesntBelongThisUserError{}
 	}
-	task := s.GetTrackByContainerNumberTask(number, country, userId, emailSubject)
-	job, err := s.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
+	task := s.GetTrackByContainerNumberTask(number, emails, userId, emailSubject)
+	job, err := s.taskManager.Add(context.Background(), number, task, time)
 	if err != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return nil, err
@@ -56,11 +57,12 @@ func (s *Service) addOneContainer(ctx context.Context, number, country, time str
 	go s.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
 	return job, nil
 }
+
 func (s *Service) AddContainerNumbersOnTrack(ctx context.Context, req *BaseTrackReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
-		job, err := s.addOneContainer(ctx, v, req.Country, req.Time, req.UserId, req.Emails, req.EmailMessageSubject)
+		job, err := s.addOneContainer(ctx, v, req.Time, req.UserId, req.Emails, req.EmailMessageSubject)
 		if err != nil {
 			switch err.(type) {
 			case *scheduler.AddJobError:
@@ -91,12 +93,13 @@ func (s *Service) AddContainerNumbersOnTrack(ctx context.Context, req *BaseTrack
 		alreadyOnTrack: alreadyOnTrack,
 	}, nil
 }
-func (s *Service) addOneBillOnTrack(ctx context.Context, number, country, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
+
+func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, userId int64, emails []string, emailSubject string) (*scheduler.Job, error) {
 	if !s.cli.CheckNumberBelongUser(ctx, number, userId, false) {
 		return nil, &NumberDoesntBelongThisUserError{}
 	}
-	task := s.GetTrackByBillNumberTask(number, country, userId, emailSubject)
-	job, err := s.taskManager.Add(context.Background(), number, task, time, util.ConvertArgsToInterface(emails)...)
+	task := s.GetTrackByBillNumberTask(number, emails, userId, emailSubject)
+	job, err := s.taskManager.Add(context.Background(), number, task, time)
 	if err != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`add job failed: %s`, err.Error()))
 		return nil, err
@@ -108,11 +111,12 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, country, time s
 	go s.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
 	return job, nil
 }
+
 func (s *Service) AddBillNumbersOnTrack(ctx context.Context, req *BaseTrackReq) (*AddOnTrackResponse, error) {
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
-		job, err := s.addOneBillOnTrack(ctx, v, req.Country, req.Time, req.UserId, req.Emails, req.EmailMessageSubject)
+		job, err := s.addOneBillOnTrack(ctx, v, req.Time, req.UserId, req.Emails, req.EmailMessageSubject)
 		if err != nil {
 			switch err.(type) {
 			case *scheduler.AddJobError:
@@ -173,6 +177,7 @@ func (s *Service) DeleteFromTracking(ctx context.Context, userId int64, isContai
 	}
 	return nil
 }
+
 func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userId int64) (*GetInfoAboutTrackResponse, error) {
 	if !s.checkNumberInTaskTable(ctx, number, userId) {
 		return &GetInfoAboutTrackResponse{}, &NumberDoesntBelongThisUserError{}

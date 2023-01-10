@@ -22,6 +22,7 @@ type Repository struct {
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db: db}
 }
+
 func (r *Repository) GetContainers(ctx context.Context, userId int) ([]*tracking.ContainerNumberResponse, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT co.response FROM "container_archive" AS co WHERE co.id = $1`, userId)
 	if err != nil {
@@ -41,6 +42,7 @@ func (r *Repository) GetContainers(ctx context.Context, userId int) ([]*tracking
 	}
 	return allContainers, nil
 }
+
 func (r *Repository) GetBills(ctx context.Context, userId int) ([]*tracking.BillNumberResponse, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT co.response FROM "bill_archive" AS co WHERE co.id = $1`, userId)
 	if err != nil {
@@ -60,6 +62,7 @@ func (r *Repository) GetBills(ctx context.Context, userId int) ([]*tracking.Bill
 	}
 	return allBills, nil
 }
+
 func (r *Repository) GetAll(ctx context.Context, userId int) (*AllArchive, error) {
 	bills, err := r.GetBills(ctx, userId)
 	if err != nil {
@@ -74,6 +77,7 @@ func (r *Repository) GetAll(ctx context.Context, userId int) (*AllArchive, error
 		bills:      bills,
 	}, nil
 }
+
 func (r *Repository) AddByContainer(ctx context.Context, userId int, info *tracking.ContainerNumberResponse) error {
 	j, err := json.Marshal(info)
 	if err != nil {
@@ -82,6 +86,7 @@ func (r *Repository) AddByContainer(ctx context.Context, userId int, info *track
 	_, err = r.db.ExecContext(ctx, `INSERT INTO "container_archive" (user_id,response) VALUES ($1,$2)`, userId, string(j))
 	return err
 }
+
 func (r *Repository) AddByBill(ctx context.Context, userId int, info *tracking.BillNumberResponse) error {
 	j, err := json.Marshal(info)
 	if err != nil {

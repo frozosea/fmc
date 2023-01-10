@@ -35,6 +35,7 @@ func (w *baseWriter) writeUpColoumns(file *excelize.File) error {
 	}
 	return nil
 }
+
 func (w *baseWriter) writeInfoAboutMoving(file *excelize.File, infoAboutMoving []tracking.BaseInfoAboutMoving, timeFormatter func(time.Time) string) error {
 	var index = 2
 	for _, value := range infoAboutMoving {
@@ -54,6 +55,7 @@ func (w *baseWriter) writeInfoAboutMoving(file *excelize.File, infoAboutMoving [
 	}
 	return nil
 }
+
 func (w *baseWriter) writeUpColoumnsAndInfoAboutMoving(file *excelize.File, infoAboutMoving []tracking.BaseInfoAboutMoving, timeFormatter func(time.Time) string) error {
 	if writeUpColoumnsErr := w.writeUpColoumns(file); writeUpColoumnsErr != nil {
 		return writeUpColoumnsErr

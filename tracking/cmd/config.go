@@ -12,7 +12,7 @@ type PostgresConfig struct {
 	Host         string
 	Username     string
 	Password     string
-	DataBaseName string
+	DatabaseName string
 	Port         string
 }
 
@@ -22,7 +22,7 @@ func (p *PostgresConfig) Url() string {
 		p.Port,
 		p.Username,
 		p.Password,
-		p.DataBaseName)
+		p.DatabaseName)
 }
 
 type RedisConfig struct {
@@ -40,6 +40,7 @@ type EnvVariables struct {
 	SitcServicePassword  string
 	SitcServiceBasicAuth string
 	SitcAccessToken      string
+	AltsKey              string
 }
 
 func getDatabase(config *PostgresConfig) (*sql.DB, error) {
@@ -75,6 +76,7 @@ func getEnvVariables() (*EnvVariables, error) {
 		"SITC_SERVICE_PASSWORD":   "",
 		"SITC_SERVICE_BASIC_AUTH": "",
 		"SITC_ACCESS_TOKEN":       "",
+		"ALTS_KEY":                "",
 	}
 	for name := range variables {
 		v, err := getEnvVariable(name)
@@ -88,7 +90,7 @@ func getEnvVariables() (*EnvVariables, error) {
 			Host:         variables["POSTGRES_HOST"],
 			Username:     variables["POSTGRES_USERNAME"],
 			Password:     variables["POSTGRES_PASSWORD"],
-			DataBaseName: variables["POSTGRES_DATABASE_NAME"],
+			DatabaseName: variables["POSTGRES_DATABASE_NAME"],
 			Port:         variables["POSTGRES_PORT"],
 		},
 		RedisConfig: &RedisConfig{
@@ -100,5 +102,6 @@ func getEnvVariables() (*EnvVariables, error) {
 		SitcServicePassword:  variables["SITC_SERVICE_PASSWORD"],
 		SitcServiceBasicAuth: variables["SITC_SERVICE_BASIC_AUTH"],
 		SitcAccessToken:      variables["SITC_ACCESS_TOKEN"],
+		AltsKey:              variables["ALTS_KEY"],
 	}, nil
 }

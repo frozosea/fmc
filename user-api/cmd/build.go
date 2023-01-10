@@ -1,19 +1,30 @@
-package initpackage
+package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	pb "github.com/frozosea/fmc-pb/user"
 	"github.com/frozosea/mailing"
+	"github.com/gin-gonic/gin"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/alts"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"log"
+	"net"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 	"user-api/internal/auth"
 	"user-api/internal/feedback"
@@ -21,6 +32,7 @@ import (
 	"user-api/internal/user"
 	"user-api/pkg/cache"
 	"user-api/pkg/logging"
+	"user-api/pkg/util"
 )
 
 type (
@@ -58,6 +70,9 @@ type (
 		SendToEmails []string
 		AuthKey      string
 	}
+	AuthSettings struct {
+		AltsKey string
+	}
 )
 
 func readIni[T comparable](section string, settingsModel *T) (*T, error) {
@@ -72,6 +87,7 @@ func readIni[T comparable](section string, settingsModel *T) (*T, error) {
 	}
 	return settingsModel, nil
 }
+
 func SetupDatabaseConfig() *DataBaseSettings {
 	DbSettings := new(DataBaseSettings)
 	DbSettings.DatabaseUser = os.Getenv(`POSTGRES_USER`)
@@ -160,16 +176,25 @@ func getAuthLoggerConfig() (*AuthLoggerSettings, error) {
 	return readIni("AUTH_LOGS", config)
 }
 
+func getJwtTokenManager() (auth.ITokenManager, error) {
+	tokenSettings, err := GetTokenSettings()
+	if err != nil {
+		return nil, err
+	}
+	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
+	return tokenManager, nil
+}
+
 func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 	loggerConf, err := getAuthLoggerConfig()
 	if err != nil {
 		panic(err)
 	}
-	tokenSettings, getTokenSettingsErr := GetTokenSettings()
-	if getTokenSettingsErr != nil {
-		panic(getTokenSettingsErr)
+	tokenManager, err := getJwtTokenManager()
+	if err != nil {
+		panic(err)
+		return nil
 	}
-	tokenManager := auth.NewTokenManager(tokenSettings.JwtSecretKey, parseExpiration(tokenSettings.AccessTokenExpiration), parseExpiration(tokenSettings.RefreshTokenExpiration))
 	hash := auth.NewHash()
 	repository := auth.NewRepository(db, hash)
 	mSettings, err := getMailingSettings()
@@ -201,7 +226,20 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
 
-func GetUserGrpcService(db *sql.DB, redisConf *RedisSettings) *user.Grpc {
+func getAuthSettings() (*AuthSettings, error) {
+	key := os.Getenv("ALTS_KEY")
+	if key == "" {
+		return nil, errors.New("no env variable")
+	}
+	return &AuthSettings{AltsKey: key}, nil
+}
+
+func GetUserGrpcService(db *sql.DB) *user.Grpc {
+	jwtManager, err := getJwtTokenManager()
+	if err != nil {
+		panic(err)
+		return nil
+	}
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
 		panic(err)
@@ -219,9 +257,15 @@ func GetUserGrpcService(db *sql.DB, redisConf *RedisSettings) *user.Grpc {
 	}
 	scheduleTrackingInfoRepository := user.NewScheduleTrackingInfoRepository(conn)
 	repository := user.NewRepository(db, scheduleTrackingInfoRepository)
-	controller := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
-	return user.NewGrpc(controller)
+	service := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
+	authSettings, err := getAuthSettings()
+	if err != nil {
+		panic(err)
+		return nil
+	}
+	return user.NewGrpc(service, util.NewTokenManager(jwtManager), authSettings.AltsKey)
 }
+
 func getMailingSettings() (*MailingSettings, error) {
 	email, password, smtpHost, smtpPort, sendToEmails, authKey := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS"), os.Getenv("AUTH_KEY")
 	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" || authKey == "" {
@@ -259,4 +303,66 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 	}
 	service := feedback.NewService(m, repository, logger, mSettings.SendToEmails)
 	return feedback.NewGrpc(service), feedback.NewHttp(service)
+}
+
+func GetServer() (*grpc.Server, *feedback.Http, error) {
+	authSettings, err := getAuthSettings()
+	if err != nil {
+		return nil, nil, err
+	}
+	altsTC := alts.NewServerCreds(alts.DefaultServerOptions())
+	server := grpc.NewServer(
+		grpc.Creds(altsTC),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
+				if err := alts.ClientAuthorizationCheck(ctx, []string{authSettings.AltsKey}); err != nil {
+					return ctx, status.Error(codes.Unauthenticated, err.Error())
+				}
+				return ctx, nil
+			}),
+		)),
+	)
+	db, err := GetDatabase()
+	if err != nil {
+		return nil, nil, err
+	}
+	feedbackGrpcService, feedbackHttpHandler := GetFeedbackDeliveries(db)
+	pb.RegisterAuthServer(server, GetAuthGrpcService(db))
+	pb.RegisterUserServer(server, GetUserGrpcService(db))
+	pb.RegisterScheduleTrackingServer(server, GetScheduleTrackingService(db))
+	pb.RegisterUserFeedbackServer(server, feedbackGrpcService)
+	return server, feedbackHttpHandler, nil
+}
+
+func BuildAndRun() {
+	server, feedbackHttpHandler, err := GetServer()
+	if err != nil {
+		panic(err)
+		return
+	}
+	go func() {
+		l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:9001`))
+		if err != nil {
+			panic(err)
+			return
+		}
+		log.Println("START GRPC SERVER")
+		if err := server.Serve(l); err != nil {
+			panic(err)
+		}
+	}()
+	go func() {
+		r := gin.Default()
+		r.Use(feedback.NewMiddleware().CheckAdminAccess)
+		{
+			r.GET("/all", feedbackHttpHandler.GetAll)
+			r.GET("/byEmail", feedbackHttpHandler.GetByEmail)
+		}
+		fmt.Println("START HTTP")
+		log.Fatal(r.Run("0.0.0.0:9005"))
+	}()
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+	<-s
 }

@@ -1,33 +1,65 @@
 package util
 
-import "fmt"
+import (
+	"context"
+	"errors"
+	pb "github.com/frozosea/fmc-pb/user"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/emptypb"
+)
 
-func Pop[T comparable](s []T, index int) []T {
-	return append(s[:index], s[index+1:]...)
-}
-func PopForInterfaces(s []interface{}, index int) []interface{} {
-	return append(s[:index], s[index+1:]...)
-}
-func GetIndex(item interface{}, s ...interface{}) int {
-	for index, v := range s {
-		if v == item {
-			return index
-		}
-	}
-	return -1
-}
-func ConvertArgsToInterface[T comparable](args []T) []interface{} {
-	var arr []interface{}
-	for _, v := range args {
-		arr = append(arr, v)
-	}
-	return arr
+type ITokenManager interface {
+	GetUserIdFromCtx(ctx context.Context) (int, error)
+	GetUserIdFromToken(ctx context.Context, token string) (int, error)
+	GenerateGRPCAuthHeader(ctx context.Context, token string) (context.Context, grpc.CallOption)
+	GetTokenFromHeaders(ctx context.Context) (string, error)
 }
 
-func ConvertInterfaceArgsToString(args []interface{}) []string {
-	var arr []string
-	for _, v := range args {
-		arr = append(arr, fmt.Sprintf(`%v`, v))
+type TokenManager struct {
+	client pb.AuthClient
+}
+
+func NewTokenManager(client pb.AuthClient) *TokenManager {
+	return &TokenManager{client: client}
+}
+
+func (t *TokenManager) GetUserIdFromCtx(ctx context.Context) (int, error) {
+	token, err := t.GetTokenFromHeaders(ctx)
+	if err != nil {
+		return -1, err
 	}
-	return arr
+	ctx, h := t.GenerateGRPCAuthHeader(ctx, token)
+	response, err := t.client.GetUserIdByJwtToken(ctx, &emptypb.Empty{}, h)
+	if err != nil {
+		return -1, err
+	}
+	return int(response.GetUserId()), nil
+}
+
+func (t *TokenManager) GetUserIdFromToken(ctx context.Context, token string) (int, error) {
+	ctx, h := t.GenerateGRPCAuthHeader(ctx, token)
+	response, err := t.client.GetUserIdByJwtToken(ctx, &emptypb.Empty{}, h)
+	if err != nil {
+		return -1, err
+	}
+	return int(response.GetUserId()), nil
+}
+
+func (t *TokenManager) GenerateGRPCAuthHeader(ctx context.Context, token string) (context.Context, grpc.CallOption) {
+	md := metadata.New(map[string]string{"Authorization": token})
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return ctx, grpc.Header(&md)
+}
+
+func (t *TokenManager) GetTokenFromHeaders(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", errors.New("not ok")
+	}
+	token := md.Get("Authorization")[0]
+	if token == "" {
+		return "", errors.New("not ok")
+	}
+	return token, nil
 }

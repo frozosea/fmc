@@ -9,17 +9,17 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"schedule-tracking/pkg/logging"
 	"schedule-tracking/pkg/scheduler"
+	"schedule-tracking/pkg/util"
 	"time"
 )
 
 type converter struct {
 }
 
-func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, country string) *BaseTrackReq {
+func (c *converter) convertAddOnTrack(r *pb.AddOnTrackRequest, userId int) *BaseTrackReq {
 	return &BaseTrackReq{
 		Numbers:             r.GetNumbers(),
-		UserId:              r.GetUserId(),
-		Country:             country,
+		UserId:              int64(userId),
 		Time:                r.GetTime(),
 		Emails:              r.GetEmails(),
 		EmailMessageSubject: r.GetEmailMessageSubject(),
@@ -42,18 +42,10 @@ func (c *converter) convertAddOnTrackResponse(r *AddOnTrackResponse) *pb.AddOnTr
 		AlreadyOnTrack: r.alreadyOnTrack,
 	}
 }
-func (c *converter) convertInterfaceArrayToStringArray(r []interface{}) []string {
-	var outputArr []string
-	for _, v := range r {
-		outputArr = append(outputArr, fmt.Sprintf(`%v`, v))
-	}
-	return outputArr
-}
-func (c *converter) convertUpdateTaskRequest(r *pb.UpdateTaskRequest, country string) *BaseTrackReq {
+func (c *converter) convertUpdateTaskRequest(r *pb.UpdateTaskRequest, userId int) *BaseTrackReq {
 	return &BaseTrackReq{
 		Numbers:             r.Req.GetNumbers(),
-		UserId:              r.Req.GetUserId(),
-		Country:             country,
+		UserId:              int64(userId),
 		Time:                r.Req.GetTime(),
 		Emails:              r.Req.GetEmails(),
 		EmailMessageSubject: r.Req.GetEmailMessageSubject(),
@@ -61,17 +53,29 @@ func (c *converter) convertUpdateTaskRequest(r *pb.UpdateTaskRequest, country st
 }
 
 type Grpc struct {
-	controller *Service
-	logger     logging.ILogger
-	converter
+	service      *Service
+	logger       logging.ILogger
+	converter    *converter
+	tokenManager util.ITokenManager
 	pb.UnimplementedScheduleTrackingServer
 }
 
-func NewGrpc(controller *Service, logger logging.ILogger) *Grpc {
-	return &Grpc{controller: controller, logger: logger, converter: converter{}, UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{}}
+func NewGrpc(controller *Service, logger logging.ILogger, manager util.ITokenManager) *Grpc {
+	return &Grpc{
+		service:                             controller,
+		logger:                              logger,
+		converter:                           &converter{},
+		tokenManager:                        manager,
+		UnimplementedScheduleTrackingServer: pb.UnimplementedScheduleTrackingServer{},
+	}
 }
+
 func (s *Grpc) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddContainerNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "OTHER"))
+	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	res, err := s.service.AddContainerNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, userId))
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
@@ -86,7 +90,11 @@ func (s *Grpc) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 }
 
 func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (*pb.AddOnTrackResponse, error) {
-	res, err := s.controller.AddBillNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, "RU"))
+	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	res, err := s.service.AddBillNumbersOnTrack(ctx, s.converter.convertAddOnTrack(r, userId))
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
@@ -101,8 +109,13 @@ func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (
 	}
 	return s.converter.convertAddOnTrackResponse(res), nil
 }
+
 func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest, isContainer bool) (*emptypb.Empty, error) {
-	if err := s.controller.DeleteFromTracking(ctx, r.GetUserId(), isContainer, r.GetNumbers()); err != nil {
+	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	if err := s.service.DeleteFromTracking(ctx, int64(userId), isContainer, r.GetNumbers()); err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
 			return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
@@ -111,7 +124,7 @@ func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingR
 		default:
 			go func() {
 				for _, v := range r.GetNumbers() {
-					s.logger.ExceptionLog(fmt.Sprintf(`delete Number: %s for user-pb %d from tracking err: %s`, v, r.GetUserId(), err.Error()))
+					s.logger.ExceptionLog(fmt.Sprintf(`delete Number: %s for user-pb %d from tracking err: %s`, v, userId, err.Error()))
 				}
 			}()
 			return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
@@ -119,11 +132,21 @@ func (s *Grpc) deleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingR
 	}
 	return &emptypb.Empty{}, nil
 }
-func (s *Grpc) DeleteFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest) (*emptypb.Empty, error) {
-	return s.deleteFromTracking(ctx, r, r.GetIsContainer())
+
+func (s *Grpc) DeleteContainersFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest) (*emptypb.Empty, error) {
+	return s.deleteFromTracking(ctx, r, true)
 }
+
+func (s *Grpc) DeleteBillsFromTracking(ctx context.Context, r *pb.DeleteFromTrackingRequest) (*emptypb.Empty, error) {
+	return s.deleteFromTracking(ctx, r, false)
+}
+
 func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
-	resp, err := s.controller.GetInfoAboutTracking(ctx, r.GetNumber(), r.GetUserId())
+	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	resp, err := s.service.GetInfoAboutTracking(ctx, r.GetNumber(), int64(userId))
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
@@ -146,14 +169,28 @@ func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackReq
 		},
 	}, nil
 }
+
 func (s *Grpc) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResponse, error) {
 	t := time.Now()
 	zone, _ := t.Zone()
 	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
 }
-func (s *Grpc) Update(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
-	if err := s.controller.Update(ctx, s.converter.convertUpdateTaskRequest(r, "RU"), r.GetIsContainers()); err != nil {
+
+func (s *Grpc) update(ctx context.Context, r *pb.UpdateTaskRequest, isContainer bool) (*emptypb.Empty, error) {
+	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	if err := s.service.Update(ctx, s.converter.convertUpdateTaskRequest(r, userId), isContainer); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
+}
+
+func (s *Grpc) UpdateContainer(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
+	return s.update(ctx, r, true)
+}
+
+func (s *Grpc) UpdateBill(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
+	return s.update(ctx, r, false)
 }

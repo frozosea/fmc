@@ -20,6 +20,11 @@ services:
       SENDER_EMAIL: <YOUR_SENDER_EMAIL>
       UNISENDER_API_KEY: <YOUR_UNISENDER_API_KEY>
       TZ: Asia/Vladivostok
+      EMAIL_MESSAGE_SIGNATURE: Best regards, FindMyCargo.
+      TIME_FORMAT: 2006-01-02 15:04
+      ALTS_KEY: <AUTH_KEY_FOR_ALTS>
+      ALTS_KEY_FOR_USER_API: <ALTS_KEY_FOR_USER_API>
+      ALTS_KEY_FOR_TRACKING_API: <ALTS_KEY_FOR_TRACKING_API>
     depends_on:
       - postgres_db
   postgres_db:

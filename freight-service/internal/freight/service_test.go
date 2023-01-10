@@ -13,7 +13,7 @@ import (
 type freightRepoMoch struct {
 }
 
-func (s *freightRepoMoch) GetAll(ctx context.Context) ([]BaseFreight, error) {
+func (s *freightRepoMoch) GetAll(_ context.Context) ([]BaseFreight, error) {
 	var array []BaseFreight
 	for i := 0; i < 20; i++ {
 		array = append(array, BaseFreight{FromCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, ToCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, Container: container.Container{Id: 1, Type: "40DC"}, UsdPrice: i * 1000, Company: &company.Company{}})
@@ -21,11 +21,11 @@ func (s *freightRepoMoch) GetAll(ctx context.Context) ([]BaseFreight, error) {
 	return array, nil
 }
 
-func (s *freightRepoMoch) Update(ctx context.Context, id int, freight *AddFreight) error {
+func (s *freightRepoMoch) Update(_ context.Context, _ int, _ *AddFreight) error {
 	return nil
 }
 
-func (s *freightRepoMoch) Delete(ctx context.Context, id int) error {
+func (s *freightRepoMoch) Delete(_ context.Context, _ int) error {
 	return nil
 }
 
@@ -41,36 +41,36 @@ func (s *freightRepoMoch) Add(_ context.Context, _ AddFreight) error {
 }
 
 // city company container
-type cityRepoMoch struct {
+type cityRepoMockUp struct {
 }
 
-func (r *cityRepoMoch) Add(_ context.Context, _ city.BaseEntity) error {
+func (r *cityRepoMockUp) Add(_ context.Context, _ city.BaseEntity) error {
 	return nil
 }
-func (r *cityRepoMoch) GetAll(_ context.Context) ([]*city.City, error) {
+func (r *cityRepoMockUp) GetAll(_ context.Context) ([]*city.City, error) {
 	var cities []*city.City
 	return cities, nil
 }
 
-type contactRepoMoch struct {
+type contactRepoMockUp struct {
 }
 
-func (r *contactRepoMoch) Add(_ context.Context, _ company.BaseCompany) error {
+func (r *contactRepoMockUp) Add(_ context.Context, _ company.BaseCompany) error {
 	return nil
 }
 
-func (r *contactRepoMoch) GetAll(_ context.Context) ([]*company.BaseCompany, error) {
+func (r *contactRepoMockUp) GetAll(_ context.Context) ([]*company.BaseCompany, error) {
 	var contacts []*company.BaseCompany
 	return contacts, nil
 }
 
-type containerRepoMoch struct {
+type containerRepoMockUp struct {
 }
 
-func (r *containerRepoMoch) Add(_ context.Context, _ string) error {
+func (r *containerRepoMockUp) Add(_ context.Context, _ string) error {
 	return nil
 }
-func (r *containerRepoMoch) Get(_ context.Context) ([]*container.Container, error) {
+func (r *containerRepoMockUp) Get(_ context.Context) ([]*container.Container, error) {
 	var containers []*container.Container
 	return containers, nil
 }

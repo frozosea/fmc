@@ -83,13 +83,13 @@ func (repo *Repository) UpdateCity(ctx context.Context, id int, city *CountryWit
 	return err
 }
 func (repo *Repository) DeleteCity(ctx context.Context, id int) error {
-	if _, err := repo.db.ExecContext(ctx, `DELETE "cities" AS c WHERE c.id = $1`); err != nil {
+	if _, err := repo.db.ExecContext(ctx, `DELETE FROM "cities" AS c WHERE c.id = $1`, id); err != nil {
 		return err
 	}
 	return nil
 }
 func (repo *Repository) DeleteCountry(ctx context.Context, id int) error {
-	if _, err := repo.db.ExecContext(ctx, `DELETE "countries" AS c WHERE c.id = $1`); err != nil {
+	if _, err := repo.db.ExecContext(ctx, `DELETE FROM "countries" AS c WHERE c.id = $1`, id); err != nil {
 		return err
 	}
 	return nil

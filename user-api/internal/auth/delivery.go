@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	"user-api/internal/domain"
 	"user-api/pkg/logging"
+	"user-api/pkg/util"
 )
 
 type converter struct{}
@@ -91,16 +92,24 @@ func (s *Grpc) RefreshToken(ctx context.Context, r *pb.RefreshTokenRequest) (*pb
 		return nil, err
 	}
 }
-func (s *Grpc) Auth(ctx context.Context, r *pb.AuthRequest) (*pb.AuthResponse, error) {
-	success, err := s.controller.CheckAccess(ctx, r.GetTokens())
+func (s *Grpc) Auth(ctx context.Context, _ *emptypb.Empty) (*pb.AuthResponse, error) {
+	token, err := util.GetTokenFromHeaders(ctx)
+	if err != nil {
+		return &pb.AuthResponse{Success: false}, status.Error(codes.PermissionDenied, err.Error())
+	}
+	success, err := s.controller.CheckAccess(ctx, token)
 	if err != nil || !success {
 		return &pb.AuthResponse{Success: false}, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.AuthResponse{Success: true}, nil
 
 }
-func (s *Grpc) GetUserIdByJwtToken(ctx context.Context, r *pb.GetUserIdByJwtTokenRequest) (*pb.GetUserIdByJwtTokenResponse, error) {
-	userId, err := s.controller.GetUserIdByJwtToken(r.GetToken())
+func (s *Grpc) GetUserIdByJwtToken(ctx context.Context, _ *emptypb.Empty) (*pb.GetUserIdByJwtTokenResponse, error) {
+	token, err := util.GetTokenFromHeaders(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
+	}
+	userId, err := s.controller.GetUserIdByJwtToken(token)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
 	}

@@ -14,6 +14,11 @@
 - POSTGRES_DATABASE
 - POSTGRES_HOST
 - POSTGRES_PORT
+- EMAIL_MESSAGE_SIGNATURE
+- TIME_FORMAT
+- ALTS_KEY
+- ALTS_KEY_FOR_USER_API
+- ALTS_KEY_FOR_TRACKING_API
 
 ### How to run:
 
@@ -23,4 +28,5 @@
 
 Methods are in `pkg/proto`.
 
-Default timezone of running tasks is Asia/Vladivostok. If you want to change it you can open dockerfile and change the timezone.
+Default timezone of running tasks is Asia/Vladivostok. If you want to change it you can open dockerfile and change the
+timezone.

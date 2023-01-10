@@ -19,9 +19,8 @@ type Client struct {
 
 func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumberResponse, error) {
 	request := pb.Request{
-		Number:  track.Number,
-		Scac:    track.Scac,
-		Country: pb.Country(pb.Country_value[track.Country]),
+		Number: track.Number,
+		Scac:   track.Scac,
 	}
 	response, err := c.billNoClient.TrackByBillNumber(ctx, &request)
 	if err != nil {
@@ -33,9 +32,8 @@ func (c *Client) TrackByBillNumber(ctx context.Context, track *Track) (BillNumbe
 
 func (c *Client) TrackByContainerNumber(ctx context.Context, track Track) (ContainerNumberResponse, error) {
 	request := pb.Request{
-		Number:  track.Number,
-		Scac:    track.Scac,
-		Country: pb.Country(pb.Country_value[track.Country]),
+		Number: track.Number,
+		Scac:   track.Scac,
 	}
 	response, err := c.containerNoClient.TrackByContainerNumber(ctx, &request)
 	if err != nil {
@@ -59,14 +57,10 @@ func NewConverter() *Converter {
 	return &Converter{}
 }
 
-//tracking written on node js so nodejs timestamp is +3 zero on end of timestamp
-func (c *Converter) convertNodeTimeStampToTime(t int64) time.Time {
-	return time.Unix(t/1000, 0)
-}
 func (c *Converter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
-		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: c.convertNodeTimeStampToTime(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
+		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: time.UnixMilli(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
@@ -75,7 +69,7 @@ func (c *Converter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberRes
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac(),
 		InfoAboutMoving:  c.convertGrpcInfoAboutMoving(response.InfoAboutMoving),
-		EtaFinalDelivery: c.convertNodeTimeStampToTime(response.GetEtaFinalDelivery()),
+		EtaFinalDelivery: time.UnixMilli(response.GetEtaFinalDelivery()),
 	}
 }
 func (c *Converter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {

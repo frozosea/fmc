@@ -7,6 +7,7 @@ import (
 	userPb "github.com/frozosea/fmc-pb/user"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/alts"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net/http"
@@ -41,7 +42,10 @@ func (b *Builder) initEnvVariables() *Builder {
 }
 
 func (b *Builder) initUserGateway() *Builder {
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	clientOpts := alts.DefaultClientOptions()
+	clientOpts.TargetServiceAccounts = []string{b.variables.AltsKeyForUserApp}
+	altsTC := alts.NewClientCreds(clientOpts)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(altsTC)}
 	url := getUrl(b.variables.UserAppIp, b.variables.UserAppPort)
 	if err := userPb.RegisterUserFeedbackHandlerFromEndpoint(b.ctx, b.mux, url, opts); err != nil {
 		panic(err)
@@ -58,7 +62,10 @@ func (b *Builder) initUserGateway() *Builder {
 	return b
 }
 func (b *Builder) initTrackingGateway() *Builder {
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	clientOpts := alts.DefaultClientOptions()
+	clientOpts.TargetServiceAccounts = []string{b.variables.AltsKeyForTrackingApp}
+	altsTC := alts.NewClientCreds(clientOpts)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(altsTC)}
 	url := getUrl(b.variables.TrackingAppIp, b.variables.TrackingAppPort)
 	if err := trackingPb.RegisterTrackingByContainerNumberHandlerFromEndpoint(b.ctx, b.mux, url, opts); err != nil {
 		panic(err)
@@ -75,7 +82,10 @@ func (b *Builder) initTrackingGateway() *Builder {
 	return b
 }
 func (b *Builder) initScheduleTrackingGateway() *Builder {
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	clientOpts := alts.DefaultClientOptions()
+	clientOpts.TargetServiceAccounts = []string{b.variables.AltsKeyForScheduleTrackingApp}
+	altsTC := alts.NewClientCreds(clientOpts)
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(altsTC)}
 	url := getUrl(b.variables.ScheduleTrackingIp, b.variables.ScheduleTrackingPort)
 	if err := scheduleTrackingPb.RegisterScheduleTrackingHandlerFromEndpoint(b.ctx, b.mux, url, opts); err != nil {
 		panic(err)

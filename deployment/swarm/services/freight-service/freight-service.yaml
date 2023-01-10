@@ -15,6 +15,7 @@ services:
       POSTGRES_PORT: 5435
       REDIS_URL: redis://freight_redis:6379
       ACCESS_PASSWORD: <YOUR_PASSWORD_FOR_ADMIN_PANEL>
+      ALTS_KEY: <AUTH_KEY_FOR_ALTS>
     depends_on:
       - freight_postgres_db
   freight_postgres_db:
