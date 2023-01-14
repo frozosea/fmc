@@ -53,7 +53,7 @@ func (repo *Repository) Update(ctx context.Context, id int, company *BaseCompany
 	return err
 }
 func (repo *Repository) Delete(ctx context.Context, id int) error {
-	if _, err := repo.db.ExecContext(ctx, `DELETE "company" AS c WHERE c.id = $1`, id); err != nil {
+	if _, err := repo.db.ExecContext(ctx, `DELETE FROM "company" AS c WHERE c.id = $1`, id); err != nil {
 		return err
 	}
 	return nil

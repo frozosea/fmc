@@ -46,7 +46,7 @@ func NewCaptchaSolver(request requests.IHttp, authKey string) *CaptchaSolver {
 func (c *CaptchaSolver) sendRequestToSolve(ctx context.Context, image []byte) (string, error) {
 	form := c.formGenerator.generate(c.authKey)
 	const url = "http://2captcha.com/in.php"
-	response, err := c.request.Url(url).Method("POST").MultipartForm(form, "file", "", image).Do(ctx)
+	response, err := c.request.Url(url).Method("POST").MultipartForm(form, "file", "file.jpg", image).Do(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -61,7 +61,7 @@ func (c *CaptchaSolver) sendRequestToSolve(ctx context.Context, image []byte) (s
 }
 
 func (c *CaptchaSolver) getSolvedCaptcha(ctx context.Context, id string) (*CaptchaSolverResponse, error) {
-	url := fmt.Sprintf("`http://2captcha.com/res.php?key=%s&action=get&id=%s&json=1", c.authKey, id)
+	url := fmt.Sprintf("http://2captcha.com/res.php?key=%s&action=get&id=%s&json=1", c.authKey, id)
 	response, err := c.request.Url(url).Method("GET").Do(ctx)
 	if err != nil {
 		return nil, err

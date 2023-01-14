@@ -14,7 +14,7 @@ type Event struct {
 
 func (e *Event) ToGRPC() *pb.InfoAboutMoving {
 	return &pb.InfoAboutMoving{
-		Time:          e.Time.Unix(),
+		Time:          e.Time.UnixMilli(),
 		OperationName: e.OperationName,
 		Location:      e.Location,
 		Vessel:        e.Vessel,
@@ -57,6 +57,6 @@ func (b *BillNumberTrackingResponse) ToGRPC() *pb.TrackingByBillNumberResponse {
 		BillNo:           b.Number,
 		Scac:             b.Scac,
 		InfoAboutMoving:  infoAboutMoving,
-		EtaFinalDelivery: b.Eta.Unix(),
+		EtaFinalDelivery: b.Eta.UnixMilli(),
 	}
 }

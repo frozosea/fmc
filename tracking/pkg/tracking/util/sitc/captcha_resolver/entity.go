@@ -4,12 +4,12 @@ type RandomString string
 type SolvedCaptcha string
 
 type CaptchaSolverGetIdResponse struct {
-	Status  string
+	Status  int
 	Request string
 }
 
 type CaptchaSolverResponse struct {
-	Status  string
+	Status  int
 	Text    string
 	Request string
 }

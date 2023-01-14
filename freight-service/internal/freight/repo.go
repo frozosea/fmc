@@ -209,7 +209,7 @@ func (r *repository) Update(ctx context.Context, id int, freight *AddFreight) er
 	return err
 }
 func (r *repository) Delete(ctx context.Context, id int) error {
-	if _, err := r.db.ExecContext(ctx, `DELETE "freights" AS f WHERE f.id = $1`, id); err != nil {
+	if _, err := r.db.ExecContext(ctx, `DELETE FROM "freights" AS f WHERE f.id = $1`, id); err != nil {
 		return err
 	}
 	return nil
