@@ -3,6 +3,7 @@ package login_provider
 import (
 	"context"
 	scheduler "github.com/frozosea/scheduler/pkg"
+	"log"
 	"time"
 )
 
@@ -16,13 +17,10 @@ func NewTaskGenerator(store *Store, provider *Provider) *TaskGenerator {
 }
 
 func (t *TaskGenerator) Generate() scheduler.ITask {
-	return func(ctx context.Context, args ...interface{}) scheduler.ShouldBeCancelled {
+	return func(ctx context.Context) {
 		apiResponse, err := t.provider.Login(ctx)
-		if err != nil {
-			return true
-		}
+		log.Println(err)
 		t.store.SetAuthToken(apiResponse.AccessToken)
-		return false
 	}
 }
 

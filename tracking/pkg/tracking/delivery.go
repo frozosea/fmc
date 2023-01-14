@@ -31,13 +31,6 @@ func (c *ContainerTrackingGrpc) TrackByContainerNumber(ctx context.Context, r *p
 		go c.logger.ExceptionLog(fmt.Sprintf(`tracking container: %s; scac: %s error: %s`, r.GetNumber(), r.GetScac(), err.Error()))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	//go func() {
-	//	j, err := json.Marshal(response)
-	//	if err != nil {
-	//		return
-	//	}
-	//	c.logger.InfoLog(fmt.Sprintf(`tracking container: %s; scac: %s result: %v"`, r.GetNumber(), r.GetScac(), j))
-	//}()
 	return response.ToGRPC(), nil
 }
 

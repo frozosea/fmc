@@ -27,10 +27,10 @@ func NewBuilder() *Builder {
 		mux:  runtime.NewServeMux(),
 		opts: []grpc.DialOption{},
 	}
-	builder.initTlsCreds()
+	builder.initCreds()
 	return builder
 }
-func (b *Builder) initTlsCreds() *Builder {
+func (b *Builder) initCreds() *Builder {
 	b.opts = append(b.opts, grpc.WithInsecure())
 	return b
 }

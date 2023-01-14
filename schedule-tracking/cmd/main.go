@@ -14,7 +14,7 @@ import (
 
 func Run() {
 	s := grpc.NewServer()
-	scheduleTrackingGrpcService := GetScheduleTracking()
+	scheduleTrackingGrpcService := GetScheduleTrackingAndArchiveGrpcService()
 	pb.RegisterScheduleTrackingServer(s, scheduleTrackingGrpcService)
 	l, err := net.Listen("tcp", `0.0.0.0:8005`)
 	if err != nil {

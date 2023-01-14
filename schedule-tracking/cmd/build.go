@@ -1,4 +1,4 @@
-package initpackage
+package main
 
 import (
 	"context"
@@ -19,6 +19,8 @@ import (
 	"schedule-tracking/pkg/logging"
 	"schedule-tracking/pkg/scheduler"
 	"schedule-tracking/pkg/tracking"
+	"schedule-tracking/pkg/util"
+	"strconv"
 )
 
 type (
@@ -30,9 +32,10 @@ type (
 		Port             string
 	}
 	EmailSenderSettings struct {
-		SenderName      string
-		SenderEmail     string
-		UnisenderApiKey string
+		Host     string
+		Port     int
+		Email    string
+		Password string
 	}
 	TrackingClientSettings struct {
 		Ip   string
@@ -51,9 +54,6 @@ type (
 		ServiceSaveDir        string
 		ControllerSaveDir     string
 		TaskGetterSaveDir     string
-	}
-	EmailSignatureSettings struct {
-		EmailSignature string
 	}
 	ArchiveLoggerSettings struct {
 		SaveDir string
@@ -102,9 +102,14 @@ func readIni[T comparable](section string, settingsModel *T) (*T, error) {
 }
 func GetEmailSenderSettings() *EmailSenderSettings {
 	emailSender := new(EmailSenderSettings)
-	emailSender.SenderEmail = os.Getenv("SENDER_EMAIL")
-	emailSender.SenderName = os.Getenv("SENDER_NAME")
-	emailSender.UnisenderApiKey = os.Getenv("UNISENDER_API_KEY")
+	emailSender.Email = os.Getenv("SENDER_EMAIL")
+	emailSender.Password = os.Getenv("EMAIL_PASSWORD")
+	emailSender.Host = os.Getenv("EMAIL_SMTP_HOST")
+	port, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
+	if err != nil {
+		panic(err)
+	}
+	emailSender.Port = port
 	return emailSender
 }
 func GetTrackingSettings() (*TrackingClientSettings, error) {
@@ -117,17 +122,7 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 	clientSettings.Port = port
 	return clientSettings, nil
 }
-func GetEmailSignature() (*EmailSignatureSettings, error) {
-	settings := new(EmailSignatureSettings)
-	return readIni("EMAIL_SETTINGS", settings)
-}
-func GetMailing(sender *EmailSenderSettings) mailing.IMailing {
-	settings, err := GetEmailSignature()
-	if err != nil {
-		panic(err)
-	}
-	return mailing.NewWithUniSender(sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
-}
+
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
 	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -186,16 +181,16 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
 	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
 	sender := GetEmailSenderSettings()
-	emailSender := GetMailing(sender)
-	format, getTimeFormatErr := GetTimeFormatterSettings()
-	if getTimeFormatErr != nil {
-		panic(getTimeFormatErr)
+	emailSender := mailing.NewMailing(sender.Host, sender.Port, sender.Email, sender.Password)
+	format, err := GetTimeFormatterSettings()
+	if err != nil {
+		panic(err)
 	}
 	client := GetUserScheduleTrackingClient(userConf, logging.NewLogger(loggerConf.ClientSaveDir))
 	timeFormatter := domain.NewTimeFormatter(format.Format)
-	db, getDbErr := GetDatabase()
-	if getDbErr != nil {
-		panic(getDbErr)
+	db, err := GetDatabase()
+	if err != nil {
+		panic(err)
 	}
 	repository := domain.NewRepository(db)
 	archiveRepository := archive.NewRepository(db)
@@ -203,18 +198,34 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	if err != nil {
 		return nil
 	}
-	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
-	taskGetter := domain.NewCustomTasks(GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)), client, arrivedChecker, logging.NewLogger(loggerConf.TaskGetterSaveDir), excelWriter, emailSender, timeFormatter, repository, archiveService)
 	var timezone = os.Getenv("TZ")
 	if timezone == "" {
 		timezone = "Asia/Vladivostok"
 	}
-	var TaskManager = scheduler.NewDefault(timezone)
-	scheduleTrackingService := domain.NewService(controllerLogger, client, TaskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
+	var taskManager = scheduler.NewDefault(timezone)
+	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
+	taskGetter := domain.NewCustomTasks(
+		GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)),
+		client,
+		arrivedChecker,
+		logging.NewLogger(loggerConf.TaskGetterSaveDir),
+		excelWriter,
+		emailSender,
+		timeFormatter,
+		repository,
+		archiveService,
+		taskManager,
+	)
+	scheduleTrackingService := domain.NewService(controllerLogger, client, taskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
-	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir))
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir), util.NewTokenManager(user_pb.NewAuthClient(conn)))
 }
 
 func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {
@@ -232,7 +243,6 @@ func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {
 			if _, addErr := controller.AddBillNumbersOnTrack(context.Background(), &domain.BaseTrackReq{
 				Numbers:             []string{task.Number},
 				UserId:              task.UserId,
-				Country:             task.Country,
 				Time:                task.Time,
 				Emails:              task.Emails,
 				EmailMessageSubject: task.EmailMessageSubject,
@@ -243,7 +253,6 @@ func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {
 			if _, addErr := controller.AddContainerNumbersOnTrack(context.Background(), &domain.BaseTrackReq{
 				Numbers:             []string{task.Number},
 				UserId:              task.UserId,
-				Country:             task.Country,
 				Time:                task.Time,
 				Emails:              task.Emails,
 				EmailMessageSubject: task.EmailMessageSubject,
