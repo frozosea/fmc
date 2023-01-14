@@ -3,7 +3,7 @@ package login_provider
 import (
 	"context"
 	scheduler "github.com/frozosea/scheduler/pkg"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -19,7 +19,10 @@ func NewTaskGenerator(store *Store, provider *Provider) *TaskGenerator {
 func (t *TaskGenerator) Generate() scheduler.ITask {
 	return func(ctx context.Context) {
 		apiResponse, err := t.provider.Login(ctx)
-		log.Println(err)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		t.store.SetAuthToken(apiResponse.AccessToken)
 	}
 }

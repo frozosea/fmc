@@ -152,7 +152,7 @@ func (b *Builder) initLoginProvider() *Builder {
 			login_provider.NewRequest(b.getArgsForTrackers().Request, b.getArgsForTrackers().UserAgentGenerator),
 			b.captchaSolver,
 		)),
-		scheduler.NewDefault(),
+		scheduler.NewDefault(""),
 	)
 	return b
 }
