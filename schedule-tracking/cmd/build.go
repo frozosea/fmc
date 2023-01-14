@@ -10,7 +10,6 @@ import (
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/alts"
 	"log"
 	"os"
 	"schedule-tracking/internal/archive"
@@ -20,6 +19,7 @@ import (
 	"schedule-tracking/pkg/scheduler"
 	"schedule-tracking/pkg/tracking"
 	"schedule-tracking/pkg/util"
+	"strconv"
 )
 
 type (
@@ -31,19 +31,18 @@ type (
 		Port             string
 	}
 	EmailSenderSettings struct {
-		SenderName      string
-		SenderEmail     string
-		UnisenderApiKey string
+		Email    string
+		Password string
+		Host     string
+		Port     int
 	}
 	TrackingClientSettings struct {
-		Ip      string
-		Port    string
-		AltsKey string
+		Ip   string
+		Port string
 	}
 	UserClientSettings struct {
-		Ip      string
-		Port    string
-		AltsKey string
+		Ip   string
+		Port string
 	}
 	TimeFormatterSettings struct {
 		Format string
@@ -55,14 +54,8 @@ type (
 		ControllerSaveDir     string
 		TaskGetterSaveDir     string
 	}
-	EmailSignatureSettings struct {
-		EmailSignature string
-	}
 	ArchiveLoggerSettings struct {
 		SaveDir string
-	}
-	AuthSettings struct {
-		AltsKey string
 	}
 )
 
@@ -98,84 +91,61 @@ func GetDatabase() (*sql.DB, error) {
 
 func readIni[T comparable](section string, settingsModel *T) (*T, error) {
 	cfg, err := ini.Load(`conf/cfg.ini`)
-	sectionRead := cfg.Section(section)
 	if err != nil {
-		log.Fatalf(`read config from ini file err:%s`, err)
+		log.Printf(`read config from ini file err:%s`, err)
 		return settingsModel, err
 	}
-	if readErr := sectionRead.MapTo(&settingsModel); readErr != nil {
-		return settingsModel, readErr
+	sectionRead := cfg.Section(section)
+	if err := sectionRead.MapTo(&settingsModel); err != nil {
+		return settingsModel, err
 	}
 	return settingsModel, nil
 }
 
 func GetEmailSenderSettings() *EmailSenderSettings {
 	emailSender := new(EmailSenderSettings)
-	emailSender.SenderEmail = os.Getenv("SENDER_EMAIL")
-	emailSender.SenderName = os.Getenv("SENDER_NAME")
-	emailSender.UnisenderApiKey = os.Getenv("UNISENDER_API_KEY")
+	emailSender.Email = os.Getenv("SENDER_EMAIL")
+	emailSender.Password = os.Getenv("EMAIL_PASSWORD")
+	emailSender.Host = os.Getenv("EMAIL_SMTP_HOST")
+	port, err := strconv.Atoi(os.Getenv("EMAIL_SMTP_PORT"))
+	if err != nil {
+		return nil
+	}
+	emailSender.Port = port
 	return emailSender
 }
 
 func GetTrackingSettings() (*TrackingClientSettings, error) {
 	clientSettings := new(TrackingClientSettings)
-	ip, port, altsKey := os.Getenv("TRACKING_GRPC_HOST"), os.Getenv("TRACKING_GRPC_PORT"), os.Getenv("ALTS_KEY_FOR_TRACKING_API")
-	if ip == "" || port == "" || altsKey == "" {
+	ip, port := os.Getenv("TRACKING_GRPC_HOST"), os.Getenv("TRACKING_GRPC_PORT")
+	if ip == "" || port == "" {
 		return nil, errors.New("no env variables")
 	}
 	clientSettings.Ip = ip
 	clientSettings.Port = port
-	clientSettings.AltsKey = altsKey
 	return clientSettings, nil
 }
 
-func GetEmailSignature() (*EmailSignatureSettings, error) {
-	signature := os.Getenv("EMAIL_MESSAGE_SIGNATURE")
-	if signature == "" {
-		return nil, errors.New("no env variable")
-	}
-	return &EmailSignatureSettings{EmailSignature: signature}, nil
-}
-
-func GetMailing(sender *EmailSenderSettings) mailing.IMailing {
-	settings, err := GetEmailSignature()
+func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
+	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithInsecure())
 	if err != nil {
 		panic(err)
-	}
-	return mailing.NewWithUniSender(sender.SenderName, sender.SenderEmail, sender.UnisenderApiKey, settings.EmailSignature)
-}
-
-func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger, altsKey string) *tracking.Client {
-	clientOpts := alts.DefaultClientOptions()
-	clientOpts.TargetServiceAccounts = []string{altsKey}
-	altsTC := alts.NewClientCreds(clientOpts)
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(altsTC))
-	if err != nil {
-		panic(err)
-		return &tracking.Client{}
 	}
 	client := tracking.NewClient(conn, logger)
 	return client
 }
 
-func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger, altsKey string) *domain.UserClient {
-	clientOpts := alts.DefaultClientOptions()
-	clientOpts.TargetServiceAccounts = []string{altsKey}
-	altsTC := alts.NewClientCreds(clientOpts)
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(altsTC))
+func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger) *domain.UserClient {
+	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithInsecure())
 	if err != nil {
 		panic(err)
-		return &domain.UserClient{}
 	}
 	var pbClient = user_pb.NewScheduleTrackingClient(conn)
 	return domain.NewClient(pbClient, logger)
 }
 
 func GetAuthClient(conf *UserClientSettings) (user_pb.AuthClient, error) {
-	clientOpts := alts.DefaultClientOptions()
-	clientOpts.TargetServiceAccounts = []string{conf.AltsKey}
-	altsTC := alts.NewClientCreds(clientOpts)
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(altsTC))
+	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
@@ -201,12 +171,12 @@ func GetArchiveLoggerSettings() (*ArchiveLoggerSettings, error) {
 }
 
 func GetUserClientSettings() (*UserClientSettings, error) {
-	ip, port, altsKey := os.Getenv("USER_GRPC_HOST"), os.Getenv("USER_GRPC_PORT"), os.Getenv("ALTS_KEY_FOR_USER_API")
+	ip, port := os.Getenv("USER_GRPC_HOST"), os.Getenv("USER_GRPC_PORT")
 	settings := new(UserClientSettings)
-	if ip == "" || port == "" || altsKey == "" {
+	if ip == "" || port == "" {
 		return nil, errors.New("no env variables")
 	}
-	settings.Ip, settings.Port, settings.AltsKey = ip, port, altsKey
+	settings.Ip, settings.Port = ip, port
 	return settings, nil
 }
 
@@ -227,12 +197,12 @@ func GetScheduleTracking() *domain.Grpc {
 	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
 	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
 	sender := GetEmailSenderSettings()
-	emailSender := GetMailing(sender)
+	emailSender := mailing.NewMailing(sender.Host, sender.Port, sender.Email, sender.Password)
 	format, getTimeFormatErr := GetTimeFormatterSettings()
 	if getTimeFormatErr != nil {
 		panic(getTimeFormatErr)
 	}
-	client := GetUserScheduleTrackingClient(userConf, logging.NewLogger(loggerConf.ClientSaveDir), userConf.AltsKey)
+	client := GetUserScheduleTrackingClient(userConf, logging.NewLogger(loggerConf.ClientSaveDir))
 	timeFormatter := domain.NewTimeFormatter(format.Format)
 	db, getDbErr := GetDatabase()
 	if getDbErr != nil {
@@ -251,7 +221,7 @@ func GetScheduleTracking() *domain.Grpc {
 	}
 	var taskManager = scheduler.NewDefault(timezone)
 	taskGetter := domain.NewCustomTasks(
-		GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir), trackerConf.AltsKey),
+		GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)),
 		client,
 		arrivedChecker,
 		logging.NewLogger(loggerConf.TaskGetterSaveDir),
@@ -265,21 +235,12 @@ func GetScheduleTracking() *domain.Grpc {
 	authClient, err := GetAuthClient(userConf)
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	scheduleTrackingService := domain.NewService(controllerLogger, client, taskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
 	return domain.NewGrpc(scheduleTrackingService, logging.NewLogger(loggerConf.ServiceSaveDir), util.NewTokenManager(authClient))
-}
-
-func GetAuthSettings() (*AuthSettings, error) {
-	altsKey := os.Getenv("ALTS_KEY")
-	if altsKey == "" {
-		return nil, errors.New("no env variable")
-	}
-	return &AuthSettings{AltsKey: altsKey}, nil
 }
 
 func RecoveryTasks(repo domain.IRepository, controller *domain.Service) error {

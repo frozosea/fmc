@@ -47,7 +47,7 @@ func (t *TokenManager) GetUserIdFromToken(ctx context.Context, token string) (in
 }
 
 func (t *TokenManager) GenerateGRPCAuthHeader(ctx context.Context, token string) (context.Context, grpc.CallOption) {
-	md := metadata.New(map[string]string{"Authorization": token})
+	md := metadata.New(map[string]string{"ServerAuthorization": token})
 	ctx = metadata.NewOutgoingContext(ctx, md)
 	return ctx, grpc.Header(&md)
 }

@@ -6,7 +6,8 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/archsh/timefmt v0.10.1
 	github.com/corpix/uarand v0.2.0
-	github.com/frozosea/fmc-pb v1.1.1
+	github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37
+	github.com/frozosea/fmc-pb v1.1.4
 	github.com/frozosea/scheduler v0.0.0-20221118005519-c780c2033814
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/jackc/pgx/v4 v4.17.2
@@ -26,7 +27,6 @@ require (
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/pprof v0.0.0-20211214055906-6f57359322fd // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect

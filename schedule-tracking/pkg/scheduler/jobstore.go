@@ -60,14 +60,6 @@ func (m *MemoryJobStore) Get(_ context.Context, taskId string) (*Job, error) {
 	return job, nil
 }
 
-func (m *MemoryJobStore) checkTask(taskId string) (*Job, error) {
-	job := m.jobs[taskId]
-	if job == nil {
-		return nil, &JobAlreadyExistsError{}
-	}
-	return job, nil
-}
-
 func (m *MemoryJobStore) Reschedule(ctx context.Context, taskId string, interval time.Duration, newStrTime string) (*Job, error) {
 	job := m.jobs[taskId]
 	if job == nil {

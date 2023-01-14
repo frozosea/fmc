@@ -40,7 +40,6 @@ type EnvVariables struct {
 	SitcServicePassword  string
 	SitcServiceBasicAuth string
 	SitcAccessToken      string
-	AltsKey              string
 }
 
 func getDatabase(config *PostgresConfig) (*sql.DB, error) {
@@ -76,7 +75,6 @@ func getEnvVariables() (*EnvVariables, error) {
 		"SITC_SERVICE_PASSWORD":   "",
 		"SITC_SERVICE_BASIC_AUTH": "",
 		"SITC_ACCESS_TOKEN":       "",
-		"ALTS_KEY":                "",
 	}
 	for name := range variables {
 		v, err := getEnvVariable(name)
@@ -102,6 +100,5 @@ func getEnvVariables() (*EnvVariables, error) {
 		SitcServicePassword:  variables["SITC_SERVICE_PASSWORD"],
 		SitcServiceBasicAuth: variables["SITC_SERVICE_BASIC_AUTH"],
 		SitcAccessToken:      variables["SITC_ACCESS_TOKEN"],
-		AltsKey:              variables["ALTS_KEY"],
 	}, nil
 }

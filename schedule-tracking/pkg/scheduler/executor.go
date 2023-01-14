@@ -19,10 +19,6 @@ type Executor struct {
 	timeParser    ITimeParser
 }
 
-func (e *Executor) checkJobExist(id string) bool {
-	return e.cancellations[id] != nil
-}
-
 func (e *Executor) Run(job *Job) {
 	ctx, cancel := context.WithCancel(job.Ctx)
 	job.Ctx = ctx
@@ -39,12 +35,8 @@ func (e *Executor) process(job *Job) {
 			e.logger.Printf(`job with id: %s now run`, job.Id)
 			job.Fn(job.Ctx)
 			e.logger.Printf(`task with id: %s was completed`, job.Id)
-			nextInterval, err := e.timeParser.Parse(job.Time)
-			if err != nil {
-				continue
-			}
+			nextInterval, _ := e.timeParser.Parse(job.Time)
 			job.NextRunTime = time.Now().Add(nextInterval)
-			continue
 		case <-job.Ctx.Done():
 			e.logger.Printf(`job with id: %s ctx done time: %s`, job.Id, job.Time)
 			e.wg.Done()
@@ -59,8 +51,6 @@ func (e *Executor) process(job *Job) {
 			}
 			e.logger.Printf(`job with id %s was removed`, job.Id)
 			return
-		default:
-			continue
 		}
 	}
 }

@@ -3,8 +3,6 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"errors"
-	"fmt"
 	"user-api/internal/domain"
 )
 
@@ -63,7 +61,7 @@ func (r *Repository) Login(ctx context.Context, user *domain.User) (int, error) 
 		}
 		return id, &InvalidUserError{}
 	default:
-		return -1, errors.New(fmt.Sprintf(`something went wrong: %s`, err.Error()))
+		return -1, err
 	}
 
 }
@@ -81,8 +79,8 @@ func (r *Repository) CheckAccess(ctx context.Context, userId int) (bool, error) 
 func (r *Repository) GetUserId(ctx context.Context, email string) (int, error) {
 	row := r.db.QueryRowContext(ctx, `SELECT u.id FROM "user" AS u WHERE u.email = $1`, email)
 	var id sql.NullInt64
-	if scanErr := row.Scan(&id); scanErr != nil {
-		return -1, scanErr
+	if err := row.Scan(&id); err != nil {
+		return -1, err
 	}
 	if id.Valid {
 		return int(id.Int64), nil

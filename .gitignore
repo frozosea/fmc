@@ -10,3 +10,5 @@
 /freight-parser/cmd/.aws/
 .env
 smth/
+**/logs/
+cert

@@ -35,6 +35,9 @@ func (h *HTMLReader) ParseTemplateDir(dir string) (*template.Template, error) {
 func (h *HTMLReader) GetStringHtml(dir, filename string, data interface{}) (string, error) {
 	f := reader.New()
 	fileByteBody, err := f.ReadFile(f.GetFileNameByDirNameAndFilename(dir, filename))
+	if err != nil {
+		return "", err
+	}
 	t, err := template.New(filename).Parse(string(fileByteBody))
 	if err != nil {
 		return "", err

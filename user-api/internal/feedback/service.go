@@ -16,7 +16,6 @@ func newMessageGenerator() *messageGenerator {
 }
 
 func (m *messageGenerator) Gen(fb *Feedback) string {
-	//TODO message generator
 	return fmt.Sprintf("email: %s\n %s", fb.Email, fb.Message)
 }
 func (m *messageGenerator) getTextType() string {

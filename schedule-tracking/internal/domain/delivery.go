@@ -42,15 +42,6 @@ func (c *converter) convertAddOnTrackResponse(r *AddOnTrackResponse) *pb.AddOnTr
 		AlreadyOnTrack: r.alreadyOnTrack,
 	}
 }
-func (c *converter) convertUpdateTaskRequest(r *pb.UpdateTaskRequest, userId int) *BaseTrackReq {
-	return &BaseTrackReq{
-		Numbers:             r.Req.GetNumbers(),
-		UserId:              int64(userId),
-		Time:                r.Req.GetTime(),
-		Emails:              r.Req.GetEmails(),
-		EmailMessageSubject: r.Req.GetEmailMessageSubject(),
-	}
-}
 
 type Grpc struct {
 	service      *Service
@@ -176,21 +167,21 @@ func (s *Grpc) GetTimeZone(context.Context, *emptypb.Empty) (*pb.GetTimeZoneResp
 	return &pb.GetTimeZoneResponse{TimeZone: fmt.Sprintf(`UTC%s`, zone)}, nil
 }
 
-func (s *Grpc) update(ctx context.Context, r *pb.UpdateTaskRequest, isContainer bool) (*emptypb.Empty, error) {
+func (s *Grpc) update(ctx context.Context, r *pb.AddOnTrackRequest, isContainer bool) (*emptypb.Empty, error) {
 	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
-	if err := s.service.Update(ctx, s.converter.convertUpdateTaskRequest(r, userId), isContainer); err != nil {
+	if err := s.service.Update(ctx, s.converter.convertAddOnTrack(r, userId), isContainer); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Grpc) UpdateContainer(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
+func (s *Grpc) UpdateContainer(ctx context.Context, r *pb.AddOnTrackRequest) (*emptypb.Empty, error) {
 	return s.update(ctx, r, true)
 }
 
-func (s *Grpc) UpdateBill(ctx context.Context, r *pb.UpdateTaskRequest) (*emptypb.Empty, error) {
+func (s *Grpc) UpdateBill(ctx context.Context, r *pb.AddOnTrackRequest) (*emptypb.Empty, error) {
 	return s.update(ctx, r, false)
 }

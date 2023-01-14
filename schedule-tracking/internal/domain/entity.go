@@ -23,18 +23,6 @@ type AddOnTrackResponse struct {
 	alreadyOnTrack []string
 }
 
-type AddEmailRequest struct {
-	numbers []string
-	emails  []string
-	userId  int64
-}
-
-type DeleteEmailFromTrack struct {
-	number string
-	email  string
-	userId int64
-}
-
 type GetInfoAboutTrackResponse struct {
 	Number               string                `json:"number"`
 	IsContainer          bool                  `json:"isContainer"`

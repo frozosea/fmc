@@ -95,7 +95,6 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 		if removeErr := os.Remove(pathToFile); removeErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
-		return
 	}
 	return fn
 

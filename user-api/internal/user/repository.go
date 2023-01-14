@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"user-api/internal/domain"
-	"user-api/pkg/util"
 )
 
 type NoTaskError struct {
@@ -19,7 +18,7 @@ func (e *NoTaskError) Error() string {
 }
 
 type IScheduleTrackingInfoRepository interface {
-	GetInfo(ctx context.Context, number, token string) (*domain.ScheduleTrackingInfoObject, error)
+	GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error)
 }
 
 type ScheduleTrackingInfoRepository struct {
@@ -30,10 +29,11 @@ func NewScheduleTrackingInfoRepository(conn *grpc.ClientConn) *ScheduleTrackingI
 	return &ScheduleTrackingInfoRepository{cli: pb.NewScheduleTrackingClient(conn)}
 }
 
-func (r *ScheduleTrackingInfoRepository) GetInfo(ctx context.Context, number, token string) (*domain.ScheduleTrackingInfoObject, error) {
+func (r *ScheduleTrackingInfoRepository) GetInfo(ctx context.Context, number string, userId int) (*domain.ScheduleTrackingInfoObject, error) {
 	response, err := r.cli.GetInfoAboutTrack(ctx, &pb.GetInfoAboutTrackRequest{
 		Number: number,
-	}, util.GenerateGRPCAuthHeader(token))
+		UserId: int64(userId),
+	})
 	if err != nil {
 		statusCode := status.Convert(err).Code()
 		switch statusCode {

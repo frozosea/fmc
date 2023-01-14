@@ -1,15 +1,12 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	pb "github.com/frozosea/fmc-pb/tracking"
 	scheduler "github.com/frozosea/scheduler/pkg"
 	"github.com/go-redis/redis/v8"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"golang_tracking/pkg/cache"
 	"golang_tracking/pkg/logging"
 	"golang_tracking/pkg/scac"
@@ -29,9 +26,6 @@ import (
 	"golang_tracking/pkg/tracking/util/sitc/login_provider"
 	"golang_tracking/pkg/tracking/zhgu"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/alts"
-	"google.golang.org/grpc/status"
 	"log"
 	"net"
 	"os"
@@ -82,18 +76,7 @@ func NewBuilder() *Builder {
 }
 
 func (b *Builder) initGRPCServer() *Builder {
-	altsTC := alts.NewServerCreds(alts.DefaultServerOptions())
-	b.server = grpc.NewServer(
-		grpc.Creds(altsTC),
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
-				if err := alts.ClientAuthorizationCheck(ctx, []string{b.variables.AltsKey}); err != nil {
-					return ctx, status.Error(codes.Unauthenticated, err.Error())
-				}
-				return ctx, nil
-			}),
-		)),
-	)
+	b.server = grpc.NewServer()
 	return b
 }
 

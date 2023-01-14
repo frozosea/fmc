@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -10,14 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/alts"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/status"
 	"log"
 	"net"
 	"os"
@@ -68,7 +61,6 @@ type (
 		Email        string
 		Password     string
 		SendToEmails []string
-		AuthKey      string
 	}
 	AuthSettings struct {
 		AltsKey string
@@ -80,7 +72,6 @@ func readIni[T comparable](section string, settingsModel *T) (*T, error) {
 	sectionRead := cfg.Section(section)
 	if err != nil {
 		log.Fatalf(`read config from ini file err:%s`, err)
-		return settingsModel, err
 	}
 	if readErr := sectionRead.MapTo(&settingsModel); readErr != nil {
 		return settingsModel, readErr
@@ -148,7 +139,6 @@ func GetScheduleTrackingService(db *sql.DB) *schedule_tracking.Grpc {
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	repository := schedule_tracking.NewRepository(db)
 	return schedule_tracking.NewGrpc(repository, logging.NewLogger(loggerConf.ServiceSaveDir), redisCache)
@@ -193,20 +183,14 @@ func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 	tokenManager, err := getJwtTokenManager()
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	hash := auth.NewHash()
 	repository := auth.NewRepository(db, hash)
 	mSettings, err := getMailingSettings()
 	if err != nil {
 		panic(err)
-		return nil
 	}
-	m, err := mailing.NewWithElasticEmail(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey, "containerTrackingContacts")
-	if err != nil {
-		panic(err)
-		return nil
-	}
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
 	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir))
 	return auth.NewGrpc(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
@@ -226,19 +210,10 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
 
-func getAuthSettings() (*AuthSettings, error) {
-	key := os.Getenv("ALTS_KEY")
-	if key == "" {
-		return nil, errors.New("no env variable")
-	}
-	return &AuthSettings{AltsKey: key}, nil
-}
-
 func GetUserGrpcService(db *sql.DB) *user.Grpc {
 	jwtManager, err := getJwtTokenManager()
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	loggerConf, err := getUserLoggerConfig()
 	if err != nil {
@@ -247,45 +222,34 @@ func GetUserGrpcService(db *sql.DB) *user.Grpc {
 	scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort := os.Getenv("SCHEDULE_TRACKING_IP"), os.Getenv("SCHEDULE_TRACKING_PORT")
 	if scheduleTrackingMicroserviceIp == "" || scheduleTrackingMicroservicePort == "" {
 		panic("no env variables!")
-		return nil
 	}
+
 	url := fmt.Sprintf("%s:%s", scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort)
-	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	scheduleTrackingInfoRepository := user.NewScheduleTrackingInfoRepository(conn)
 	repository := user.NewRepository(db, scheduleTrackingInfoRepository)
 	service := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
-	authSettings, err := getAuthSettings()
-	if err != nil {
-		panic(err)
-		return nil
-	}
-	return user.NewGrpc(service, util.NewTokenManager(jwtManager), authSettings.AltsKey)
+	return user.NewGrpc(service, util.NewTokenManager(jwtManager.DecodeToken))
 }
 
 func getMailingSettings() (*MailingSettings, error) {
-	email, password, smtpHost, smtpPort, sendToEmails, authKey := os.Getenv("SEND_EMAIL"), os.Getenv("PASSWORD"), os.Getenv("SMTP_HOST"), os.Getenv("SMTP_PORT"), os.Getenv("SEND_TO_EMAILS"), os.Getenv("AUTH_KEY")
-	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" || authKey == "" {
+	email, password, smtpHost, smtpPort, sendToEmails := os.Getenv("SENDER_EMAIL"), os.Getenv("EMAIL_PASSWORD"), os.Getenv("EMAIL_SMTP_HOST"), os.Getenv("EMAIL_SMTP_PORT"), os.Getenv("SEND_TO_EMAILS")
+	if email == "" || password == "" || smtpHost == "" || smtpPort == "" || sendToEmails == "" {
 		return nil, errors.New("no env variables")
 	}
 	intPort, err := strconv.Atoi(smtpPort)
 	if err != nil {
 		return nil, err
 	}
-	var sendToEmailArr []string
-	for _, v := range strings.Split(sendToEmails, ";") {
-		sendToEmailArr = append(sendToEmailArr, v)
-	}
 	return &MailingSettings{
 		Host:         smtpHost,
 		Port:         intPort,
 		Email:        email,
 		Password:     password,
-		SendToEmails: sendToEmailArr,
-		AuthKey:      authKey,
+		SendToEmails: strings.Split(sendToEmails, ";"),
 	}, nil
 }
 func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
@@ -293,35 +257,15 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 	mSettings, err := getMailingSettings()
 	if err != nil {
 		panic(err)
-		return nil, nil
 	}
 	logger := logging.NewLogger("feedback")
-	m, err := mailing.NewWithElasticEmail(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password, mSettings.AuthKey, "containerTrackingContacts")
-	if err != nil {
-		panic(err)
-		return nil, nil
-	}
+	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
 	service := feedback.NewService(m, repository, logger, mSettings.SendToEmails)
 	return feedback.NewGrpc(service), feedback.NewHttp(service)
 }
 
 func GetServer() (*grpc.Server, *feedback.Http, error) {
-	authSettings, err := getAuthSettings()
-	if err != nil {
-		return nil, nil, err
-	}
-	altsTC := alts.NewServerCreds(alts.DefaultServerOptions())
-	server := grpc.NewServer(
-		grpc.Creds(altsTC),
-		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			grpc_auth.UnaryServerInterceptor(func(ctx context.Context) (context.Context, error) {
-				if err := alts.ClientAuthorizationCheck(ctx, []string{authSettings.AltsKey}); err != nil {
-					return ctx, status.Error(codes.Unauthenticated, err.Error())
-				}
-				return ctx, nil
-			}),
-		)),
-	)
+	server := grpc.NewServer()
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, nil, err
@@ -338,13 +282,13 @@ func BuildAndRun() {
 	server, feedbackHttpHandler, err := GetServer()
 	if err != nil {
 		panic(err)
-		return
+
 	}
 	go func() {
-		l, err := net.Listen("tcp", fmt.Sprintf(`0.0.0.0:9001`))
+		l, err := net.Listen("tcp", `0.0.0.0:9001`)
 		if err != nil {
 			panic(err)
-			return
+
 		}
 		log.Println("START GRPC SERVER")
 		if err := server.Serve(l); err != nil {

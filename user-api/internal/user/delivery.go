@@ -43,16 +43,14 @@ type Grpc struct {
 	service      *Service
 	converter    converter
 	tokenManager *util.TokenManager
-	authKey      string
 	pb.UnimplementedUserServer
 }
 
-func NewGrpc(controller *Service, manager *util.TokenManager, authKey string) *Grpc {
+func NewGrpc(controller *Service, manager *util.TokenManager) *Grpc {
 	return &Grpc{
 		service:                 controller,
 		converter:               converter{},
 		tokenManager:            manager,
-		authKey:                 authKey,
 		UnimplementedUserServer: pb.UnimplementedUserServer{},
 	}
 }

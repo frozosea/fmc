@@ -16,11 +16,9 @@ Project has microservice architecture, user GRPC for connect microservices.
 - schedule tracking
 - user api
 
-#### Gateway
+#### HTTP-Gateway
 
-A gateway is an upper-level "connector" for all microservices. It uses golang-gin for http requests. He also has swagger
-documentation. For each microservice, a client adapter is written that does not use a protobuff structure in order to
-avoid direct dependence on the GRPC.
+A gateway is an upper-level "http-connector" for all microservices. Built on generated files by protoc, 
 
 #### Tracking
 

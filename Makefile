@@ -24,4 +24,3 @@ update-proto:
     go mod tidy;\
   	go get github.com/frozosea/fmc-pb@latest;\
 
-

@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -35,31 +34,6 @@ func (t *TimeParser) validate(s string) error {
 		return &TimeParseError{}
 	}
 	return nil
-}
-
-func (t *TimeParser) scanTimeString(s string) int {
-	var timeInt int
-	if _, err := fmt.Sscanf(s, `%d`, &timeInt); err != nil {
-		return -1
-	}
-	return timeInt
-}
-
-func (t *TimeParser) getHoursToTick(strHours string) (time.Duration, error) {
-	hours := t.scanTimeString(strHours)
-	if hours == -1 {
-		return time.Second, &TimeParseError{}
-	}
-	return (time.Hour * time.Duration(hours)) - (time.Duration(time.Now().Hour()) * time.Hour), nil
-}
-
-func (t *TimeParser) getMinutesToTick(strMinutes string) (time.Duration, error) {
-	minutes := t.scanTimeString(strMinutes)
-	if minutes == -1 {
-		return time.Second, &TimeParseError{}
-
-	}
-	return (time.Minute * time.Duration(minutes)) - (time.Duration(time.Now().Minute()) * time.Minute), nil
 }
 
 func (t TimeParser) Parse(s string) (time.Duration, error) {

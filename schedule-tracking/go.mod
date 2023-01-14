@@ -4,10 +4,9 @@ go 1.18
 
 require (
 	github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37
-	github.com/frozosea/fmc-pb v1.1.1
-	github.com/frozosea/mailing v1.0.1
+	github.com/frozosea/fmc-pb v1.1.4
+	github.com/frozosea/mailing v1.0.3
 	github.com/go-ini/ini v1.66.6
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.6
 	github.com/sirupsen/logrus v1.8.1
@@ -18,7 +17,6 @@ require (
 )
 
 require (
-	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect

@@ -3,15 +3,8 @@ package util
 import (
 	"context"
 	"errors"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"user-api/internal/auth"
 )
-
-func GenerateGRPCAuthHeader(token string) grpc.CallOption {
-	md := metadata.New(map[string]string{"Authorization": token})
-	return grpc.Header(&md)
-}
 
 func GetTokenFromHeaders(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -26,11 +19,11 @@ func GetTokenFromHeaders(ctx context.Context) (string, error) {
 }
 
 type TokenManager struct {
-	manager auth.ITokenManager
+	decode func(tokenStr string) (int, error)
 }
 
-func NewTokenManager(manager auth.ITokenManager) *TokenManager {
-	return &TokenManager{manager: manager}
+func NewTokenManager(decode func(tokenStr string) (int, error)) *TokenManager {
+	return &TokenManager{decode: decode}
 }
 
 func (t *TokenManager) GetUserId(ctx context.Context) (int, error) {
@@ -38,5 +31,5 @@ func (t *TokenManager) GetUserId(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return t.manager.DecodeToken(token)
+	return t.decode(token)
 }

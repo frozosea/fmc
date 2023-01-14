@@ -24,7 +24,9 @@ func newSkluArrivedChecker() *skluArrivedChecker {
 
 func (s *skluArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, item := range result {
-		if strings.Contains(strings.ToLower(item.OperationName), "arrival") && !strings.Contains(strings.ToLower(item.OperationName), strings.ToLower("Arrival(T/S)")) && !strings.Contains(strings.ToLower(item.OperationName), "scheduled") {
+		if strings.Contains(strings.ToLower(item.OperationName), "arrival") &&
+			!strings.Contains(strings.ToLower(item.OperationName), strings.ToLower("Arrival(T/S)")) &&
+			!strings.Contains(strings.ToLower(item.OperationName), "scheduled") {
 			return true
 		}
 	}
@@ -53,7 +55,7 @@ func (f *fesoArrivedChecker) getIndex(item interface{}, s []BaseInfoAboutMoving)
 }
 func (f *fesoArrivedChecker) contains(s []BaseInfoAboutMoving, operation string) bool {
 	for _, a := range s {
-		if strings.ToLower(a.OperationName) == strings.ToLower(operation) {
+		if strings.EqualFold(a.OperationName, operation) {
 			return true
 		}
 	}
@@ -61,13 +63,14 @@ func (f *fesoArrivedChecker) contains(s []BaseInfoAboutMoving, operation string)
 }
 func (f *fesoArrivedChecker) checkArrivedByInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
-		if strings.ToUpper(v.OperationName) == "ETA" {
+		if strings.EqualFold(v.OperationName, "ETA") {
 			index := f.getIndex(v, result)
 			if index != -1 {
 				return index != len(result)-1
 			}
 		}
-		if strings.ToUpper(v.Location) == "MAGISTRAL" {
+
+		if strings.EqualFold(v.Location, "MAGISTRAL") {
 			return true
 		}
 	}
@@ -91,7 +94,7 @@ func newMscuArrivedChecker() *mscuArrivedChecker {
 
 func (m *mscuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
-		if strings.ToLower(v.OperationName) == strings.ToLower("Empty to Shipper") {
+		if strings.EqualFold(v.OperationName, "Empty to Shipper") {
 			return true
 		}
 	}
@@ -137,7 +140,7 @@ func newCosuArrivedChecker() *cosuArrivedChecker {
 
 func (c *cosuArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, v := range result {
-		if strings.ToLower(v.OperationName) == strings.ToLower("Discharged at Last POD") || strings.ToLower(v.OperationName) == strings.ToLower("Empty Equipment Returned") {
+		if strings.EqualFold(v.OperationName, "Discharged at Last POD") || strings.EqualFold(v.OperationName, "Empty Equipment Returned") {
 			return true
 		}
 	}
@@ -227,6 +230,9 @@ func newMaeuRequest() *maeuRequest {
 
 func (m *maeuRequest) Get(number string) (*maeuResponse, error) {
 	response, err := http.Get(fmt.Sprintf(`https://api.maersk.com/track/%s?operator=MAEU`, number))
+	if err != nil {
+		return nil, err
+	}
 	defer response.Body.Close()
 	var r *maeuResponse
 	body, err := ioutil.ReadAll(response.Body)
@@ -247,7 +253,7 @@ func NewMaeuArrivedChecker(maeuRequest IMaeuRequest) *maeuArrivedChecker {
 	return &maeuArrivedChecker{r: maeuRequest}
 }
 func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) IsArrived {
-	return strings.ToUpper(response.Containers[0].Status) == "COMPLETE"
+	return IsArrived(strings.EqualFold(response.Containers[0].Status, "COMPLETE"))
 }
 func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	resp, err := m.r.Get(result.Container)
@@ -290,7 +296,7 @@ func newZhguArrivedChecker() *zhguArrivedChecker {
 
 func (z *zhguArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	for _, v := range result.InfoAboutMoving {
-		if strings.ToUpper(v.OperationName) == "ATA" {
+		if strings.EqualFold(v.OperationName, "ATA") {
 			return true
 		}
 	}
@@ -298,7 +304,7 @@ func (z *zhguArrivedChecker) checkContainerArrived(result ContainerNumberRespons
 }
 func (z *zhguArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
 	for _, v := range result.InfoAboutMoving {
-		if strings.ToUpper(v.OperationName) == "ATA" {
+		if strings.EqualFold(v.OperationName, "ATA") {
 			return true
 		}
 	}
