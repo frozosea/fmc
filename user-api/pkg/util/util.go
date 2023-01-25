@@ -3,7 +3,6 @@ package util
 import (
 	"context"
 	"errors"
-	"fmt"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -14,7 +13,6 @@ func GetTokenFromHeaders(ctx context.Context) (string, error) {
 	}
 	if md.Len() != 0 {
 		token := md.Get("authorization")[0]
-		fmt.Println(token)
 		if token == "" {
 			return "", errors.New("not ok")
 		}
