@@ -57,9 +57,12 @@ func (t *TokenManager) GetTokenFromHeaders(ctx context.Context) (string, error) 
 	if !ok {
 		return "", errors.New("not ok")
 	}
-	token := md.Get("authorization")[0]
-	if token == "" {
-		return "", errors.New("not ok")
+	if md.Len() != 0 {
+		token := md.Get("authorization")[0]
+		if token == "" {
+			return "", errors.New("not ok")
+		}
+		return token, nil
 	}
-	return token, nil
+	return "", errors.New("no authorization header")
 }
