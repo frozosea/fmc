@@ -107,7 +107,7 @@ func (s *Grpc) Auth(ctx context.Context, _ *emptypb.Empty) (*pb.AuthResponse, er
 func (s *Grpc) GetUserIdByJwtToken(ctx context.Context, _ *emptypb.Empty) (*pb.GetUserIdByJwtTokenResponse, error) {
 	token, err := util.GetTokenFromHeaders(ctx)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
+		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token")
 	}
 	userId, err := s.controller.GetUserIdByJwtToken(token)
 	if err != nil {
