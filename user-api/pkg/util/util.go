@@ -18,7 +18,7 @@ func GetTokenFromHeaders(ctx context.Context) (string, error) {
 		}
 		return token, nil
 	}
-	return "", errors.New("no authorization header")
+	return "", errors.New("len")
 }
 
 type TokenManager struct {
