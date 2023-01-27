@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"google.golang.org/grpc/metadata"
+	"strings"
 )
 
 func GetTokenFromHeaders(ctx context.Context) (string, error) {
@@ -16,7 +17,7 @@ func GetTokenFromHeaders(ctx context.Context) (string, error) {
 		if token == "" {
 			return "", errors.New("not ok")
 		}
-		return token, nil
+		return strings.Split(token, " ")[0], nil
 	}
 	return "", errors.New("len")
 }

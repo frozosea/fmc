@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 )
 
 type ITokenManager interface {
@@ -62,7 +63,7 @@ func (t *TokenManager) GetTokenFromHeaders(ctx context.Context) (string, error) 
 		if token == "" {
 			return "", errors.New("not ok")
 		}
-		return token, nil
+		return strings.Split(token, " ")[0], nil
 	}
 	return "", errors.New("no authorization header")
 }
