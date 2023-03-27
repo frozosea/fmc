@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"errors"
+	"fmt"
 	pb "github.com/frozosea/fmc-pb/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -48,7 +49,7 @@ func (t *TokenManager) GetUserIdFromToken(ctx context.Context, token string) (in
 }
 
 func (t *TokenManager) GenerateGRPCAuthHeader(ctx context.Context, token string) (context.Context, grpc.CallOption) {
-	md := metadata.New(map[string]string{"ServerAuthorization": token})
+	md := metadata.New(map[string]string{"authorization": fmt.Sprintf("Bearer %s", token)})
 	ctx = metadata.NewOutgoingContext(ctx, md)
 	return ctx, grpc.Header(&md)
 }
@@ -58,12 +59,15 @@ func (t *TokenManager) GetTokenFromHeaders(ctx context.Context) (string, error) 
 	if !ok {
 		return "", errors.New("not ok")
 	}
-	if md.Len() != 0 {
-		token := md.Get("authorization")[0]
-		if token == "" {
-			return "", errors.New("not ok")
+	if md.Len() > 0 {
+		tokenAr := md.Get("authorization")
+		if len(tokenAr) > 0 {
+			token := tokenAr[0]
+			if token == "" {
+				return "", errors.New("not ok")
+			}
+			return strings.Split(token, " ")[1], nil
 		}
-		return strings.Split(token, " ")[0], nil
 	}
-	return "", errors.New("no authorization header")
+	return "", errors.New("len")
 }

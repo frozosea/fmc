@@ -14,6 +14,18 @@ import (
 	"syscall"
 )
 
+func cors(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE,PUT,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, Authorization, ResponseType")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 type Builder struct {
 	variables *EnvVariables
 	mux       *runtime.ServeMux
@@ -83,7 +95,7 @@ func (b *Builder) initScheduleTrackingGateway() *Builder {
 func (b *Builder) Run() {
 	go func() {
 		log.Println("START HTTP GATEWAY SERVER")
-		if err := http.ListenAndServe("0.0.0.0:8080", b.mux); err != nil {
+		if err := http.ListenAndServe("0.0.0.0:8080", cors(b.mux)); err != nil {
 			panic(err)
 		}
 	}()

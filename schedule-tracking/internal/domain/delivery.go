@@ -133,11 +133,7 @@ func (s *Grpc) DeleteBillsFromTracking(ctx context.Context, r *pb.DeleteFromTrac
 }
 
 func (s *Grpc) GetInfoAboutTrack(ctx context.Context, r *pb.GetInfoAboutTrackRequest) (*pb.GetInfoAboutTrackResponse, error) {
-	userId, err := s.tokenManager.GetUserIdFromCtx(ctx)
-	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
-	}
-	resp, err := s.service.GetInfoAboutTracking(ctx, r.GetNumber(), int64(userId))
+	resp, err := s.service.GetInfoAboutTracking(ctx, r.GetNumber(), r.GetUserId())
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:

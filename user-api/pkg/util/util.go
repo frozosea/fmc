@@ -12,12 +12,15 @@ func GetTokenFromHeaders(ctx context.Context) (string, error) {
 	if !ok {
 		return "", errors.New("not ok")
 	}
-	if md.Len() != 0 {
-		token := md.Get("authorization")[0]
-		if token == "" {
-			return "", errors.New("not ok")
+	if md.Len() > 0 {
+		tokenAr := md.Get("authorization")
+		if len(tokenAr) > 0 {
+			token := tokenAr[0]
+			if token == "" {
+				return "", errors.New("not ok")
+			}
+			return strings.Split(token, " ")[1], nil
 		}
-		return strings.Split(token, " ")[0], nil
 	}
 	return "", errors.New("len")
 }

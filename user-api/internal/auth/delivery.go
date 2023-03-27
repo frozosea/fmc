@@ -113,7 +113,7 @@ func (s *Grpc) GetUserIdByJwtToken(ctx context.Context, _ *emptypb.Empty) (*pb.G
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "cannot decode jwt token ")
 	}
-	return &pb.GetUserIdByJwtTokenResponse{UserId: int64(userId)}, nil
+	return &pb.GetUserIdByJwtTokenResponse{UserId: int64(userId), Success: true}, nil
 }
 func (s *Grpc) SendRecoveryEmail(ctx context.Context, r *pb.SendRecoveryEmailRequest) (*emptypb.Empty, error) {
 	err := s.controller.SendRecoveryUserEmail(ctx, r.GetEmail())
