@@ -90,13 +90,6 @@ func (s *Service) AddContainerNumbersOnTrack(ctx context.Context, req *BaseTrack
 			nextRunTime: job.NextRunTime,
 		})
 	}
-	if addErr := s.repository.Add(ctx, req, true); addErr != nil {
-		go func() {
-			for _, v := range req.Numbers {
-				s.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %v error: %s`, v, addErr.Error()))
-			}
-		}()
-	}
 	return &AddOnTrackResponse{
 		result:         result,
 		alreadyOnTrack: alreadyOnTrack,
@@ -123,7 +116,7 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, us
 		Time:                time,
 		Emails:              emails,
 		EmailMessageSubject: emailSubject,
-	}, true); err != nil {
+	}, false); err != nil {
 		return nil, err
 	}
 	go s.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
@@ -152,14 +145,6 @@ func (s *Service) AddBillNumbersOnTrack(ctx context.Context, req *BaseTrackReq) 
 			number:      job.Id,
 			nextRunTime: job.NextRunTime,
 		})
-	}
-	addErr := s.repository.Add(ctx, req, false)
-	if addErr != nil {
-		go func() {
-			for _, v := range req.Numbers {
-				s.logger.ExceptionLog(fmt.Sprintf(`add containers with number: %s error: %s`, v, addErr.Error()))
-			}
-		}()
 	}
 	return &AddOnTrackResponse{
 		result:         result,
