@@ -117,6 +117,15 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, us
 		s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return nil, markErr
 	}
+	if err := s.repository.Add(ctx, &BaseTrackReq{
+		Numbers:             []string{number},
+		UserId:              11,
+		Time:                time,
+		Emails:              emails,
+		EmailMessageSubject: emailSubject,
+	}, true); err != nil {
+		return nil, err
+	}
 	go s.logger.InfoLog(fmt.Sprintf(`Number: %s, Time: %s, Emails: %v,userId: %d, IsContainer: true`, job.Id, time, emails, userId))
 	return job, nil
 }
