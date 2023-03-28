@@ -126,10 +126,10 @@ func TestOneyArrivedChecker(t *testing.T) {
 	}
 }
 
-type maeuRequestMoch struct {
+type maeuRequestMock struct {
 }
 
-func (m *maeuRequestMoch) Get(_ string) (*maeuResponse, error) {
+func (m *maeuRequestMock) Get(_ string) (*maeuResponse, error) {
 	var s maeuResponse
 	if err := json.Unmarshal([]byte(`{
     "isContainerSearch": true,
@@ -321,9 +321,9 @@ func (m *maeuRequestMoch) Get(_ string) (*maeuResponse, error) {
 	return &s, nil
 }
 func TestMaeuArrivedChecker(t *testing.T) {
-	moch := &maeuRequestMoch{}
-	a := NewMaeuArrivedChecker(moch)
-	r, err := moch.Get("")
+	mock := &maeuRequestMock{}
+	a := NewMaeuArrivedChecker(mock)
+	r, err := mock.Get("")
 	assert.NoError(t, err)
 	assert.Equal(t, IsArrived(false), a.checkStatus(r))
 }

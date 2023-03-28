@@ -10,10 +10,10 @@ import (
 	"testing"
 )
 
-type freightRepoMoch struct {
+type freightRepoMock struct {
 }
 
-func (s *freightRepoMoch) GetAll(_ context.Context) ([]BaseFreight, error) {
+func (s *freightRepoMock) GetAll(_ context.Context) ([]BaseFreight, error) {
 	var array []BaseFreight
 	for i := 0; i < 20; i++ {
 		array = append(array, BaseFreight{FromCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, ToCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, Container: container.Container{Id: 1, Type: "40DC"}, UsdPrice: i * 1000, Company: &company.Company{}})
@@ -21,22 +21,22 @@ func (s *freightRepoMoch) GetAll(_ context.Context) ([]BaseFreight, error) {
 	return array, nil
 }
 
-func (s *freightRepoMoch) Update(_ context.Context, _ int, _ *AddFreight) error {
+func (s *freightRepoMock) Update(_ context.Context, _ int, _ *AddFreight) error {
 	return nil
 }
 
-func (s *freightRepoMoch) Delete(_ context.Context, _ int) error {
+func (s *freightRepoMock) Delete(_ context.Context, _ int) error {
 	return nil
 }
 
-func (s *freightRepoMoch) Get(_ context.Context, freight GetFreight) ([]BaseFreight, error) {
+func (s *freightRepoMock) Get(_ context.Context, freight GetFreight) ([]BaseFreight, error) {
 	var array []BaseFreight
 	for i := 0; i < int(freight.Limit); i++ {
 		array = append(array, BaseFreight{FromCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, ToCity: city.City{Id: 1, BaseEntity: city.BaseEntity{RuFullName: "fromCity", EnFullName: "RUVVO"}}, Container: container.Container{Id: 1, Type: "40DC"}, UsdPrice: i * 1000, Company: &company.Company{}})
 	}
 	return array, nil
 }
-func (s *freightRepoMoch) Add(_ context.Context, _ AddFreight) error {
+func (s *freightRepoMock) Add(_ context.Context, _ AddFreight) error {
 	return nil
 }
 
@@ -75,32 +75,32 @@ func (r *containerRepoMockUp) Get(_ context.Context) ([]*container.Container, er
 	return containers, nil
 }
 
-type loggerMoch struct {
+type loggerMock struct {
 }
 
-func (s loggerMoch) InfoLog(logString string) {
+func (s loggerMock) InfoLog(logString string) {
 	fmt.Println(logString)
 }
-func (s loggerMoch) ExceptionLog(logString string) {
-	fmt.Println(logString)
-
-}
-func (s loggerMoch) WarningLog(logString string) {
+func (s loggerMock) ExceptionLog(logString string) {
 	fmt.Println(logString)
 
 }
-func (s loggerMoch) FatalLog(logString string) {
+func (s loggerMock) WarningLog(logString string) {
+	fmt.Println(logString)
+
+}
+func (s loggerMock) FatalLog(logString string) {
 	fmt.Println(logString)
 
 }
 
-type cacheMoch struct{}
+type cacheMock struct{}
 
-func (c *cacheMoch) Get(_ context.Context, _ string, _ interface{}) error { return nil }
-func (c *cacheMoch) Set(_ context.Context, _ string, _ interface{}) error { return nil }
-func (c *cacheMoch) Del(_ context.Context, _ string) error                { return nil }
+func (c *cacheMock) Get(_ context.Context, _ string, _ interface{}) error { return nil }
+func (c *cacheMock) Set(_ context.Context, _ string, _ interface{}) error { return nil }
+func (c *cacheMock) Del(_ context.Context, _ string) error                { return nil }
 
-var service = NewService(&freightRepoMoch{}, &loggerMoch{}, &cacheMoch{})
+var service = NewService(&freightRepoMock{}, &loggerMock{}, &cacheMock{})
 
 func TestGetBestFreights(t *testing.T) {
 	ctx := context.TODO()

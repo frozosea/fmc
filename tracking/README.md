@@ -2,7 +2,7 @@
 
 Steps to run this project:
 
-1. create .env file and set this variables:
+1. create .env file and set these variables:
 - POSTGRES_USERNAME
 - POSTGRES_PASSWORD
 - POSTGRES_HOST
@@ -54,7 +54,7 @@ Steps to run this project:
 ## How it works?
 ###General presentation
 
-In `pkg/tracking` inside we can see names of directory like `feso` etc, this is SCAC code of shipping line, what is scac
+In `pkg/tracking` inside we can see names of directory like `feso` etc. This is SCAC code of shipping line, what is scac
 You can read in this site [link](https://scaccodelookup.com/), and list of scac codes: [link](https://www.safround.com/en/ocean-carrier-scac-code-list).
 Every directory has defined structure, every package has:
 - container_tracker

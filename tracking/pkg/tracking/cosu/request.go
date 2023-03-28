@@ -24,10 +24,9 @@ func newHeadersGenerator(userAgentGenerator requests.IUserAgentGenerator) *heade
 
 func (h *headersGenerator) generate() map[string]string {
 	return map[string]string{
-		"Accept":          "*/*",
-		"Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
-		"Connection":      "keep-alive",
-		//"Cookie":             "HMF_CI=b31b2b5c10296bc7404f41ed06e6a85ad6a03767fd9219ce634ebda8b93eb030044b25e56fc282d7bd330a91e92e07f15c597c43e4b4a04c94e9201d8abc6b9e80; Hm_lvt_3dc23c86163f0d1cd70ef10ea94e0263=1672568806; COSCON_ACCESS_I18N=en-US; HBB_HC=252ecf4e91e8434adf73bc354872ecd63d5a8095e2de78335ab3dd6b17b10e91dff93e47fd5b733ac2794bb07b8b488d37; HMY_JC=4a571730370db1ecc4bf648f9248f1613c2503e3f05210e0c66414ee686bef2ce5,; Hm_lpvt_3dc23c86163f0d1cd70ef10ea94e0263=1672568819",
+		"Accept":             "*/*",
+		"Accept-Language":    "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
+		"Connection":         "keep-alive",
 		"Referer":            "https://elines.coscoshipping.com/ebusiness/cargotracking",
 		"Sec-Fetch-Dest":     "empty",
 		"Sec-Fetch-Mode":     "cors",
