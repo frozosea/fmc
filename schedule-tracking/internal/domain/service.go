@@ -51,12 +51,12 @@ func (s *Service) addOneContainer(ctx context.Context, number, time string, user
 		return nil, err
 	}
 	if markErr := s.cli.MarkContainerOnTrack(ctx, userId, number); markErr != nil {
-		s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return nil, markErr
 	}
 	if err := s.repository.Add(ctx, &BaseTrackReq{
 		Numbers:             []string{number},
-		UserId:              11,
+		UserId:              userId,
 		Time:                time,
 		Emails:              emails,
 		EmailMessageSubject: emailSubject,
@@ -107,12 +107,12 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, us
 		return nil, err
 	}
 	if markErr := s.cli.MarkBillNoOnTrack(ctx, userId, number); markErr != nil {
-		s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return nil, markErr
 	}
 	if err := s.repository.Add(ctx, &BaseTrackReq{
 		Numbers:             []string{number},
-		UserId:              11,
+		UserId:              userId,
 		Time:                time,
 		Emails:              emails,
 		EmailMessageSubject: emailSubject,
