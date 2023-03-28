@@ -66,7 +66,10 @@ func (t *TokenManager) GetTokenFromHeaders(ctx context.Context) (string, error) 
 			if token == "" {
 				return "", errors.New("not ok")
 			}
-			return strings.Split(token, " ")[1], nil
+			s := strings.Split(token, " ")
+			if len(s) == 2 {
+				return s[1], nil
+			}
 		}
 	}
 	return "", errors.New("len")
