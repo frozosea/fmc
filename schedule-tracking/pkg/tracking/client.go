@@ -60,7 +60,7 @@ func NewConverter() *Converter {
 func (c *Converter) convertGrpcInfoAboutMoving(resp []*pb.InfoAboutMoving) []BaseInfoAboutMoving {
 	var infoAboutMoving []BaseInfoAboutMoving
 	for _, v := range resp {
-		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: time.UnixMilli(v.GetTime()), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
+		infoAboutMoving = append(infoAboutMoving, BaseInfoAboutMoving{Time: time.UnixMilli(v.GetTime()).UTC(), Location: v.GetLocation(), OperationName: v.GetOperationName(), Vessel: v.GetVessel()})
 	}
 	return infoAboutMoving
 }
@@ -69,7 +69,7 @@ func (c *Converter) convertGrpcBlNoResponse(response *pb.TrackingByBillNumberRes
 		BillNo:           response.GetBillNo(),
 		Scac:             response.GetScac(),
 		InfoAboutMoving:  c.convertGrpcInfoAboutMoving(response.InfoAboutMoving),
-		EtaFinalDelivery: time.UnixMilli(response.GetEtaFinalDelivery()),
+		EtaFinalDelivery: time.UnixMilli(response.GetEtaFinalDelivery()).UTC(),
 	}
 }
 func (c *Converter) convertGrpcContainerNoResponse(response *pb.TrackingByContainerNumberResponse) ContainerNumberResponse {
