@@ -13,6 +13,8 @@ type IRepository interface {
 	AddMarkBillNoOnTrack(ctx context.Context, number string, userId int64) error
 	AddMarkBillNoWasArrived(ctx context.Context, number string, userId int64) error
 	AddMarkBillNoWasRemovedFromTrack(ctx context.Context, number string, userId int64) error
+	AddMarkContainerNumberWasNotArrived(ctx context.Context, number string, userId int64) error
+	AddMarkBillNumberWasNotArrived(ctx context.Context, number string, userId int64) error
 	CheckNumberExists(ctx context.Context, number string, userId int64, isContainer bool) (bool, error)
 }
 type Repository struct {
@@ -63,4 +65,12 @@ func (r *Repository) CheckNumberExists(ctx context.Context, number string, userI
 		}
 	}
 	return false, errors.New("no number exists")
+}
+
+func (r *Repository) AddMarkContainerNumberWasNotArrived(ctx context.Context, number string, userId int64) error {
+	return r.wrapperExec(ctx, `UPDATE "containers" AS b SET is_arrived = false WHERE b.number = $1 AND b.user_id = $2`, number, userId)
+}
+
+func (r *Repository) AddMarkBillNumberWasNotArrived(ctx context.Context, number string, userId int64) error {
+	return r.wrapperExec(ctx, `UPDATE "bill_numbers" AS b SET is_arrived = false WHERE b.number = $1 AND b.user_id = $2`, number, userId)
 }

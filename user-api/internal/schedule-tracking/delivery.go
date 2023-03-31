@@ -78,3 +78,20 @@ func (s *Grpc) CheckNumberExists(ctx context.Context, r *pb.CheckNumberExistsReq
 	}
 	return &pb.CheckNumberExistsResponse{Exists: exist}, nil
 }
+func (s *Grpc) MarkContainerIsNotArrived(ctx context.Context, r *pb.AddMarkOnTrackingRequest) (*emptypb.Empty, error) {
+	if err := s.repository.AddMarkContainerNumberWasNotArrived(ctx, r.GetNumber(), r.GetUserId()); err != nil {
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark container no with number %s for user %d was not arrived error: %s`, r.GetNumber(), r.GetUserId(), err.Error()))
+		return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
+	}
+	go s.logger.InfoLog(fmt.Sprintf(`mark container with number %s for user %d was not arrived`, r.GetNumber(), r.GetUserId()))
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Grpc) MarkBillIsNotArrived(ctx context.Context, r *pb.AddMarkOnTrackingRequest) (*emptypb.Empty, error) {
+	if err := s.repository.AddMarkBillNumberWasNotArrived(ctx, r.GetNumber(), r.GetUserId()); err != nil {
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark bill no with number %s for user %d was not arrived error: %s`, r.GetNumber(), r.GetUserId(), err.Error()))
+		return &emptypb.Empty{}, status.Error(codes.NotFound, err.Error())
+	}
+	go s.logger.InfoLog(fmt.Sprintf(`mark bill with number %s for user %d was not arrived`, r.GetNumber(), r.GetUserId()))
+	return &emptypb.Empty{}, nil
+}

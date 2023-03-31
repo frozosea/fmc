@@ -358,7 +358,7 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 	}
 }
 
-// CheckBillNoArrived TODO create check arrived func for bill number
+// CheckBillNoArrived
 func (a *ArrivedChecker) CheckBillNoArrived(result BillNumberResponse) IsArrived {
 	switch strings.ToUpper(result.Scac) {
 	case "HALU":

@@ -8,6 +8,18 @@ import (
 	"schedule-tracking/pkg/util"
 )
 
+type IUserClient interface {
+	MarkBillNoOnTrack(ctx context.Context, userId int64, number string) error
+	MarkContainerOnTrack(ctx context.Context, userId int64, number string) error
+	MarkContainerWasArrived(ctx context.Context, userId int64, number string) error
+	MarkBillNoWasArrived(ctx context.Context, userId int64, number string) error
+	MarkContainerWasRemovedFromTrack(ctx context.Context, userId int64, number string) error
+	MarkBillNoWasRemovedFromTrack(ctx context.Context, userId int64, number string) error
+	CheckNumberBelongUser(ctx context.Context, number string, userId int64, isContainer bool) bool
+	MarkContainerWasNotArrived(ctx context.Context, userId int64, number string) error
+	MarkBillWasNotArrived(ctx context.Context, userId int64, number string) error
+}
+
 type UserClient struct {
 	cli    user_pb.ScheduleTrackingClient
 	token  util.ITokenManager
@@ -76,4 +88,16 @@ func (c *UserClient) CheckNumberBelongUser(ctx context.Context, number string, u
 		return false
 	}
 	return true
+}
+func (c *UserClient) MarkContainerWasNotArrived(ctx context.Context, userId int64, number string) error {
+	if _, err := c.cli.MarkContainerIsNotArrived(ctx, &user_pb.AddMarkOnTrackingRequest{UserId: userId, Number: number}); err != nil {
+		return err
+	}
+	return nil
+}
+func (c *UserClient) MarkBillWasNotArrived(ctx context.Context, userId int64, number string) error {
+	if _, err := c.cli.MarkBillIsNotArrived(ctx, &user_pb.AddMarkOnTrackingRequest{UserId: userId, Number: number}); err != nil {
+		return err
+	}
+	return nil
 }

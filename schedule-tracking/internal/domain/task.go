@@ -77,6 +77,13 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 				c.logger.ExceptionLog(fmt.Sprintf(`remove number: %s from tracking exception: %s`, number, err.Error()))
 				return
 			}
+			for i := 0; i < 3; i++ {
+				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!", number), "text/plain"); err != nil {
+					continue
+				} else {
+					break
+				}
+			}
 		}
 		pathToFile, writeErr := c.writer.WriteContainerNo(result, c.timeFormatter.Convert)
 		if writeErr != nil {
@@ -135,6 +142,13 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number string, emails []string, u
 			if err := c.taskManager.Remove(context.Background(), number); err != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`remove number: %s from tracking exception: %s`, number, err.Error()))
 				return
+			}
+			for i := 0; i < 3; i++ {
+				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!", number), "text/plain"); err != nil {
+					continue
+				} else {
+					break
+				}
 			}
 		}
 		pathToFile, writeErr := c.writer.WriteBillNo(result, c.timeFormatter.Convert)

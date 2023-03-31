@@ -21,14 +21,14 @@ func (n *NumberDoesntBelongThisUserError) Error() string {
 
 type Service struct {
 	logger            logging.ILogger
-	cli               *UserClient
+	cli               IUserClient
 	taskManager       *scheduler.Manager
 	saveResultDirPath string
 	repository        IRepository
 	*CustomTasks
 }
 
-func NewService(logger logging.ILogger, cli *UserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Service {
+func NewService(logger logging.ILogger, cli IUserClient, taskManager *scheduler.Manager, saveResultDirPath string, repository IRepository, customTasks *CustomTasks) *Service {
 	return &Service{logger: logger, cli: cli, taskManager: taskManager, saveResultDirPath: saveResultDirPath, repository: repository, CustomTasks: customTasks}
 }
 
@@ -53,6 +53,10 @@ func (s *Service) addOneContainer(ctx context.Context, number, time string, user
 	if markErr := s.cli.MarkContainerOnTrack(ctx, userId, number); markErr != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return nil, markErr
+	}
+	if err := s.cli.MarkContainerWasNotArrived(ctx, userId, number); err != nil {
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark container with Number %s was not arrived failed: %s`, number, err.Error()))
+		return nil, err
 	}
 	if err := s.repository.Add(ctx, &BaseTrackReq{
 		Numbers:             []string{number},
@@ -109,6 +113,10 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, us
 	if markErr := s.cli.MarkBillNoOnTrack(ctx, userId, number); markErr != nil {
 		go s.logger.ExceptionLog(fmt.Sprintf(`mark on track container with Number %s failed: %s`, number, markErr.Error()))
 		return nil, markErr
+	}
+	if err := s.cli.MarkBillWasNotArrived(ctx, userId, number); err != nil {
+		go s.logger.ExceptionLog(fmt.Sprintf(`mark bill with Number %s was not arrived failed: %s`, number, err.Error()))
+		return nil, err
 	}
 	if err := s.repository.Add(ctx, &BaseTrackReq{
 		Numbers:             []string{number},
