@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type ITimeFormatter interface {
 	Convert(timestamp time.Time) string
@@ -11,7 +13,7 @@ type TimeFormatter struct {
 }
 
 func (t *TimeFormatter) Convert(timestamp time.Time) string {
-	return timestamp.Format(t.timeFormat)
+	return timestamp.UTC().Format(t.timeFormat)
 }
 func NewTimeFormatter(timeFormat string) *TimeFormatter {
 	return &TimeFormatter{timeFormat: timeFormat}

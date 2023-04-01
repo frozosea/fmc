@@ -146,8 +146,11 @@ func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error)
 	return readIni("SCHEDULE_LOGS", config)
 }
 func GetTimeFormatterSettings() (*TimeFormatterSettings, error) {
-	config := new(TimeFormatterSettings)
-	return readIni("TIME_FORMAT", config)
+	e := os.Getenv("TIME_FORMAT")
+	if e == "" {
+		return nil, errors.New("NO TIME_FORMAT ENV VARIABLE")
+	}
+	return &TimeFormatterSettings{Format: e}, nil
 }
 func GetArchiveLoggerSettings() (*ArchiveLoggerSettings, error) {
 	config := new(ArchiveLoggerSettings)
@@ -220,7 +223,6 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
-
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithInsecure())
 	if err != nil {
 		panic(err)
