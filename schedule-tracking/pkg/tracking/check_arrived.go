@@ -312,6 +312,23 @@ func (z *zhguArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 
 }
 
+type reelArrivedChecker struct {
+}
+
+func newReelArrivedChecker() *reelArrivedChecker {
+	return &reelArrivedChecker{}
+
+}
+func (r *reelArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
+	for _, v := range result.InfoAboutMoving {
+		if strings.EqualFold(strings.ToUpper(v.OperationName), "PICKUP BY CONSIGNEE") {
+			return true
+		}
+	}
+	return false
+
+}
+
 type ArrivedChecker struct {
 	*skluArrivedChecker
 	*fesoArrivedChecker
@@ -321,6 +338,7 @@ type ArrivedChecker struct {
 	*maeuArrivedChecker
 	*sitcArrivedChecker
 	*zhguArrivedChecker
+	*reelArrivedChecker
 }
 
 func NewArrivedChecker() *ArrivedChecker {
@@ -330,7 +348,9 @@ func NewArrivedChecker() *ArrivedChecker {
 		cosuArrivedChecker: newCosuArrivedChecker(),
 		maeuArrivedChecker: NewMaeuArrivedChecker(newMaeuRequest()),
 		sitcArrivedChecker: newSitcArrivedChecker(),
-		zhguArrivedChecker: newZhguArrivedChecker()}
+		zhguArrivedChecker: newZhguArrivedChecker(),
+		reelArrivedChecker: newReelArrivedChecker(),
+	}
 }
 
 func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) IsArrived {

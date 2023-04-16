@@ -60,7 +60,6 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 				}
 			}
 		}
-		fmt.Println(result)
 		if c.arrivedChecker.CheckContainerArrived(result) {
 			if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, result.Container, markErr.Error()))

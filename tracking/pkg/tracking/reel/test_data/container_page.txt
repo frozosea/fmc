@@ -1,0 +1,526 @@
+<!--
+-----------------------------------------------------------------------------
+'File Name					:	includestyle.asp
+'Version No					:	1.0
+'Description				:	include styles
+'Created By / Date			:	Prbakaran.M - 09-SEP-2021
+'Last Modified By / Date	:
+'-----------------------------------------------------------------------------
+-->
+
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head runat="server">
+	<html xmlns="https://www.w3.org/1999/xhtml">
+
+	<meta charset="utf-8">
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="-1" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>REEL</title>
+
+
+
+
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://tracking.reelshipping.com:443/Tracking//ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- <script language="JavaScript" src="JS_Ajax_New.js"></script> -->
+
+
+	<link href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/Tracking.css" rel="stylesheet">
+	<link rel="icon" href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/favicon.ico"
+		type="image/x-icon">
+	<link href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/minified.css" rel="stylesheet">
+
+
+	<!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> -->
+	<link rel="stylesheet" href="https://tracking.reelshipping.com:443/Tracking//assets/fonts/googlefonts.css" />
+
+
+	<!-- <script src="/EBMSSEALEAD/assets/js/jquery-1.10.2.min.js"></script>
+	 <link rel="stylesheet" href="/EBMSSEALEAD/assets/colorbox/colorbox.css" />
+	  <script src="/EBMSSEALEAD/assets/colorbox/jquery.colorbox.js"></script> -->
+
+
+
+
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+	<meta http-equiv='pragma' content='no-cache'>
+
+
+	<style>
+		html,
+		body {
+			font-family: Helvetica, Tahoma, Arial, PingFang SC, Microsoft YaHei, STXihei, WenQuanYi Micro Hei;
+		}
+
+		/*a:link {font-weight:bold; color: #000000; text-decoration: none}
+	a:visited {font-weight:bold; color: #000000; text-decoration: none}
+	a:hover {font-weight:bold; color: #ff0000; text-decoration: none}
+	a:active {font-weight:bold; color: #000000; text-decoration: none}
+
+	.class2 a:link {font-weight:bold; color: white; text-decoration: none}
+	.class2 a:visited {font-weight:bold; color: white; text-decoration: none}
+	.class2 a:hover {font-weight:bold; color: #ff0000; text-decoration: none}
+	.class2 a:active {font-weight:bold; color: white; text-decoration: none}
+
+	.slideshow {}
+	.style7 {font-size: 16px}*/
+
+
+		.nav-tabs {
+			border-bottom: 0;
+			width: 950px;
+			text-align: center;
+			margin-top: 50px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.nav-tabs>li {
+			width: 30%;
+			text-align: center;
+			display: inline-block;
+			margin-bottom: -1px;
+			padding-left: 50px;
+			padding-right: 50px;
+		}
+
+		.nav-tabs>li>a {
+			cursor: pointer;
+		}
+
+		.nav-tabs>li.active>a,
+		.nav-tabs>li.active>a:focus,
+		.nav-tabs>li.active>a:hover {
+			color: red;
+			cursor: pointer;
+			background-color: #fff;
+			border: 2px solid transparent;
+			border-bottom-color: red;
+		}
+
+		.form-control {
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075) !important;
+			border-radius: 4px !important;
+			background-color: #fff !important;
+		}
+
+
+		.form-control:focus {
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075) !important;
+			border: 1px solid #435280 !important;
+		}
+
+		.progress-bar-danger {
+			background-color: #909497;
+		}
+
+		.progress-bar:after {
+			content: "";
+			width: 80px;
+			height: 50px;
+			background: url(img/ship.png) no-repeat;
+			top: -43px;
+			background-size: 80px 50px;
+			position: absolute;
+			display: inline-block;
+		}
+
+
+
+
+
+		body {
+			margin: 0 !important;
+			padding: 0 !important;
+			border: none !important;
+			background: none !important;
+			font-weight: 400 !important;
+			font-size: 12px !important;
+			font-family: Helvetica, Tahoma, Arial, PingFang SC, Microsoft YaHei, STXihei, WenQuanYi Micro Hei !important;
+		}
+
+
+		.MainTitle {
+			font-size: 16px !important;
+			line-height: 20px !important;
+			padding: 15px 0 !important;
+			background: #909497 !important;
+			color: #fff !important;
+		}
+
+		.SubTitle {
+			font-size: 16px !important;
+			line-height: 20px !important;
+			padding: 15px 0 !important;
+		}
+
+
+		.Mainlabel1 {
+			color: #999 !important;
+			vertical-align: middle !important;
+			white-space: pre-line !important;
+
+		}
+
+		.Mainlabel2 {
+
+			color: #333 !important;
+		}
+
+		.Mainlabel3 {
+			font-size: 10px !important;
+			color: #999 !important;
+			vertical-align: middle !important;
+			white-space: pre-line !important;
+			font-weight: 600 !important;
+
+		}
+
+		.Mainlabel4 {
+			font-size: 10px !important;
+			color: #333 !important;
+			font-weight: 600 !important;
+		}
+
+
+		.Imageflow {
+			color: #909497 background-color: #ffffff;
+			font-size: 15px;
+			text-align: center;
+			line-height: 45px;
+			height: 45px;
+			width: 45px;
+			/*box-shadow: 0 0 0 2px #ffffff, 2px 2px 5px 4px rgb(0 0 0 / 25%);*/
+			background-color: #909497;
+			color: #fff;
+			border-radius: 50%;
+			top: -4px;
+			left: 30px;
+			z-index: 2;
+		}
+	</style>
+
+
+
+	<script>
+		//alert("Your Login Session has been Expired");
+		//window.location="home.asp";
+	</script>
+	<script type="text/javascript">
+		//-----------------------------------------------------------------------------
+//File Name					:	includescript.asp
+//Version No				:	1.0
+//Description				:	include script
+//Created By / Date			:	Prbakaran.M - 09-SEP-2021
+//Last Modified By / Date	:
+//-----------------------------------------------------------------------------
+
+function BlConDtlsClick(Type)
+{
+
+
+
+		WidgetId="SHOWEBLDTL";
+
+		keyCode		=$("#keyCode").val();
+		Id1			=$("#Id1").val();
+
+
+		$('#loading').show();
+		//$("#TAB1").show();
+
+		$("#SHOWEBLDTL").html("");
+
+
+		BlNo		= $("#BlNo").val();
+		keyCode		=$("#keyCode").val();
+		Id1			=$("#Id1").val();
+
+
+
+		if (BlNo=='')
+		{
+			alert("Please Enter BL NO!!!");
+			$("#BlNo").focus();
+			return false;
+		}
+
+	$(function ()
+    {
+
+		$.ajax({
+			url: "https://tracking.reelshipping.com:443/Tracking//TrackingView.asp",
+			method: "POST",
+			data: {
+
+				BlNo: BlNo,
+				keyCode: keyCode,
+				Id1: Id1
+			},
+			 success: function (data)
+			 {
+				debugger
+				$('#loading').hide();
+				$("#SHOWEBLDTL").html(data);
+			}
+		});
+
+    });
+
+
+}
+
+
+function ViewBLStatus(BlNo)
+{
+
+		WidgetId="SHOWEBLDTL";
+
+		$('#loading').show();
+		$("#SHOWEBLDTL").html("");
+
+
+	$(function ()
+    {
+
+		$.ajax({
+			url: "https://tracking.reelshipping.com:443/Tracking//TrackingView.asp",
+			method: "POST",
+			data: {
+
+				BlNo: BlNo
+			},
+			 success: function (data)
+			 {
+				debugger
+				$('#loading').hide();
+				$("#SHOWEBLDTL").html(data);
+			}
+		});
+
+    });
+
+
+}
+
+
+function CountryFlag(POL_COUNTRY,POD_COUNTRY)
+{
+
+	Country		=	CountryFLAG(POL_COUNTRY);
+	Country2	=	CountryFLAG(POD_COUNTRY);
+
+
+
+	$("#polImage").html('<img height="30px" width="30px" src="https://cdn.countryflags.com/thumbs/'+Country+'/flag-round-250.png">');
+	$("#podImage").html('<img height="30px" width="30px" src="https://cdn.countryflags.com/thumbs/'+Country2+'/flag-round-250.png">');
+
+
+
+}
+
+function CountryFLAG(CountryFlg)
+{
+
+
+	if (CountryFlg=="UAE")
+	{
+		CountryFlg="united-arab-emirates"
+	}
+
+	if (CountryFlg=="USA")
+	{
+		CountryFlg="united-states-of-america"
+	}
+
+	CountryFlgShow = CountryFlg.toLowerCase();
+
+	return CountryFlgShow;
+
+}
+
+
+function CheckTransit(POL_ETA,POL_ETD,FPOD_ETA)
+	{
+
+		//alert(POL_ETA)
+		//alert(POL_ETD)
+		//alert(FPOD_ETA)
+
+
+		var CurrentDate = new Date();
+		var SelectDt = new Date(FPOD_ETA);
+
+
+		var diff1 = new Date(new Date(FPOD_ETA) - new Date(POL_ETD));
+
+
+		var days = diff1/1000/60/60/24;
+
+
+		//$("#TransitId").html(days);
+
+
+		var date1 = new Date(POL_ETA);
+		var date2 = new Date(FPOD_ETA);
+		var today = new Date();
+
+
+		var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+		var timeDifftilltoday = Math.abs(today.getTime() - date1.getTime());
+		var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+		var diffDaystilldate = Math.ceil(timeDifftilltoday / (1000 * 3600 * 24));
+		var progressValue = 0;
+
+		if (today < date1) {
+			progressValue = 0;
+		}else if (today > date2){
+			progressValue = 100;
+		} else {
+			if(diffDays>diffDaystilldate){
+				progressValue = 100-(((diffDays-diffDaystilldate)/diffDays)*100);
+			} else {
+				//alert('Please check your system date')
+			}
+		}
+
+		//alert(progressValue)
+
+		 $(".progress-bar").css('width',progressValue+'%');
+		 $('head').append("<style>.progress-bar:after{ left:calc("+progressValue+"% - "+progressValue/2+"px)!important;}</style>");
+
+	}
+
+
+function ViewCntrStatus(ContainerId,BookingId,ViewContainer)
+{
+
+		var linkk="https://tracking.reelshipping.com:443/Tracking//ContainerStatus.asp?button=View&ContainerId="+ContainerId+"&BookingId="+BookingId+"&ViewContainer="+ViewContainer;
+
+		window.open(linkk,'opener','width=800,height=350,left=100,top=100,toolbar=N,menubar=N,scrollbars=N','N');
+
+
+	//var NewUrl = "Tracking.asp?ContainerId="+ContainerId;
+	//parent.jQuery.colorbox({ iframe:true, transition:'fade', href:NewUrl,width:"100%", height:"100%", overlayClose:false, opacity:0.10, onComplete:function(){  },onClosed:function(){ ;},
+	//});
+	//return false;
+}
+
+function TopCommon()
+{
+	 $("#TopFocus").focus();
+}
+
+function BottomCommon()
+{
+
+	 $("#BottomFocus").focus()
+}
+
+
+
+	</script>
+	<div id="row">
+
+		<div class="col-md-12">
+			<div class="panel panel-primary ">
+				<div class="MainTitle">
+					<div class="panel-title ">
+						<b> <font size="4"  >CURRENT SHIPMENT EVENT STATUS </font><br><font size="1" >Container No. : CONTAINER1 - (HC40)</font></b>
+					</div>
+					<div class="panel-options col-md-2 " align="right">
+						<a href="#NO" data-rel="collapse"><i class="entypo-down-open"></i></a>
+						<!-- <a href="#NO" onclick="OnReloadWidget('','');"><i class="entypo-arrows-ccw"></i></a> -->
+						<a href="#NO" data-rel="close"><i class="entypo-cancel"></i></a>
+					</div>
+				</div><!-- panel-heading -->
+
+
+				<div style='height:300px;overflow:auto;'>
+					<table class="table table-hover " align=center border=0 width='98%'>
+						<tr class="Mainlabel3">
+							<td><b>#</b></td>
+							<td><b>Event Status</b></td>
+							<td><b>Event Date Time</b></td>
+							<td><b>Location</b></td>
+							<td><b>Ageing</b></td>
+							<td><b>Vessel Voyage</b></td>
+						</tr>
+
+
+						<tr class='Mainlabel4'>
+							<td>1</td>
+							<td>RECD MTY FROM CONSIGNEE</td>
+							<td nowrap>27-MAR-2023 11:00:32</td>
+							<td>VLADIVOSTOK,RUSSIA<br>(CONSIGNEE PREMISES)</td>
+							<td nowrap>20</td>
+							<td>VESSEL1 / VOYAGE1</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td>2</td>
+							<td>PICKUP BY CONSIGNEE</td>
+							<td nowrap>27-MAR-2023 09:00:01</td>
+							<td>VLADIVOSTOK,RUSSIA<br>(RUVVO)</td>
+							<td nowrap>1</td>
+							<td>VESSEL2 / VOYAGE2</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td>3</td>
+							<td>IMPORT DISCHARGE FULL</td>
+							<td nowrap>13-MAR-2023 07:00:00</td>
+							<td>VLADIVOSTOK,RUSSIA<br>(FROM / TO VESSEL)</td>
+							<td nowrap>14</td>
+							<td>VESSEL3 / VOYAGE3</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td>4</td>
+							<td>LOADED FULL</td>
+							<td nowrap>05-MAR-2023 18:00:13</td>
+							<td>NINGBO,CHINA<br>(CNNGB)</td>
+							<td nowrap>8</td>
+							<td>VESSEL4 / VOYAGE4</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td>5</td>
+							<td>EXPORT AT PORT</td>
+							<td nowrap>03-MAR-2023 15:00:51</td>
+							<td>NINGBO,CHINA<br>(SHIPPER PREMISES)</td>
+							<td nowrap>2</td>
+							<td>VESSEL5 / VOYAGE5</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td>6</td>
+							<td>PICKUP BY SHIPPER</td>
+							<td nowrap>01-MAR-2023 13:00:13</td>
+							<td>NINGBO,CHINA<br>(CNNGB)</td>
+							<td nowrap>2</td>
+							<td>VESSEL6 / VOYAGE6</td>
+						</tr>
+
+						<tr class='Mainlabel4'>
+							<td colspan="6">&nbsp;</td>
+						</tr>
+					</table>
+
+				</div>
+
+			</div> <!-- panel panel-primary -->
+
+		</div> <!-- col-sm-6 -->
+
+	</div> <!-- WidgetId -->

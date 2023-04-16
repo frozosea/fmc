@@ -1,0 +1,564 @@
+<!--
+-----------------------------------------------------------------------------
+'File Name					:	includestyle.asp
+'Version No					:	1.0
+'Description				:	include styles
+'Created By / Date			:	Prbakaran.M - 09-SEP-2021
+'Last Modified By / Date	:
+'-----------------------------------------------------------------------------
+-->
+
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+<head runat="server">
+	<html xmlns="https://www.w3.org/1999/xhtml">
+
+	<meta charset="utf-8">
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="-1" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>REEL</title>
+
+
+
+
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+	<script src="https://tracking.reelshipping.com:443/Tracking//ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- <script language="JavaScript" src="JS_Ajax_New.js"></script> -->
+
+
+	<link href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/Tracking.css" rel="stylesheet">
+	<link rel="icon" href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/favicon.ico"
+		type="image/x-icon">
+	<link href="https://tracking.reelshipping.com:443/Tracking//TrackAndTrace/minified.css" rel="stylesheet">
+
+
+	<!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> -->
+	<link rel="stylesheet" href="https://tracking.reelshipping.com:443/Tracking//assets/fonts/googlefonts.css" />
+
+
+	<!-- <script src="/EBMSSEALEAD/assets/js/jquery-1.10.2.min.js"></script>
+	 <link rel="stylesheet" href="/EBMSSEALEAD/assets/colorbox/colorbox.css" />
+	  <script src="/EBMSSEALEAD/assets/colorbox/jquery.colorbox.js"></script> -->
+
+
+
+
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+	<meta http-equiv='pragma' content='no-cache'>
+
+
+	<style>
+		html,
+		body {
+			font-family: Helvetica, Tahoma, Arial, PingFang SC, Microsoft YaHei, STXihei, WenQuanYi Micro Hei;
+		}
+
+		/*a:link {font-weight:bold; color: #000000; text-decoration: none}
+	a:visited {font-weight:bold; color: #000000; text-decoration: none}
+	a:hover {font-weight:bold; color: #ff0000; text-decoration: none}
+	a:active {font-weight:bold; color: #000000; text-decoration: none}
+
+	.class2 a:link {font-weight:bold; color: white; text-decoration: none}
+	.class2 a:visited {font-weight:bold; color: white; text-decoration: none}
+	.class2 a:hover {font-weight:bold; color: #ff0000; text-decoration: none}
+	.class2 a:active {font-weight:bold; color: white; text-decoration: none}
+
+	.slideshow {}
+	.style7 {font-size: 16px}*/
+
+
+		.nav-tabs {
+			border-bottom: 0;
+			width: 950px;
+			text-align: center;
+			margin-top: 50px;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		.nav-tabs>li {
+			width: 30%;
+			text-align: center;
+			display: inline-block;
+			margin-bottom: -1px;
+			padding-left: 50px;
+			padding-right: 50px;
+		}
+
+		.nav-tabs>li>a {
+			cursor: pointer;
+		}
+
+		.nav-tabs>li.active>a,
+		.nav-tabs>li.active>a:focus,
+		.nav-tabs>li.active>a:hover {
+			color: red;
+			cursor: pointer;
+			background-color: #fff;
+			border: 2px solid transparent;
+			border-bottom-color: red;
+		}
+
+		.form-control {
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075) !important;
+			border-radius: 4px !important;
+			background-color: #fff !important;
+		}
+
+
+		.form-control:focus {
+			box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075) !important;
+			border: 1px solid #435280 !important;
+		}
+
+		.progress-bar-danger {
+			background-color: #909497;
+		}
+
+		.progress-bar:after {
+			content: "";
+			width: 80px;
+			height: 50px;
+			background: url(img/ship.png) no-repeat;
+			top: -43px;
+			background-size: 80px 50px;
+			position: absolute;
+			display: inline-block;
+		}
+
+
+
+
+
+		body {
+			margin: 0 !important;
+			padding: 0 !important;
+			border: none !important;
+			background: none !important;
+			font-weight: 400 !important;
+			font-size: 12px !important;
+			font-family: Helvetica, Tahoma, Arial, PingFang SC, Microsoft YaHei, STXihei, WenQuanYi Micro Hei !important;
+		}
+
+
+		.MainTitle {
+			font-size: 16px !important;
+			line-height: 20px !important;
+			padding: 15px 0 !important;
+			background: #909497 !important;
+			color: #fff !important;
+		}
+
+		.SubTitle {
+			font-size: 16px !important;
+			line-height: 20px !important;
+			padding: 15px 0 !important;
+		}
+
+
+		.Mainlabel1 {
+			color: #999 !important;
+			vertical-align: middle !important;
+			white-space: pre-line !important;
+
+		}
+
+		.Mainlabel2 {
+
+			color: #333 !important;
+		}
+
+		.Mainlabel3 {
+			font-size: 10px !important;
+			color: #999 !important;
+			vertical-align: middle !important;
+			white-space: pre-line !important;
+			font-weight: 600 !important;
+
+		}
+
+		.Mainlabel4 {
+			font-size: 10px !important;
+			color: #333 !important;
+			font-weight: 600 !important;
+		}
+
+
+		.Imageflow {
+			color: #909497 background-color: #ffffff;
+			font-size: 15px;
+			text-align: center;
+			line-height: 45px;
+			height: 45px;
+			width: 45px;
+			/*box-shadow: 0 0 0 2px #ffffff, 2px 2px 5px 4px rgb(0 0 0 / 25%);*/
+			background-color: #909497;
+			color: #fff;
+			border-radius: 50%;
+			top: -4px;
+			left: 30px;
+			z-index: 2;
+		}
+	</style>
+
+
+
+	<script>
+		//alert("Your Login Session has been Expired");
+		//window.location="home.asp";
+	</script>
+
+	<form id="frm" name="frm" runat="server">
+
+
+		<tr class="TableBotBg" id="TopFocus">
+			<td align="center" colspan="2">
+				<div class="form-group">
+
+					<div class="col-sm-12" id="shipFlow">
+						<div class="row">
+							<div class="col-sm-offset-4 col-sm-4" style="text-align:center;">
+								<h5 style="font-weight:600;">Bill Of Lading</h5>
+								<h3 style="font-weight:400;margin-top: 10px;" id="blTitleId">RB62CG23000870</h3>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4" style="text-align:left;">
+								<h5 style="font-weight:600;">PORT OF LOADING</h5>
+								<div class="position:relative;">
+									<div style="display: inline-block;
+												width: 50px;
+												height: 50px;
+												text-align:center;
+												vertical-align: middle;
+												position: relative;" id="polImage">
+									</div>
+									<div style="display:inline-block;
+												width:auto;
+												position:relative;
+												height: 50px;">
+										<h4 style="font-weight:400;
+													margin-top: 0;
+													margin-bottom: 0;
+													padding-bottom: 5px;" id="polId">NINGBO</h4>
+										<p><span id="polEtaId">DEPARTED : 05-MAR-2023 00:00:00</span></p>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-offset-4 col-sm-4" style="text-align:right;">
+								<h5 style="font-weight:600;">FINAL PORT OF DISCHARGE</h5>
+								<div class="position:relative;">
+									<div style="display:inline-block;
+												width:auto;
+												position:relative;
+												height: 50px;">
+										<h4 style="font-weight:400;
+													margin-top: 0;
+													margin-bottom: 0;
+													padding-bottom: 5px;" id="fpodId">VLADIVOSTOK</h4>
+										<p> <span id="fpodEtaId">ARRIVED : 13-MAR-2023 07:00:00</span></p>
+									</div>
+									<div style="display: inline-block;
+												width: 50px;
+												height: 50px;
+												text-align:center;
+												vertical-align: middle;
+												position: relative;" id="podImage">
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-sm-12" style="margin-top: 50px;">
+							<div class="progress" style="height:6px;">
+								<div class="progress-bar progress-bar-danger" role="progressbar"></div>
+
+							</div>
+						</div>
+						<!-- <div class="col-sm-12" style="text-align: center;color: #435280;font-weight: 600;font-size:16px">TRANSIT : <span id="TransitId"></span>&nbsp;DAYS</div> -->
+					</div>
+
+				</div>
+			</td>
+		</tr>
+		</div>
+
+		<!-- <div class="col-sm-12" style="text-align: right;color: #435280;font-weight: 600;font-size:16px"><b>Click to <a href="#No" onclick="BottomCommon()";><b>Bottom</b></a></b></div> -->
+
+
+
+		<!-- <table class="table table-hover " align=center border=0 width='98%'>  -->
+		<table class="table table-hover " align=center border=0 width='98%'>
+			<tr class="MainTitle">
+				<td colspan='5'><b>Main Information...</b></td>
+			</tr>
+			<tbody>
+				<tr class='style7'>
+					<td width='20%' class='Mainlabel1'><b>Booking Number</b></td>
+					<td width='25%' class='Mainlabel2'>RB62CG23000870</td>
+					<td width='10%'>&nbsp;</td>
+					<td width='20%' class='Mainlabel1'><b>Bill of Lading Number</b></td>
+					<td width='25%' class='Mainlabel2'>RB62CG23000870</td>
+				</tr>
+
+				<tr class='style7'>
+					<td class='Mainlabel1'><b>Place of Receipt</b></td>
+					<td class='Mainlabel2'>NINGBO</td>
+					<td>&nbsp;</td>
+					<td class='Mainlabel1'><b>Port Of Loading  (POL)</b></td>
+					<td class='Mainlabel2'>NINGBO</td>
+				</tr>
+
+				<tr class='style7'>
+					<td class='Mainlabel1'><b>Port Of Discharge (POD)</b></td>
+					<td class='Mainlabel2'>VLADIVOSTOK</td>
+					<td>&nbsp;</td>
+					<td class='Mainlabel1'><b>Final Port Of Discharge (FPOD)</b></td>
+					<td class='Mainlabel2'>VLADIVOSTOK</td>
+				</tr>
+
+
+				<tr class='style7'>
+					<td class='Mainlabel1'><b>Vessel Name</b></td>
+					<!--td class='Mainlabel2'>AEOLUS</td Afrit-->
+					<td class='Mainlabel2'>Vessel 1</td>
+					<td>&nbsp;</td>
+					<td class='Mainlabel1'><b>Voyage Number</b></td>
+					<!--td class='Mainlabel2'>2303N</td Afrit-->
+					<td class='Mainlabel2'>Voyage 1</td>
+				</tr>
+
+
+				<tr class='style7'>
+					<td class='Mainlabel1'><b>ETD</b></td>
+					<td class='Mainlabel2'>05-MAR-2023 00:00:00</td>
+					<td>&nbsp;</td>
+					<td class='Mainlabel1'><b>Sailed</b></td>
+					<td class='Mainlabel2'>05-MAR-2023 00:00:00</td>
+				</tr>
+
+
+				<tr class='style7'>
+					<td class='Mainlabel1'><b>BL Surrendered Status</b></td>
+					<td class='Mainlabel2'>Surrendered</td>
+					<td colspan=3>&nbsp;</td>
+					<!-- <td class='Mainlabel1'><b>Frieght Status</b></td>
+				<td class='Mainlabel2'>Prepaid</td> -->
+				</tr>
+
+
+
+				<tr class='style7'>
+					<td class='Mainlabel1'>&nbsp;</td>
+					<td class='Mainlabel2'>&nbsp;</td>
+					<td>&nbsp;</td>
+					<td class='Mainlabel1'>&nbsp;</td>
+					<td class='Mainlabel2'>&nbsp;</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+
+
+		<style type="text/css">
+			.striped-border {
+				border: 1px solid;
+				width: 90%;
+				margin: auto;
+				margin-top: 1%;
+				margin-bottom: 1%;
+				border-color: #435280;
+			}
+		</style>
+
+		<table cellspacing="0" cellpadding="0" align=center border="0" width='90%'>
+
+
+			<tr align="left">
+				<td nowrap width="2%">
+					<div class="Imageflow"><b>POR</b> </div>
+				</td>
+
+				<td width="10%">
+					<div class="striped-border"> </div>
+				</td>
+
+				<td nowrap width="2%">
+					<div class="Imageflow"> <b>POL</b> </div>
+				</td>
+
+				<td width="10%">
+					<div class="striped-border"> </div>
+				</td>
+
+
+
+				<td nowrap width="2%">
+					<div class="Imageflow"> <b>POD</b> </div>
+				</td>
+
+				<td width="10%">
+					<div class="striped-border"> </div>
+				</td>
+
+				<td nowrap width="10%">
+					<div class="Imageflow"> <b>FPOD</b> </div>
+				</td>
+			</tr>
+
+			<tr class='style7'>
+				<td Colspan="12">&nbsp;</td>
+			</tr>
+
+
+			<tr align="left">
+				<td Colspan="2"> NINGBO</td>
+
+				<td Colspan="2"> NINGBO</td>
+
+
+				<td Colspan="2"> VLADIVOSTOK</td>
+
+
+				<td Colspan="2"> VLADIVOSTOK</td>
+			</tr>
+
+			<tr>
+				<td Colspan="12">&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td Colspan="12">&nbsp;</td>
+			</tr>
+
+		</table>
+
+
+
+
+		<!-- <table class='table table-bordered table-responsive table-bordered table-hover table-striped' align=center border=1 width='98%'> -->
+		<table class="table table-hover " align=center border=0 width='98%'>
+			<tr class="MainTitle">
+				<td colspan='6'><b>Schedule Detail</b></td>
+			</tr>
+
+			<tr class="Mainlabel1">
+				<td><b>Vessel</b></td>
+				<td><b>Voyage</b></td>
+				<td><b>POL</b></td>
+				<!-- <td><b>Actual Loading</b></td> -->
+				<td><b>Departure Date</b></td>
+				<td><b>Next Port</b></td>
+				<td><b>Arrival Date</b></td>
+			</tr>
+
+
+
+			<tr class='Mainlabel2'>
+				<td>Vessel&nbsp;1</td>
+				<td>Voyage 1</td>
+				<td>NINGBO</td>
+				<!-- <td>
+				  <span class="Mainlabel2"> </span> <br>
+			</td> -->
+
+				<td>
+					<span class="Mainlabel1"> Expected : </span> <span class="Mainlabel2"> 05-MAR-2023</span> <br>
+					<span class="Mainlabel1"> Actual&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : </span>
+					<span class="Mainlabel2"> 05-MAR-2023</span> <br>
+			</td>
+				<td>VLADIVOSTOK</td>
+				<td>
+					<span class="Mainlabel1"> Expected : </span> <span class="Mainlabel2"> 11-MAR-2023</span> <br>
+					<span class="Mainlabel1"> Actual&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : </span>
+					<span class="Mainlabel2"> 13-MAR-2023</span> <br>
+			</td>
+			</tr>
+
+			<tr class='Mainlabel2'>
+				<td colspan="6">&nbsp;</td>
+			</tr>
+
+		</table>
+		<br>
+		<br>
+
+
+		<!-- <table class='table table-bordered table-responsive table-bordered table-hover table-striped' align=center border=1 width='98%'> -->
+		<table class="table table-hover " align=center border=0 width='98%' id='BottomFocus'>
+
+			<tr class="MainTitle">
+				<td colspan='9'><b>Container Status</b></td>
+			</tr>
+
+			<tr class="Mainlabel1">
+				<td><b>#</b></td>
+				<td><b>Booking Number</b></td>
+				<td><b>Container Number</b></td>
+				<td><b>Seal No.</b></td>
+				<td><b>Size/Type</b></td>
+				<td><b>Event Date Time</b></td>
+				<td><b>Status</b></td>
+				<td><b>Place</b></td>
+				<td><b>Weight</b></td>
+			</tr>
+
+
+			<tr class='Mainlabel2'>
+				<td>1</td>
+				<td>RB62CG23000870</td>
+				<td>CONTAINER1&nbsp;<a href="#No"
+						onclick="ViewCntrStatus('CNTR40575','RB62CG23000870','CONTAINER1');"><img src="images/open-in-new-window-icon.png" width="25" height="25" border="0" alt="click to View the container moves details"></a>
+				</td>
+				<td>VT085088</td>
+				<td>HC40 - DRY</td>
+				<td>27-MAR-2023</td>
+				<td>RECD MTY FROM CONSIGNEE</td>
+				<td>VLADIVOSTOK</td>
+				<td>14099&nbsp;KGS</td>
+			</tr>
+
+
+			<tr class="class='Mainlabel2'">
+				<td colspan='9'>&nbsp;</td>
+			</tr>
+
+
+			<!-- <tr class="MainTitle">
+			<td colspan='9' ><b>Click to <a href="#No" onclick="TopCommon();"><b>Top</b></a></b></td>
+		</tr>  -->
+
+		</table>
+
+		<br>
+		<br>
+
+		<script>
+			CountryFlag('CHINA','RUSSIA');
+
+	CheckTransit('05-MAR-2023 00:00:00','05-MAR-2023 00:00:00','13-MAR-2023 07:00:00');
+
+
+		</script>
+
+
+
+
+
+	</form>
+	</body>
+
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+	</html>

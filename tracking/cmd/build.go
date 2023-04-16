@@ -17,6 +17,7 @@ import (
 	"golang_tracking/pkg/tracking/maeu"
 	"golang_tracking/pkg/tracking/mscu"
 	"golang_tracking/pkg/tracking/oney"
+	"golang_tracking/pkg/tracking/reel"
 	"golang_tracking/pkg/tracking/sitc"
 	"golang_tracking/pkg/tracking/sklu"
 	"golang_tracking/pkg/tracking/util/datetime"
@@ -63,6 +64,7 @@ type Builder struct {
 	sitcBillTracker     *sitc.BillTracker
 	skluBillTracker     *sklu.BillTracker
 	zhguBillTracker     *zhgu.BillTracker
+	reelBillTracking    *reel.BillTracker
 	billMainTracker     *tracking.BillTracker
 	billTrackingService *tracking.BillTrackingService
 	billTrackingGrpc    *tracking.BillNumberTrackingGrpc
@@ -225,6 +227,7 @@ func (b *Builder) initBillTrackers() *Builder {
 	)
 	b.skluBillTracker = sklu.NewBillTracker(b.getArgsForTrackers())
 	b.zhguBillTracker = zhgu.NewBillTracker(b.getArgsForTrackers())
+	b.reelBillTracking = reel.NewBillTracker(b.getArgsForTrackers())
 	return b
 }
 
@@ -235,6 +238,7 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"SITC": b.sitcBillTracker,
 		"SKLU": b.skluBillTracker,
 		"ZHGU": b.zhguBillTracker,
+		"REEL": b.reelBillTracking,
 	})
 	return b
 }
