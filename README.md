@@ -18,11 +18,11 @@ Project has microservice architecture, user GRPC for connect microservices.
 
 #### HTTP-Gateway
 
-A gateway is an upper-level "http-connector" for all microservices. Built on generated files by protoc, 
+A gateway is an upper-level "http-connector" for all microservices. Built on generated files by protoc(and http gateway generator)
 
 #### Tracking
 
-A tracking is "core" of this project. It tracks containers or bill numbers, written on TypeScript,uses Redis and
+A tracking is "core" of this project. It tracks containers or bill numbers, written on golang,uses Redis and
 Postgres. It uses SCAC codes and numbers for get result of tracking. Scac code is world code of shipping line. Support
 of lines and other information you can check
 in [link](https://github.com/frozosea/fmc/tree/master/container-tracking/README.md).
