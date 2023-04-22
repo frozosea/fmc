@@ -171,19 +171,26 @@ func (b *billMainInfoParser) Get(doc *goquery.Document) (*billMainInfo, error) {
 
 	etd, _ := b.etdParser.Get(doc)
 
-	containerStatusInfo, _ := b.containerStatusParser.Get(doc)
-
-	lastEvent, err := b.billInfoAboutMovingParser.Get(containerStatusInfo)
-	if err != nil {
-		return nil, err
+	containerStatusInfo, err := b.containerStatusParser.Get(doc)
+	if err == nil {
+		lastEvent, err := b.billInfoAboutMovingParser.Get(containerStatusInfo)
+		if err != nil {
+			return nil, err
+		}
+		return &billMainInfo{
+			POD:             pod,
+			ETD:             etd,
+			containerStatus: containerStatusInfo,
+			lastEvent:       lastEvent,
+		}, nil
 	}
 
 	return &billMainInfo{
 		POD:             pod,
 		ETD:             etd,
-		containerStatus: containerStatusInfo,
-		lastEvent:       lastEvent,
-	}, nil
+		containerStatus: nil,
+		lastEvent:       nil,
+	}, tracking.NewNotThisLineException()
 
 }
 
