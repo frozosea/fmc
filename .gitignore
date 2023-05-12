@@ -11,4 +11,12 @@
 .env
 smth/
 **/logs
-cert
+**/*.pem
+**/*.srl
+tracking/cert
+user-api/cert
+http-gateway/cert
+schedule-tracking/cert
+freight-service/cert
+test
+deployment/swarm/services/**/cert

@@ -13,13 +13,16 @@ func NewContainerTracker(trackers map[string]IContainerTracker) *ContainerTracke
 }
 
 func (c *ContainerTracker) Track(ctx context.Context, scac, number string) (*ContainerTrackingResponse, error) {
+	//var wg sync.WaitGroup
 	ctxWithCancel, cancel := context.WithCancel(ctx)
 	ch := make(chan *ContainerTrackingResponse)
 	counter := make(chan int, len(c.trackers))
 	if scac == "AUTO" {
 		index := 0
 		for _, tracker := range c.trackers {
+			//wg.Add(1)
 			go func(c context.Context, tracker IContainerTracker) {
+				//defer wg.Done()
 				defer func() {
 					index++
 					counter <- index
@@ -32,6 +35,7 @@ func (c *ContainerTracker) Track(ctx context.Context, scac, number string) (*Con
 				cancel()
 			}(ctxWithCancel, tracker)
 		}
+		//wg.Wait()
 	} else {
 		tracker := c.trackers[scac]
 		if tracker != nil {

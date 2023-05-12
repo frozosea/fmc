@@ -1,11 +1,12 @@
 package tracking
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
+	"github.com/corpix/uarand"
+	"schedule-tracking/pkg/requests"
 	"strings"
 )
 
@@ -197,9 +198,9 @@ type maeuResponse struct {
 				VesselName   string `json:"vessel_name"`
 				VoyageNum    string `json:"voyage_num"`
 				VesselNum    string `json:"vessel_num"`
-				ActualTime   string `json:"actual_time"`
-				RkemMove     string `json:"rkem_move"`
-				IsCancelled  bool   `json:"is_cancelled"`
+				ActualTime   string `json:"actual_time,omitempty"`
+				RkemMove     string `json:"rkem_move,omitempty"`
+				IsCancelled  bool   `json:"is_cancelled,omitempty"`
 				IsCurrent    bool   `json:"is_current"`
 				ExpectedTime string `json:"expected_time,omitempty"`
 			} `json:"events"`
@@ -219,30 +220,49 @@ type maeuResponse struct {
 		Status string `json:"status"`
 	} `json:"containers"`
 }
+
 type IMaeuRequest interface {
 	Get(number string) (*maeuResponse, error)
 }
-type maeuRequest struct{}
+type maeuRequest struct {
+	r *requests.Request
+}
 
 func newMaeuRequest() *maeuRequest {
-	return &maeuRequest{}
+	return &maeuRequest{r: requests.New()}
 }
 
 func (m *maeuRequest) Get(number string) (*maeuResponse, error) {
-	response, err := http.Get(fmt.Sprintf(`https://api.maersk.com/track/%s?operator=MAEU`, number))
+	headers := map[string]string{
+		"authority":          "api.maersk.com",
+		"accept":             "application/json",
+		"accept-language":    "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
+		"origin":             "https://www.maersk.com.cn",
+		"referer":            "https://www.maersk.com.cn/",
+		"sec-ch-ua":          "\"Google Chrome\";v=\"107\", \"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"",
+		"sec-ch-ua-mobile":   "?0",
+		"sec-ch-ua-platform": "\"macOS\"",
+		"sec-fetch-dest":     "empty",
+		"sec-fetch-mode":     "cors",
+		"sec-fetch-site":     "cross-site",
+		"user-agent":         uarand.GetRandom(),
+	}
+	url := fmt.Sprintf(`https://api.maersk.com/track/%s?operator=MAEU`, number)
+	response, err := m.r.Url(url).Method("GET").Headers(headers).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
-	var r *maeuResponse
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
+	if response.Status > 300 {
+		return nil, requests.NewStatusCodeError(response.Status)
 	}
-	if err := json.Unmarshal(body, &r); err != nil {
-		return r, err
+	var s *maeuResponse
+	if err := json.Unmarshal(response.Body, &s); err != nil {
+		return nil, err
 	}
-	return r, nil
+	if len(s.Containers) != 0 {
+		return s, nil
+	}
+	return nil, errors.New("no len")
 }
 
 type maeuArrivedChecker struct {
@@ -253,10 +273,12 @@ func NewMaeuArrivedChecker(maeuRequest IMaeuRequest) *maeuArrivedChecker {
 	return &maeuArrivedChecker{r: maeuRequest}
 }
 func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) IsArrived {
+	fmt.Println(response.Containers[0].Status)
 	return IsArrived(strings.EqualFold(response.Containers[0].Status, "COMPLETE"))
 }
 func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	resp, err := m.r.Get(result.Container)
+	fmt.Println(err)
 	if err != nil {
 		return true
 	}
@@ -368,6 +390,7 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 	case "COSU":
 		return a.cosuArrivedChecker.checkContainerArrived(result)
 	case "MAEU":
+		fmt.Println("MAEU")
 		return a.maeuArrivedChecker.checkContainerArrived(result)
 	case "SITC":
 		return a.sitcArrivedChecker.checkContainerArrived(result)

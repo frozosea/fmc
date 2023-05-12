@@ -13,7 +13,11 @@ import (
 )
 
 func Run() {
-	s := grpc.NewServer()
+	tlsCredentials, err := loadTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+	s := grpc.NewServer(grpc.Creds(tlsCredentials))
 	scheduleTrackingGrpcService := GetScheduleTrackingAndArchiveGrpcService()
 	pb.RegisterScheduleTrackingServer(s, scheduleTrackingGrpcService)
 	l, err := net.Listen("tcp", `0.0.0.0:8005`)

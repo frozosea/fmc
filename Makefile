@@ -24,3 +24,5 @@ update-proto:
     go mod tidy;\
   	go get github.com/frozosea/fmc-pb@latest;\
 
+certify:
+	cd cert;./gen.sh;cd ..;cp -r cert deployment/swarm/services/tracking;cp -r cert deployment/swarm/services/schedule-tracking;cp -r cert deployment/swarm/services/freight-service;cp -r cert deployment/swarm/services/gateway;cp -r cert deployment/swarm/services/user-api;

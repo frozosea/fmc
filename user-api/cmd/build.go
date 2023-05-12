@@ -226,7 +226,11 @@ func GetUserGrpcService(db *sql.DB) *user.Grpc {
 	}
 
 	url := fmt.Sprintf("%s:%s", scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort)
-	conn, err := grpc.Dial(url, grpc.WithInsecure())
+	tlsCredentials, err := loadClientTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 	}
@@ -266,7 +270,11 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 }
 
 func GetServer() (*grpc.Server, *feedback.Http, error) {
-	server := grpc.NewServer()
+	tlsCredentials, err := loadTLSCredentials()
+	if err != nil {
+		return nil, nil, err
+	}
+	server := grpc.NewServer(grpc.Creds(tlsCredentials))
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, nil, err

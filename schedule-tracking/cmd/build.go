@@ -10,7 +10,6 @@ import (
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"os"
 	"schedule-tracking/internal/archive"
@@ -124,7 +123,11 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 }
 
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tlsCredentials, err := loadClientTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 		return &tracking.Client{}
@@ -133,7 +136,11 @@ func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tr
 	return client
 }
 func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger) *domain.UserClient {
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tlsCredentials, err := loadClientTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 		return &domain.UserClient{}
@@ -168,18 +175,20 @@ func GetUserClientSettings() (*UserClientSettings, error) {
 }
 
 func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
-	trackerConf, getSettingsErr := GetTrackingSettings()
-	if getSettingsErr != nil {
-		panic(getSettingsErr)
+	trackerConf, err := GetTrackingSettings()
+	if err != nil {
+		panic(err)
 	}
+
 	loggerConf, err := getScheduleTrackingLoggingConfig()
 	if err != nil {
 		panic(err)
 	}
-	userConf, getUserSettingsErr := GetUserClientSettings()
-	if getUserSettingsErr != nil {
-		panic(getUserSettingsErr)
+	userConf, err := GetUserClientSettings()
+	if err != nil {
+		panic(err)
 	}
+
 	arrivedChecker := tracking.NewArrivedChecker()
 	controllerLogger := logging.NewLogger(loggerConf.ControllerSaveDir)
 	excelWriter := excel_writer.NewWriter(os.Getenv("PWD"))
@@ -207,6 +216,7 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	}
 	var taskManager = scheduler.NewDefault(timezone)
 	archiveService := archive.NewService(logging.NewLogger(archiveLoggerSettings.SaveDir), archiveRepository)
+
 	taskGetter := domain.NewCustomTasks(
 		GetTrackingClient(trackerConf, logging.NewLogger(loggerConf.TrackingResultSaveDir)),
 		client,
@@ -219,11 +229,18 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 		archiveService,
 		taskManager,
 	)
+
 	scheduleTrackingService := domain.NewService(controllerLogger, client, taskManager, ExcelTrackingResultSaveDir, repository, taskGetter)
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithInsecure())
+
+	tlsCredentials, err := loadClientTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 	}

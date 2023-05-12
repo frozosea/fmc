@@ -43,7 +43,11 @@ func NewBuilder() *Builder {
 	return builder
 }
 func (b *Builder) initCreds() *Builder {
-	b.opts = append(b.opts, grpc.WithInsecure())
+	tlsCreds, err := loadClientTLSCredentials()
+	if err != nil {
+		panic(err)
+	}
+	b.opts = append(b.opts, grpc.WithTransportCredentials(tlsCreds))
 	return b
 }
 func (b *Builder) initEnvVariables() *Builder {
