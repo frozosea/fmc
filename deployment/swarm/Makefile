@@ -23,6 +23,6 @@ del-schedule-tracking:
 del-portainer:
 	docker stack rm portainer
 del-gateway:
-	docker stack rm portainer
+	docker stack rm gateway
 del-all: del-user del-tracking del-schedule-tracking del-portainer del-gateway
 deploy: network dashboard tracking-api user-api schedule-tracking gateway

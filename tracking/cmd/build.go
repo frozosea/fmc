@@ -78,11 +78,11 @@ func NewBuilder() *Builder {
 }
 
 func (b *Builder) initGRPCServer() *Builder {
-	tlsCredentials, err := loadTLSCredentials()
-	if err != nil {
-		log.Fatal("cannot load TLS credentials: ", err)
-	}
-	b.server = grpc.NewServer(grpc.Creds(tlsCredentials))
+	//tlsCredentials, err := loadTLSCredentials()
+	//if err != nil {
+	//	log.Fatal("cannot load TLS credentials: ", err)
+	//}
+	b.server = grpc.NewServer()
 	return b
 }
 
