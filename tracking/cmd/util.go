@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc/credentials"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 )
@@ -29,8 +30,16 @@ func parseExpiration(parseString string) time.Duration {
 	}
 }
 
+func getCertPath() string {
+	path := os.Getenv("CERT_DIR_PATH")
+	if path == "" {
+		panic("NO <CERT_DIR_PATH> ENV VARIABLE")
+	}
+	return path
+}
+
 func loadTLSCredentials() (credentials.TransportCredentials, error) {
-	pemClientCA, err := ioutil.ReadFile("../cert/ca-cert.pem")
+	pemClientCA, err := ioutil.ReadFile(fmt.Sprintf("%s/cert/ca-cert.pem", getCertPath()))
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +49,7 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 		return nil, fmt.Errorf("failed to add client CA's certificate")
 	}
 
-	serverCert, err := tls.LoadX509KeyPair("../cert/server-cert.pem", "../cert/server-key.pem")
+	serverCert, err := tls.LoadX509KeyPair(fmt.Sprintf("%s/cert/server-cert.pem", getCertPath()), fmt.Sprintf("%s/cert/server-key.pem", getCertPath()))
 	if err != nil {
 		return nil, err
 	}
