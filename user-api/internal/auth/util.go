@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
+	reader "user-api/pkg/fileReader"
 	"user-api/pkg/htmlTemplateReader"
 )
 
@@ -27,15 +29,15 @@ func getBaseFrontendUrl() (string, error) {
 	return baseUrl, nil
 }
 func getTemplatesFilePath() (string, error) {
-	return "./templates", nil
-	//wd, err := os.Getwd()
-	//if err != nil {
-	//	return "", err
-	//}
-	//sep := reader.New().GetSeparator()
-	//splitCwd := strings.Split(wd, sep)
-	//templateFolderFilePath := strings.Join(splitCwd[:len(splitCwd)-1], sep) + sep + "templates"
-	//return templateFolderFilePath, nil
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	sep := reader.New().GetSeparator()
+	splitCwd := strings.Split(wd, sep)
+	templateFolderFilePath := strings.Join(splitCwd, sep) + sep + "internal" + sep + "auth" + sep + "templates"
+	return templateFolderFilePath, nil
 }
 
 type RecoveryUserTemplateGenerator struct {
