@@ -73,6 +73,7 @@ func (p *Service) GetUserIdByJwtToken(tokenString string) (int, error) {
 }
 func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error {
 	if exist, err := p.repository.CheckEmailExist(ctx, email); !exist || err != nil {
+		fmt.Println(err)
 		return &InvalidUserError{}
 	}
 	fmt.Println("USER EXISTS")
