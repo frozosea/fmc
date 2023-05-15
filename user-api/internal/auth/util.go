@@ -29,7 +29,6 @@ func getBaseFrontendUrl() (string, error) {
 	return baseUrl, nil
 }
 func getTemplatesFilePath() (string, error) {
-
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
