@@ -15,7 +15,7 @@ schedule-tracking:
 freight-service:
 	docker stack deploy -c services/freight-service/freight-service.yaml freight_service
 del-user:
-	docker stack rm user-api
+	docker stack rm user
 del-tracking:
 	docker stack rm tracking
 del-schedule-tracking:

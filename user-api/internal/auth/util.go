@@ -3,9 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
-	reader "github.com/frozosea/file-reader/pkg"
 	"os"
-	"strings"
 	"user-api/pkg/htmlTemplateReader"
 )
 
@@ -29,14 +27,15 @@ func getBaseFrontendUrl() (string, error) {
 	return baseUrl, nil
 }
 func getTemplatesFilePath() (string, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	sep := reader.New().GetSeparator()
-	splitCwd := strings.Split(wd, sep)
-	templateFolderFilePath := strings.Join(splitCwd[:len(splitCwd)-1], sep) + sep + "templates"
-	return templateFolderFilePath, nil
+	return "./templates", nil
+	//wd, err := os.Getwd()
+	//if err != nil {
+	//	return "", err
+	//}
+	//sep := reader.New().GetSeparator()
+	//splitCwd := strings.Split(wd, sep)
+	//templateFolderFilePath := strings.Join(splitCwd[:len(splitCwd)-1], sep) + sep + "templates"
+	//return templateFolderFilePath, nil
 }
 
 type RecoveryUserTemplateGenerator struct {
