@@ -53,6 +53,7 @@ func (r *RecoveryUserTemplateGenerator) GetRecoveryUserTemplate(token string) (s
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(templateFolderFilePath)
 	e, err := NewEmailTemplate(token)
 	if err != nil {
 		return "", err
