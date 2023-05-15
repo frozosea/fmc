@@ -36,6 +36,7 @@ func getTemplatesFilePath() (string, error) {
 	sep := reader.New().GetSeparator()
 	splitCwd := strings.Split(wd, sep)
 	templateFolderFilePath := strings.Join(splitCwd, sep) + sep + "internal" + sep + "auth" + sep + "templates"
+	fmt.Println(templateFolderFilePath)
 	return templateFolderFilePath, nil
 }
 
