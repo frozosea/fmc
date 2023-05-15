@@ -9,6 +9,5 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("no env file")
 	}
-
 	BuildAndRun()
 }

@@ -51,6 +51,7 @@ func NewRecoveryUserTemplateGenerator() *RecoveryUserTemplateGenerator {
 func (r *RecoveryUserTemplateGenerator) GetRecoveryUserTemplate(token string) (string, error) {
 	templateFolderFilePath, err := getTemplatesFilePath()
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 	fmt.Println(templateFolderFilePath)
