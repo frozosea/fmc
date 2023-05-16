@@ -117,7 +117,6 @@ func (s *Grpc) GetUserIdByJwtToken(ctx context.Context, _ *emptypb.Empty) (*pb.G
 }
 func (s *Grpc) SendRecoveryEmail(ctx context.Context, r *pb.SendRecoveryEmailRequest) (*emptypb.Empty, error) {
 	err := s.controller.SendRecoveryUserEmail(ctx, r.GetEmail())
-	fmt.Println(err)
 	if err != nil {
 		switch err.(type) {
 		case *InvalidUserError:

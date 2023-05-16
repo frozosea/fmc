@@ -54,33 +54,26 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 			if err == nil {
 				break
 			} else {
-				fmt.Println(err)
-				go c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
+				c.logger.ExceptionLog(fmt.Sprintf(`track container with Number %s failed: %s`, number, err.Error()))
 				if i == 2 {
 					return
 				}
 			}
 		}
 		if c.arrivedChecker.CheckContainerArrived(result) {
-			fmt.Println("ARRIVED")
 			if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, result.Container, markErr.Error()))
-				fmt.Println(markErr)
 			}
 			if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
-				fmt.Println(delErr)
 			}
 			if err := c.userClient.MarkContainerWasRemovedFromTrack(ctx, userId, number); err != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark container is removed from tracking containers with number: %s err: %s`, number, err.Error()))
-				fmt.Println(err)
 			}
 			if err := c.archiveService.AddByContainer(ctx, int(userId), &result); err != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`add container to archive with number: %s err: %s`, number, err.Error()))
-				fmt.Println(err)
 			}
 			if err := c.taskManager.Remove(context.Background(), number); err != nil {
-				fmt.Println(err)
 				c.logger.ExceptionLog(fmt.Sprintf(`remove number: %s from tracking exception: %s`, number, err.Error()))
 				return
 			}
@@ -94,7 +87,6 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 		}
 		pathToFile, writeErr := c.writer.WriteContainerNo(result, c.timeFormatter.Convert)
 		if writeErr != nil {
-			fmt.Println(writeErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
 			return
 		}
@@ -105,11 +97,9 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 			subject = emailSubject
 		}
 		if sendErr := c.mailing.SendWithFile(ctx, emails, subject, pathToFile); sendErr != nil {
-			fmt.Println(sendErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, emails, sendErr.Error()))
 		}
 		if removeErr := os.Remove(pathToFile); removeErr != nil {
-			fmt.Println(removeErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
 	}

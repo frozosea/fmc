@@ -273,12 +273,10 @@ func NewMaeuArrivedChecker(maeuRequest IMaeuRequest) *maeuArrivedChecker {
 	return &maeuArrivedChecker{r: maeuRequest}
 }
 func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) IsArrived {
-	fmt.Println(response.Containers[0].Status)
 	return IsArrived(strings.EqualFold(response.Containers[0].Status, "COMPLETE"))
 }
 func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	resp, err := m.r.Get(result.Container)
-	fmt.Println(err)
 	if err != nil {
 		return true
 	}
@@ -390,7 +388,6 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 	case "COSU":
 		return a.cosuArrivedChecker.checkContainerArrived(result)
 	case "MAEU":
-		fmt.Println("MAEU")
 		return a.maeuArrivedChecker.checkContainerArrived(result)
 	case "SITC":
 		return a.sitcArrivedChecker.checkContainerArrived(result)

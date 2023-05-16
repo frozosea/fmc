@@ -73,26 +73,20 @@ func (p *Service) GetUserIdByJwtToken(tokenString string) (int, error) {
 }
 func (p *Service) SendRecoveryUserEmail(ctx context.Context, email string) error {
 	if exist, err := p.repository.CheckEmailExist(ctx, email); !exist || err != nil {
-		fmt.Println(err)
 		return &InvalidUserError{}
 	}
-	fmt.Println("USER EXISTS")
 	userId, err := p.repository.GetUserId(ctx, email)
 	if err != nil {
 		return err
 	}
-	fmt.Println(userId)
 	token, err := p.tokenManager.GenerateResetPasswordToken(userId, time.Hour)
 	if err != nil {
 		return err
 	}
-	fmt.Println(token)
 	template, err := p.GetRecoveryUserTemplate(token)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	fmt.Println(template)
 	return p.emailSender.SendSimple(ctx, []string{email}, "FindMyCargo recovery password", template, "text/html")
 }
 

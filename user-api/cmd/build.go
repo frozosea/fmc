@@ -226,11 +226,16 @@ func GetUserGrpcService(db *sql.DB) *user.Grpc {
 	}
 
 	url := fmt.Sprintf("%s:%s", scheduleTrackingMicroserviceIp, scheduleTrackingMicroservicePort)
-	tlsCredentials, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
+	var conn *grpc.ClientConn
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
+		conn, err = grpc.Dial(url, grpc.WithTransportCredentials(tlsCredentials))
+	} else {
+		conn, err = grpc.Dial(url, grpc.WithInsecure())
 	}
-	conn, err := grpc.Dial(url, grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 	}
@@ -270,11 +275,16 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 }
 
 func GetServer() (*grpc.Server, *feedback.Http, error) {
-	tlsCredentials, err := loadTLSCredentials()
-	if err != nil {
-		return nil, nil, err
+	var server *grpc.Server
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			return nil, nil, err
+		}
+		server = grpc.NewServer(grpc.Creds(tlsCredentials))
+	} else {
+		server = grpc.NewServer()
 	}
-	server := grpc.NewServer(grpc.Creds(tlsCredentials))
 	db, err := GetDatabase()
 	if err != nil {
 		return nil, nil, err

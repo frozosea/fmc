@@ -123,27 +123,45 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 }
 
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
-	tlsCredentials, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
-	}
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
-	if err != nil {
-		panic(err)
-		return &tracking.Client{}
+	var conn *grpc.ClientConn
+	var err error
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
+
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithInsecure())
+		if err != nil {
+			panic(err)
+		}
 	}
 	client := tracking.NewClient(conn, logger)
 	return client
 }
 func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILogger) *domain.UserClient {
-	tlsCredentials, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
-	}
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
-	if err != nil {
-		panic(err)
-		return &domain.UserClient{}
+	var conn *grpc.ClientConn
+	var err error
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
+
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithInsecure())
+		if err != nil {
+			panic(err)
+		}
 	}
 	var pbClient = user_pb.NewScheduleTrackingClient(conn)
 	return domain.NewClient(pbClient, logger)
@@ -234,13 +252,17 @@ func GetScheduleTrackingAndArchiveGrpcService() *domain.Grpc {
 	if recoveryTaskErr := RecoveryTasks(repository, scheduleTrackingService); recoveryTaskErr != nil {
 		log.Println(err)
 	}
+	var conn *grpc.ClientConn
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
 
-	tlsCredentials, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithTransportCredentials(tlsCredentials))
+	} else {
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithInsecure())
 	}
-
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%s", userConf.Ip, userConf.Port), grpc.WithTransportCredentials(tlsCredentials))
 	if err != nil {
 		panic(err)
 	}
