@@ -10,8 +10,8 @@ import (
 )
 
 func generateRecoveryPasswordUrl(token string) string {
-	baseUrl := os.Getenv("BASE_BACKEND_URL")
-	return fmt.Sprintf("https://%s/recovery?token=%s", baseUrl, token)
+	baseUrl := os.Getenv("BASE_FRONTEND_URL")
+	return fmt.Sprintf("%s/recovery?token=%s", baseUrl, token)
 }
 func getBaseBackendUrl() (string, error) {
 	baseUrl := os.Getenv("BASE_BACKEND_URL")
