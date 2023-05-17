@@ -17,7 +17,7 @@ func newContainerRequestUrlGenerator() *containerRequestUrlGenerator {
 }
 
 func (u *containerRequestUrlGenerator) generate(number string) string {
-	return fmt.Sprintf("https://api.sitcline.com/ecm/cmcontainerhistory/movementSearch?blNo=&containerNo=%s&randomStr=", number)
+	return fmt.Sprintf("http://api.sitcline.com/ecm/cmcontainerhistory/movementSearch?blNo=&containerNo=%s&randomStr=", number)
 }
 
 type headersGenerator struct {

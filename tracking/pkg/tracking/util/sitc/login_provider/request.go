@@ -44,7 +44,7 @@ func newUrlGenerator() *urlGenerator {
 }
 
 func (u *urlGenerator) generate(username, password, randomStr, solvedCaptcha string) string {
-	return fmt.Sprintf(`https://api.sitcline.com/auth/oauth/token?username=%s&password=%s&randomStr=%s&code=%s&grant_type=password&scope=server`, username, password, randomStr, solvedCaptcha)
+	return fmt.Sprintf(`http://api.sitcline.com/auth/oauth/token?username=%s&password=%s&randomStr=%s&code=%s&grant_type=password&scope=server`, username, password, randomStr, solvedCaptcha)
 }
 
 type Request struct {
