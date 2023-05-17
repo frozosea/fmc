@@ -2,14 +2,16 @@ package tracking
 
 import (
 	"context"
+	"golang_tracking/pkg/tracking/util/time_inspector"
 )
 
 type ContainerTracker struct {
-	trackers map[string]IContainerTracker
+	trackers      map[string]IContainerTracker
+	timeInspector time_inspector.ITimeInspector
 }
 
-func NewContainerTracker(trackers map[string]IContainerTracker) *ContainerTracker {
-	return &ContainerTracker{trackers: trackers}
+func NewContainerTracker(trackers map[string]IContainerTracker, inspector time_inspector.ITimeInspector) *ContainerTracker {
+	return &ContainerTracker{trackers: trackers, timeInspector: inspector}
 }
 
 func (c *ContainerTracker) Track(ctx context.Context, scac, number string) (*ContainerTrackingResponse, error) {
@@ -21,15 +23,24 @@ func (c *ContainerTracker) Track(ctx context.Context, scac, number string) (*Con
 		index := 0
 		for _, tracker := range c.trackers {
 			//wg.Add(1)
-			go func(c context.Context, tracker IContainerTracker) {
+			go func(innerCtx context.Context, tracker IContainerTracker) {
 				//defer wg.Done()
 				defer func() {
 					index++
 					counter <- index
 				}()
-				response, err := tracker.Track(c, number)
+				response, err := tracker.Track(innerCtx, number)
 				if err != nil {
 					return
+				}
+				if len(response.InfoAboutMoving) > 0 {
+					if valid, err := c.timeInspector.CheckInfoAboutMovingExpires(response.InfoAboutMoving[len(response.InfoAboutMoving)-1].Time); valid && err == nil {
+						ch <- response
+						cancel()
+						return
+					} else {
+						return
+					}
 				}
 				ch <- response
 				cancel()

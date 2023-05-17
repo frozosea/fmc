@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 type containerTrackingMockUp struct {
@@ -26,6 +27,19 @@ func (c *containerTrackingMockUp) Track(_ context.Context, number string) (*Cont
 		InfoAboutMoving: nil,
 	}, nil
 }
+
+type TimeInspectorMockup struct {
+}
+
+func NewTimeInspectorMockup() *TimeInspectorMockup {
+	return &TimeInspectorMockup{}
+}
+
+func (t *TimeInspectorMockup) CheckInfoAboutMovingExpires(date time.Time) (bool, error) {
+	return true, nil
+}
+
+var inspector = NewTimeInspectorMockup()
 
 func TestContainerTracker(t *testing.T) {
 	if !testing.Short() {
@@ -145,13 +159,13 @@ func TestContainerTracker(t *testing.T) {
 	ctx := context.Background()
 
 	for _, suite := range testSuitTable {
-		containerTracker := NewContainerTracker(suite.trackers)
+		containerTracker := NewContainerTracker(suite.trackers, inspector)
 		response, err := containerTracker.Track(ctx, "AUTO", "number")
 		assert.NoError(t, err)
 		assert.Equal(t, response.Scac, suite.scac)
 	}
 	for _, suite := range testSuitTable {
-		containerTracker := NewContainerTracker(suite.trackers)
+		containerTracker := NewContainerTracker(suite.trackers, inspector)
 		response, err := containerTracker.Track(ctx, suite.scac, "number")
 		assert.NoError(t, err)
 		assert.Equal(t, response.Scac, suite.scac)
@@ -296,13 +310,13 @@ func TestBillTracker(t *testing.T) {
 	ctx := context.Background()
 
 	for _, suite := range testSuitTable {
-		containerTracker := NewBillNumberTracker(suite.trackers)
+		containerTracker := NewBillNumberTracker(suite.trackers, inspector)
 		response, err := containerTracker.Track(ctx, "AUTO", "number")
 		assert.NoError(t, err)
 		assert.Equal(t, response.Scac, suite.scac)
 	}
 	for _, suite := range testSuitTable {
-		containerTracker := NewBillNumberTracker(suite.trackers)
+		containerTracker := NewBillNumberTracker(suite.trackers, inspector)
 		response, err := containerTracker.Track(ctx, suite.scac, "number")
 		assert.NoError(t, err)
 		assert.Equal(t, response.Scac, suite.scac)

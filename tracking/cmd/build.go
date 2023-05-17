@@ -25,6 +25,7 @@ import (
 	"golang_tracking/pkg/tracking/util/scac_accessory"
 	"golang_tracking/pkg/tracking/util/sitc/captcha_resolver"
 	"golang_tracking/pkg/tracking/util/sitc/login_provider"
+	"golang_tracking/pkg/tracking/util/time_inspector"
 	"golang_tracking/pkg/tracking/zhgu"
 	"google.golang.org/grpc"
 	"log"
@@ -45,6 +46,8 @@ type Builder struct {
 	unclocodesRepository sklu.IRepository
 	cache                cache.ICache
 	loginProvider        *login_provider.TaskManager
+
+	timeInspector time_inspector.ITimeInspector
 
 	cosuContainerTracker         *cosu.ContainerTracker
 	fesoContainerTracker         *feso.ContainerTracker
@@ -129,6 +132,11 @@ func (b *Builder) initSitcStore() *Builder {
 	return b
 }
 
+func (b *Builder) initTimeInspector() *Builder {
+	b.timeInspector = time_inspector.New()
+	return b
+}
+
 func (b *Builder) initCaptchaSolver() *Builder {
 	b.captchaSolver = captcha_resolver.NewCaptcha(
 		captcha_resolver.NewRandomStringGenerator(),
@@ -194,7 +202,7 @@ func (b *Builder) initMainContainerTracker() *Builder {
 		"ONEY": b.oneyContainerTracker,
 		"SITC": b.sitcContainerTracker,
 		"SKLU": b.skluContainerTracker,
-	})
+	}, b.timeInspector)
 	return b
 }
 
@@ -247,7 +255,7 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"SKLU": b.skluBillTracker,
 		"ZHGU": b.zhguBillTracker,
 		"REEL": b.reelBillTracking,
-	})
+	}, b.timeInspector)
 	return b
 }
 

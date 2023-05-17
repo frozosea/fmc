@@ -2,14 +2,16 @@ package tracking
 
 import (
 	"context"
+	"golang_tracking/pkg/tracking/util/time_inspector"
 )
 
 type BillTracker struct {
-	trackers map[string]IBillTracker
+	trackers      map[string]IBillTracker
+	timeInspector time_inspector.ITimeInspector
 }
 
-func NewBillNumberTracker(trackers map[string]IBillTracker) *BillTracker {
-	return &BillTracker{trackers: trackers}
+func NewBillNumberTracker(trackers map[string]IBillTracker, inspector time_inspector.ITimeInspector) *BillTracker {
+	return &BillTracker{trackers: trackers, timeInspector: inspector}
 }
 
 func (c *BillTracker) Track(ctx context.Context, scac, number string) (*BillNumberTrackingResponse, error) {
@@ -19,14 +21,23 @@ func (c *BillTracker) Track(ctx context.Context, scac, number string) (*BillNumb
 	if scac == "AUTO" {
 		index := 0
 		for _, tracker := range c.trackers {
-			go func(c context.Context, tracker IBillTracker) {
+			go func(innerCtx context.Context, tracker IBillTracker) {
 				defer func() {
 					index++
 					counter <- index
 				}()
-				response, err := tracker.Track(c, number)
+				response, err := tracker.Track(innerCtx, number)
 				if err != nil {
 					return
+				}
+				if len(response.InfoAboutMoving) > 0 {
+					if valid, err := c.timeInspector.CheckInfoAboutMovingExpires(response.InfoAboutMoving[len(response.InfoAboutMoving)-1].Time); valid && err == nil {
+						ch <- response
+						cancel()
+						return
+					} else {
+						return
+					}
 				}
 				ch <- response
 				cancel()

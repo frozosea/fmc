@@ -17,6 +17,7 @@ func main() {
 		initGRPCServer().
 		initDatabase().
 		initSitcStore().
+		initTimeInspector().
 		initCaptchaSolver().
 		initUnlocodesRepo().
 		initCache().
