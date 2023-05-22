@@ -8,6 +8,7 @@ import (
 	"time"
 	"user-api/internal/domain"
 	"user-api/pkg/logging"
+	"user-api/pkg/user_balance/grant"
 )
 
 type Service struct {
@@ -15,12 +16,13 @@ type Service struct {
 	tokenManager ITokenManager
 	hash         IHash
 	*RecoveryUserTemplateGenerator
-	emailSender mailing.IMailing
-	logger      logging.ILogger
+	emailSender   mailing.IMailing
+	logger        logging.ILogger
+	grantProvider grant.IService
 }
 
-func NewService(repository IRepository, tokenManager ITokenManager, hash IHash, emailSender mailing.IMailing, logger logging.ILogger) *Service {
-	return &Service{repository: repository, tokenManager: tokenManager, logger: logger, hash: hash, emailSender: emailSender, RecoveryUserTemplateGenerator: NewRecoveryUserTemplateGenerator()}
+func NewService(repository IRepository, tokenManager ITokenManager, hash IHash, emailSender mailing.IMailing, logger logging.ILogger, grantProvider grant.IService) *Service {
+	return &Service{repository: repository, tokenManager: tokenManager, logger: logger, hash: hash, emailSender: emailSender, RecoveryUserTemplateGenerator: NewRecoveryUserTemplateGenerator(), grantProvider: grantProvider}
 }
 
 func (p *Service) RegisterUser(ctx context.Context, user *domain.RegisterUser) error {
@@ -29,9 +31,13 @@ func (p *Service) RegisterUser(ctx context.Context, user *domain.RegisterUser) e
 		return hashErr
 	}
 	user.Password = hashPassword
-	if regUserErr := p.repository.Register(ctx, user); regUserErr != nil {
-		go p.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Email, regUserErr.Error()))
-		return regUserErr
+	userId, err := p.repository.Register(ctx, user)
+	if err != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`user with username %s failed to register %s`, user.Email, err.Error()))
+		return err
+	}
+	if err := p.grantProvider.AddStartGrant(ctx, userId); err != nil {
+		return err
 	}
 	go p.logger.InfoLog(fmt.Sprintf(`user with username %s was registered`, user.Email))
 	return nil

@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/user"
+	pb "github.com/frozosea/fmc-pb/v2/user"
 	"github.com/frozosea/mailing"
 	"github.com/gin-gonic/gin"
 	"github.com/go-ini/ini"
 	"github.com/go-redis/redis/v8"
 	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -25,6 +26,7 @@ import (
 	"user-api/internal/user"
 	"user-api/pkg/cache"
 	"user-api/pkg/logging"
+	"user-api/pkg/user_balance/grant"
 	"user-api/pkg/util"
 )
 
@@ -91,7 +93,7 @@ func SetupDatabaseConfig() *DataBaseSettings {
 
 func GetDatabase() (*sql.DB, error) {
 	dbConf := SetupDatabaseConfig()
-	db, err := sql.Open(`pgx`, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	db, err := sql.Open(`postgres`, fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbConf.Host,
 		dbConf.Port,
 		dbConf.DatabaseUser,
@@ -176,6 +178,20 @@ func getJwtTokenManager() (auth.ITokenManager, error) {
 	return tokenManager, nil
 }
 
+func initGrantService(db *sql.DB) grant.IService {
+	grantStartValue := os.Getenv("GRANT_START_VALUE")
+	if grantStartValue == "" {
+		panic("there is no GRANT_START_VALUE env variable")
+	}
+
+	intGrantStartValue, err := strconv.ParseFloat(grantStartValue, 64)
+	if err != nil {
+		panic(err)
+	}
+	repository := grant.NewRepository(db)
+	return grant.NewService(repository, logging.NewLogger("start_grant"), intGrantStartValue)
+}
+
 func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 	loggerConf, err := getAuthLoggerConfig()
 	if err != nil {
@@ -192,7 +208,8 @@ func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
 		panic(err)
 	}
 	m := mailing.NewMailing(mSettings.Host, mSettings.Port, mSettings.Email, mSettings.Password)
-	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir))
+	grantService := initGrantService(db)
+	controller := auth.NewService(repository, tokenManager, hash, m, logging.NewLogger(loggerConf.ControllerSaveDir), grantService)
 	return auth.NewGrpc(controller, logging.NewLogger(loggerConf.ServiceSaveDir))
 }
 func getUserLoggerConfig() (*UserLoggerSettings, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	scheduleTrackingPb "github.com/frozosea/fmc-pb/schedule-tracking"
 	trackingPb "github.com/frozosea/fmc-pb/tracking"
-	userPb "github.com/frozosea/fmc-pb/user"
+	userPb "github.com/frozosea/fmc-pb/v2/user"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"log"

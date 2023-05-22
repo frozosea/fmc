@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"user-api/internal/domain"
 )
 
 type IRepository interface {
-	Register(ctx context.Context, user *domain.RegisterUser) error
+	Register(ctx context.Context, user *domain.RegisterUser) (int64, error)
 	Login(ctx context.Context, user *domain.User) (int, error)
 	CheckAccess(ctx context.Context, userId int) (bool, error)
 	GetUserId(ctx context.Context, email string) (int, error)
@@ -38,12 +39,58 @@ func NewRepository(db *sql.DB, hash IHash) *Repository {
 	return &Repository{db: db, hash: hash}
 }
 
-func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) error {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO "user" (email, username, password) VALUES ($1,$2,$3)`, user.Email, user.Username, user.Password)
+func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) (int64, error) {
+	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return NewAlreadyRegisterError()
+		fmt.Println(err.Error())
+		tx.Rollback()
+		return -1, err
 	}
-	return nil
+
+	var userId sql.NullInt64
+
+	if err := tx.QueryRowContext(ctx, `INSERT INTO "user" (email, username, password) VALUES ($1,$2,$3) RETURNING id`,
+		user.Email,
+		user.Username,
+		user.Password,
+	).Scan(&userId); err != nil {
+		fmt.Println(err.Error())
+		tx.Rollback()
+		return -1, NewAlreadyRegisterError()
+	}
+
+	if !userId.Valid {
+		fmt.Println(err.Error())
+		tx.Rollback()
+		return -1, NewAlreadyRegisterError()
+	}
+
+	if _, err := tx.ExecContext(ctx,
+		`INSERT INTO "company" AS c (
+                            user_id,
+                            company_full_name,
+                            company_abbreviated_name,
+                            inn,
+                            ogrn,
+                            legal_address,
+							post_address,
+							work_email
+							) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+		userId,
+		user.CompanyFullName,
+		user.CompanyAbbreviatedName,
+		user.INN,
+		user.OGRN,
+		user.LegalAddress,
+		user.PostAddress,
+		user.WorkEmail,
+	); err != nil {
+		fmt.Println(err.Error())
+		tx.Rollback()
+		return -1, err
+	}
+
+	return userId.Int64, tx.Commit()
 }
 func (r *Repository) Login(ctx context.Context, user *domain.User) (int, error) {
 	var id int

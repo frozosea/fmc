@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/user"
+	pb "github.com/frozosea/fmc-pb/v2/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -16,9 +16,16 @@ type converter struct{}
 
 func (c *converter) registerUserConvert(r *pb.RegisterUserRequest) *domain.RegisterUser {
 	return &domain.RegisterUser{
-		Email:    r.GetEmail(),
-		Username: r.GetUsername(),
-		Password: r.GetPassword(),
+		Email:                  r.GetEmail(),
+		Username:               r.GetUsername(),
+		Password:               r.GetPassword(),
+		CompanyFullName:        r.GetCompanyFullName(),
+		CompanyAbbreviatedName: r.GetCompanyAbbreviatedName(),
+		INN:                    r.GetInn(),
+		OGRN:                   r.GetOgrn(),
+		LegalAddress:           r.GetLegalAddress(),
+		PostAddress:            r.GetPostAddress(),
+		WorkEmail:              r.GetWorkEmail(),
 	}
 }
 func (c *converter) loginUserConvert(r *pb.LoginUserRequest) *domain.User {

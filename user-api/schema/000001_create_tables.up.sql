@@ -45,10 +45,48 @@ ALTER TABLE "bill_numbers"
 
 CREATE TABLE IF NOT EXISTS "feedback"
 (
-    "id"      serial           NOT NULL,
-    "email"   varchar(500)     NOT NULL,
-    "message" varchar(1000000) NOT NULL
+    "id"      SERIAL           NOT NULL,
+    "email"   VARCHAR(500)     NOT NULL,
+    "message" VARCHAR(1000000) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS "company"
+(
+    "id"                       SERIAL           NOT NULL,
+    "user_id"                  INT              NOT NULL,
+    "company_full_name"        varchar(500)     NOT NULL,
+    "company_abbreviated_name" varchar(500)     NOT NULL,
+    "inn"                      varchar(500)     NOT NULL,
+    "ogrn"                     varchar(500)     NOT NULL,
+    "legal_address"            varchar(500)     NOT NULL,
+    "post_address"             varchar(500)     NOT NULL,
+    "work_email"               varchar(1000000) NOT NULL
+);
+
+ALTER TABLE "company"
+    ADD CONSTRAINT "company_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+
+CREATE TABLE IF NOT EXISTS "balance"
+(
+    "id"      SERIAL NOT NULL,
+    "user_id" INT    NOT NULL,
+    "value"   FLOAT  NOT NULL
+);
+
+ALTER TABLE "balance"
+    ADD CONSTRAINT "balance_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+
+CREATE TABLE IF NOT EXISTS "balance_transaction"
+(
+    "id"         SERIAL                                             NOT NULL,
+    "user_id"    INT                                                NOT NULL,
+    "value"      FLOAT                                              NOT NULL,
+    "type"       INT                                                NOT NULL,
+    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+ALTER TABLE "balance_transaction"
+    ADD CONSTRAINT "balance_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
 
 CREATE OR REPLACE FUNCTION is_value_free_for_containers(_header_id integer, _value varchar) RETURNS BOOLEAN AS

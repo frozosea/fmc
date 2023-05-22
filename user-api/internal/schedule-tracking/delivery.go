@@ -3,7 +3,7 @@ package schedule_tracking
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/user"
+	pb "github.com/frozosea/fmc-pb/v2/user"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
