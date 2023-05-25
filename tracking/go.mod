@@ -6,7 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/archsh/timefmt v0.10.1
 	github.com/corpix/uarand v0.2.0
-	github.com/frozosea/fmc-pb v1.1.4
+	github.com/frozosea/fmc-pb/v2 v2.0.10
 	github.com/frozosea/scheduler v1.0.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/jackc/pgx/v4 v4.17.2

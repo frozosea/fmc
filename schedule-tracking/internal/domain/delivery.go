@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/schedule-tracking"
+	pb "github.com/frozosea/fmc-pb/v2/schedule-tracking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -70,11 +70,15 @@ func (s *Grpc) AddContainersOnTrack(ctx context.Context, r *pb.AddOnTrackRequest
 	if err != nil {
 		switch err.(type) {
 		case *scheduler.LookupJobError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.NotFound, "cannot find job with this id")
+			return &pb.AddOnTrackResponse{}, status.Error(codes.NotFound, "cannot find job with this id")
 		case *NumberDoesntBelongThisUserError:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.PermissionDenied, "cannot find number in your account")
+			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "cannot find number in your account")
+		case *scheduler.TimeParseError:
+			return &pb.AddOnTrackResponse{}, status.Error(codes.InvalidArgument, err.Error())
+		case *NoAccessToPaidScheduleTracking:
+			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "not enough balance")
 		default:
-			return s.converter.convertAddOnTrackResponse(res), status.Error(codes.Internal, err.Error())
+			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}
 	}
 	return s.converter.convertAddOnTrackResponse(res), nil
@@ -94,6 +98,8 @@ func (s *Grpc) AddBillNosOnTrack(ctx context.Context, r *pb.AddOnTrackRequest) (
 			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "cannot find number in your account")
 		case *scheduler.TimeParseError:
 			return &pb.AddOnTrackResponse{}, status.Error(codes.InvalidArgument, err.Error())
+		case *NoAccessToPaidScheduleTracking:
+			return &pb.AddOnTrackResponse{}, status.Error(codes.PermissionDenied, "not enough balance")
 		default:
 			return &pb.AddOnTrackResponse{}, status.Error(codes.Internal, err.Error())
 		}

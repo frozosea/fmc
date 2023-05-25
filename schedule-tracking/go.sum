@@ -6,8 +6,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37 h1:48HuBzVYRI6ARNJ5mWwmmZ8VzYvefxublU1MoGEf+AI=
 github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37/go.mod h1:KwUiZ9kZF/brtT7Iv+fh89EV23xXe83kyIDebRdZ88E=
-github.com/frozosea/fmc-pb v1.1.6 h1:ZT2jDTj9FWrx8lgWqVB4ebSK3vG5TEXUxsxNSHK4unw=
-github.com/frozosea/fmc-pb v1.1.6/go.mod h1:pMp22tseJhpDDNxQBa6F5uVbQ4kHwAIbr/D9FbT5zNw=
+github.com/frozosea/fmc-pb/v2 v2.0.10 h1:m/gRcPsC7o2su+GF0wC6bd72m80cXXdoeqtN9CGh3JE=
+github.com/frozosea/fmc-pb/v2 v2.0.10/go.mod h1:OWkyWKxeqj5uKBQOxc8UBLgl5VAIYVfRiL9LCZ4hITQ=
 github.com/frozosea/mailing v1.0.3 h1:5kftFKqWUKzUMqp2Om9+aZo5qSwPm1Prqvf0YFQpw9A=
 github.com/frozosea/mailing v1.0.3/go.mod h1:6Rff1x+Geohtz+Ej6YwbL03abZcdL7kwIm69SGXt8fQ=
 github.com/go-ini/ini v1.66.6 h1:h6k2Bb0HWS/BXXHCXj4QHjxPmlIU4NK+7MuLp9SD+4k=

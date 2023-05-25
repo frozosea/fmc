@@ -3,7 +3,7 @@ package tracking
 import (
 	"context"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/tracking"
+	pb "github.com/frozosea/fmc-pb/v2/tracking"
 	"google.golang.org/grpc"
 	"schedule-tracking/pkg/logging"
 	"time"

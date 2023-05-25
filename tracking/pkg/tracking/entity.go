@@ -1,7 +1,7 @@
 package tracking
 
 import (
-	pb "github.com/frozosea/fmc-pb/tracking"
+	pb "github.com/frozosea/fmc-pb/v2/tracking"
 	"time"
 )
 

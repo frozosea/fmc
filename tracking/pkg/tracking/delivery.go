@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/tracking"
+	pb "github.com/frozosea/fmc-pb/v2/tracking"
 	"golang_tracking/pkg/logging"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/frozosea/fmc-pb v1.1.6
-	github.com/frozosea/fmc-pb/v2 v2.0.2
+	github.com/frozosea/fmc-pb/v2 v2.0.10
 	github.com/frozosea/mailing v1.0.3
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-ini/ini v1.66.6

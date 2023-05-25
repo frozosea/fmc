@@ -21,10 +21,8 @@ type User struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
-type RegisterUser struct {
-	Email                  string `json:"email"`
-	Username               string `json:"username"`
-	Password               string `json:"password"`
+
+type CompanyData struct {
 	CompanyFullName        string `json:"companyFullName"`
 	CompanyAbbreviatedName string `json:"CompanyAbbreviatedName"`
 	INN                    string `json:"INN"`
@@ -33,9 +31,25 @@ type RegisterUser struct {
 	PostAddress            string `json:"postAddress"`
 	WorkEmail              string `json:"workEmail"`
 }
+
+type RegisterUser struct {
+	Email       string `json:"email"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	CompanyData *CompanyData
+}
 type UserWithId struct {
-	Id int
-	User
+	Id          int                          `json:"id"`
+	Email       string                       `json:"email"`
+	Username    string                       `json:"username"`
+	CompanyData *CompanyData                 `json:"companyData"`
+	Tariff      *Tariff                      `json:"tariff"`
+	Numbers     *AllContainersAndBillNumbers `json:"numbers"`
+}
+
+type Tariff struct {
+	OneDayPrice            float64
+	NumbersOnTrackQuantity int64
 }
 
 type Transaction struct {

@@ -39,6 +39,41 @@ func (c *converter) addContainerOrBillConvert(r *pb.AddContainerToAccountRequest
 	return containers
 }
 
+func (c *converter) getInfoAboutUserConvert(user *domain.UserWithId) *pb.GetInfoAboutUserResponse {
+	return &pb.GetInfoAboutUserResponse{
+		Id:                     int64(user.Id),
+		Email:                  user.Email,
+		Username:               user.Username,
+		CompanyFullName:        user.CompanyData.CompanyFullName,
+		CompanyAbbreviatedName: user.CompanyData.CompanyAbbreviatedName,
+		Inn:                    user.CompanyData.INN,
+		Ogrn:                   user.CompanyData.OGRN,
+		LegalAddress:           user.CompanyData.LegalAddress,
+		PostAddress:            user.CompanyData.PostAddress,
+		WorkEmail:              user.CompanyData.WorkEmail,
+		Tariff: &pb.Tariff{
+			NumbersOnTracking:   user.Tariff.NumbersOnTrackQuantity,
+			OneDayTrackingPrice: float32(user.Tariff.OneDayPrice),
+		},
+		Numbers: &pb.GetAllContainersResponse{
+			BillNumbers: c.convertContainerOrBillToGrpc(user.Numbers.BillNumbers),
+			Containers:  c.convertContainerOrBillToGrpc(user.Numbers.Containers),
+		},
+	}
+}
+
+func (c *converter) convertUpdateCompanyDataRequest(r *pb.UpdateCompanyDataRequest) *domain.CompanyData {
+	return &domain.CompanyData{
+		CompanyFullName:        r.GetCompanyFullName(),
+		CompanyAbbreviatedName: r.GetCompanyAbbreviatedName(),
+		INN:                    r.GetInn(),
+		OGRN:                   r.GetOgrn(),
+		LegalAddress:           r.GetLegalAddress(),
+		PostAddress:            r.GetPostAddress(),
+		WorkEmail:              r.GetWorkEmail(),
+	}
+}
+
 type Grpc struct {
 	service      *Service
 	converter    converter
@@ -110,4 +145,25 @@ func (s *Grpc) GetAll(ctx context.Context, _ *emptypb.Empty) (*pb.GetAllContaine
 		BillNumbers: s.converter.convertContainerOrBillToGrpc(res.BillNumbers),
 		Containers:  s.converter.convertContainerOrBillToGrpc(res.Containers),
 	}, nil
+}
+func (s *Grpc) GetInfoAboutUser(ctx context.Context, _ *emptypb.Empty) (*pb.GetInfoAboutUserResponse, error) {
+	userId, err := s.tokenManager.GetUserId(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	data, err := s.service.GetInfoAboutUser(ctx, userId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return s.converter.getInfoAboutUserConvert(data), nil
+}
+func (s *Grpc) UpdateCompanyData(ctx context.Context, r *pb.UpdateCompanyDataRequest) (*emptypb.Empty, error) {
+	userId, err := s.tokenManager.GetUserId(ctx)
+	if err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Unauthenticated, err.Error())
+	}
+	if err := s.service.UpdateCompanyData(ctx, userId, s.converter.convertUpdateCompanyDataRequest(r)); err != nil {
+		return &emptypb.Empty{}, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }

@@ -3,8 +3,9 @@ module schedule-tracking
 go 1.18
 
 require (
+	github.com/corpix/uarand v0.2.0
 	github.com/frozosea/file-reader v0.0.0-20221129091730-943f51121f37
-	github.com/frozosea/fmc-pb v1.1.6
+	github.com/frozosea/fmc-pb/v2 v2.0.10
 	github.com/frozosea/mailing v1.0.3
 	github.com/go-ini/ini v1.66.6
 	github.com/joho/godotenv v1.4.0
@@ -17,7 +18,6 @@ require (
 )
 
 require (
-	github.com/corpix/uarand v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0 // indirect

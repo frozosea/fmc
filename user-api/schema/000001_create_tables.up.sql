@@ -60,8 +60,11 @@ CREATE TABLE IF NOT EXISTS "company"
     "ogrn"                     varchar(500)     NOT NULL,
     "legal_address"            varchar(500)     NOT NULL,
     "post_address"             varchar(500)     NOT NULL,
-    "work_email"               varchar(1000000) NOT NULL
-);
+    "work_email"               varchar(1000000) NOT NULL,
+    CONSTRAINT "company_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS= FALSE
+    );
 
 ALTER TABLE "company"
     ADD CONSTRAINT "company_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
@@ -70,8 +73,11 @@ CREATE TABLE IF NOT EXISTS "balance"
 (
     "id"      SERIAL NOT NULL,
     "user_id" INT    NOT NULL,
-    "value"   FLOAT  NOT NULL
-);
+    "value"   FLOAT  NOT NULL,
+    CONSTRAINT "balance_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS= FALSE
+    );
 
 ALTER TABLE "balance"
     ADD CONSTRAINT "balance_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
@@ -82,12 +88,28 @@ CREATE TABLE IF NOT EXISTS "balance_transaction"
     "user_id"    INT                                                NOT NULL,
     "value"      FLOAT                                              NOT NULL,
     "type"       INT                                                NOT NULL,
-    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
+    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT "balance_tr_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS= FALSE
+    );
 
 ALTER TABLE "balance_transaction"
     ADD CONSTRAINT "balance_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
+CREATE TABLE IF NOT EXISTS "number_transaction"
+(
+    "id"             SERIAL  NOT NULL,
+    "transaction_id" INT     NOT NULL,
+    "number"         VARCHAR NOT NULL,
+    CONSTRAINT "number_tr_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS= FALSE
+    );
+
+
+ALTER TABLE "number_transaction"
+    ADD CONSTRAINT "number_tr_fk0" FOREIGN KEY ("transaction_id") REFERENCES "balance_transaction" ("id");
 
 CREATE OR REPLACE FUNCTION is_value_free_for_containers(_header_id integer, _value varchar) RETURNS BOOLEAN AS
 $$

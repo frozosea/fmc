@@ -1,6 +1,6 @@
 package scac
 
-import pb "github.com/frozosea/fmc-pb/tracking"
+import pb "github.com/frozosea/fmc-pb/v2/tracking"
 
 type WithFullName struct {
 	Scac     string `json:"scac"`

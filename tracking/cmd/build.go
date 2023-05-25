@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	pb "github.com/frozosea/fmc-pb/tracking"
+	pb "github.com/frozosea/fmc-pb/v2/tracking"
 	scheduler "github.com/frozosea/scheduler/pkg"
 	"github.com/go-redis/redis/v8"
 	"golang_tracking/pkg/cache"

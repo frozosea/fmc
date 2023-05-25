@@ -19,6 +19,12 @@ func (n *NumberDoesntBelongThisUserError) Error() string {
 	return "number does not belong to this user or cannot find job by your params"
 }
 
+type NoAccessToPaidScheduleTracking struct{}
+
+func (c *NoAccessToPaidScheduleTracking) Error() string {
+	return "your balance is not enough for using this functional"
+}
+
 type Service struct {
 	logger            logging.ILogger
 	cli               IUserClient
@@ -72,6 +78,9 @@ func (s *Service) addOneContainer(ctx context.Context, number, time string, user
 }
 
 func (s *Service) AddContainerNumbersOnTrack(ctx context.Context, req *BaseTrackReq) (*AddOnTrackResponse, error) {
+	if hasAccess, err := s.userClient.CheckAccessToPaidTracking(ctx, req.UserId); !hasAccess || err != nil {
+		return nil, &NoAccessToPaidScheduleTracking{}
+	}
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
@@ -132,6 +141,9 @@ func (s *Service) addOneBillOnTrack(ctx context.Context, number, time string, us
 }
 
 func (s *Service) AddBillNumbersOnTrack(ctx context.Context, req *BaseTrackReq) (*AddOnTrackResponse, error) {
+	if hasAccess, err := s.userClient.CheckAccessToPaidTracking(ctx, req.UserId); !hasAccess || err != nil {
+		return nil, &NoAccessToPaidScheduleTracking{}
+	}
 	var alreadyOnTrack []string
 	var result []*BaseAddOnTrackResponse
 	for _, v := range req.Numbers {
@@ -224,6 +236,9 @@ func (s *Service) GetInfoAboutTracking(ctx context.Context, number string, userI
 }
 
 func (s *Service) Update(ctx context.Context, r *BaseTrackReq, isContainer bool) error {
+	if hasAccess, err := s.userClient.CheckAccessToPaidTracking(ctx, r.UserId); !hasAccess || err != nil {
+		return &NoAccessToPaidScheduleTracking{}
+	}
 	if err := s.DeleteFromTracking(ctx, r.UserId, isContainer, r.Numbers); err != nil {
 		return err
 	}

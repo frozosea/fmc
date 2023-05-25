@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	user_pb "github.com/frozosea/fmc-pb/user"
+	user_pb "github.com/frozosea/fmc-pb/v2/user"
 	"github.com/frozosea/mailing"
 	"github.com/go-ini/ini"
 	_ "github.com/lib/pq"
@@ -164,7 +164,8 @@ func GetUserScheduleTrackingClient(conf *UserClientSettings, logger logging.ILog
 		}
 	}
 	var pbClient = user_pb.NewScheduleTrackingClient(conn)
-	return domain.NewClient(pbClient, logger)
+	var balanceClient = user_pb.NewBalanceClient(conn)
+	return domain.NewClient(pbClient, balanceClient, logger)
 }
 func getScheduleTrackingLoggingConfig() (*ScheduleTrackingLoggerSettings, error) {
 	config := new(ScheduleTrackingLoggerSettings)

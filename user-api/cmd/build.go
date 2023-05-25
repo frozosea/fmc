@@ -24,9 +24,13 @@ import (
 	"user-api/internal/feedback"
 	"user-api/internal/schedule-tracking"
 	"user-api/internal/user"
+	"user-api/internal/user_balance"
+	"user-api/internal/user_balance/balance"
+	"user-api/internal/user_balance/credit"
+	grant2 "user-api/internal/user_balance/grant"
+	"user-api/internal/user_balance/transactions"
 	"user-api/pkg/cache"
 	"user-api/pkg/logging"
-	"user-api/pkg/user_balance/grant"
 	"user-api/pkg/util"
 )
 
@@ -178,7 +182,7 @@ func getJwtTokenManager() (auth.ITokenManager, error) {
 	return tokenManager, nil
 }
 
-func initGrantService(db *sql.DB) grant.IService {
+func initGrantService(db *sql.DB) grant2.IService {
 	grantStartValue := os.Getenv("GRANT_START_VALUE")
 	if grantStartValue == "" {
 		panic("there is no GRANT_START_VALUE env variable")
@@ -188,8 +192,8 @@ func initGrantService(db *sql.DB) grant.IService {
 	if err != nil {
 		panic(err)
 	}
-	repository := grant.NewRepository(db)
-	return grant.NewService(repository, logging.NewLogger("start_grant"), intGrantStartValue)
+	repository := grant2.NewRepository(db)
+	return grant2.NewService(repository, logging.NewLogger("start_grant"), intGrantStartValue)
 }
 
 func GetAuthGrpcService(db *sql.DB) *auth.Grpc {
@@ -224,6 +228,14 @@ func GetCache(redisConf *RedisSettings) cache.ICache {
 	}), parseExpiration(redisConf.Ttl))
 	return redisCache
 }
+func getUserBalanceService(db *sql.DB) user_balance.IService {
+	balanceRepository := balance.NewRepository(db)
+	oneDayPriceCalculator := user_balance.NewPriceCalculator()
+	numbersTransactionRepository := transactions.NewRepository(db)
+	repository := user_balance.NewRepository(db)
+	service := user_balance.NewService(repository, oneDayPriceCalculator, balanceRepository, numbersTransactionRepository, logging.NewLogger("work_with_balance"))
+	return service
+}
 
 var redisConf = GetRedisSettings()
 var redisCache = GetCache(redisConf)
@@ -257,7 +269,8 @@ func GetUserGrpcService(db *sql.DB) *user.Grpc {
 		panic(err)
 	}
 	scheduleTrackingInfoRepository := user.NewScheduleTrackingInfoRepository(conn)
-	repository := user.NewRepository(db, scheduleTrackingInfoRepository)
+	userBalanceService := getUserBalanceService(db)
+	repository := user.NewRepository(db, scheduleTrackingInfoRepository, userBalanceService)
 	service := user.NewService(repository, logging.NewLogger(loggerConf.ControllerSaveDir), redisCache)
 	return user.NewGrpc(service, util.NewTokenManager(jwtManager.DecodeToken))
 }
@@ -291,6 +304,26 @@ func GetFeedbackDeliveries(db *sql.DB) (*feedback.Grpc, *feedback.Http) {
 	return feedback.NewGrpc(service), feedback.NewHttp(service)
 }
 
+func GetWorkWithBalanceDelivery(db *sql.DB) *user_balance.Grpc {
+
+	tokenManager, err := getJwtTokenManager()
+	if err != nil {
+		panic(err)
+	}
+	minimalPossibleBalanceString := os.Getenv("MINIMAL_POSSIBLE_BALANCE")
+	if minimalPossibleBalanceString == "" {
+		panic("no MINIMAL_POSSIBLE_BALANCE env variable")
+	}
+	minimalPossibleBalance, err := strconv.ParseFloat(minimalPossibleBalanceString, 64)
+	if err != nil {
+		panic(err)
+	}
+	service := getUserBalanceService(db)
+	creditService := credit.NewService(balance.NewRepository(db), minimalPossibleBalance)
+	gServer := user_balance.NewGrpc(service, creditService, util.NewTokenManager(tokenManager.DecodeToken))
+	return gServer
+}
+
 func GetServer() (*grpc.Server, *feedback.Http, error) {
 	var server *grpc.Server
 	if os.Getenv("PRODUCTION") == "1" {
@@ -311,6 +344,7 @@ func GetServer() (*grpc.Server, *feedback.Http, error) {
 	pb.RegisterUserServer(server, GetUserGrpcService(db))
 	pb.RegisterScheduleTrackingServer(server, GetScheduleTrackingService(db))
 	pb.RegisterUserFeedbackServer(server, feedbackGrpcService)
+	pb.RegisterBalanceServer(server, GetWorkWithBalanceDelivery(db))
 	return server, feedbackHttpHandler, nil
 }
 

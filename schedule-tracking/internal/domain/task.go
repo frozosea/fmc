@@ -43,6 +43,28 @@ func NewCustomTasks(trackingClient *tracking.Client, userClient *UserClient, arr
 
 func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []string, userId int64, emailSubject string) scheduler.ITask {
 	fn := func(ctx context.Context) {
+		if hasAccess, err := c.userClient.CheckAccessToPaidTracking(ctx, userId); !hasAccess || err != nil {
+			if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, number, markErr.Error()))
+			}
+			if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
+			}
+			if err := c.userClient.MarkContainerWasRemovedFromTrack(ctx, userId, number); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`mark container is removed from tracking containers with number: %s err: %s`, number, err.Error()))
+			}
+			if err := c.taskManager.Remove(context.Background(), number); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`remove number: %s from tracking exception: %s`, number, err.Error()))
+				return
+			}
+			for i := 0; i < 3; i++ {
+				if err := c.mailing.SendSimple(ctx, emails, "FindMyCargo слежение по расписанию", fmt.Sprintf("%s был снят со слежения, ввиду недостатка баланса. Чтобы продолжить использовать наш функционал, пожалуйста, пополните ваш аккаунт.", number), "text/plain"); err != nil {
+					continue
+				} else {
+					break
+				}
+			}
+		}
 		var result tracking.ContainerNumberResponse
 		var err error
 		for i := 0; i < 3; i++ {
@@ -102,6 +124,9 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 		if removeErr := os.Remove(pathToFile); removeErr != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
+		if err := c.userClient.SubFromBalance(ctx, userId, number); err != nil {
+			c.logger.ExceptionLog(fmt.Sprintf(`sub balance client error: %s`, err.Error()))
+		}
 	}
 	return fn
 
@@ -109,6 +134,29 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 
 func (c *CustomTasks) GetTrackByBillNumberTask(number string, emails []string, userId int64, emailSubject string) scheduler.ITask {
 	return func(ctx context.Context) {
+		if hasAccess, err := c.userClient.CheckAccessToPaidTracking(ctx, userId); !hasAccess || err != nil {
+			if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, number, markErr.Error()))
+			}
+			if delErr := c.repository.Delete(ctx, []string{number}); delErr != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`delete from tracking containers with Numbers: %s error: %s`, number, delErr.Error()))
+			}
+			if err := c.userClient.MarkContainerWasRemovedFromTrack(ctx, userId, number); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`mark container is removed from tracking containers with number: %s err: %s`, number, err.Error()))
+			}
+			if err := c.taskManager.Remove(context.Background(), number); err != nil {
+				c.logger.ExceptionLog(fmt.Sprintf(`remove number: %s from tracking exception: %s`, number, err.Error()))
+				return
+			}
+			for i := 0; i < 3; i++ {
+				if err := c.mailing.SendSimple(ctx, emails, "FindMyCargo слежение по расписанию", fmt.Sprintf("%s был снят со слежения, ввиду недостатка баланса. Чтобы продолжить использовать наш функционал, пожалуйста, пополните ваш аккаунт.", number), "text/plain"); err != nil {
+					continue
+				} else {
+					break
+				}
+			}
+		}
+
 		var result tracking.BillNumberResponse
 		var err error
 		for i := 0; i < 3; i++ {
@@ -167,6 +215,9 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number string, emails []string, u
 		}
 		if err := os.Remove(pathToFile); err != nil {
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, err.Error()))
+		}
+		if err := c.userClient.SubFromBalance(ctx, userId, number); err != nil {
+			c.logger.ExceptionLog(fmt.Sprintf(`sub balance client error: %s`, err.Error()))
 		}
 	}
 }

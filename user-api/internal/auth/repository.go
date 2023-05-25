@@ -77,13 +77,13 @@ func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) (i
 							work_email
 							) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
 		userId,
-		user.CompanyFullName,
-		user.CompanyAbbreviatedName,
-		user.INN,
-		user.OGRN,
-		user.LegalAddress,
-		user.PostAddress,
-		user.WorkEmail,
+		user.CompanyData.CompanyFullName,
+		user.CompanyData.CompanyAbbreviatedName,
+		user.CompanyData.INN,
+		user.CompanyData.OGRN,
+		user.CompanyData.LegalAddress,
+		user.CompanyData.PostAddress,
+		user.CompanyData.WorkEmail,
 	); err != nil {
 		fmt.Println(err.Error())
 		tx.Rollback()

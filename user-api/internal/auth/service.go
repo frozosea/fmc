@@ -7,8 +7,8 @@ import (
 	"github.com/frozosea/mailing"
 	"time"
 	"user-api/internal/domain"
+	"user-api/internal/user_balance/grant"
 	"user-api/pkg/logging"
-	"user-api/pkg/user_balance/grant"
 )
 
 type Service struct {

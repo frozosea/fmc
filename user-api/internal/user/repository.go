@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"user-api/internal/domain"
+	"user-api/internal/user_balance"
 )
 
 type NoTaskError struct {
@@ -59,15 +60,18 @@ type IRepository interface {
 	DeleteContainersFromAccount(ctx context.Context, userId int, numbers []string) error
 	DeleteBillNumbersFromAccount(ctx context.Context, userId int, numbers []string) error
 	GetAllContainersAndBillNumbers(ctx context.Context, userId int) (*domain.AllContainersAndBillNumbers, error)
+	GetInfoAboutUser(ctx context.Context, userId int) (*domain.UserWithId, error)
+	UpdateCompanyData(ctx context.Context, userId int, companyData *domain.CompanyData) error
 }
 
 type Repository struct {
 	scheduleTrackingInfoRepository IScheduleTrackingInfoRepository
+	tariffProvider                 user_balance.IService
 	db                             *sql.DB
 }
 
-func NewRepository(db *sql.DB, scheduleTrackingInfoRepository IScheduleTrackingInfoRepository) *Repository {
-	return &Repository{db: db, scheduleTrackingInfoRepository: scheduleTrackingInfoRepository}
+func NewRepository(db *sql.DB, scheduleTrackingInfoRepository IScheduleTrackingInfoRepository, tariffProvider user_balance.IService) *Repository {
+	return &Repository{db: db, scheduleTrackingInfoRepository: scheduleTrackingInfoRepository, tariffProvider: tariffProvider}
 }
 func (r *Repository) checkContainerOrBillExists(ctx context.Context, userId int, isContainer bool, number string) bool {
 	if isContainer {
@@ -217,4 +221,85 @@ func (r *Repository) GetAllContainersAndBillNumbers(ctx context.Context, userId 
 	allBillNumbersAndContainers.Containers = containers
 	allBillNumbersAndContainers.BillNumbers = billNumbers
 	return &allBillNumbersAndContainers, nil
+}
+
+func (r *Repository) getBaseInfoAboutUser(ctx context.Context, userId int) (*domain.UserWithId, error) {
+	user := new(domain.UserWithId)
+	user.CompanyData = new(domain.CompanyData)
+	user.Tariff = new(domain.Tariff)
+	row := r.db.QueryRowContext(ctx, `SELECT 
+       u.id, 
+       u.email,
+       u.username,
+       c.company_full_name ,
+       c.company_abbreviated_name ,
+       c.inn ,
+       c.ogrn ,
+       c.legal_address ,
+       c.post_address ,
+       c.work_email 
+		FROM "user" AS u 
+		LEFT JOIN "company" as c ON c.user_id = u.id 
+		WHERE u.id = $1`, userId)
+	if err := row.Scan(
+		&user.Id,
+		&user.Email,
+		&user.Username,
+		&user.CompanyData.CompanyFullName,
+		&user.CompanyData.CompanyAbbreviatedName,
+		&user.CompanyData.INN,
+		&user.CompanyData.OGRN,
+		&user.CompanyData.LegalAddress,
+		&user.CompanyData.PostAddress,
+		&user.CompanyData.WorkEmail); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *Repository) GetInfoAboutUser(ctx context.Context, userId int) (*domain.UserWithId, error) {
+	user, err := r.getBaseInfoAboutUser(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	tariff, err := r.tariffProvider.GetCurrentTariff(ctx, int64(userId))
+	if err != nil {
+		return nil, err
+	}
+	user.Tariff = tariff
+
+	numbers, err := r.GetAllContainersAndBillNumbers(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+	user.Numbers = numbers
+
+	return user, nil
+
+}
+
+func (r *Repository) UpdateCompanyData(ctx context.Context, userId int, companyData *domain.CompanyData) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE "company" SET 
+	company_full_name = $1,
+	company_abbreviated_name = $2,
+	inn = $3,
+	ogrn = $4,
+	legal_address = $5,
+	post_address = $6,
+	work_email = $7
+	WHERE user_id = $8`,
+		companyData.CompanyFullName,
+		companyData.CompanyAbbreviatedName,
+		companyData.INN,
+		companyData.OGRN,
+		companyData.LegalAddress,
+		companyData.PostAddress,
+		companyData.WorkEmail,
+		userId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

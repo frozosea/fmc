@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
-	user_pb "github.com/frozosea/fmc-pb/user"
+	user_pb "github.com/frozosea/fmc-pb/v2/user"
 	"schedule-tracking/pkg/logging"
 	"schedule-tracking/pkg/util"
 )
@@ -18,16 +18,19 @@ type IUserClient interface {
 	CheckNumberBelongUser(ctx context.Context, number string, userId int64, isContainer bool) bool
 	MarkContainerWasNotArrived(ctx context.Context, userId int64, number string) error
 	MarkBillWasNotArrived(ctx context.Context, userId int64, number string) error
+	SubFromBalance(ctx context.Context, userId int64, number string) error
+	CheckAccessToPaidTracking(ctx context.Context, userId int64) (bool, error)
 }
 
 type UserClient struct {
-	cli    user_pb.ScheduleTrackingClient
-	token  util.ITokenManager
-	logger logging.ILogger
+	cli        user_pb.ScheduleTrackingClient
+	balanceCli user_pb.BalanceClient
+	token      util.ITokenManager
+	logger     logging.ILogger
 }
 
-func NewClient(cli user_pb.ScheduleTrackingClient, logger logging.ILogger) *UserClient {
-	return &UserClient{cli: cli, logger: logger}
+func NewClient(cli user_pb.ScheduleTrackingClient, balanceCli user_pb.BalanceClient, logger logging.ILogger) *UserClient {
+	return &UserClient{cli: cli, balanceCli: balanceCli, logger: logger}
 }
 
 func (c *UserClient) MarkBillNoOnTrack(ctx context.Context, userId int64, number string) error {
@@ -100,4 +103,20 @@ func (c *UserClient) MarkBillWasNotArrived(ctx context.Context, userId int64, nu
 		return err
 	}
 	return nil
+}
+func (c *UserClient) SubFromBalance(ctx context.Context, userId int64, number string) error {
+	if _, err := c.balanceCli.SubOneDayTrackingPriceFromBalance(ctx, &user_pb.SubBalanceServiceRequest{
+		UserId: userId,
+		Number: number,
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+func (c *UserClient) CheckAccessToPaidTracking(ctx context.Context, userId int64) (bool, error) {
+	r, err := c.balanceCli.CheckAccessToPaidTracking(ctx, &user_pb.CheckAccessToPaidTrackingRequest{UserId: userId})
+	if err != nil {
+		return false, err
+	}
+	return r.HasAccess, nil
 }

@@ -75,6 +75,9 @@ func (b *Builder) initUserGateway() *Builder {
 	if err := userPb.RegisterAuthHandlerFromEndpoint(b.ctx, b.mux, url, b.opts); err != nil {
 		panic(err)
 	}
+	if err := userPb.RegisterBalanceHandlerFromEndpoint(b.ctx, b.mux, url, b.opts); err != nil {
+		panic(err)
+	}
 	return b
 }
 func (b *Builder) initTrackingGateway() *Builder {

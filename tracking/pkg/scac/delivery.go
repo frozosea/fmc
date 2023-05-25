@@ -2,7 +2,7 @@ package scac
 
 import (
 	"context"
-	pb "github.com/frozosea/fmc-pb/tracking"
+	pb "github.com/frozosea/fmc-pb/v2/tracking"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

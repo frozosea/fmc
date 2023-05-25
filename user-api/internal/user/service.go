@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"user-api/internal/domain"
 	"user-api/pkg/cache"
@@ -77,4 +78,22 @@ func (p *Service) GetAllContainers(ctx context.Context, userId int) (*domain.All
 	case repoRes := <-repoCh:
 		return repoRes, p.cache.Set(ctx, fmt.Sprintf(`%d`, userId), repoRes)
 	}
+}
+func (p *Service) GetInfoAboutUser(ctx context.Context, userId int) (*domain.UserWithId, error) {
+	data, err := p.repository.GetInfoAboutUser(ctx, userId)
+	if err != nil {
+		go p.logger.ExceptionLog(fmt.Sprintf(`get info about user: %d error: %s`, userId, err.Error()))
+		return nil, err
+	}
+	return data, nil
+}
+func (p *Service) UpdateCompanyData(ctx context.Context, userId int, companyData *domain.CompanyData) error {
+	if err := p.repository.UpdateCompanyData(ctx, userId, companyData); err != nil {
+		go func() {
+			j, _ := json.Marshal(companyData)
+			p.logger.ExceptionLog(fmt.Sprintf(`update company for user: %d data: %v err: %s`, userId, string(j), err.Error()))
+		}()
+		return err
+	}
+	return nil
 }
