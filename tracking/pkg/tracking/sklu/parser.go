@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"golang_tracking/pkg/tracking"
+	"golang_tracking/pkg/tracking/util"
 	"golang_tracking/pkg/tracking/util/datetime"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -115,18 +117,19 @@ func (i *InfoAboutMovingParser) Get(document *goquery.Document, containerNo stri
 	}
 	locations := tracking.StringSliceWithStep(table, 1, lastIndex, 3)
 	vessels := tracking.StringSliceWithStep(table, 0, lastIndex, 3)
-
 	if len(times) != len(operations) || len(locations) != len(operations) || len(vessels) != len(operations) {
-		return nil, errors.New("lens of arrays (times,operations,locations,vessels) are not equal")
+		times = util.GetAllNextUniqueValues(times)
+		locations = util.GetAllNextUniqueValues(locations)
+		vessels = util.GetAllNextUniqueValues(vessels)
+		return nil, &LensNotEqualError{}
 	}
-
 	for index, v := range vessels {
 		if v == containerNo {
 			vessels[index] = ""
 		}
 	}
 
-	for index := 0; index < len(operations); index++ {
+	for index := 0; index < len(times); index++ {
 		eventTime, err := i.timeParser.get(times[index])
 		if err != nil {
 			continue
@@ -155,4 +158,37 @@ func (c *ContainerNumberParser) Get(doc *goquery.Document) (string, error) {
 		return "", errors.New("cannot find container number")
 	}
 	return text, nil
+}
+
+type EtaParser struct {
+	timeParser *timeParser
+	dt         datetime.IDatetime
+}
+
+func NewEtaParser(dt datetime.IDatetime) *EtaParser {
+	return &EtaParser{timeParser: newTimeParser(dt), dt: dt}
+}
+func (e *EtaParser) clearRawText(rawText string) (string, error) {
+	re, err := regexp.Compile("[\\t\\n\\r\\f\\v]")
+	if err != nil {
+		return "", err
+	}
+	return strings.Join(strings.Fields(strings.Trim(re.ReplaceAllString(rawText, ""), " ")), " "), nil
+}
+func (e *EtaParser) GetEta(doc *goquery.Document) (time.Time, error) {
+	firstDivLength := doc.Find("#wrapper > div > div:nth-child(4) > div.panel-body > div > div.form-both.form-group > div").Children().Length()
+	toUlSelector := fmt.Sprintf("#wrapper > div > div:nth-child(4) > div.panel-body > div > div.form-both.form-group > div:nth-child(%d) > ul > li.col-sm-12.col-md-8", firstDivLength)
+	lastDivSelectorLength := doc.Find(toUlSelector).Children().Length()
+	selector := fmt.Sprintf(`%s > div:nth-child(%d)`, toUlSelector, lastDivSelectorLength)
+	rawText := doc.Find(selector).Text()
+	re, err := regexp.Compile("\\d{4}-\\d{1,2}-\\d{1,2} \\d{1,2}:\\d{2}")
+	if err != nil {
+		return time.Time{}, err
+	}
+	text, err := e.clearRawText(rawText)
+	if err != nil {
+		return time.Time{}, err
+	}
+	textTime := strings.TrimSpace(re.FindAllString(text, 1)[0])
+	return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
 }

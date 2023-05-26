@@ -12,16 +12,20 @@ services:
       USER_GRPC_HOST: user_api
       USER_GRPC_PORT: 9001
       POSTGRES_USER: schedule_tracking
-      POSTGRES_PASSWORD: schedule_tracking_password
+      POSTGRES_PASSWORD: 7LBd1wr6YUrZmOaJINobBg==
       POSTGRES_DATABASE: schedule_tracking_db
       POSTGRES_HOST: postgres_db
       POSTGRES_PORT: 5434
       TZ: Asia/Vladivostok
-      SENDER_EMAIL: <YOUR_SENDER_EMAIL>
-      EMAIL_PASSWORD: <YOUR_SENDER_EMAIL_PASSWORD>
-      EMAIL_SMTP_HOST: <YOUR_SENDER_EMAIL_SMTP_HOST>
-      EMAIL_SMTP_PORT: <YOUR_SENDER_EMAIL_SMTP_PORT>
+      SENDER_EMAIL: base@mailing.findmycargo.ru
+      EMAIL_PASSWORD: WguRaPfLXrbhAk2qNCbY
+      EMAIL_SMTP_HOST: smtp.mail.ru
+      EMAIL_SMTP_PORT: 465
       TIME_FORMAT: 2006-01-02 15:04
+      CERT_DIR_PATH: ./
+      PRODUCTION: 1
+    volumes:
+      - ./cert/:/app/cert
     depends_on:
       - postgres_db
   postgres_db:
@@ -34,7 +38,7 @@ services:
     environment:
       LC_ALL: C.UTF-8
       POSTGRES_USER: schedule_tracking
-      POSTGRES_PASSWORD: schedule_tracking_password
+      POSTGRES_PASSWORD: 7LBd1wr6YUrZmOaJINobBg==
       POSTGRES_DB: schedule_tracking_db
     command: -p 5434
     networks:
@@ -44,7 +48,7 @@ services:
     volumes:
       - ./schema/:/schema
     command:
-      [ "-path", "./schema" ,"-database",  "postgres://schedule_tracking:schedule_tracking_password@postgres_db:5434/schedule_tracking_db?sslmode=disable", "up" ]
+      [ "-path", "./schema" ,"-database",  "postgres://schedule_tracking:7LBd1wr6YUrZmOaJINobBg==@postgres_db:5434/schedule_tracking_db?sslmode=disable", "up" ]
     depends_on:
       - postgres_db
     networks:
@@ -53,16 +57,20 @@ services:
     image: flyasea/postgres-dump:latest
     environment:
       POSTGRES_USER: schedule_tracking
-      POSTGRES_PASSWORD: schedule_tracking_password
+      POSTGRES_PASSWORD: 7LBd1wr6YUrZmOaJINobBg==
       POSTGRES_DATABASE: schedule_tracking_db
       POSTGRES_HOST: postgres_db
       POSTGRES_PORT: 5434
-      S3_HOST: <YOUR_S3_HOST>
-      S3_BUCKET: <YOUR_S3_BUCKET>
-      S3_ACCESS_KEY: <YOUR_S3_ACCESS_KEY>
-      S3_SECRET_KEY: <YOUR_S3_SECRET_KEY>
+      S3_HOST: storage.yandexcloud.net
+      S3_BUCKET: findmycargo
+      S3_ACCESS_KEY: YCAJEj1AR2zVOssUEJ8mZ6NlQ
+      S3_SECRET_KEY: YCNcz5sOcsEhQP5hcVNLPZUUTTyomqN5gfXkgiS9
       DUMP_TIME: 8h
-      ENCRYPT_KEY: <YOUR_ENCRYPT_KEY>
+      ENCRYPT_KEY: NWu+5jcnxWwDFR58hY42MA==
+      PREFIX: schedule_tracking
+      DUMP_NAME: schedule_tracking_dump
+    networks:
+      - public
 networks:
   public:
     name: public

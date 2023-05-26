@@ -69,7 +69,7 @@ func testContainerSize(t *testing.T, size string) {
 	assert.Equal(t, expectedContainerSize, size)
 }
 func testEta(t *testing.T, eta time.Time) {
-	expectedEta := time.Date(2022, 11, 06, 0, 0, 0, 0, time.UTC)
+	expectedEta := time.Date(2022, 06, 17, 8, 0, 0, 0, time.UTC)
 	assert.Equal(t, expectedEta, eta)
 }
 func TestApiParser(t *testing.T) {
@@ -82,7 +82,7 @@ func TestApiParser(t *testing.T) {
 	d := parser.Get(getApiResponse(t))
 
 	testContainerSize(t, d.ContainerSize)
-	testEta(t, d.Eta)
+	assert.Equal(t, d.Eta, time.Date(2022, time.November, 6, 0, 0, 0, 0, time.UTC))
 	assert.Equal(t, "RUVYP", d.Unlocode)
 }
 
@@ -170,7 +170,7 @@ func TestContainerTracker(t *testing.T) {
 	assert.Equal(t, "SKLU", response.Scac)
 	testContainerSize(t, response.Size)
 	testInfoAboutMoving(t, response.InfoAboutMoving[:len(response.InfoAboutMoving)-1])
-	testEta(t, response.InfoAboutMoving[len(response.InfoAboutMoving)-1].Time)
+	assert.Equal(t, response.InfoAboutMoving[len(response.InfoAboutMoving)-1].Time, time.Date(2022, time.November, 6, 0, 0, 0, 0, time.UTC))
 }
 
 func TestBillNumberTracker(t *testing.T) {

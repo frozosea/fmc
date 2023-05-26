@@ -11,16 +11,24 @@ services:
       TRACKING_PORT: 51372
       SCHEDULE_TRACKING_HOST: schedule_tracking_api
       SCHEDULE_TRACKING_PORT: 8005
+      FREIGHT_HOST: freight_api
+      FREIGHT_PORT: 51839
+      CERT_DIR_PATH: ./
+      PRODUCTION: 1
+    volumes:
+      - ./cert/:/app/cert
     networks:
       - public
   nginx:
     image: nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - "./nginx_templates/nginx.conf:/etc/nginx/nginx.conf"
       - "./nginx_templates/proxy.conf:/etc/nginx/proxy.conf"
       - "./:/var/www"
+      - "/etc/letsencrypt/:/etc/letsencrypt/"
     depends_on:
       - gateway
     networks:

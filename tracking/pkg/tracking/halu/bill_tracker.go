@@ -18,6 +18,7 @@ func NewBillTracker(cfg *tracking.BaseConstructorArgumentsForTracker) *BillTrack
 			ApiParser:              sklu.NewApiParser(cfg.Datetime),
 			InfoAboutMovingParser:  sklu.NewInfoAboutMovingParser(cfg.Datetime),
 			ContainerNumberParser:  sklu.NewContainerNumberParser(),
+			EtaParser:              sklu.NewEtaParser(cfg.Datetime),
 		},
 	}
 }

@@ -11,6 +11,7 @@ type BillTracker struct {
 	ApiParser              *ApiParser
 	InfoAboutMovingParser  *InfoAboutMovingParser
 	ContainerNumberParser  *ContainerNumberParser
+	EtaParser              *EtaParser
 }
 
 func NewBillTracker(cfg *tracking.BaseConstructorArgumentsForTracker) *BillTracker {
@@ -20,41 +21,50 @@ func NewBillTracker(cfg *tracking.BaseConstructorArgumentsForTracker) *BillTrack
 		ApiParser:              NewApiParser(cfg.Datetime),
 		InfoAboutMovingParser:  NewInfoAboutMovingParser(cfg.Datetime),
 		ContainerNumberParser:  NewContainerNumberParser(),
+		EtaParser:              NewEtaParser(cfg.Datetime),
 	}
 }
 
 func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillNumberTrackingResponse, error) {
-	docForParseContainerNumber, err := b.InfoAboutMovingRequest.Send(ctx, number, "")
-	if err != nil {
-		panic(err)
-		return nil, err
-	}
-
-	containerNumber, err := b.ContainerNumberParser.Get(docForParseContainerNumber)
+	doc, err := b.InfoAboutMovingRequest.Send(ctx, number, "")
 	if err != nil {
 		return nil, err
 	}
-
-	apiResponse, err := b.ApiRequest.Send(ctx, number, containerNumber)
+	containerNumber, err := b.ContainerNumberParser.Get(doc)
 	if err != nil {
 		return nil, err
 	}
+	//
+	//apiResponse, err := b.ApiRequest.Send(ctx, number, containerNumber)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//containerInfo := b.ApiParser.Get(apiResponse)
+	//
+	//docForInfoAboutMoving, err := b.InfoAboutMovingRequest.Send(ctx, number, containerNumber)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	containerInfo := b.ApiParser.Get(apiResponse)
-
-	docForInfoAboutMoving, err := b.InfoAboutMovingRequest.Send(ctx, number, containerNumber)
+	infoAboutMoving, _ := b.InfoAboutMovingParser.Get(doc, containerNumber)
 	if err != nil {
-		return nil, err
+		switch err.(type) {
+		case *LensNotEqualError:
+			infoAboutMoving = []*tracking.Event{}
+		default:
+			return nil, err
+		}
 	}
 
-	infoAboutMoving, err := b.InfoAboutMovingParser.Get(docForInfoAboutMoving, containerNumber)
+	eta, err := b.EtaParser.GetEta(doc)
 	if err != nil {
 		return nil, err
 	}
 
 	return &tracking.BillNumberTrackingResponse{
 		Number:          number,
-		Eta:             containerInfo.Eta,
+		Eta:             eta,
 		Scac:            "SKLU",
 		InfoAboutMoving: infoAboutMoving,
 	}, nil
