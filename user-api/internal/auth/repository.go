@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"user-api/internal/domain"
 )
 
@@ -42,7 +41,6 @@ func NewRepository(db *sql.DB, hash IHash) *Repository {
 func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) (int64, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		fmt.Println(err.Error())
 		tx.Rollback()
 		return -1, err
 	}
@@ -54,13 +52,11 @@ func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) (i
 		user.Username,
 		user.Password,
 	).Scan(&userId); err != nil {
-		fmt.Println(err.Error())
 		tx.Rollback()
 		return -1, NewAlreadyRegisterError()
 	}
 
 	if !userId.Valid {
-		fmt.Println(err.Error())
 		tx.Rollback()
 		return -1, NewAlreadyRegisterError()
 	}
@@ -85,7 +81,6 @@ func (r *Repository) Register(ctx context.Context, user *domain.RegisterUser) (i
 		user.CompanyData.PostAddress,
 		user.CompanyData.WorkEmail,
 	); err != nil {
-		fmt.Println(err.Error())
 		tx.Rollback()
 		return -1, err
 	}

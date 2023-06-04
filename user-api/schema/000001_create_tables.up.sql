@@ -97,11 +97,26 @@ CREATE TABLE IF NOT EXISTS "balance_transaction"
 ALTER TABLE "balance_transaction"
     ADD CONSTRAINT "balance_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
+CREATE TABLE IF NOT EXISTS "numbers"
+(
+    "id"               SERIAL  NOT NULL,
+    "number"           VARCHAR NOT NULL,
+    "user_id"          INT     NOT NULL,
+    "days_on_tracking" INT     NOT NULL,
+    "is_container"     BOOLEAN NOT NULL,
+    CONSTRAINT "numbers_pk" PRIMARY KEY ("id")
+) WITH (
+      OIDS= FALSE
+    );
+ALTER TABLE "numbers"
+    ADD CONSTRAINT "numbers_fk0" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
+
+
 CREATE TABLE IF NOT EXISTS "number_transaction"
 (
-    "id"             SERIAL  NOT NULL,
-    "transaction_id" INT     NOT NULL,
-    "number"         VARCHAR NOT NULL,
+    "id"             SERIAL NOT NULL,
+    "transaction_id" INT    NOT NULL,
+    "number_id"      INT    NOT NULL,
     CONSTRAINT "number_tr_pk" PRIMARY KEY ("id")
 ) WITH (
       OIDS= FALSE
@@ -109,7 +124,9 @@ CREATE TABLE IF NOT EXISTS "number_transaction"
 
 
 ALTER TABLE "number_transaction"
-    ADD CONSTRAINT "number_tr_fk0" FOREIGN KEY ("transaction_id") REFERENCES "balance_transaction" ("id");
+    ADD CONSTRAINT "numbers_tr_fk0" FOREIGN KEY ("number_id") REFERENCES "numbers" ("id");
+ALTER TABLE "number_transaction"
+    ADD CONSTRAINT "number_tr_fk1" FOREIGN KEY ("transaction_id") REFERENCES "balance_transaction" ("id");
 
 CREATE OR REPLACE FUNCTION is_value_free_for_containers(_header_id integer, _value varchar) RETURNS BOOLEAN AS
 $$

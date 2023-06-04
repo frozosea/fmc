@@ -3,7 +3,6 @@ package user_balance
 import (
 	"context"
 	"database/sql"
-	"fmt"
 )
 
 type IRepository interface {
@@ -27,7 +26,6 @@ func (r *Repository) GetAllNumbersOnTrack(ctx context.Context, userId int64) (in
 `, userId, userId).Scan(&containerOnTrackQuantity, &billsOnTrackQuantity)
 
 	if err != nil {
-		fmt.Println(err)
 		return 0, err
 	}
 
