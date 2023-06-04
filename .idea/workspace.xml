@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7256db20-8b97-4a63-832f-8577d093471f" name="Changes" comment="fix sklu and halu line">
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/fmc5.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/util.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/halu/bill_tracker.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/halu/bill_tracker.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/halu/request.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/halu/request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/bill_tracker.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/bill_tracker.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/container_tracker.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/container_tracker.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/parser.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/parser.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/request.go" beforeDir="false" afterPath="$PROJECT_DIR$/tracking/pkg/tracking/sklu/request.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-api/internal/auth/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/user-api/internal/auth/repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-api/internal/user_balance/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/user-api/internal/user_balance/repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-api/internal/user_balance/transactions/entity.go" beforeDir="false" afterPath="$PROJECT_DIR$/user-api/internal/user_balance/transactions/entity.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-api/internal/user_balance/transactions/repository.go" beforeDir="false" afterPath="$PROJECT_DIR$/user-api/internal/user_balance/transactions/repository.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-api/schema/000001_create_tables.up.sql" beforeDir="false" afterPath="$PROJECT_DIR$/user-api/schema/000001_create_tables.up.sql" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/go/go1.19" />
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/http-gateway/cmd/main.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/deployment/swarm/services/user-api/schema/000001_create_tables.up.sql" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/sklu/parser.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/sinokor.html" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/sklu/bill_tracker.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/cmd/config.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/errors.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/http-gateway/go.mod" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/user-api/internal/user/delivery.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/cmd/main.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/go.mod" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/bill_tracker.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/deployment/swarm/services/schedule-tracking/schedule-tracking.yaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/sklu/test_data/exampleApiResponse.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/cmd/main.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/halu/bill_tracker.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/deployment/swarm/services/user-api/user-api.yaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/pkg/tracking/halu/request.go" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/schedule-tracking/go.mod" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/tracking/sinokor.html" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiPersistence">
+    <option name="context" value="minikube" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectId" id="2Prd8pLUE1cA8OmFLWMe0SQwWBT" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.format.on.save.advertiser.fired" value="true" />
+    <property name="go.formatter.settings.were.checked" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="go.modules.go.list.on.any.changes.was.set" value="true" />
+    <property name="go.sdk.automatically.set" value="true" />
+    <property name="go.watchers.conflict.with.on.save.actions.check.performed" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/user-api/internal/user_balance" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/user-api/internal/user_balance" />
+      <recent name="$PROJECT_DIR$/schedule-tracking" />
+      <recent name="$PROJECT_DIR$/tracking" />
+      <recent name="$PROJECT_DIR$/user-api" />
+      <recent name="$PROJECT_DIR$/http-gateway" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/user-api/internal" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build golang_tracking/cmd">
+    <configuration name="go build golang_tracking/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="fmc5" />
+      <working_directory value="$PROJECT_DIR$/tracking" />
+      <kind value="PACKAGE" />
+      <package value="golang_tracking/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/tracking/cmd/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build http-gateway/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="fmc5" />
+      <working_directory value="$PROJECT_DIR$/http-gateway" />
+      <kind value="PACKAGE" />
+      <package value="http-gateway/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/http-gateway/cmd/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build test/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="fmc5" />
+      <working_directory value="$PROJECT_DIR$/test" />
+      <kind value="PACKAGE" />
+      <package value="test/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/test/cmd/main.go" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestApiParser in golang_tracking/pkg/tracking/sklu" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="fmc5" />
+      <working_directory value="$PROJECT_DIR$/tracking/pkg/tracking/sklu" />
+      <root_directory value="$PROJECT_DIR$/tracking" />
+      <kind value="PACKAGE" />
+      <package value="golang_tracking/pkg/tracking/sklu" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestApiParser\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestContainerTracker in golang_tracking/pkg/tracking/sklu" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="fmc5" />
+      <working_directory value="$PROJECT_DIR$/tracking/pkg/tracking/sklu" />
+      <root_directory value="$PROJECT_DIR$/tracking" />
+      <kind value="PACKAGE" />
+      <package value="golang_tracking/pkg/tracking/sklu" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestContainerTracker\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build golang_tracking/cmd" />
+        <item itemvalue="Go Build.go build test/cmd" />
+        <item itemvalue="Go Build.go build http-gateway/cmd" />
+        <item itemvalue="Go Test.TestApiParser in golang_tracking/pkg/tracking/sklu" />
+        <item itemvalue="Go Test.TestContainerTracker in golang_tracking/pkg/tracking/sklu" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="add PRODUCTION env variable and remove prints" />
+    <MESSAGE value="fix recovery user url generator" />
+    <MESSAGE value="add timeInspector" />
+    <MESSAGE value="fix urls (remove https cuz certificate problem)" />
+    <MESSAGE value="refactored registration (built it for legal entity)" />
+    <MESSAGE value="fix migrations" />
+    <MESSAGE value="add work with balance functional" />
+    <MESSAGE value="fix sklu and halu line" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix sklu and halu line" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+</project>
