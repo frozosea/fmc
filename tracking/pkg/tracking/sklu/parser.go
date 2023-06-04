@@ -189,6 +189,10 @@ func (e *EtaParser) GetEta(doc *goquery.Document) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	textTime := strings.TrimSpace(re.FindAllString(text, 1)[0])
-	return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
+	allString := re.FindAllString(text, 1)
+	if len(allString) > 0 {
+		textTime := strings.TrimSpace(allString[0])
+		return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
+	}
+	return time.Time{}, nil
 }

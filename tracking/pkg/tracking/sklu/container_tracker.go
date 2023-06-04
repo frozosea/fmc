@@ -32,15 +32,12 @@ func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.
 
 	containerInfo := c.ApiParser.Get(apiResponse)
 
-	infoAboutMovingDoc, err := c.InfoAboutMovingRequest.Send(ctx, containerInfo.BillNo, number)
+	infoAboutMovingDoc, err := c.InfoAboutMovingRequest.Send(ctx, containerInfo.BillNo, "")
 	if err != nil {
 		return nil, err
 	}
 
-	infoAboutMoving, err := c.InfoAboutMovingParser.Get(infoAboutMovingDoc, number)
-	if err != nil {
-		return nil, err
-	}
+	infoAboutMoving, _ := c.InfoAboutMovingParser.Get(infoAboutMovingDoc, number)
 
 	podFullName, err := c.UnlocodesRepo.GetFullName(ctx, containerInfo.Unlocode)
 	if err != nil {
