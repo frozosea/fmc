@@ -123,14 +123,23 @@ func GetTrackingSettings() (*TrackingClientSettings, error) {
 }
 
 func GetTrackingClient(conf *TrackingClientSettings, logger logging.ILogger) *tracking.Client {
-	tlsCredentials, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
-	}
-	conn, err := grpc.Dial(fmt.Sprintf(`%s:%s`, conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
-	if err != nil {
-		panic(err)
-		return &tracking.Client{}
+	var conn *grpc.ClientConn
+	var err error
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
+
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithTransportCredentials(tlsCredentials))
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		conn, err = grpc.Dial(fmt.Sprintf("%s:%s", conf.Ip, conf.Port), grpc.WithInsecure())
+		if err != nil {
+			panic(err)
+		}
 	}
 	client := tracking.NewClient(conn, logger)
 	return client

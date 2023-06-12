@@ -12,6 +12,7 @@ import (
 	"golang_tracking/pkg/scac"
 	"golang_tracking/pkg/tracking"
 	"golang_tracking/pkg/tracking/cosu"
+	"golang_tracking/pkg/tracking/dnyg"
 	"golang_tracking/pkg/tracking/feso"
 	"golang_tracking/pkg/tracking/halu"
 	"golang_tracking/pkg/tracking/maeu"
@@ -54,6 +55,7 @@ type Builder struct {
 	oneyContainerTracker         *oney.ContainerTracker
 	sitcContainerTracker         *sitc.ContainerTracker
 	skluContainerTracker         *sklu.ContainerTracker
+	dnygContainerTracker         *dnyg.ContainerTracker
 	scacRepository               scac_accessory.IRepository
 	containerTrackingMainTracker *tracking.ContainerTracker
 	containerTrackingService     *tracking.ContainerTrackingService
@@ -64,7 +66,8 @@ type Builder struct {
 	sitcBillTracker     *sitc.BillTracker
 	skluBillTracker     *sklu.BillTracker
 	zhguBillTracker     *zhgu.BillTracker
-	reelBillTracking    *reel.BillTracker
+	reelBillTracker     *reel.BillTracker
+	dnygBillTracker     *dnyg.BillTracker
 	billMainTracker     *tracking.BillTracker
 	billTrackingService *tracking.BillTrackingService
 	billTrackingGrpc    *tracking.BillNumberTrackingGrpc
@@ -78,11 +81,15 @@ func NewBuilder() *Builder {
 }
 
 func (b *Builder) initGRPCServer() *Builder {
-	tlsCredentials, err := loadTLSCredentials()
-	if err != nil {
-		log.Fatal("cannot load TLS credentials: ", err)
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCredentials, err := loadTLSCredentials()
+		if err != nil {
+			log.Fatal("cannot load TLS credentials: ", err)
+		}
+		b.server = grpc.NewServer(grpc.Creds(tlsCredentials))
+	} else {
+		b.server = grpc.NewServer()
 	}
-	b.server = grpc.NewServer(grpc.Creds(tlsCredentials))
 	return b
 }
 
@@ -172,6 +179,7 @@ func (b *Builder) initContainerTrackers() *Builder {
 	b.oneyContainerTracker = oney.NewContainerTracker(b.getArgsForTrackers())
 	b.sitcContainerTracker = sitc.NewContainerTracker(b.getArgsForTrackers(), b.sitcStore)
 	b.skluContainerTracker = sklu.NewContainerTracker(b.getArgsForTrackers(), b.unclocodesRepository)
+	b.dnygContainerTracker = dnyg.NewContainerTracker(b.getArgsForTrackers())
 	return b
 }
 
@@ -190,6 +198,7 @@ func (b *Builder) initMainContainerTracker() *Builder {
 		"ONEY": b.oneyContainerTracker,
 		"SITC": b.sitcContainerTracker,
 		"SKLU": b.skluContainerTracker,
+		"DNYG": b.dnygContainerTracker,
 	})
 	return b
 }
@@ -231,7 +240,8 @@ func (b *Builder) initBillTrackers() *Builder {
 	)
 	b.skluBillTracker = sklu.NewBillTracker(b.getArgsForTrackers())
 	b.zhguBillTracker = zhgu.NewBillTracker(b.getArgsForTrackers())
-	b.reelBillTracking = reel.NewBillTracker(b.getArgsForTrackers())
+	b.reelBillTracker = reel.NewBillTracker(b.getArgsForTrackers())
+	b.dnygBillTracker = dnyg.NewBillTracker(b.getArgsForTrackers())
 	return b
 }
 
@@ -242,7 +252,8 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"SITC": b.sitcBillTracker,
 		"SKLU": b.skluBillTracker,
 		"ZHGU": b.zhguBillTracker,
-		"REEL": b.reelBillTracking,
+		"REEL": b.reelBillTracker,
+		"DNYG": b.dnygBillTracker,
 	})
 	return b
 }

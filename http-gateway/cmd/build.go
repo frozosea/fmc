@@ -43,11 +43,16 @@ func NewBuilder() *Builder {
 	return builder
 }
 func (b *Builder) initCreds() *Builder {
-	tlsCreds, err := loadClientTLSCredentials()
-	if err != nil {
-		panic(err)
+	if os.Getenv("PRODUCTION") == "1" {
+		tlsCreds, err := loadClientTLSCredentials()
+		if err != nil {
+			panic(err)
+		}
+		b.opts = append(b.opts, grpc.WithTransportCredentials(tlsCreds))
+
+	} else {
+		b.opts = append(b.opts, grpc.WithInsecure())
 	}
-	b.opts = append(b.opts, grpc.WithTransportCredentials(tlsCreds))
 	return b
 }
 func (b *Builder) initEnvVariables() *Builder {

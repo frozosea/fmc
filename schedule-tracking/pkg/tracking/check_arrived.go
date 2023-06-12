@@ -273,12 +273,10 @@ func NewMaeuArrivedChecker(maeuRequest IMaeuRequest) *maeuArrivedChecker {
 	return &maeuArrivedChecker{r: maeuRequest}
 }
 func (m *maeuArrivedChecker) checkStatus(response *maeuResponse) IsArrived {
-	fmt.Println(response.Containers[0].Status)
 	return IsArrived(strings.EqualFold(response.Containers[0].Status, "COMPLETE"))
 }
 func (m *maeuArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
 	resp, err := m.r.Get(result.Container)
-	fmt.Println(err)
 	if err != nil {
 		return true
 	}
@@ -351,6 +349,140 @@ func (r *reelArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 
 }
 
+type dnygNumberInfoResponse struct {
+	DltResultBlList []struct {
+		OUTPOD   string `json:"OUTPOD"`
+		OUTVDS   string `json:"OUTVDS"`
+		OUTBKN   string `json:"OUTBKN"`
+		OUTETD   string `json:"OUTETD"`
+		OUTBNO   string `json:"OUTBNO"`
+		OUTETA   string `json:"OUTETA"`
+		OUTCNT   string `json:"OUTCNT"`
+		OUTPOL   string `json:"OUTPOL"`
+		SIZETYPE string `json:"SIZETYPE"`
+	} `json:"dlt_resultBlList"`
+}
+
+type dnygNumberInfoRequestBodyGenerator struct {
+}
+
+func newNumberInfoRequestBodyGenerator() *dnygNumberInfoRequestBodyGenerator {
+	return &dnygNumberInfoRequestBodyGenerator{}
+}
+
+func (n *dnygNumberInfoRequestBodyGenerator) Generate(number string, isContainer bool) ([]byte, error) {
+	var t struct {
+		DmaSearchInfo struct {
+			BUKRS      string `json:"BUKRS"`
+			INPBNO     string `json:"INPBNO"`
+			INPCNTRNO  string `json:"INPCNTRNO"`
+			INPBKN     string `json:"INPBKN"`
+			USRCCD     string `json:"USRCCD"`
+			PROFILESEQ string `json:"PROFILESEQ"`
+			LANGCD     string `json:"LANGCD"`
+		} `json:"dma_searchInfo"`
+	}
+
+	t.DmaSearchInfo.BUKRS = "2000"
+
+	if isContainer {
+		t.DmaSearchInfo.INPCNTRNO = number
+	} else {
+		t.DmaSearchInfo.INPBNO = number
+	}
+
+	t.DmaSearchInfo.LANGCD = "en"
+
+	return json.Marshal(t)
+}
+
+type dnygArrivedChecker struct {
+	request       requests.IHttp
+	bodyGenerator *dnygNumberInfoRequestBodyGenerator
+}
+
+func newDnygArrivedChecker() *dnygArrivedChecker {
+	return &dnygArrivedChecker{
+		request:       requests.New(),
+		bodyGenerator: newNumberInfoRequestBodyGenerator(),
+	}
+}
+
+func (d *dnygArrivedChecker) getNumberInfo(number string, isContainer bool) (*dnygNumberInfoResponse, error) {
+	body, err := d.bodyGenerator.Generate(number, isContainer)
+	if err != nil {
+		return nil, err
+	}
+
+	headers := map[string]string{
+		"Accept":             "application/json",
+		"Accept-Language":    "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6,zh-CN;q=0.5,zh;q=0.4",
+		"Connection":         "keep-alive",
+		"Content-Type":       "application/json; charset=\"UTF-8\"",
+		"Origin":             "https://ebiz.pcsline.co.kr",
+		"Referer":            "https://ebiz.pcsline.co.kr/",
+		"Sec-Fetch-Dest":     "empty",
+		"Sec-Fetch-Mode":     "cors",
+		"Sec-Fetch-Site":     "same-origin",
+		"sec-ch-ua":          "\"Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"",
+		"sec-ch-ua-mobile":   "?0",
+		"sec-ch-ua-platform": "\"macOS\"",
+	}
+
+	response, err := d.request.Url("https://ebiz.pcsline.co.kr/trk/trkE0710R01N").Method("POST").Headers(headers).Body(body).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	if response.Status > 300 {
+		return nil, requests.NewStatusCodeError(response.Status)
+	}
+
+	var s *dnygNumberInfoResponse
+	if err := json.Unmarshal(response.Body, &s); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+func (d *dnygArrivedChecker) parsePOD(response *dnygNumberInfoResponse) string {
+	if len(response.DltResultBlList) == 0 {
+		return ""
+	}
+	split := strings.Split(response.DltResultBlList[0].OUTPOD, "<")
+	if len(split) > 1 {
+		return strings.Trim(strings.ToUpper(split[0]), " ")
+	}
+	return ""
+}
+
+func (d *dnygArrivedChecker) checkArrived(number string, events []BaseInfoAboutMoving, isContainer bool) bool {
+	response, err := d.getNumberInfo(number, isContainer)
+	if err != nil {
+		return false
+	}
+	pod := d.parsePOD(response)
+	for _, event := range events {
+		if strings.EqualFold(pod, event.Location) {
+			return true
+		}
+	}
+	return false
+}
+
+func (d *dnygArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
+	if len(result.InfoAboutMoving) == 0 {
+		return false
+	}
+	return IsArrived(d.checkArrived(result.Container, result.InfoAboutMoving, true))
+}
+func (d *dnygArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
+	if len(result.InfoAboutMoving) == 0 {
+		return false
+	}
+	return IsArrived(d.checkArrived(result.BillNo, result.InfoAboutMoving, false))
+}
+
 type ArrivedChecker struct {
 	*skluArrivedChecker
 	*fesoArrivedChecker
@@ -361,6 +493,7 @@ type ArrivedChecker struct {
 	*sitcArrivedChecker
 	*zhguArrivedChecker
 	*reelArrivedChecker
+	*dnygArrivedChecker
 }
 
 func NewArrivedChecker() *ArrivedChecker {
@@ -372,6 +505,7 @@ func NewArrivedChecker() *ArrivedChecker {
 		sitcArrivedChecker: newSitcArrivedChecker(),
 		zhguArrivedChecker: newZhguArrivedChecker(),
 		reelArrivedChecker: newReelArrivedChecker(),
+		dnygArrivedChecker: newDnygArrivedChecker(),
 	}
 }
 
