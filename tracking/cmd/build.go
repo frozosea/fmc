@@ -11,6 +11,7 @@ import (
 	"golang_tracking/pkg/logging"
 	"golang_tracking/pkg/scac"
 	"golang_tracking/pkg/tracking"
+	"golang_tracking/pkg/tracking/akkn"
 	"golang_tracking/pkg/tracking/cosu"
 	"golang_tracking/pkg/tracking/dnyg"
 	"golang_tracking/pkg/tracking/feso"
@@ -68,6 +69,7 @@ type Builder struct {
 	zhguBillTracker     *zhgu.BillTracker
 	reelBillTracker     *reel.BillTracker
 	dnygBillTracker     *dnyg.BillTracker
+	akknBillTracker     *akkn.BillTracker
 	billMainTracker     *tracking.BillTracker
 	billTrackingService *tracking.BillTrackingService
 	billTrackingGrpc    *tracking.BillNumberTrackingGrpc
@@ -242,6 +244,7 @@ func (b *Builder) initBillTrackers() *Builder {
 	b.zhguBillTracker = zhgu.NewBillTracker(b.getArgsForTrackers())
 	b.reelBillTracker = reel.NewBillTracker(b.getArgsForTrackers())
 	b.dnygBillTracker = dnyg.NewBillTracker(b.getArgsForTrackers())
+	b.akknBillTracker = akkn.NewBillTracker(b.getArgsForTrackers())
 	return b
 }
 
@@ -254,6 +257,7 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"ZHGU": b.zhguBillTracker,
 		"REEL": b.reelBillTracker,
 		"DNYG": b.dnygBillTracker,
+		"AKKN": b.akknBillTracker,
 	})
 	return b
 }

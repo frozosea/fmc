@@ -8,6 +8,7 @@ import (
 	"github.com/corpix/uarand"
 	"schedule-tracking/pkg/requests"
 	"strings"
+	"time"
 )
 
 type IsArrived bool
@@ -483,6 +484,17 @@ func (d *dnygArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 	return IsArrived(d.checkArrived(result.BillNo, result.InfoAboutMoving, false))
 }
 
+type akknArrivedChecker struct {
+}
+
+func newAkknArrivedChecker() *akknArrivedChecker {
+	return &akknArrivedChecker{}
+}
+
+func (a *akknArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArrived {
+	return IsArrived(time.Now().Unix() > result.EtaFinalDelivery.Unix())
+}
+
 type ArrivedChecker struct {
 	*skluArrivedChecker
 	*fesoArrivedChecker
@@ -494,6 +506,7 @@ type ArrivedChecker struct {
 	*zhguArrivedChecker
 	*reelArrivedChecker
 	*dnygArrivedChecker
+	*akknArrivedChecker
 }
 
 func NewArrivedChecker() *ArrivedChecker {
@@ -506,6 +519,7 @@ func NewArrivedChecker() *ArrivedChecker {
 		zhguArrivedChecker: newZhguArrivedChecker(),
 		reelArrivedChecker: newReelArrivedChecker(),
 		dnygArrivedChecker: newDnygArrivedChecker(),
+		akknArrivedChecker: newAkknArrivedChecker(),
 	}
 }
 
@@ -524,12 +538,13 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 	case "COSU":
 		return a.cosuArrivedChecker.checkContainerArrived(result)
 	case "MAEU":
-		fmt.Println("MAEU")
 		return a.maeuArrivedChecker.checkContainerArrived(result)
 	case "SITC":
 		return a.sitcArrivedChecker.checkContainerArrived(result)
 	case "ZHGU":
 		return a.zhguArrivedChecker.checkContainerArrived(result)
+	case "DNYG":
+		return a.dnygArrivedChecker.checkContainerArrived(result)
 	default:
 		return false
 	}
@@ -556,6 +571,10 @@ func (a *ArrivedChecker) CheckBillNoArrived(result BillNumberResponse) IsArrived
 		return a.sitcArrivedChecker.checkBillNoArrived(result)
 	case "ZHGU":
 		return a.zhguArrivedChecker.checkBillNoArrived(result)
+	case "DNYG":
+		return a.dnygArrivedChecker.checkBillNoArrived(result)
+	case "AKKN":
+		return a.akknArrivedChecker.checkBillNoArrived(result)
 	default:
 		return false
 	}
