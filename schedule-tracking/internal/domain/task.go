@@ -85,7 +85,7 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 				return
 			}
 			for i := 0; i < 3; i++ {
-				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!", number), "text/plain"); err != nil {
+				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!\n\n%s прибыл в порт назначения и был автоматически снят со слежения. \nЕсли наша система сняла номер по ошибке - напишите ваш фидбэк через форму на сайте, и мы обязательно с этим разберемся. \nСпасибо, что используете нас!", number, number), "text/plain"); err != nil {
 					continue
 				} else {
 					break
