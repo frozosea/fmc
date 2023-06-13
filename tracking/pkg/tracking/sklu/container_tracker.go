@@ -27,7 +27,7 @@ func NewContainerTracker(cfg *tracking.BaseConstructorArgumentsForTracker, repo 
 func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
 	apiResponse, err := c.ApiRequest.Send(ctx, "", number)
 	if err != nil {
-		return nil, err
+		return nil, tracking.NewNotThisLineException()
 	}
 
 	containerInfo := c.ApiParser.Get(apiResponse)
