@@ -2,6 +2,7 @@ package dnyg
 
 import (
 	"context"
+	"errors"
 	"golang_tracking/pkg/tracking"
 )
 
@@ -28,20 +29,23 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 	if err != nil {
 		return nil, err
 	}
+	if len(containerNumberInfo.DltResultBlList) > 0 {
+		infoAboutMovingRawResponse, err := b.infoAboutMovingRequest.Send(ctx, containerNumberInfo.DltResultBlList[0].OUTBKN, containerNumberInfo.DltResultBlList[0].OUTBNO, containerNumberInfo.DltResultBlList[0].OUTCNT)
+		if err != nil {
+			return nil, err
+		}
 
-	infoAboutMovingRawResponse, err := b.infoAboutMovingRequest.Send(ctx, containerNumberInfo.DltResultBlList[0].OUTBKN, containerNumberInfo.DltResultBlList[0].OUTBNO, containerNumberInfo.DltResultBlList[0].OUTCNT)
-	if err != nil {
-		return nil, err
+		infoAboutMoving := b.infoAboutMovingParser.Parse(infoAboutMovingRawResponse)
+
+		eta, err := b.etaParser.parse(containerNumberInfo)
+
+		return &tracking.BillNumberTrackingResponse{
+			Number:          number,
+			Eta:             eta,
+			Scac:            "DNYG",
+			InfoAboutMoving: infoAboutMoving,
+		}, nil
+	} else {
+		return nil, errors.New("invalid data")
 	}
-
-	infoAboutMoving := b.infoAboutMovingParser.Parse(infoAboutMovingRawResponse)
-
-	eta, err := b.etaParser.parse(containerNumberInfo)
-
-	return &tracking.BillNumberTrackingResponse{
-		Number:          number,
-		Eta:             eta,
-		Scac:            "DNYG",
-		InfoAboutMoving: infoAboutMoving,
-	}, nil
 }
