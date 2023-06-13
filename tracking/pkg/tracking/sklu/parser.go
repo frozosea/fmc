@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"golang_tracking/pkg/tracking"
+	"golang_tracking/pkg/tracking/util"
 	"golang_tracking/pkg/tracking/util/datetime"
 	"regexp"
 	"strings"
@@ -117,6 +118,9 @@ func (i *InfoAboutMovingParser) Get(document *goquery.Document, containerNo stri
 	locations := tracking.StringSliceWithStep(table, 1, lastIndex, 3)
 	vessels := tracking.StringSliceWithStep(table, 0, lastIndex, 3)
 	if len(times) != len(operations) || len(locations) != len(operations) || len(vessels) != len(operations) {
+		times = util.GetAllNextUniqueValues(times)
+		locations = util.GetAllNextUniqueValues(locations)
+		vessels = util.GetAllNextUniqueValues(vessels)
 		return nil, &LensNotEqualError{}
 	}
 	for index, v := range vessels {
@@ -185,6 +189,10 @@ func (e *EtaParser) GetEta(doc *goquery.Document) (time.Time, error) {
 	if err != nil {
 		return time.Time{}, err
 	}
-	textTime := strings.TrimSpace(re.FindAllString(text, 1)[0])
-	return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
+	allString := re.FindAllString(text, 1)
+	if len(allString) > 0 {
+		textTime := strings.TrimSpace(allString[0])
+		return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
+	}
+	return time.Time{}, nil
 }

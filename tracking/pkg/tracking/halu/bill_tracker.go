@@ -13,11 +13,13 @@ type BillTracker struct {
 func NewBillTracker(cfg *tracking.BaseConstructorArgumentsForTracker) *BillTracker {
 	return &BillTracker{
 		BillTracker: &sklu.BillTracker{
+			NumberExistsChecker:    sklu.NewCheckBookingNumberExists(cfg.Request, NewCheckBookingNumberExistsUrlGenerator(), NewCheckNumberExistsHeadersGenerator()),
 			ApiRequest:             sklu.NewApiRequest(cfg.Request, NewUrlGeneratorForApiRequest(), NewHeadersGeneratorForApiRequest(cfg.UserAgentGenerator)),
 			InfoAboutMovingRequest: sklu.NewInfoAboutMovingRequest(cfg.Request, NewUrlGeneratorForInfoAboutMovingRequest(), NewHeadersGeneratorForInfoAboutMovingRequest(cfg.UserAgentGenerator)),
 			ApiParser:              sklu.NewApiParser(cfg.Datetime),
 			InfoAboutMovingParser:  sklu.NewInfoAboutMovingParser(cfg.Datetime),
 			ContainerNumberParser:  sklu.NewContainerNumberParser(),
+			EtaParser:              sklu.NewEtaParser(cfg.Datetime),
 		},
 	}
 }

@@ -2,7 +2,6 @@ package dnyg
 
 import (
 	"context"
-	"errors"
 	"golang_tracking/pkg/tracking"
 )
 
@@ -54,5 +53,5 @@ func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.
 			InfoAboutMoving: infoAboutMoving,
 		}, nil
 	}
-	return nil, errors.New("invalid data")
+	return nil, tracking.NewNotThisLineException()
 }

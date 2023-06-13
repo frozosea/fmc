@@ -2,7 +2,6 @@ package dnyg
 
 import (
 	"context"
-	"errors"
 	"golang_tracking/pkg/tracking"
 )
 
@@ -46,6 +45,6 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 			InfoAboutMoving: infoAboutMoving,
 		}, nil
 	} else {
-		return nil, errors.New("invalid data")
+		return nil, tracking.NewNotThisLineException()
 	}
 }

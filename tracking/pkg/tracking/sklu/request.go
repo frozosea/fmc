@@ -30,7 +30,6 @@ func (h *HeadersGeneratorForApiRequest) Generate() map[string]string {
 		"Connection":       "keep-alive",
 		"Host":             "ebiz.sinokor.co.kr",
 		"Referer":          "http://ebiz.sinokor.co.kr/Tracking",
-		"User-Agent":       h.generator.Generate(),
 		"X-Requested-With": "XMLHttpRequest",
 	}
 }

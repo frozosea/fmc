@@ -244,7 +244,6 @@ func (b *Builder) initBillTrackers() *Builder {
 	b.zhguBillTracker = zhgu.NewBillTracker(b.getArgsForTrackers())
 	b.reelBillTracker = reel.NewBillTracker(b.getArgsForTrackers())
 	b.dnygBillTracker = dnyg.NewBillTracker(b.getArgsForTrackers())
-	b.akknBillTracker = akkn.NewBillTracker(b.getArgsForTrackers())
 	return b
 }
 
@@ -257,7 +256,6 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"ZHGU": b.zhguBillTracker,
 		"REEL": b.reelBillTracker,
 		"DNYG": b.dnygBillTracker,
-		"AKKN": b.akknBillTracker,
 	})
 	return b
 }
