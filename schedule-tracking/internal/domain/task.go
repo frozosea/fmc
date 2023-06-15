@@ -62,7 +62,6 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 			}
 		}
 		if c.arrivedChecker.CheckContainerArrived(result) {
-			fmt.Println("ARRIVED")
 			if markErr := c.userClient.MarkContainerWasArrived(ctx, userId, number); markErr != nil {
 				c.logger.ExceptionLog(fmt.Sprintf(`mark container is arrived  with: %s err: %s `, result.Container, markErr.Error()))
 				fmt.Println(markErr)
@@ -94,7 +93,6 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 		}
 		pathToFile, writeErr := c.writer.WriteContainerNo(result, c.timeFormatter.Convert)
 		if writeErr != nil {
-			fmt.Println(writeErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`write file failed: %s`, err.Error()))
 			return
 		}
@@ -105,11 +103,9 @@ func (c *CustomTasks) GetTrackByContainerNumberTask(number string, emails []stri
 			subject = emailSubject
 		}
 		if sendErr := c.mailing.SendWithFile(ctx, emails, subject, pathToFile); sendErr != nil {
-			fmt.Println(sendErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`send mail to %s failed: %s`, emails, sendErr.Error()))
 		}
 		if removeErr := os.Remove(pathToFile); removeErr != nil {
-			fmt.Println(removeErr)
 			c.logger.ExceptionLog(fmt.Sprintf(`remove %s failed: %s`, pathToFile, removeErr.Error()))
 		}
 	}
@@ -154,7 +150,7 @@ func (c *CustomTasks) GetTrackByBillNumberTask(number string, emails []string, u
 				return
 			}
 			for i := 0; i < 3; i++ {
-				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!", number), "text/plain"); err != nil {
+				if err := c.mailing.SendSimple(ctx, emails, fmt.Sprintf("%s was arrived", number), fmt.Sprintf("%s was arrived, and removed from schedule tracking. \nIf our system wrongly removed your cargo, please write your feedback in techical support on our website, we will do all our best. \nThanks for using us!\n\n%s прибыл в порт назначения и был автоматически снят со слежения. \nЕсли наша система сняла номер по ошибке - напишите ваш фидбэк через форму на сайте, и мы обязательно с этим разберемся. \nСпасибо, что используете нас!", number, number), "text/plain"); err != nil {
 					continue
 				} else {
 					break
