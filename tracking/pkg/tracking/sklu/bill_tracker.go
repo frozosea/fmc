@@ -38,11 +38,15 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 	}
 	containerNumber, _ := b.ContainerNumberParser.Get(doc)
 
-	infoAboutMoving, _ := b.InfoAboutMovingParser.Get(doc, containerNumber)
+	infoAboutMoving, err := b.InfoAboutMovingParser.Get(doc, containerNumber)
 	if err != nil {
 		switch err.(type) {
 		case *LensNotEqualError:
-			infoAboutMoving = []*tracking.Event{}
+			doc, err = b.InfoAboutMovingRequest.Send(ctx, number, containerNumber)
+			infoAboutMoving, err = b.InfoAboutMovingParser.Get(doc, containerNumber)
+			if err != nil {
+				infoAboutMoving = []*tracking.Event{}
+			}
 		default:
 			return nil, err
 		}
