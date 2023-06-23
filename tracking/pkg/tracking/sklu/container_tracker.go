@@ -27,18 +27,18 @@ func NewContainerTracker(cfg *tracking.BaseConstructorArgumentsForTracker, repo 
 func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
 	apiResponse, err := c.ApiRequest.Send(ctx, "", number)
 	if err != nil {
-		return nil, tracking.NewNotThisLineException()
+		return nil, err
 	}
 
 	containerInfo := c.ApiParser.Get(apiResponse)
 
-	infoAboutMovingDoc, err := c.InfoAboutMovingRequest.Send(ctx, containerInfo.BillNo, "")
+	infoAboutMovingDoc, err := c.InfoAboutMovingRequest.Send(ctx, containerInfo.BillNo, number)
 	if err != nil {
 		return nil, err
 	}
 
-	infoAboutMoving, _ := c.InfoAboutMovingParser.Get(infoAboutMovingDoc, number)
-
+	infoAboutMoving, err := c.InfoAboutMovingParser.Get(infoAboutMovingDoc, number)
+	
 	podFullName, err := c.UnlocodesRepo.GetFullName(ctx, containerInfo.Unlocode)
 	if err != nil {
 		podFullName = containerInfo.Unlocode
