@@ -1,6 +1,7 @@
 package sitc
 
 import (
+	"errors"
 	"golang_tracking/pkg/tracking"
 	"golang_tracking/pkg/tracking/util/datetime"
 	"strings"
@@ -56,6 +57,9 @@ func newEtaParser(datetime datetime.IDatetime) *etaParser {
 }
 
 func (e *etaParser) get(response *BillNumberApiResponse) (time.Time, error) {
+	if len(response.Data.List2) == 0 {
+		return time.Time{}, errors.New("no data")
+	}
 	lastIndex := len(response.Data.List2) - 1
 	return e.datetime.Strptime(response.Data.List2[lastIndex].Eta, "%y-%m-%d %H:%M")
 }
