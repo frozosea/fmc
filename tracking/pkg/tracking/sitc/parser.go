@@ -1,7 +1,6 @@
 package sitc
 
 import (
-	"errors"
 	"golang_tracking/pkg/tracking"
 	"golang_tracking/pkg/tracking/util/datetime"
 	"strings"
@@ -42,6 +41,9 @@ func newContainerNumberParser() *containerNumberParser {
 }
 
 func (c *containerNumberParser) get(response *BillNumberApiResponse) string {
+	if len(response.Data.List3) == 0 {
+		return ""
+	}
 	return response.Data.List3[0].ContainerNo
 }
 
@@ -54,16 +56,8 @@ func newEtaParser(datetime datetime.IDatetime) *etaParser {
 }
 
 func (e *etaParser) get(response *BillNumberApiResponse) (time.Time, error) {
-	if len(response.Data.List2) == 0 {
-		return time.Time{}, errors.New("no data")
-	}
 	lastIndex := len(response.Data.List2) - 1
-	cctb := response.Data.List2[lastIndex].Cctb
-	if cctb == "" {
-		//YYYY-MM-DD HH:mm
-		return e.datetime.Strptime(response.Data.List2[lastIndex].Eta, "%y-%m-%d %H:%M")
-	}
-	return e.datetime.Strptime(cctb, "%y-%m-%d %H:%M")
+	return e.datetime.Strptime(response.Data.List2[lastIndex].Eta, "%y-%m-%d %H:%M")
 }
 
 type billNumberInfoAboutMovingParser struct {

@@ -38,10 +38,7 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 		return nil, err
 	}
 	containerNumber := b.containerNumberParser.get(billNumberResponse)
-	containerNumberInfoResponse, err := b.request.GetContainerInfo(ctx, number, containerNumber)
-	if err != nil {
-		return nil, err
-	}
+	containerNumberInfoResponse, _ := b.request.GetContainerInfo(ctx, number, containerNumber)
 	infoAboutMoving := b.infoAboutMovingParser.get(containerNumberInfoResponse)
 	return &tracking.BillNumberTrackingResponse{
 		Number:          number,
