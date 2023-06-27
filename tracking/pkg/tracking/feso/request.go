@@ -94,7 +94,6 @@ func (f *Request) Send(ctx context.Context, number string) (*ResponseSchema, err
 	for index, item := range rawBody.Containers {
 		rawBody.Containers[index] = strings.Replace(item, `\`, ``, -1)
 	}
-
 	var b *ResponseSchema
 	if err := json.Unmarshal([]byte(rawBody.Containers[0]), &b); err != nil {
 		return nil, err

@@ -41,19 +41,6 @@ type location struct {
 	Here   bool   `json:"here,omitempty"`
 }
 
-type T struct {
-	Container       string    `json:"container"`
-	Time            time.Time `json:"time"`
-	ContainerCTCode string    `json:"containerCTCode"`
-	ContainerOwner  string    `json:"containerOwner"`
-	RequestDate     time.Time `json:"requestDate"`
-	LatLng          struct {
-		Lat float64 `json:"lat"`
-		Lng float64 `json:"lng"`
-	} `json:"latLng"`
-	Locations  []*location            `json:"locations"`
-	LastEvents []*fesoLastEventSchema `json:"lastEvents"`
-}
 type ResponseSchema struct {
 	Container       string    `json:"container"`
 	Time            time.Time `json:"time"`
@@ -61,8 +48,8 @@ type ResponseSchema struct {
 	ContainerOwner  string    `json:"containerOwner"`
 	RequestDate     time.Time `json:"requestDate"`
 	LatLng          struct {
-		Lat float64 `json:"lat"`
-		Lng float64 `json:"lng"`
+		Lat string `json:"lat"`
+		Lng string `json:"lng"`
 	} `json:"latLng"`
 	Locations  []*location            `json:"locations"`
 	LastEvents []*fesoLastEventSchema `json:"lastEvents"`
