@@ -39,7 +39,6 @@ func (w *baseWriter) writeUpColoumns(file *excelize.File) error {
 func (w *baseWriter) writeInfoAboutMoving(file *excelize.File, infoAboutMoving []tracking.BaseInfoAboutMoving, timeFormatter func(time.Time) string) error {
 	var index = 2
 	for _, value := range infoAboutMoving {
-		fmt.Println(value.Time, timeFormatter(value.Time))
 		if err := file.SetCellStr("Sheet1", fmt.Sprintf(`A%d`, index), timeFormatter(value.Time)); err != nil {
 			return err
 		}

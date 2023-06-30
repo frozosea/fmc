@@ -138,7 +138,7 @@ func TestContainerTrackerWithMockUp(t *testing.T) {
 }
 
 func testEtaParser(t *testing.T, eta time.Time) {
-	assert.Equal(t, eta, time.Date(2022, 07, 13, 04, 0, 0, 0, time.UTC))
+	assert.Equal(t, time.Date(2022, time.July, 5, 21, 0, 0, 0, time.UTC), eta)
 }
 
 func TestEtaParser(t *testing.T) {

@@ -118,8 +118,11 @@ func (r *Request) do(ctx context.Context) (*Response, error) {
 		return nil, err
 	}
 	if len(r.form) != 0 {
-		r.request.Form = r.getForm()
-		r.request.PostForm = r.getForm()
+		req, err := http.NewRequest(r.method, r.url, strings.NewReader(r.getForm().Encode()))
+		if err != nil {
+			return nil, err
+		}
+		r.request = req
 	}
 	if len(r.query) != 0 {
 		for key, value := range r.query {

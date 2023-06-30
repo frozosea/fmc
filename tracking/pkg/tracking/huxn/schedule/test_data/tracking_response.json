@@ -1,0 +1,65 @@
+{
+  "status": "success",
+  "listDynamics": [
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Load on vessel empty",
+      "DYN_TIME": "2023/6/26 8:27:00",
+      "DYN_TIME_NAME": "MON JUN 26TH, 2023 08:27",
+      "PORT_FULL_NAME": "VLADIVOSTOK, RUSSIA (RUVVO)",
+      "PLACE_NAME": "VLADIVOSTOK SOLLERS TERMINAL",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23018S"
+    },
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Gate in empty",
+      "DYN_TIME": "2023/6/19 10:16:00",
+      "DYN_TIME_NAME": "MON JUN 19TH, 2023 10:16",
+      "PORT_FULL_NAME": "VLADIVOSTOK, RUSSIA (RUVVO)",
+      "PLACE_NAME": "VLADIVOSTOK SOLLERS TERMINAL",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23016N"
+    },
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Gate out full",
+      "DYN_TIME": "2023/6/16 11:05:00",
+      "DYN_TIME_NAME": "FRI JUN 16TH, 2023 11:05",
+      "PORT_FULL_NAME": "VLADIVOSTOK, RUSSIA (RUVVO)",
+      "PLACE_NAME": "VLADIVOSTOK SOLLERS TERMINAL",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23016N"
+    },
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Discharge from vessel full",
+      "DYN_TIME": "2023/6/12 3:35:00",
+      "DYN_TIME_NAME": "MON JUN 12TH, 2023 03:35",
+      "PORT_FULL_NAME": "VLADIVOSTOK, RUSSIA (RUVVO)",
+      "PLACE_NAME": "VLADIVOSTOK SOLLERS TERMINAL",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23016N"
+    },
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Load on vessel full",
+      "DYN_TIME": "2023/6/5 7:17:00",
+      "DYN_TIME_NAME": "MON JUN 5TH, 2023 07:17",
+      "PORT_FULL_NAME": "TAICANG, CHINA (CNTAC)",
+      "PLACE_NAME": "Suzhou Modern Terminals Co., Ltd",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23016N"
+    },
+    {
+      "CON_NO": "FTAU1753436",
+      "TG_CODE": "22GP",
+      "DYN_TYPE": "Gate in full",
+      "DYN_TIME": "2023/5/29 15:53:23",
+      "DYN_TIME_NAME": "MON MAY 29TH, 2023 15:53",
+      "PORT_FULL_NAME": "TAICANG, CHINA (CNTAC)",
+      "PLACE_NAME": "Suzhou Modern Terminals Co., Ltd",
+      "VESSEL_VOYAGE": "CHANG RONG 8 / 23016N"
+    }
+  ]
+}

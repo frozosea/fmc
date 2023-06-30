@@ -2,7 +2,6 @@ package akkn
 
 import (
 	"context"
-	"fmt"
 	"golang_tracking/pkg/tracking"
 )
 
@@ -22,7 +21,6 @@ func NewBillTracker(cfg *tracking.BaseConstructorArgumentsForTracker) *BillTrack
 
 func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillNumberTrackingResponse, error) {
 	doc, err := b.request.Send(ctx, number)
-	fmt.Println(doc.Html())
 	if err != nil {
 		return nil, err
 	}

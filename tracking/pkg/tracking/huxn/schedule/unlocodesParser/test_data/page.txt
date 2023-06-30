@@ -1,0 +1,318 @@
+
+
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SCHEDULE</title>
+    <link rel="stylesheet" type="text/css" href="../../Content/jquery-easyui-1.7.0/themes/metro/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../../Content/jquery-easyui-1.7.0/themes/mobile.css">
+    <link rel="stylesheet" type="text/css" href="../../Content/jquery-easyui-1.7.0/themes/icon.css">
+    <script type="text/javascript" src="../../Content/jquery-easyui-1.7.0/jquery.min.js"></script>
+    <script type="text/javascript" src="../../Content/jquery-easyui-1.7.0/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="../../Content/jquery-easyui-1.7.0/jquery.easyui.mobile.js"></script>
+
+    <script>
+
+        //查询船期列表
+        function SearchSchedules() {
+
+            //Ajax异步提交到后台
+            $.ajax({
+                url: '/HX_WeChat/SearchSchedules',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    "strPortLoad": $("#cmbPortLoad").val(),
+                    "strPortDisc": $("#cmbPortDisc").val(),
+                    "strEtd": $("#txtEtd").val(),
+                    "strWeeks": $("#cmbWeeks").val(),
+                    "strDirect": $("#cmbDirect").checkbox('options').checked
+                },
+                success: function (result) {
+
+                    if (null != result.listSchedules && result.listSchedules.length != 0) {
+
+                        //设置标题
+                        $("#lblPortLoad").text($("#cmbPortLoad option:selected").text() + " TO");
+                        $("#lblPortDisc").text($("#cmbPortDisc option:selected").text());
+
+                        //拼接Html
+                        var strHtml = '';
+                        //样式
+                        var strLi = "border-width:1px; margin-bottom:5px; background-color:#f0f0f0; padding-top:2px; padding-bottom:2px; padding-left:8px; padding-right:8px;";
+                        var strP1 = "font-size:10px; margin-top:2px; margin-bottom:2px;";
+                        var strP2 = "font-size:10px; margin-top:2px; margin-bottom:2px; font-weight:bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;";
+                        var strP3 = "font-size:10px; margin-top:2px; margin-bottom:4px; font-weight:bold; padding-bottom:4px; border-bottom: 1px solid #ddd;";
+                        var strDiv1 = "width: 50%; background-color: #f0f0f0; border: none; float:left;";
+                        var strDiv2 = "width: 50%; background-color: #f0f0f0; border: none; float:right;";
+
+                        //循环拼接
+                        $.each(result.listSchedules, function (n, value) {
+                            //显示查询列表
+                            strHtml += '<li style="' + strLi + '">';
+                            strHtml += '    <div style="' + strDiv1 + '">';
+                            strHtml += '        <p style="' + strP1 + '">Port of loading</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.PORT_LOAD_NAME + '</p>';
+                            strHtml += '        <p style="' + strP1 + '">Terminal of loading</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.LOAD_PIER_NAME + '</p>';
+                            strHtml += '        <p style="' + strP1 + '">Est.Departure Date</p>';
+                            strHtml += '        <p style="' + strP3 + '">' + value.LOAD_ETD_NAME + '</p>';
+                            if (null != value.BARGE_VESSEL)
+                            {
+                                strHtml += '    <p style="' + strP1 + '">Barge Vessel / Voyage No.</p>';
+                                strHtml += '    <p style="' + strP2 + '">' + value.BARGE_VESSEL + ' / ' + value.BARGE_VOYAGE + '</p>';
+                            }
+                            strHtml += '        <p style="' + strP1 + '">Vessel / Voyage No.</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.VESSEL + ' / ' + value.VOYAGE + '</p>';
+                            strHtml += '    </div>';
+                            strHtml += '    <div style="' + strDiv2 + '">';
+                            strHtml += '        <p style="' + strP1 + '">Port of discharge</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.PORT_DISC_NAME + '</p>';
+                            strHtml += '        <p style="' + strP1 + '">Terminal of discharge</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.DISC_PIER_NAME + '</p>';
+                            strHtml += '        <p style="' + strP1 + '">Est.Arrival Date</p>';
+                            strHtml += '        <p style="' + strP3 + '">' + value.DISC_ETA_NAME + '</p>';
+                            if (null != value.BARGE_VESSEL)
+                            {
+                                strHtml += '    <p style="' + strP1 + '">Transit Port</p>';
+                                strHtml += '    <p style="' + strP2 + '">' + value.BARGE_DISC_NAME + '</p>';
+                            }
+                            strHtml += '        <p style="' + strP1 + '">Transit Time</p>';
+                            strHtml += '        <p style="' + strP2 + '">' + value.TRANSIT_TIME + ' Days</p>';
+                            strHtml += '    </div>';
+                            strHtml += '</li>';
+                        });
+
+                        $("#ulSchedules").html(strHtml);
+
+                        //设置提示信息
+                        $("#lblMessage").text("");
+                        //设置滚动条位置
+                        $("#divForm").scrollTop(410);
+                    }
+                    else{
+
+                        //设置标题
+                        $("#lblPortLoad").text("");
+                        $("#lblPortDisc").text("");
+                        $("#ulSchedules").html("");
+                        //设置提示信息
+                        $("#lblMessage").text("There are no results for your chosen route.");
+                    }
+
+                    //console.log("调用成功！");
+                },
+                error: function () {
+                    //console.log("调用失败！")
+                },
+                complete: function () {
+                    //console.log("调用完成！");
+                }
+            });
+        };
+
+    </script>
+
+</head>
+<body>
+    <div id="divForm" class="easyui-navpanel">
+        <header style="background-color: #2972fa;">
+            <div class="m-toolbar">
+                <div class="m-title" style="color:white;">HUA XIN CONTAINER LINES</div>
+                <a href="/HX_WeChat/HX_Contact">
+                    <img src="../../Images/contact_big.png" style="width: 32px; height: 32px; border: 0; margin-top: -33px; margin-right: 8px; float: right;" />
+                </a>
+            </div>
+        </header>
+        <div style="padding:15px">
+            <h3 style="margin-top:5px; margin-bottom:5px;">SEARCH SCHEDULES</h3>
+            <p style ="margin-top:5px; margin-bottom:5px;">
+                <select id="cmbPortLoad" class="easyui-combobox" name="load" style="width:100%;" data-options="
+						label: '*Port of loading',
+						labelPosition: 'top',
+						prompt: 'Port of loading'
+						">
+                    <option value=""></option>
+                        <option value="CNBAY">BAYUQUAN, CHINA (CNBAY)</option>
+                        <option value="CNCGO">ZHENGZHOU, CHINA (CNCGO)</option>
+                        <option value="CNCGU">CHANGSHU, CHINA (CNCGU)</option>
+                        <option value="CNCKG">CHONGQING, CHINA (CNCKG)</option>
+                        <option value="CNCNA">CHANGSHA, CHINA (CNCNA)</option>
+                        <option value="CNCOZ">CHAOZHOU, CHINA (CNCOZ)</option>
+                        <option value="CNCTU">CHENGDU, CHINA (CNCTU)</option>
+                        <option value="CNDLC">DALIAN, CHINA (CNDLC)</option>
+                        <option value="CNFOC">FUZHOU, CHINA (CNFOC)</option>
+                        <option value="CNFUG">FUQING, CHINA (CNFUG)</option>
+                        <option value="CNHAK">HAIKOU, CHINA (CNHAK)</option>
+                        <option value="CNHUA">HUANGPU, CHINA (CNHUA)</option>
+                        <option value="CNJIA">JIANGYIN, CHINA (CNJIA)</option>
+                        <option value="CNJIU">JIUJIANG, CHINA (CNJIU)</option>
+                        <option value="CNLYG">LIANYUNGANG, CHINA (CNLYG)</option>
+                        <option value="CNNGB">NINGBO, CHINA (CNNGB)</option>
+                        <option value="CNNKG">NANJING, CHINA (CNNKG)</option>
+                        <option value="CNNSA">NANSHA, CHINA (CNNSA)</option>
+                        <option value="CNNTG">NANTONG, CHINA (CNNTG)</option>
+                        <option value="CNQZH">QINZHOU, CHINA (CNQZH)</option>
+                        <option value="CNQZJ">QUANZHOU, CHINA (CNQZJ)</option>
+                        <option value="CNRZH">RIZHAO, CHINA (CNRZH)</option>
+                        <option value="CNSFE">SUIFENHE, CHINA (CNSFE)</option>
+                        <option value="CNSHA">SHANGHAI, CHINA (CNSHA)</option>
+                        <option value="CNSHK">SHEKOU, CHINA (CNSHK)</option>
+                        <option value="CNSIA">XI AN, CHINA (CNSIA)</option>
+                        <option value="CNSWA">SHANTOU, CHINA (CNSWA)</option>
+                        <option value="CNSZX">SHENZHEN, CHINA (CNSZX)</option>
+                        <option value="CNTAC">TAICANG, CHINA (CNTAC)</option>
+                        <option value="CNTAO">QINGDAO, CHINA (CNTAO)</option>
+                        <option value="CNTJN">TIANJIN, CHINA (CNTJN)</option>
+                        <option value="CNWHI">WUHU, CHINA (CNWHI)</option>
+                        <option value="CNWNZ">WENZHOU, CHINA (CNWNZ)</option>
+                        <option value="CNWUH">WUHAN, CHINA (CNWUH)</option>
+                        <option value="CNXMN">XIAMEN, CHINA (CNXMN)</option>
+                        <option value="CNXNG">XINGANG, CHINA (CNXNG)</option>
+                        <option value="CNYIC">YICHANG, CHINA (CNYIC)</option>
+                        <option value="CNYIK">YINGKOU, CHINA (CNYIK)</option>
+                        <option value="CNYIU">YIWU, CHINA (CNYIU)</option>
+                        <option value="CNYPG">YANGPU, CHINA (CNYPG)</option>
+                        <option value="CNZAP">ZHAPU, CHINA (CNZAP)</option>
+                        <option value="CNZHA">ZHANJIANG, CHINA (CNZHA)</option>
+                        <option value="CNZHE">ZHENJIANG, CHINA (CNZHE)</option>
+                        <option value="CNZJG">ZHANGJIAGANG, CHINA (CNZJG)</option>
+                        <option value="CNZSN">ZHONGSHAN, CHINA (CNZSN)</option>
+                        <option value="JPNGO">NAGOYA, JAPAN (JPNGO)</option>
+                        <option value="JPOSA">OSAKA, JAPAN (JPOSA)</option>
+                        <option value="JPSBS">SHIBUSHI, JAPAN (JPSBS)</option>
+                        <option value="JPSHI">SHIMONOSEKI, JAPAN (JPSHI)</option>
+                        <option value="JPTYO">TOKYO, JAPAN (JPTYO)</option>
+                        <option value="JPUKB">KOBE, JAPAN (JPUKB)</option>
+                        <option value="JPYOK">YOKOHAMA, JAPAN (JPYOK)</option>
+                        <option value="KRINC">INCHON, KOREA (KRINC)</option>
+                        <option value="KRPTK">PYEONGTAEK, KOREA (KRPTK)</option>
+                        <option value="KRPUS">BUSAN, KOREA (KRPUS)</option>
+                        <option value="RUKRS">KRASNOAYRSK, RUSSIA (RUKRS)</option>
+                        <option value="RULED">SAINT PETERSBURG, RUSSIA (RULED)</option>
+                        <option value="RUMOS">MOSCOW, RUSSIA (RUMOS)</option>
+                        <option value="RUNAK">NAKHODKA, RUSSIA (RUNAK)</option>
+                        <option value="RUOVB">NOVOSIBIRSK, RUSSIA (RUOVB)</option>
+                        <option value="RUVVO">VLADIVOSTOK, RUSSIA (RUVVO)</option>
+                        <option value="RUVYP">VOSTOCHNY, RUSSIA (RUVYP)</option>
+                        <option value="RUYEK">YEKATERINBURG, RUSSIA (RUYEK)</option>
+                </select>
+            </p>
+            <p style="margin-top:5px; margin-bottom:5px;">
+                <select id="cmbPortDisc" class="easyui-combobox" name="discharge" style="width:100%;" data-options="
+						label: '*Port of discharge',
+						labelPosition: 'top',
+						prompt: 'Port of discharge'
+						">
+                    <option value=""></option>
+                        <option value="CNBAY">BAYUQUAN, CHINA (CNBAY)</option>
+                        <option value="CNCGO">ZHENGZHOU, CHINA (CNCGO)</option>
+                        <option value="CNCGU">CHANGSHU, CHINA (CNCGU)</option>
+                        <option value="CNCKG">CHONGQING, CHINA (CNCKG)</option>
+                        <option value="CNCNA">CHANGSHA, CHINA (CNCNA)</option>
+                        <option value="CNCOZ">CHAOZHOU, CHINA (CNCOZ)</option>
+                        <option value="CNCTU">CHENGDU, CHINA (CNCTU)</option>
+                        <option value="CNDLC">DALIAN, CHINA (CNDLC)</option>
+                        <option value="CNFOC">FUZHOU, CHINA (CNFOC)</option>
+                        <option value="CNFUG">FUQING, CHINA (CNFUG)</option>
+                        <option value="CNHAK">HAIKOU, CHINA (CNHAK)</option>
+                        <option value="CNHUA">HUANGPU, CHINA (CNHUA)</option>
+                        <option value="CNJIA">JIANGYIN, CHINA (CNJIA)</option>
+                        <option value="CNJIU">JIUJIANG, CHINA (CNJIU)</option>
+                        <option value="CNLYG">LIANYUNGANG, CHINA (CNLYG)</option>
+                        <option value="CNNGB">NINGBO, CHINA (CNNGB)</option>
+                        <option value="CNNKG">NANJING, CHINA (CNNKG)</option>
+                        <option value="CNNSA">NANSHA, CHINA (CNNSA)</option>
+                        <option value="CNNTG">NANTONG, CHINA (CNNTG)</option>
+                        <option value="CNQZH">QINZHOU, CHINA (CNQZH)</option>
+                        <option value="CNQZJ">QUANZHOU, CHINA (CNQZJ)</option>
+                        <option value="CNRZH">RIZHAO, CHINA (CNRZH)</option>
+                        <option value="CNSFE">SUIFENHE, CHINA (CNSFE)</option>
+                        <option value="CNSHA">SHANGHAI, CHINA (CNSHA)</option>
+                        <option value="CNSHK">SHEKOU, CHINA (CNSHK)</option>
+                        <option value="CNSIA">XI AN, CHINA (CNSIA)</option>
+                        <option value="CNSWA">SHANTOU, CHINA (CNSWA)</option>
+                        <option value="CNSZX">SHENZHEN, CHINA (CNSZX)</option>
+                        <option value="CNTAC">TAICANG, CHINA (CNTAC)</option>
+                        <option value="CNTAO">QINGDAO, CHINA (CNTAO)</option>
+                        <option value="CNTJN">TIANJIN, CHINA (CNTJN)</option>
+                        <option value="CNWHI">WUHU, CHINA (CNWHI)</option>
+                        <option value="CNWNZ">WENZHOU, CHINA (CNWNZ)</option>
+                        <option value="CNWUH">WUHAN, CHINA (CNWUH)</option>
+                        <option value="CNXMN">XIAMEN, CHINA (CNXMN)</option>
+                        <option value="CNXNG">XINGANG, CHINA (CNXNG)</option>
+                        <option value="CNYIC">YICHANG, CHINA (CNYIC)</option>
+                        <option value="CNYIK">YINGKOU, CHINA (CNYIK)</option>
+                        <option value="CNYIU">YIWU, CHINA (CNYIU)</option>
+                        <option value="CNYPG">YANGPU, CHINA (CNYPG)</option>
+                        <option value="CNZAP">ZHAPU, CHINA (CNZAP)</option>
+                        <option value="CNZHA">ZHANJIANG, CHINA (CNZHA)</option>
+                        <option value="CNZHE">ZHENJIANG, CHINA (CNZHE)</option>
+                        <option value="CNZJG">ZHANGJIAGANG, CHINA (CNZJG)</option>
+                        <option value="CNZSN">ZHONGSHAN, CHINA (CNZSN)</option>
+                        <option value="JPNGO">NAGOYA, JAPAN (JPNGO)</option>
+                        <option value="JPOSA">OSAKA, JAPAN (JPOSA)</option>
+                        <option value="JPSBS">SHIBUSHI, JAPAN (JPSBS)</option>
+                        <option value="JPSHI">SHIMONOSEKI, JAPAN (JPSHI)</option>
+                        <option value="JPTYO">TOKYO, JAPAN (JPTYO)</option>
+                        <option value="JPUKB">KOBE, JAPAN (JPUKB)</option>
+                        <option value="JPYOK">YOKOHAMA, JAPAN (JPYOK)</option>
+                        <option value="KRINC">INCHON, KOREA (KRINC)</option>
+                        <option value="KRPTK">PYEONGTAEK, KOREA (KRPTK)</option>
+                        <option value="KRPUS">BUSAN, KOREA (KRPUS)</option>
+                        <option value="RUKRS">KRASNOAYRSK, RUSSIA (RUKRS)</option>
+                        <option value="RULED">SAINT PETERSBURG, RUSSIA (RULED)</option>
+                        <option value="RUMOS">MOSCOW, RUSSIA (RUMOS)</option>
+                        <option value="RUNAK">NAKHODKA, RUSSIA (RUNAK)</option>
+                        <option value="RUOVB">NOVOSIBIRSK, RUSSIA (RUOVB)</option>
+                        <option value="RUVVO">VLADIVOSTOK, RUSSIA (RUVVO)</option>
+                        <option value="RUVYP">VOSTOCHNY, RUSSIA (RUVYP)</option>
+                        <option value="RUYEK">YEKATERINBURG, RUSSIA (RUYEK)</option>
+                </select>
+            </p>
+            <p style="margin-top:5px; margin-bottom:5px;">
+                <input id="txtEtd" class="easyui-datebox" name="txtEtd" style="width:100%;" data-options="
+						label: '*ETD',
+						labelPosition: 'top',
+						prompt: 'ETD'
+						">
+            </p>
+            <p style="margin-top:5px; margin-bottom:5px;">
+                <select id="cmbWeeks" class="easyui-combobox" name="weeks" style="width:100%;" data-options="
+						label: '*Weeks',
+						labelPosition: 'top',
+						prompt: 'Weeks'
+						">
+                    <option value="4">4 weeks out</option>
+                    <option value="3">3 weeks out</option>
+                    <option value="2">2 weeks out</option>
+                    <option value="1">1 weeks out</option>
+                </select>
+            </p>
+            <p style="margin-top:5px; margin-bottom:5px;">
+                <input id="cmbDirect" class="easyui-checkbox" name="Direct" label="Direct routing only" labelposition="after" labelwidth="200px">
+            </p>
+            <p style="margin-top:0px;">
+                <a href="#" class="easyui-linkbutton" data-options="plain:true" style="width: 100%; color: white; background-color: #2972fa;" onclick="SearchSchedules();">SEARCH</a>
+            </p>
+            <p id="lblMessage"></p>
+        </div>
+        <div id="divSchedules" style="padding:15px">
+            <h3 id="lblPortLoad" style="margin-top:5px; margin-bottom:5px;"></h3>
+            <h3 id="lblPortDisc" style="margin-top:5px; margin-bottom:5px;"></h3>
+            <ul id="ulSchedules" class="m-list">
+
+            </ul>
+        </div>
+        <footer style="background-color: #2972fa; padding:0px;">
+            <a href="/HX_WeChat/HX_Schedules" class="easyui-linkbutton" data-options="plain:true" style="width: 24%; float: left; color: white; background-color: #2972fa; border-right-width: 1px;">SCHEDULE</a>
+            <a href="/HX_WeChat/HX_Dynamics" class="easyui-linkbutton" data-options="plain:true" style="width: 24%; float: left; color: white; background-color: #2972fa; border-right-width: 1px; ">SHIPMENT</a>
+            <a href="/HX_WeChat/HX_Prices" class="easyui-linkbutton" data-options="plain:true" style="width: 24%; float: left; color: white; background-color: #2972fa; border-right-width: 1px; ">QUOTATION</a>
+            <a href="/HX_WeChat/HX_BillActions" class="easyui-linkbutton" data-options="plain:true" style="width: 28%; float: left; color: white; background-color: #2972fa;">B/L ACTIONS</a>
+        </footer>
+    </div>
+</body>
+</html>

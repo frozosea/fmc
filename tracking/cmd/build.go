@@ -16,6 +16,9 @@ import (
 	"golang_tracking/pkg/tracking/dnyg"
 	"golang_tracking/pkg/tracking/feso"
 	"golang_tracking/pkg/tracking/halu"
+	"golang_tracking/pkg/tracking/huxn"
+	huaxin_schedule "golang_tracking/pkg/tracking/huxn/schedule"
+	"golang_tracking/pkg/tracking/huxn/schedule/unlocodesParser"
 	"golang_tracking/pkg/tracking/maeu"
 	"golang_tracking/pkg/tracking/mscu"
 	"golang_tracking/pkg/tracking/oney"
@@ -57,6 +60,7 @@ type Builder struct {
 	sitcContainerTracker         *sitc.ContainerTracker
 	skluContainerTracker         *sklu.ContainerTracker
 	dnygContainerTracker         *dnyg.ContainerTracker
+	huxnContainerTracker         *huxn.ContainerTracker
 	scacRepository               scac_accessory.IRepository
 	containerTrackingMainTracker *tracking.ContainerTracker
 	containerTrackingService     *tracking.ContainerTrackingService
@@ -182,6 +186,12 @@ func (b *Builder) initContainerTrackers() *Builder {
 	b.sitcContainerTracker = sitc.NewContainerTracker(b.getArgsForTrackers(), b.sitcStore)
 	b.skluContainerTracker = sklu.NewContainerTracker(b.getArgsForTrackers(), b.unclocodesRepository)
 	b.dnygContainerTracker = dnyg.NewContainerTracker(b.getArgsForTrackers())
+	b.huxnContainerTracker = huxn.NewContainerTracker(b.getArgsForTrackers(), huaxin_schedule.NewService(
+		unlocodesParser.NewService(b.getArgsForTrackers().Request),
+		b.getArgsForTrackers().Request,
+		b.getArgsForTrackers().UserAgentGenerator,
+		b.getArgsForTrackers().Datetime,
+	))
 	return b
 }
 
@@ -201,6 +211,7 @@ func (b *Builder) initMainContainerTracker() *Builder {
 		"SITC": b.sitcContainerTracker,
 		"SKLU": b.skluContainerTracker,
 		"DNYG": b.dnygContainerTracker,
+		"HUXN": b.huxnContainerTracker,
 	})
 	return b
 }

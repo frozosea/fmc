@@ -39,6 +39,8 @@ var httpMockUp = requests.NewRequestMockUp(200, func(r requests.RequestMockUp) (
 		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	} else if r.RUrl == fmt.Sprintf(`http://ebiz.sinokor.co.kr/Tracking?blno=%s&cntrno=%s`, billNumber, containerNumber) {
 		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
+	} else if r.RUrl == fmt.Sprintf("http://ebiz.sinokor.co.kr/Home/chkExistsBooking?bkno=%s", billNumber) {
+		return json.Marshal(&CheckBookingNumberExistsResponse{STATUS: "Y", MSG: ""})
 	} else {
 		return os.ReadFile("test_data/exampleInfoAboutMoving.txt")
 	}
