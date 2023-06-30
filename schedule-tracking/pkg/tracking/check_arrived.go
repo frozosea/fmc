@@ -495,6 +495,21 @@ func (a *akknArrivedChecker) checkBillNoArrived(result BillNumberResponse) IsArr
 	return IsArrived(time.Now().Unix() > result.EtaFinalDelivery.Unix())
 }
 
+type huxnArrivedChecker struct {
+}
+
+func newHuxnArrivedChecker() *huxnArrivedChecker {
+	return &huxnArrivedChecker{}
+}
+func (h *huxnArrivedChecker) checkContainerArrived(result ContainerNumberResponse) IsArrived {
+	for _, v := range result.InfoAboutMoving {
+		if strings.EqualFold(v.OperationName, "\"Discharge from vessel full\"") {
+			return true
+		}
+	}
+	return false
+}
+
 type ArrivedChecker struct {
 	*skluArrivedChecker
 	*fesoArrivedChecker
@@ -507,6 +522,7 @@ type ArrivedChecker struct {
 	*reelArrivedChecker
 	*dnygArrivedChecker
 	*akknArrivedChecker
+	*huxnArrivedChecker
 }
 
 func NewArrivedChecker() *ArrivedChecker {
@@ -520,6 +536,7 @@ func NewArrivedChecker() *ArrivedChecker {
 		reelArrivedChecker: newReelArrivedChecker(),
 		dnygArrivedChecker: newDnygArrivedChecker(),
 		akknArrivedChecker: newAkknArrivedChecker(),
+		huxnArrivedChecker: newHuxnArrivedChecker(),
 	}
 }
 
@@ -545,6 +562,8 @@ func (a *ArrivedChecker) CheckContainerArrived(result ContainerNumberResponse) I
 		return a.zhguArrivedChecker.checkContainerArrived(result)
 	case "DNYG":
 		return a.dnygArrivedChecker.checkContainerArrived(result)
+	case "HUXN":
+		return a.huxnArrivedChecker.checkContainerArrived(result)
 	default:
 		return false
 	}
