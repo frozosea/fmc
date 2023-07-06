@@ -294,7 +294,7 @@ func newSitcArrivedChecker() *sitcArrivedChecker {
 }
 func (s *sitcArrivedChecker) checkInfoAboutMoving(result []BaseInfoAboutMoving) IsArrived {
 	for _, item := range result {
-		if strings.Contains(strings.ToUpper(item.OperationName), strings.ToUpper("Inbound Delivery")) ||
+		if strings.Contains(strings.ToUpper(item.OperationName), strings.ToUpper("INBOUND IN CY")) ||
 			strings.Contains(strings.ToUpper(item.OperationName), strings.ToUpper("Empty Container")) {
 			return true
 		}
