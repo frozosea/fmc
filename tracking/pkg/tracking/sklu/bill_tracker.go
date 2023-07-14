@@ -47,6 +47,8 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 			if err != nil {
 				infoAboutMoving = []*tracking.Event{}
 			}
+		case *ParseTableWithEventsError:
+			infoAboutMoving = []*tracking.Event{}
 		default:
 			return nil, err
 		}

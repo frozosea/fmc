@@ -50,7 +50,7 @@ func (t *TableParser) Get(doc *goquery.Document) ([]string, error) {
 		}
 	})
 	if len(events) == 0 {
-		return nil, errors.New("couldn't parse table in this html")
+		return nil, &ParseTableWithEventsError{}
 	}
 	return events, nil
 }
