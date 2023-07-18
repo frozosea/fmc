@@ -119,8 +119,7 @@ func (i *InfoAboutMovingParser) Get(document *goquery.Document, containerNo stri
 		times = times[:len(operations)-1]
 		locations = locations[:len(operations)-1]
 		vessels = vessels[:len(operations)-1]
-	}
-	if len(times) < len(operations) && len(locations) < len(operations) && len(vessels) < len(operations) {
+	} else if len(times) < len(operations) && len(locations) < len(operations) && len(vessels) < len(operations) {
 		return nil, &LensNotEqualError{}
 	}
 	for index, v := range vessels {

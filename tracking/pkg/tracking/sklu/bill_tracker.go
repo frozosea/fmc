@@ -37,7 +37,6 @@ func (b *BillTracker) Track(ctx context.Context, number string) (*tracking.BillN
 		return nil, err
 	}
 	containerNumber, _ := b.ContainerNumberParser.Get(doc)
-
 	infoAboutMoving, err := b.InfoAboutMovingParser.Get(doc, containerNumber)
 	if err != nil {
 		switch err.(type) {
