@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"golang_tracking/pkg/tracking"
-	"golang_tracking/pkg/tracking/util"
 	"golang_tracking/pkg/tracking/util/datetime"
 	"regexp"
 	"strings"
@@ -102,7 +101,6 @@ func NewInfoAboutMovingParser(datetime datetime.IDatetime) *InfoAboutMovingParse
 		tableParser:      NewTableParser(),
 	}
 }
-
 func (i *InfoAboutMovingParser) Get(document *goquery.Document, containerNo string) ([]*tracking.Event, error) {
 	var events []*tracking.Event
 	table, err := i.tableParser.Get(document)
@@ -117,10 +115,12 @@ func (i *InfoAboutMovingParser) Get(document *goquery.Document, containerNo stri
 	}
 	locations := tracking.StringSliceWithStep(table, 1, lastIndex, 3)
 	vessels := tracking.StringSliceWithStep(table, 0, lastIndex, 3)
-	if len(times) != len(operations) || len(locations) != len(operations) || len(vessels) != len(operations) {
-		times = util.GetAllNextUniqueValues(times)
-		locations = util.GetAllNextUniqueValues(locations)
-		vessels = util.GetAllNextUniqueValues(vessels)
+	if len(times) > len(operations) && len(locations) > len(operations) && len(vessels) > len(operations) {
+		times = times[:len(operations)-1]
+		locations = locations[:len(operations)-1]
+		vessels = vessels[:len(operations)-1]
+	}
+	if len(times) < len(operations) && len(locations) < len(operations) && len(vessels) < len(operations) {
 		return nil, &LensNotEqualError{}
 	}
 	for index, v := range vessels {
@@ -194,5 +194,5 @@ func (e *EtaParser) GetEta(doc *goquery.Document) (time.Time, error) {
 		textTime := strings.TrimSpace(allString[0])
 		return e.dt.Strptime(textTime, "%Y-%m-%d %H:%M")
 	}
-	return time.Time{}, nil
+	return time.Time{}, errors.New("no ETA")
 }
