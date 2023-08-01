@@ -38,7 +38,7 @@ func NewContainerTrackingRequest(request requests.IHttp, uaGenerator requests.IU
 	return &ContainerTrackingRequest{request: request, headersGenerator: newHeadersGenerator(uaGenerator)}
 }
 
-func (c *ContainerTrackingRequest) Send(ctx context.Context, number string) (*ContainerTrackingResponse, error) {
+func (c *ContainerTrackingRequest) Send(ctx context.Context, number string) (*TrackingResponse, error) {
 	const url = "http://dc.hxlines.com:8099/HX_WeChat/SearchDynamics"
 	headers := c.headersGenerator.Generate()
 	form := map[string]string{
@@ -54,7 +54,7 @@ func (c *ContainerTrackingRequest) Send(ctx context.Context, number string) (*Co
 		return nil, errors.New(fmt.Sprintf("get container info HuaXin line status code: %d", response.Status))
 	}
 
-	var t *ContainerTrackingResponse
+	var t *TrackingResponse
 
 	if err := json.Unmarshal(response.Body, &t); err != nil {
 		return nil, err

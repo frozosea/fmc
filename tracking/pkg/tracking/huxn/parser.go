@@ -6,22 +6,22 @@ import (
 	"strings"
 )
 
-type ContainerTrackerInfoAboutMovingParser struct {
+type InfoAboutMovingParser struct {
 	dt datetime.IDatetime
 }
 
-func NewContainerTrackerInfoAboutMovingParser(dt datetime.IDatetime) *ContainerTrackerInfoAboutMovingParser {
-	return &ContainerTrackerInfoAboutMovingParser{dt: dt}
+func NewInfoAboutMovingParser(dt datetime.IDatetime) *InfoAboutMovingParser {
+	return &InfoAboutMovingParser{dt: dt}
 }
 
-func (c *ContainerTrackerInfoAboutMovingParser) Parse(t *ContainerTrackingResponse) ([]*tracking.Event, error) {
+func (c *InfoAboutMovingParser) Parse(t *TrackingResponse) ([]*tracking.Event, error) {
 	var events []*tracking.Event
 
 	if len(t.ListDynamics) == 0 {
 		return nil, tracking.NewNotThisLineException()
 	}
 
-	for _, rawEvent := range ReverseContainerTrackingEvents(t.ListDynamics) {
+	for _, rawEvent := range ReverseTrackingEvents(t.ListDynamics) {
 		eventTime, err := c.dt.Strptime(rawEvent.DYNTIME, "%Y/%m/%d %H:%M:%S")
 		if err != nil {
 			continue
@@ -46,7 +46,7 @@ func NewContainerSizeParser() *ContainerSizeParser {
 	return &ContainerSizeParser{}
 }
 
-func (c *ContainerSizeParser) Parse(t *ContainerTrackingResponse) string {
+func (c *ContainerSizeParser) Parse(t *TrackingResponse) string {
 	if len(t.ListDynamics) == 0 {
 		return ""
 	}

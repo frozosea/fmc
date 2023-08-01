@@ -74,6 +74,7 @@ type Builder struct {
 	reelBillTracker     *reel.BillTracker
 	dnygBillTracker     *dnyg.BillTracker
 	akknBillTracker     *akkn.BillTracker
+	huxnBillTracker     *huxn.BillTracker
 	billMainTracker     *tracking.BillTracker
 	billTrackingService *tracking.BillTrackingService
 	billTrackingGrpc    *tracking.BillNumberTrackingGrpc
@@ -255,6 +256,12 @@ func (b *Builder) initBillTrackers() *Builder {
 	b.zhguBillTracker = zhgu.NewBillTracker(b.getArgsForTrackers())
 	b.reelBillTracker = reel.NewBillTracker(b.getArgsForTrackers())
 	b.dnygBillTracker = dnyg.NewBillTracker(b.getArgsForTrackers())
+	b.huxnBillTracker = huxn.NewBillTracker(b.getArgsForTrackers(), huaxin_schedule.NewService(
+		unlocodesParser.NewService(b.getArgsForTrackers().Request),
+		b.getArgsForTrackers().Request,
+		b.getArgsForTrackers().UserAgentGenerator,
+		b.getArgsForTrackers().Datetime,
+	))
 	return b
 }
 
@@ -267,6 +274,7 @@ func (b *Builder) initBillMainTracker() *Builder {
 		"ZHGU": b.zhguBillTracker,
 		"REEL": b.reelBillTracker,
 		"DNYG": b.dnygBillTracker,
+		"HUXN": b.huxnBillTracker,
 	})
 	return b
 }

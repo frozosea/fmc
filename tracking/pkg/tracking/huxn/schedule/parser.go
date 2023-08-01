@@ -16,7 +16,7 @@ type Parser struct {
 func NewParser(dt datetime.IDatetime) *Parser {
 	return &Parser{dt: dt}
 }
-func (s *Parser) getLastVoyage(data *huxn.ContainerTrackingResponse) string {
+func (s *Parser) getLastVoyage(data *huxn.TrackingResponse) string {
 	events := data.ListDynamics
 	if len(events) == 0 {
 		return ""
@@ -37,7 +37,7 @@ func (s *Parser) getLastVoyage(data *huxn.ContainerTrackingResponse) string {
 	return strings.Trim(rawVoyage, " ")
 }
 
-func (s *Parser) getLastPortUnlocode(response *huxn.ContainerTrackingResponse) (string, error) {
+func (s *Parser) getLastPortUnlocode(response *huxn.TrackingResponse) (string, error) {
 	if len(response.ListDynamics) == 0 {
 		return "", errors.New("no len")
 	}
@@ -52,7 +52,7 @@ func (s *Parser) getLastPortUnlocode(response *huxn.ContainerTrackingResponse) (
 	unlocode := strings.Replace(split[len(split)-1], ")", "", 1)
 	return strings.ToUpper(unlocode), nil
 }
-func (s *Parser) getETD(response *huxn.ContainerTrackingResponse) (time.Time, error) {
+func (s *Parser) getETD(response *huxn.TrackingResponse) (time.Time, error) {
 	if len(response.ListDynamics) == 0 {
 		return time.Time{}, errors.New("no len")
 	}
@@ -61,7 +61,7 @@ func (s *Parser) getETD(response *huxn.ContainerTrackingResponse) (time.Time, er
 	return s.dt.Strptime(rawTime, "%Y/%m/%d %H:%M:%S")
 }
 
-func (s *Parser) GetDataForScheduleRequest(response *huxn.ContainerTrackingResponse) (*DataForScheduleRequest, error) {
+func (s *Parser) GetDataForScheduleRequest(response *huxn.TrackingResponse) (*DataForScheduleRequest, error) {
 	voyage := s.getLastVoyage(response)
 	if voyage == "" {
 		return nil, errors.New("no voyage")

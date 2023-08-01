@@ -18,12 +18,12 @@ var httpMock = requests.NewRequestMockUp(200, func(r requests.RequestMockUp) ([]
 	return os.ReadFile("test_data/schedule.json")
 })
 
-func getTrackingResponse() *huxn.ContainerTrackingResponse {
+func getTrackingResponse() *huxn.TrackingResponse {
 	data, err := os.ReadFile("test_data/tracking_response.json")
 	if err != nil {
 		panic(err)
 	}
-	var t *huxn.ContainerTrackingResponse
+	var t *huxn.TrackingResponse
 
 	if err := json.Unmarshal(data, &t); err != nil {
 		panic(err)

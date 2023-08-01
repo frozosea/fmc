@@ -25,7 +25,7 @@ func NewService(unlocodesProvider unlocodesParser.IService, ihttp requests.IHttp
 	}
 }
 
-func (s *Service) GetETA(ctx context.Context, data *huxn.ContainerTrackingResponse) ([]*tracking.Event, error) {
+func (s *Service) GetETA(ctx context.Context, data *huxn.TrackingResponse) ([]*tracking.Event, error) {
 	dataForScheduleRequest, err := s.parser.GetDataForScheduleRequest(data)
 	if err != nil {
 		return nil, err

@@ -2,19 +2,17 @@ package huxn
 
 import (
 	"context"
-	"errors"
 	"golang_tracking/pkg/tracking"
-	"strings"
 )
 
 type IETAProvider interface {
-	GetETA(ctx context.Context, data *ContainerTrackingResponse) ([]*tracking.Event, error)
+	GetETA(ctx context.Context, data *TrackingResponse) ([]*tracking.Event, error)
 }
 
 type ContainerTracker struct {
 	etaParser             IETAProvider
 	request               *ContainerTrackingRequest
-	infoAboutMovingParser *ContainerTrackerInfoAboutMovingParser
+	infoAboutMovingParser *InfoAboutMovingParser
 	containerSizeParser   *ContainerSizeParser
 }
 
@@ -22,29 +20,21 @@ func NewContainerTracker(cfg *tracking.BaseConstructorArgumentsForTracker, etaPr
 	return &ContainerTracker{
 		etaParser:             etaProvider,
 		request:               NewContainerTrackingRequest(cfg.Request, cfg.UserAgentGenerator),
-		infoAboutMovingParser: NewContainerTrackerInfoAboutMovingParser(cfg.Datetime),
+		infoAboutMovingParser: NewInfoAboutMovingParser(cfg.Datetime),
 		containerSizeParser:   NewContainerSizeParser(),
 	}
 }
-func (c *ContainerTracker) checkContainerArrived(infoAboutMoving []*tracking.Event) bool {
-	for _, item := range infoAboutMoving {
-		if strings.EqualFold(item.OperationName, "Discharge from vessel full") {
-			return true
-		}
-	}
-	return false
-}
-func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
+func (c *ContainerTracker) trackOldSystem(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
 	data, err := c.request.Send(ctx, number)
 	if err != nil {
 		return nil, err
 	}
 	if len(data.ListDynamics) == 0 {
-		return nil, errors.New("huaxin length is zero")
+		return nil, tracking.NewNotThisLineException()
 	}
 	infoAboutMoving, _ := c.infoAboutMovingParser.Parse(data)
 
-	if !c.checkContainerArrived(infoAboutMoving) {
+	if !checkNumberArrived(infoAboutMoving) {
 		etaEvents, err := c.etaParser.GetETA(ctx, data)
 		if err == nil {
 			infoAboutMoving = append(infoAboutMoving, etaEvents...)
@@ -62,4 +52,15 @@ func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.
 		Scac:            "HUXN",
 		InfoAboutMoving: infoAboutMoving,
 	}, nil
+}
+func (c *ContainerTracker) trackNewSystem(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
+	return nil, tracking.NewNotThisLineException()
+}
+func (c *ContainerTracker) Track(ctx context.Context, number string) (*tracking.ContainerTrackingResponse, error) {
+	data, err := c.trackOldSystem(ctx, number)
+	if err == nil {
+		return data, nil
+	} else {
+		return c.trackNewSystem(ctx, number)
+	}
 }
