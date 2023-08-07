@@ -4,7 +4,7 @@
 - [Документация](#)
     * [Фундаментальные понятия о доменной области](#--1)
         + [Терминология](#-1)
-    * [Stack of technology](#stack-of-technology)
+    * [Stack](#stack-of-technology)
     * [Как это работает?](#--2)
         + [Базовые структуры данных](#--3)
             - [Container tracking response](#container-tracking-response)
@@ -107,7 +107,7 @@
 
 Терминологния так же доступна по [ссылке](https://tagankapremiumservice.ru/novosti/free-out.html).
 
-## Stack of technology
+## Stack
 
 - Database: `postgres`
 - Cache: `redis`
